@@ -18,7 +18,7 @@
 
 # Libraries
 *.lib
-*.a
+#*.a
 *.la
 *.lo
 
@@ -50,3 +50,17 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+
+/MX2_AP_EB/
+!/MX2_AP_EB/*.cscope_file_list
+!/MX2_AP_EB/*.depend
+!/MX2_AP_EB/*.ebp
+
+/MX2_AudioPlayer/*.cproject
+/MX2_AudioPlayer/*.mxproject
+/MX2_AudioPlayer/*.project
+/MX2_AudioPlayer/*.xml
+/MX2_AudioPlayer/.settings
+/MX2_AudioPlayer/.vscode
+/SI/
