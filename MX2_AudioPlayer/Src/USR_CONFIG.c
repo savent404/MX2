@@ -14,7 +14,15 @@ const PARA_STATIC_t STATIC_USR = {
   .vol_warning = 2110,   //3.4v / 2 = 1.7v
   .vol_poweroff = 1923, //3.1v / 2
   .vol_chargecomplete = 4096, //4.18v / 2
-
+  .filelimits = {
+    .bank_max = 2,
+    .trigger_in_max = 10,
+    .trigger_out_max = 10,
+    .trigger_B_max = 10,
+    .trigger_C_max = 10,
+    .trigger_D_max = 10,
+    .trigger_E_max = 10,
+  }
 };
 
 #if _USE_LFN //使用Heap模式， 为Fatfs长文件名模式提供一个缓存
@@ -113,6 +121,10 @@ uint8_t usr_config_init(void)
     {
       DEBUG(0, "Can't Close Dir:%d", f_err);
       return 1;
+    }
+    /**< Bank number limits */
+    if (STATIC_USR.filelimits.bank_max < USR.nBank) {
+      USR.nBank = STATIC_USR.filelimits.bank_max;
     }
   }
   USR.humsize = (HumSize_t*)pvPortMalloc(sizeof(HumSize_t)*USR.nBank);
@@ -246,6 +258,34 @@ static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t 
   while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0') {
       trigger_cnt += 1;
   } f_closedir(&dir);
+
+  // Number limits
+  switch (triggerid) {
+    case 0:
+      if (trigger_cnt > TRIGGER_MAX_NUM(B))
+        trigger_cnt = TRIGGER_MAX_NUM(B);
+      break;
+    case 1:
+      if (trigger_cnt > TRIGGER_MAX_NUM(C))
+        trigger_cnt = TRIGGER_MAX_NUM(C);
+      break;
+    case 2:
+      if (trigger_cnt > TRIGGER_MAX_NUM(D))
+        trigger_cnt = TRIGGER_MAX_NUM(D);
+      break;
+    case 3:
+      if (trigger_cnt > TRIGGER_MAX_NUM(E))
+        trigger_cnt = TRIGGER_MAX_NUM(E);
+      break;
+    case 4:
+      if (trigger_cnt > TRIGGER_MAX_NUM(in))
+        trigger_cnt = TRIGGER_MAX_NUM(in);
+      break;
+    case 5:
+      if (trigger_cnt > TRIGGER_MAX_NUM(out))
+        trigger_cnt = TRIGGER_MAX_NUM(out);
+      break;
+  }
 
   switch (triggerid) {
     case 0: (pt->triggerB + Bank - 1)->number = trigger_cnt;
