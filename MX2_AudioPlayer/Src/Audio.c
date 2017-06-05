@@ -5,6 +5,7 @@
 #include "ff.h"
 #include "DEBUG.h"
 #include "main.h"
+#include "path.h"
 /* Variables -----------------------------------------------------------------*/
 extern osThreadId defaultTaskHandle;
 extern osThreadId DACTaskHandle;

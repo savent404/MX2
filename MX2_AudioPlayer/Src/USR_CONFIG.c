@@ -6,7 +6,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "AF.h"
-
+#include "path.h"
 PARA_DYNAMIC_t USR;
 
 const PARA_STATIC_t STATIC_USR = {
