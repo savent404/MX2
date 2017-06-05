@@ -14,6 +14,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "USR_CONFIG.h"
+
 typedef enum _led_message {
     LED_Trigger_EXIT = 0x00,
     LED_NoTrigger = 0x01,
