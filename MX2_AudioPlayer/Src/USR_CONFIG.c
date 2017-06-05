@@ -308,19 +308,20 @@ static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t 
             break;
   }
 
-  trigger_cnt = 0;
+
   if ((f_err = f_opendir(&dir, path)) != FR_OK) {
     DEBUG(0, "Open Bank%d Trigger%c Error:%d", Bank, triggerid+'B', f_err);
     return 1;
   }
-  while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0') {
+  uint16_t i = 0;
+  while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0' && ++i <= trigger_cnt) {
     switch (triggerid) {
-      case 0: strcpy((pt->triggerB + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
-      case 1: strcpy((pt->triggerC + Bank - 1)->path_arry+ (30)*trigger_cnt++, info.fname); break;
-      case 2: strcpy((pt->triggerD + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
-      case 3: strcpy((pt->triggerE + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
-      case 4: strcpy((pt->triggerIn + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
-      case 5: strcpy((pt->triggerOut + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
+      case 0: strcpy((pt->triggerB + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
+      case 1: strcpy((pt->triggerC + Bank - 1)->path_arry+ (30)*(i - 1), info.fname); break;
+      case 2: strcpy((pt->triggerD + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
+      case 3: strcpy((pt->triggerE + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
+      case 4: strcpy((pt->triggerIn + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
+      case 5: strcpy((pt->triggerOut + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
     }
   } f_closedir(&dir);
   return 0;
