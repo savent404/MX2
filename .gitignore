@@ -51,11 +51,10 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+/MX2_AP_EB/MX2_AP_EB.cscope_file_list
+/MX2_AP_EB/bin/
+/MX2_AP_EB/obj/
 
-/MX2_AP_EB/
-!/MX2_AP_EB/*.cscope_file_list
-!/MX2_AP_EB/*.depend
-!/MX2_AP_EB/*.ebp
 
 /MX2_AudioPlayer/*.cproject
 /MX2_AudioPlayer/*.mxproject
