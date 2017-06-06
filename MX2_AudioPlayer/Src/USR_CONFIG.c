@@ -425,14 +425,14 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       if (res > USR.nBank) continue;
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf,buf+1,buf+2,buf+3);
       pt->BankColor[res*4 + 0 - 4] = *(uint32_t*)(buf+0);
-      pt->BankColor[res*4 + 1 - 4] = *(uint32_t*)(buf+1);
+      pt->BankColor[res*4 + 1 - 4] = *(uint32_t*)(buf+2);
       continue;
     } else if (res < 0) {
       uint16_t buf[4];
       if (-res > USR.nBank) continue;
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf,buf+1,buf+2,buf+3);
       pt->BankColor[-1*res*4 + 2 - 4] = *(uint32_t*)(buf+0);
-      pt->BankColor[-1*res*4 + 3 - 4] = *(uint32_t*)(buf+1);
+      pt->BankColor[-1*res*4 + 3 - 4] = *(uint32_t*)(buf+2);
       continue;
     }
     for (res = 0; res < sizeof(name_string)/10; res++) {
