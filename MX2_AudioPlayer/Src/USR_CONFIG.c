@@ -14,7 +14,15 @@ const PARA_STATIC_t STATIC_USR = {
   .vol_warning = 2110,   //3.4v / 2 = 1.7v
   .vol_poweroff = 1923, //3.1v / 2
   .vol_chargecomplete = 4096, //4.18v / 2
-
+  .filelimits = {
+    .bank_max = 2,
+    .trigger_in_max = 10,
+    .trigger_out_max = 10,
+    .trigger_B_max = 10,
+    .trigger_C_max = 10,
+    .trigger_D_max = 10,
+    .trigger_E_max = 10,
+  }
 };
 
 #if _USE_LFN //使用Heap模式， 为Fatfs长文件名模式提供一个缓存
@@ -113,6 +121,10 @@ uint8_t usr_config_init(void)
     {
       DEBUG(0, "Can't Close Dir:%d", f_err);
       return 1;
+    }
+    /**< Bank number limits */
+    if (STATIC_USR.filelimits.bank_max < USR.nBank) {
+      USR.nBank = STATIC_USR.filelimits.bank_max;
     }
   }
   USR.humsize = (HumSize_t*)pvPortMalloc(sizeof(HumSize_t)*USR.nBank);
@@ -247,6 +259,34 @@ static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t 
       trigger_cnt += 1;
   } f_closedir(&dir);
 
+  // Number limits
+  switch (triggerid) {
+    case 0:
+      if (trigger_cnt > TRIGGER_MAX_NUM(B))
+        trigger_cnt = TRIGGER_MAX_NUM(B);
+      break;
+    case 1:
+      if (trigger_cnt > TRIGGER_MAX_NUM(C))
+        trigger_cnt = TRIGGER_MAX_NUM(C);
+      break;
+    case 2:
+      if (trigger_cnt > TRIGGER_MAX_NUM(D))
+        trigger_cnt = TRIGGER_MAX_NUM(D);
+      break;
+    case 3:
+      if (trigger_cnt > TRIGGER_MAX_NUM(E))
+        trigger_cnt = TRIGGER_MAX_NUM(E);
+      break;
+    case 4:
+      if (trigger_cnt > TRIGGER_MAX_NUM(in))
+        trigger_cnt = TRIGGER_MAX_NUM(in);
+      break;
+    case 5:
+      if (trigger_cnt > TRIGGER_MAX_NUM(out))
+        trigger_cnt = TRIGGER_MAX_NUM(out);
+      break;
+  }
+
   switch (triggerid) {
     case 0: (pt->triggerB + Bank - 1)->number = trigger_cnt;
             (pt->triggerB + Bank - 1)->path_arry = (char*)pvPortMalloc(sizeof(char)*30*trigger_cnt);
@@ -268,19 +308,20 @@ static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t 
             break;
   }
 
-  trigger_cnt = 0;
+
   if ((f_err = f_opendir(&dir, path)) != FR_OK) {
     DEBUG(0, "Open Bank%d Trigger%c Error:%d", Bank, triggerid+'B', f_err);
     return 1;
   }
-  while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0') {
+  uint16_t i = 0;
+  while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0' && ++i <= trigger_cnt) {
     switch (triggerid) {
-      case 0: strcpy((pt->triggerB + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
-      case 1: strcpy((pt->triggerC + Bank - 1)->path_arry+ (30)*trigger_cnt++, info.fname); break;
-      case 2: strcpy((pt->triggerD + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
-      case 3: strcpy((pt->triggerE + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
-      case 4: strcpy((pt->triggerIn + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
-      case 5: strcpy((pt->triggerOut + Bank - 1)->path_arry + (30)*trigger_cnt++, info.fname); break;
+      case 0: strcpy((pt->triggerB + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
+      case 1: strcpy((pt->triggerC + Bank - 1)->path_arry+ (30)*(i - 1), info.fname); break;
+      case 2: strcpy((pt->triggerD + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
+      case 3: strcpy((pt->triggerE + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
+      case 4: strcpy((pt->triggerIn + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
+      case 5: strcpy((pt->triggerOut + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
     }
   } f_closedir(&dir);
   return 0;

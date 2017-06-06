@@ -62,10 +62,21 @@ typedef struct _accent_structure {
   uint8_t *arry;
 } Accent_t;
 
+typedef struct _file_number_limits {
+  uint16_t bank_max;
+  uint16_t trigger_in_max;
+  uint16_t trigger_out_max;
+  uint16_t trigger_B_max;
+  uint16_t trigger_C_max;
+  uint16_t trigger_D_max;
+  uint16_t trigger_E_max;
+} File_NumberLimits_t;
+
 typedef struct _usr_static_parameter {
   uint16_t vol_warning;
   uint16_t vol_poweroff;
   uint16_t vol_chargecomplete;
+  File_NumberLimits_t filelimits;
 } PARA_STATIC_t;
 
 typedef struct _usr_trigger_path {
@@ -103,5 +114,7 @@ typedef struct _usr_dynamic_parameter {
 extern PARA_DYNAMIC_t USR;
 extern const PARA_STATIC_t STATIC_USR;
 uint8_t usr_config_init(void);
+
+#define TRIGGER_MAX_NUM(x) (STATIC_USR.filelimits.trigger_##x##_max)
 
 #endif
