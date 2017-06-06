@@ -118,7 +118,7 @@ void StartDefaultTask(void const * argument)
   // Power voltage check
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&power_adc_val, 1);
   osDelay(100);
-  
+
   // 低电压检测：忽略静音标志发送2次低电压报警
   if (power_adc_val <= STATIC_USR.vol_warning)
   {
@@ -234,7 +234,7 @@ void StartDefaultTask(void const * argument)
           USR.sys_status = System_Ready;
           LED_Start_Trigger(LED_Trigger_Stop);
           Audio_Play_Start(Audio_intoReady);
-          USR.BankColor = 0; //每次退出都将清零Colorswitch的值
+          USR.bank_color   = 0; //每次退出都将清零Colorswitch的值
         }
       }
 
