@@ -118,7 +118,7 @@ uint8_t usr_config_init(void)
   USR.humsize = (HumSize_t*)pvPortMalloc(sizeof(HumSize_t)*USR.nBank);
   USR.config = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t));
   USR._config = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t)*USR.nBank);
-  USR.BankColor = (uint32_t*)pvPortMalloc(sizeof(uint32_t)*2*USR.nBank);
+  USR.BankColor = (uint32_t*)pvPortMalloc(sizeof(uint32_t)*4*USR.nBank);
   USR.triggerB = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
   USR.triggerC = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
   USR.triggerD = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
@@ -425,14 +425,14 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       if (res > USR.nBank) continue;
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf,buf+1,buf+2,buf+3);
       pt->BankColor[res*4 + 0 - 4] = *(uint32_t*)(buf+0);
-      pt->BankColor[res*4 + 1 - 4] = *(uint32_t*)(buf+1);
+      pt->BankColor[res*4 + 1 - 4] = *(uint32_t*)(buf+2);
       continue;
     } else if (res < 0) {
       uint16_t buf[4];
       if (-res > USR.nBank) continue;
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf,buf+1,buf+2,buf+3);
       pt->BankColor[-1*res*4 + 2 - 4] = *(uint32_t*)(buf+0);
-      pt->BankColor[-1*res*4 + 3 - 4] = *(uint32_t*)(buf+1);
+      pt->BankColor[-1*res*4 + 3 - 4] = *(uint32_t*)(buf+2);
       continue;
     }
     for (res = 0; res < sizeof(name_string)/10; res++) {

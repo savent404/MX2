@@ -331,17 +331,24 @@ static LED_Message_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms,
     uint32_t step_num = total_ms / step_ms;
     uint32_t delay = delay_ms / step_ms;
 
-    if (step <= delay) return LED_NoTrigger;
+    if (step <= delay || step >= delay + step_num) return LED_NoTrigger;
     // Get a function like y = 1 - cos(x)
     float d = sin(pi_div2 * (float)(step - delay)/(float)step_num);
     //float d = 1 - cos(pi_div2 * (float)(step - delay) / (float)step_num);
     //float d = 0.1;
+    float l = (BankColor[0] + BankColor[1] + BankColor[2] + BankColor[3]) / 4.0 / 1024.0;
+    float a = LBright / 1024.0;
+    if (l > a) l = a / l;
+    else l = 1;
+
+    d *= l;
 
     switch (channel) {
-        case 0: LED_RGB_Limited(BankColor[0]*d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4)); break;
-        case 1: LED_RGB_Limited(CHx_VAL(1), BankColor[1]*d, CHx_VAL(3), CHx_VAL(4)); break;
-        case 2: LED_RGB_Limited(CHx_VAL(1), CHx_VAL(2), BankColor[2]*d, CHx_VAL(4)); break;
-        case 3: LED_RGB_Limited(CHx_VAL(1), CHx_VAL(2), CHx_VAL(3), BankColor[3]*d); break;
+
+        case 0: LED_RGB_Output(BankColor[0]*d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4)); break;
+        case 1: LED_RGB_Output(CHx_VAL(1), BankColor[1]*d, CHx_VAL(3), CHx_VAL(4)); break;
+        case 2: LED_RGB_Output(CHx_VAL(1), CHx_VAL(2), BankColor[2]*d, CHx_VAL(4)); break;
+        case 3: LED_RGB_Output(CHx_VAL(1), CHx_VAL(2), CHx_VAL(3), BankColor[3]*d); break;
     }
     //LED_RGB_Limited(BankColor[0]*d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4));
     // osEvent evt = osMessageGet(LED_CMDHandle, step_ms);
