@@ -118,7 +118,7 @@ uint8_t usr_config_init(void)
   USR.humsize = (HumSize_t*)pvPortMalloc(sizeof(HumSize_t)*USR.nBank);
   USR.config = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t));
   USR._config = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t)*USR.nBank);
-  USR.BankColor = (uint32_t*)pvPortMalloc(sizeof(uint32_t)*2*USR.nBank);
+  USR.BankColor = (uint32_t*)pvPortMalloc(sizeof(uint32_t)*4*USR.nBank);
   USR.triggerB = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
   USR.triggerC = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
   USR.triggerD = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
