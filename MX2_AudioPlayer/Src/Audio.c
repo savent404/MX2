@@ -44,7 +44,7 @@ __STATIC_INLINE void pcm_convert2(int16_t*, int16_t*);
 
 int8_t Audio_Play_Start(Audio_ID_t id)
 {
-  if (!USR.mute_flag) {
+  if (!USR.mute_flag && USR.config->Vol != 0) {
     DEBUG(4, "[Message] Put AudioID:%02x", id);
     while (osMessagePut(DAC_CMDHandle, id, osWaitForever) != osOK);
   }
