@@ -90,10 +90,11 @@ void StartDefaultTask(void const * argument)
   __ASM("BKPT 0");
   #endif
 
-  // 当配置音频音量为0时，默认与静音启动相同操作
-  if (USR.config->Vol == 0) {
-      USR.mute_flag = 1;
-  }
+  /**< 由于多Bank可能不同的Vol值，初始化时判断Vol为0不再是安全的操作 */
+  // // 当配置音频音量为0时，默认与静音启动相同操作
+  // if (USR.config->Vol == 0) {
+  //     USR.mute_flag = 1;
+  // }
 
   // 初始化结构体中的参数
   USR.sys_status = System_Restart;
