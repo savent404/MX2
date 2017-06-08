@@ -181,6 +181,7 @@ void StartDefaultTask(void const * argument)
             DEBUG(5, "System going to running");
             auto_intoready_cnt = 0;
             USR.sys_status = System_Running;
+            LED_Bank_Update(&USR); //确保每次进入运行态时LED配色都是最新的
             Audio_Play_Start(Audio_intoRunning);
             LED_Start_Trigger(LED_Trigger_Start);
           }
@@ -236,6 +237,7 @@ void StartDefaultTask(void const * argument)
           LED_Start_Trigger(LED_Trigger_Stop);
           Audio_Play_Start(Audio_intoReady);
           USR.bank_color   = 0; //每次退出都将清零Colorswitch的值
+          LED_Bank_Update(&USR);  //更新当前LED配色
         }
       }
 
