@@ -266,7 +266,9 @@ static void Play_Trigger_wav(uint8_t triggerid)
   }
   else if (triggerid == 3)
   {
-    Play_simple_wav(WAV_COLORSWITCH);
+    // Change Colorswitch.wav as mixture mode, pri:4
+    // Play_simple_wav(WAV_COLORSWITCH);
+    Play_RunningLOOPwithTrigger(WAV_COLORSWITCH, 4);
   }
 }
 static void Play_TriggerE(void)

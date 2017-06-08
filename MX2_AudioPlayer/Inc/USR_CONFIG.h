@@ -54,6 +54,8 @@ typedef struct _usr_config_structure {
   uint16_t  CW;
 
   uint16_t ChDelay[4];
+
+  uint16_t T_Breath; //LMode 呼吸延时
 } USR_CONFIG_t;
 
 typedef struct _accent_structure {

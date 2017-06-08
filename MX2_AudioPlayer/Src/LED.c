@@ -29,7 +29,7 @@ const uint32_t T_nSpark = 150;      //Trigger nSpark维持时长
 const uint32_t T_nSparkGap = 150;   //Trigger nSpark间隔时长
 const uint32_t nSparkCount = 2;     //Trigger nSpark翻转次数
 const uint32_t T_Electricl = 100;   //Trigger Electricl 间隔时长
-const uint32_t T_BREATH = 2000;     //LMode呼吸灯周期
+uint16_t T_BREATH;     //LMode呼吸灯周期
 /* Protype Function ***********************************/
 static LED_Trigger_Method_t LED_Trigger_Method(LED_Message_t trigger_bcd);
 static void LED_RGB_Output(uint16_t r, uint16_t g, uint16_t b, uint16_t l);
@@ -79,6 +79,7 @@ void LED_Bank_Update(PARA_DYNAMIC_t *pt)
     LBright = pt->config->Lbright;
     LDeep = pt->config->Ldeep;
     LMode = pt->config->LMode;
+    T_BREATH = pt->config->T_Breath;
 }
 
 /**

@@ -15,7 +15,7 @@ const PARA_STATIC_t STATIC_USR = {
   .vol_poweroff = 1923, //3.1v / 2
   .vol_chargecomplete = 4096, //4.18v / 2
   .filelimits = {
-    .bank_max = 2,
+    .bank_max = 3,
     .trigger_in_max = 10,
     .trigger_out_max = 10,
     .trigger_B_max = 10,
@@ -47,7 +47,7 @@ static const char name_string[][10] = {
     /**< Position:18~23 */
     "TLon", "TLoff", "Lbright", "Ldeep", "LMode", "CH1_Delay",
     /**< Position:24~29 */
-    "CH2_Delay", "CH3_Delay", "CH4_Delay", "Unknow", "Unknow", "Unknow",
+    "CH2_Delay", "CH3_Delay", "CH4_Delay", "T_Breath", "Unknow", "Unknow",
     /**< Position:30~35 */
     "Unknow", "MD", "MT", "CD", "CT", "CL",
     /**< Position:36 */
@@ -61,6 +61,15 @@ static const char name_string[][10] = {
  *
  */
 static uint8_t get_humsize(PARA_DYNAMIC_t* pt);
+
+/** \brief 设定一些默认配置参数
+ *
+ * \param pt 用户动态配置参数，在动态获取之前需设定一些默认参数
+ * \return None
+ *
+ */
+static void set_config(PARA_DYNAMIC_t *pt);
+
 /** \brief 得到用户配置文件(config.txt)中的信息
  *
  * \param pt 用户动态配置参数，但初始化后不会更改
@@ -150,6 +159,7 @@ uint8_t usr_config_init(void)
     DEBUG(0, "Can't find %s:%d", PATH_CONFIG, f_err);
     return 1;
   }
+  set_config(&USR);
   f_err = get_config(&USR, file);
   if (f_err) return f_err;
   if ((f_err = f_close(file)) != FR_OK)
@@ -453,6 +463,10 @@ static int GetMultiPara(char *line)
   }
   return res;
 }
+static void set_config(PARA_DYNAMIC_t *pt)
+{
+  pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
+}
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
 {
   char sbuffer[50];
@@ -507,8 +521,8 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       case 24: sscanf(spt,"%*[^=]=%hd", (pt->config->ChDelay+1));break;
       case 25: sscanf(spt,"%*[^=]=%hd", (pt->config->ChDelay+2));break;
       case 26: sscanf(spt,"%*[^=]=%hd", (pt->config->ChDelay+3));break;
-      /*case 27: sscanf(spt,"%*[^=]=%d", &(pt->config->Sl));break;
-      case 28: sscanf(spt,"%*[^=]=%d", &(pt->config->Sh));break;
+      case 27: sscanf(spt,"%*[^=]=%hd", &(pt->config->T_Breath));break;
+      /*case 28: sscanf(spt,"%*[^=]=%d", &(pt->config->Sh));break;
       case 29: sscanf(spt,"%*[^=]=%d", &(pt->config->Cl));break;
       case 30: sscanf(spt,"%*[^=]=%d", &(pt->config->Ch));break;*/
       case 31: sscanf(spt,"%*[^=]=%hd", &(pt->config->MD));break;
