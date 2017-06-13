@@ -16,8 +16,8 @@ extern osMessageQId LED_CMDHandle;
 extern osSemaphoreId DAC_Complete_FlagHandle;
 
 ///循环音文件偏移量(运行态每次循环只会读取一部分音频)
-__IO static UINT hum_offset = 0;
-__IO static UINT trigger_offset = 0;
+static UINT hum_offset = 0;
+static UINT trigger_offset = 0;
 static char trigger_path[50];
 __IO static char pri_now = 0x0F;
 
@@ -36,7 +36,7 @@ static void Play_TriggerE_END(void);
 static void Play_RunningLOOP(void);
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri);
 static void play_a_buffer(uint16_t*);
-
+__STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek);
 __STATIC_INLINE void pcm_convert(int16_t*);
 __STATIC_INLINE void pcm_convert2(int16_t*, int16_t*);
 
@@ -314,79 +314,25 @@ static void Play_RunningLOOP(void)
 {
   FIL file;
   char path[30];
-  FRESULT f_err;
-  UINT f_cnt;
 
   sprintf(path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
 
-  if (hum_offset + AUDIO_FIFO_SIZE*sizeof(uint16_t) > USR.humsize[USR.bank_now])
-  {
-    hum_offset = 0;
-  }
-
-  taskENTER_CRITICAL();
-  if ((f_err = f_open(&file, path, FA_READ)) != FR_OK)
-  {
-    DEBUG(0, "[Hum.wav] can't open[%s]:%d", path, f_err);
-    taskEXIT_CRITICAL();
-    return;
-  }
-  if ((f_err = f_lseek(&file, sizeof(struct _AF_PCM) + sizeof(struct _AF_PCM) + hum_offset)) != FR_OK)
-  {
-    DEBUG(0, "lseek hum.wav Error:%d", f_err);
-    f_close(&file);
-    taskEXIT_CRITICAL();
-    return;
-  }
-  if ((f_err = f_read(&file, dac_buffer[dac_buffer_pos], AUDIO_FIFO_SIZE*sizeof(uint16_t), &f_cnt)) != FR_OK && f_cnt != 0)
-  {
-    DEBUG(0, "Read hum.wave Error:%d", f_err);
-    f_close(&file);
-    taskEXIT_CRITICAL();
-    return;
-  }
-  f_close(&file);
+  read_hum_again:
+  if (read_a_buffer(&file, path, dac_buffer[dac_buffer_pos], &hum_offset) != FR_OK) return;
+  if (!hum_offset) goto read_hum_again;
   if (pri_now < 0x0F)
   {
-    if ((f_err = f_open(&file, trigger_path, FA_READ)) != FR_OK)
+    read_trigger_again:
+    if (read_a_buffer(&file, trigger_path, trigger_buffer, &trigger_offset) != FR_OK) return;
+    if (!trigger_offset)
     {
-      DEBUG(0, "trigger:%s can't open:%d", path, f_err);
-      taskEXIT_CRITICAL();
-      return;
+      if (pri_now == 0) goto read_trigger_again;
+      trigger_path[0] = '\0';
+      trigger_offset = 0;
+      pri_now = 0x0F;
     }
-    if (file.fsize < sizeof(struct _AF_PCM) + sizeof(struct _AF_PCM) + trigger_offset + AUDIO_FIFO_SIZE*sizeof(uint16_t))
-    {
-      if (pri_now) {
-        trigger_path[0] = '\0';
-        trigger_offset = 0;
-        pri_now = 0x0F;
-        f_close(&file);
-        goto outoftrigger;
-      } else { //TriggerE
-        trigger_offset = 0;
-      }
-    }
-
-    if ((f_err = f_lseek(&file, sizeof(struct _AF_PCM) + sizeof(struct _AF_PCM) + trigger_offset)) != FR_OK && f_cnt != 0)
-    {
-      DEBUG(1, "lseek trigger:%s Error:%d", trigger_path, f_err);
-      f_close(&file);
-      taskEXIT_CRITICAL();
-      return;
-    }
-    if ((f_err = f_read(&file, trigger_buffer, AUDIO_FIFO_SIZE*sizeof(uint16_t), &f_cnt)) != FR_OK && f_cnt != 0)
-    {
-      DEBUG(1, "Read tirrger:%s Error:%d", trigger_path, f_err);
-      f_close(&file);
-      taskEXIT_CRITICAL();
-      return;
-    }
-    f_close(&file);
-    trigger_offset += AUDIO_FIFO_SIZE*sizeof(uint16_t);
   }
 
-outoftrigger:
-  taskEXIT_CRITICAL();
   if (pri_now == 0x0F)
     pcm_convert((int16_t*)dac_buffer[dac_buffer_pos]);
   else {
@@ -395,7 +341,6 @@ outoftrigger:
   play_a_buffer(dac_buffer[dac_buffer_pos]);
   dac_buffer_pos += 1;
   dac_buffer_pos %= AUDIO_FIFO_NUM;
-  hum_offset += f_cnt;
 }
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
 {
@@ -457,7 +402,53 @@ __STATIC_INLINE void pcm_convert2(int16_t* pt1, int16_t* pt2)
   }
 }
 
+/**
+ * @brief  读取一个缓存块
+ * @NOTE   当读取到文件结尾处不能填满一个缓存块，将seek指向变量置0，不做读取操作退出
+ */
+__STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek)
+{
+  FRESULT f_err;
+  UINT f_cnt;
 
+  taskENTER_CRITICAL();
+  if ((f_err = f_open(fpt, path, FA_READ)) != FR_OK)
+  {
+    DEBUG(0, "Can't open file:%s:%d", path, f_err);
+    taskEXIT_CRITICAL();
+    return f_err;
+  }
+
+  if (*seek + AUDIO_FIFO_SIZE*sizeof(uint16_t) > fpt->fsize - sizeof(struct _AF_PCM) - sizeof(struct _AF_DATA))
+  {
+    *seek = 0;
+    f_close(fpt);
+    taskEXIT_CRITICAL();
+    return FR_OK;
+  }
+
+  if ((f_err = f_lseek(fpt, *seek + sizeof(struct _AF_PCM) + sizeof(struct _AF_DATA))) != FR_OK)
+  {
+    DEBUG(0, "Can't seek file:%s:%d", path, f_err);
+    f_close(fpt);
+    taskEXIT_CRITICAL();
+    return f_err;
+  }
+
+  if ((f_err = f_read(fpt, buffer, sizeof(uint16_t)*AUDIO_FIFO_SIZE, &f_cnt)) != FR_OK)
+  {
+    DEBUG(0, "Can't read file:%s:%c", path, f_err);
+    f_close(fpt);
+    taskEXIT_CRITICAL();
+    return f_err;
+  }
+
+  *seek += f_cnt;
+
+  f_close(fpt);
+  taskEXIT_CRITICAL();
+  return FR_OK;
+}
 /**
  * @Brief Play a buffer
  */
