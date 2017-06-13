@@ -728,7 +728,7 @@
 	"stm32f1xx_hal_pcd.h"
 	"stm32f1xx_hal_hcd.h"
 
-1496634397 e:\github_clone\mx2\mx2_audioplayer\inc\main.h
+1496727828 e:\github_clone\mx2\mx2_audioplayer\inc\main.h
 
 1496634396 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_rcc.h
 	"stm32f1xx_hal_def.h"
@@ -1143,7 +1143,7 @@
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1496634397 source:e:\github_clone\mx2\mx2_audioplayer\src\audio.c
+1497340046 source:e:\github_clone\mx2\mx2_audioplayer\src\audio.c
 	"Audio.h"
 	"USR_CONFIG.h"
 	"dac.h"
@@ -1158,7 +1158,7 @@
 	"FreeRTOS.h"
 	"cmsis_os.h"
 
-1496641808 e:\github_clone\mx2\mx2_audioplayer\inc\usr_config.h
+1496901899 e:\github_clone\mx2\mx2_audioplayer\inc\usr_config.h
 	<stdio.h>
 	<stdint.h>
 
@@ -1208,13 +1208,13 @@
 1496634397 source:e:\github_clone\mx2\mx2_audioplayer\src\gpio.c
 	"gpio.h"
 
-1496634397 source:e:\github_clone\mx2\mx2_audioplayer\src\led.c
+1496901899 source:e:\github_clone\mx2\mx2_audioplayer\src\led.c
 	"LED.h"
 	"USR_CONFIG.h"
 	"DEBUG.h"
 	"tim.h"
 
-1496634397 e:\github_clone\mx2\mx2_audioplayer\inc\led.h
+1496727828 e:\github_clone\mx2\mx2_audioplayer\inc\led.h
 	<math.h>
 	<stdlib.h>
 	<stdio.h>
@@ -1263,7 +1263,7 @@
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1496634397 source:e:\github_clone\mx2\mx2_audioplayer\src\maintask.c
+1496901858 source:e:\github_clone\mx2\mx2_audioplayer\src\maintask.c
 	<stdio.h>
 	<string.h>
 	<stdlib.h>
@@ -1315,9 +1315,9 @@
 1496634397 source:e:\github_clone\mx2\mx2_audioplayer\src\tim.c
 	"tim.h"
 
-1496634397 source:e:\github_clone\mx2\mx2_audioplayer\startup\startup_stm32f103xe.s
+1497080129 source:e:\github_clone\mx2\mx2_audioplayer\startup\startup_stm32f103xe.s
 
-1496645335 source:e:\github_clone\mx2\mx2_audioplayer\src\usr_config.c
+1496901899 source:e:\github_clone\mx2\mx2_audioplayer\src\usr_config.c
 	"USR_CONFIG.h"
 	"ff.h"
 	"freeRTOS.h"
