@@ -47,7 +47,7 @@ static const char name_string[][10] = {
     /**< Position:18~23 */
     "TLon", "TLoff", "Lbright", "Ldeep", "LMode", "CH1_Delay",
     /**< Position:24~29 */
-    "CH2_Delay", "CH3_Delay", "CH4_Delay", "T_Breath", "Unknow", "Unknow",
+    "CH2_Delay", "CH3_Delay", "CH4_Delay", "T_Breath", "Out_Delay", "Unknow",
     /**< Position:30~35 */
     "Unknow", "MD", "MT", "CD", "CT", "CL",
     /**< Position:36 */
@@ -466,6 +466,7 @@ static int GetMultiPara(char *line)
 static void set_config(PARA_DYNAMIC_t *pt)
 {
   pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
+  pt->config->Out_Delay = 200; //Out 循环音延时200ms
 }
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
 {
@@ -522,8 +523,8 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       case 25: sscanf(spt,"%*[^=]=%hd", (pt->config->ChDelay+2));break;
       case 26: sscanf(spt,"%*[^=]=%hd", (pt->config->ChDelay+3));break;
       case 27: sscanf(spt,"%*[^=]=%hd", &(pt->config->T_Breath));break;
-      /*case 28: sscanf(spt,"%*[^=]=%d", &(pt->config->Sh));break;
-      case 29: sscanf(spt,"%*[^=]=%d", &(pt->config->Cl));break;
+      case 28: sscanf(spt,"%*[^=]=%hd", &(pt->config->Out_Delay));break;
+      /*case 29: sscanf(spt,"%*[^=]=%d", &(pt->config->Cl));break;
       case 30: sscanf(spt,"%*[^=]=%d", &(pt->config->Ch));break;*/
       case 31: sscanf(spt,"%*[^=]=%hd", &(pt->config->MD));break;
       case 32: sscanf(spt,"%*[^=]=%hd", &(pt->config->MT));break;
