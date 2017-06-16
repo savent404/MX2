@@ -6,6 +6,18 @@
 #include "DEBUG.h"
 #include "main.h"
 #include "path.h"
+/** #001 说明  ：为提升音质、消除循环中由于重复的open/close操作造成的间断感--------*/
+/**  
+ [1] 为避免运行态时重复open/close以及seek音频文件，添加静态文件变量"file_1"、"file_2"
+     来保存文件信息避免重复的open/close操作
+ [2] 由于运行态实行中断机制，为保证被中断的音频文件关闭，需在Play_RunningLOOPwithTrigger
+     中添加中断发生时关闭文件的操作
+ [3] read_a_buffer通过当前文件偏移量seek来判断是否open/close文件
+     当seek为0时代表需要执行open操作
+     当seek到文件结尾时代表需要执行close操作
+ [4] 为保证从运行态到待机态再到运行态时变量处于初始化状态，从运行态到待机态的时候关闭
+     "file_1"以及"file_2"，将hum以及trigger的偏移量置0
+ */
 /* Variables -----------------------------------------------------------------*/
 extern osThreadId defaultTaskHandle;
 extern osThreadId DACTaskHandle;
@@ -26,6 +38,8 @@ __IO static float audio_convert_f = 1;
 static uint16_t dac_buffer[AUDIO_FIFO_NUM][AUDIO_FIFO_SIZE];
 static uint16_t trigger_buffer[AUDIO_FIFO_SIZE];
 __IO static uint16_t dac_buffer_pos = 0;
+// 详见 #001 [1]
+static FIL file_1, file_2;
 /* Function prototypes -------------------------------------------------------*/
 static void Play_simple_wav(char *filepath);
 static void Play_IN_wav(void);
@@ -159,6 +173,11 @@ void Wav_Task(void const * argument)
 					break;
 				case Audio_intoRunning:
 				  pri_now = 0x0F;
+          // 详见 #001 [4]
+				  f_close(&file_1);
+				  f_close(&file_2);
+				  hum_offset = 0;
+				  trigger_offset = 0;
 					Play_OUT_wav();
 					break;
 
@@ -339,18 +358,17 @@ static void Play_OUT_wav(void)
 }
 static void Play_RunningLOOP(void)
 {
-  FIL file;
   char path[30];
 
   sprintf(path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
 
   read_hum_again:
-  if (read_a_buffer(&file, path, dac_buffer[dac_buffer_pos], &hum_offset) != FR_OK) return;
+  if (read_a_buffer(&file_1, path, dac_buffer[dac_buffer_pos], &hum_offset) != FR_OK) return;
   if (!hum_offset) goto read_hum_again;
   if (pri_now < 0x0F)
   {
     read_trigger_again:
-    if (read_a_buffer(&file, trigger_path, trigger_buffer, &trigger_offset) != FR_OK) return;
+    if (read_a_buffer(&file_2, trigger_path, trigger_buffer, &trigger_offset) != FR_OK) return;
     if (!trigger_offset)
     {
       if (pri_now == 0) goto read_trigger_again;
@@ -373,6 +391,8 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
 {
   if (pri_now < pri) return;
   else {
+    // 详见 #001 [2]
+    if (pri_now != 0x0F) { f_close(&file_2); }
     strcpy(trigger_path, triggerpath);
     pri_now = pri;
     trigger_offset = 0;
@@ -439,7 +459,8 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer,
   UINT f_cnt;
 
   taskENTER_CRITICAL();
-  if ((f_err = f_open(fpt, path, FA_READ)) != FR_OK)
+  // 详见 #001 [3]
+  if (*seek == 0 && (f_err = f_open(fpt, path, FA_READ)) != FR_OK)
   {
     DEBUG(0, "Can't open file:%s:%d", path, f_err);
     taskEXIT_CRITICAL();
@@ -472,7 +493,8 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer,
 
   *seek += f_cnt;
 
-  f_close(fpt);
+  // 详见 #001 [3]
+  // f_close(fpt);
   taskEXIT_CRITICAL();
   return FR_OK;
 }
