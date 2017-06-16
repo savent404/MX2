@@ -13,7 +13,7 @@ const PARA_STATIC_t STATIC_USR = {
 
   .vol_warning = 2110,   //3.4v / 2 = 1.7v
   .vol_poweroff = 1923, //3.1v / 2
-  .vol_chargecomplete = 4096, //4.18v / 2
+  .vol_chargecomplete = 2594, //4.18v / 2
   .filelimits = {
     .bank_max = 3,
     .trigger_in_max = 10,
