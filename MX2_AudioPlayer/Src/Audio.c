@@ -325,7 +325,6 @@ static void Play_OUT_wav(void)
   char path[50];
   char hum_path[50];
 
-  FIL file;
   UINT point = convert_ms2filesize(USR.config->Out_Delay);
   sprintf(hum_path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
   sprintf(path, "0:/Bank%d/"TRIGGER(OUT)"/", USR.bank_now+1);
@@ -334,11 +333,11 @@ static void Play_OUT_wav(void)
   // Play_simple_wav(path);
   while (1) {
     // 读取Out
-    if (read_a_buffer(&file, path, dac_buffer[dac_buffer_pos], &trigger_offset) != FR_OK) continue;
+    if (read_a_buffer(&file_2, path, dac_buffer[dac_buffer_pos], &trigger_offset) != FR_OK) continue;
     // 达到Out_Delay延时读取hum.wav
     if (trigger_offset >= point) {
       read_hum_again_1:
-      if (read_a_buffer(&file, hum_path, trigger_buffer, &hum_offset) != FR_OK) continue;
+      if (read_a_buffer(&file_1, hum_path, trigger_buffer, &hum_offset) != FR_OK) continue;
       if (!hum_offset) goto read_hum_again_1;
     }
     // 播放一个缓冲块
