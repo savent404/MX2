@@ -7,7 +7,7 @@
 #include "main.h"
 #include "path.h"
 /** #001 说明  ：为提升音质、消除循环中由于重复的open/close操作造成的间断感--------*/
-/**  
+/**
  [1] 为避免运行态时重复open/close以及seek音频文件，添加静态文件变量"file_1"、"file_2"
      来保存文件信息避免重复的open/close操作
  [2] 由于运行态实行中断机制，为保证被中断的音频文件关闭，需在Play_RunningLOOPwithTrigger
@@ -303,6 +303,7 @@ static void Play_TriggerE(void)
 }
 static void Play_TriggerE_END(void)
 {
+  f_close(&file_2);
   trigger_path[0] = 0;
   trigger_offset = 0;
   pri_now = 0x0F;
