@@ -112,12 +112,12 @@ GETMESSAGE:
                 uint8_t cnt = 0;
                 for (cnt = 0; cnt < 3; cnt++) if (max_step < USR.config->ChDelay[cnt+1]/step_ms)
                     max_step = USR.config->ChDelay[cnt+1]/step_ms;
-                while (step < max_step + 800 / step_ms)
+                while (step < max_step + USR.config->TLon / step_ms)
                 {
-                    LED_RGB_SoftRise_Single(0, USR.config->ChDelay[0], step, step_ms, 800);
-                    LED_RGB_SoftRise_Single(1, USR.config->ChDelay[1], step, step_ms, 800);
-                    LED_RGB_SoftRise_Single(2, USR.config->ChDelay[2], step, step_ms, 800);
-                    LED_RGB_SoftRise_Single(3, USR.config->ChDelay[3], step, step_ms, 800);
+                    LED_RGB_SoftRise_Single(0, USR.config->ChDelay[0], step, step_ms, USR.config->TLon);
+                    LED_RGB_SoftRise_Single(1, USR.config->ChDelay[1], step, step_ms, USR.config->TLon);
+                    LED_RGB_SoftRise_Single(2, USR.config->ChDelay[2], step, step_ms, USR.config->TLon);
+                    LED_RGB_SoftRise_Single(3, USR.config->ChDelay[3], step, step_ms, USR.config->TLon);
                     osDelay(step_ms);
                     step += 1;
                 }
@@ -127,9 +127,9 @@ GETMESSAGE:
 
             case LED_Trigger_Stop: {
                 uint32_t step = 0;
-                while (step < 80)
+                while (step < USR.config->TLoff/10)
                 {
-                    LED_RGB_SoftDown(step++, 10, 800);
+                    LED_RGB_SoftDown(step++, 10, USR.config->TLoff);
                 }
             } break;
 
