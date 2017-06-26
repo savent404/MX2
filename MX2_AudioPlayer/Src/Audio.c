@@ -7,7 +7,7 @@
 #include "main.h"
 #include "path.h"
 /** #001 说明  ：为提升音质、消除循环中由于重复的open/close操作造成的间断感--------*/
-/**  
+/**
  [1] 为避免运行态时重复open/close以及seek音频文件，添加静态文件变量"file_1"、"file_2"
      来保存文件信息避免重复的open/close操作
  [2] 由于运行态实行中断机制，为保证被中断的音频文件关闭，需在Play_RunningLOOPwithTrigger
@@ -53,8 +53,8 @@ static void play_a_buffer(uint16_t*);
 __STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek);
 __STATIC_INLINE void pcm_convert(int16_t*);
 __STATIC_INLINE void pcm_convert2(int16_t*, int16_t*);
-
-
+#define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
+#define convert_ms2filesize(ms)   (ms * sizeof(uint16_t) * 22)
 
 int8_t Audio_Play_Start(Audio_ID_t id)
 {
@@ -303,6 +303,7 @@ static void Play_TriggerE(void)
 }
 static void Play_TriggerE_END(void)
 {
+  f_close(&file_2);
   trigger_path[0] = 0;
   trigger_offset = 0;
   pri_now = 0x0F;
@@ -323,11 +324,37 @@ static void Play_OUT_wav(void)
   uint8_t cnt = (USR.triggerOut + USR.bank_now)->number;
   uint8_t num = HAL_GetTick() % cnt;
   char path[50];
+  char hum_path[50];
 
+  UINT point = convert_ms2filesize(USR.config->Out_Delay);
+  sprintf(hum_path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
   sprintf(path, "0:/Bank%d/"TRIGGER(OUT)"/", USR.bank_now+1);
   strcat(path, (USR.triggerOut + USR.bank_now)->path_arry + 30*num);
 
-  Play_simple_wav(path);
+  // Play_simple_wav(path);
+  while (1) {
+    // 读取Out
+    if (read_a_buffer(&file_2, path, dac_buffer[dac_buffer_pos], &trigger_offset) != FR_OK) continue;
+    // 达到Out_Delay延时读取hum.wav
+    if (trigger_offset >= point) {
+      read_hum_again_1:
+      if (read_a_buffer(&file_1, hum_path, trigger_buffer, &hum_offset) != FR_OK) continue;
+      if (!hum_offset) goto read_hum_again_1;
+    }
+    // 播放一个缓冲块
+    if (trigger_offset >= point) {
+      pcm_convert2((int16_t*)dac_buffer[dac_buffer_pos], (int16_t*)trigger_buffer);
+    }
+    else {
+      pcm_convert((int16_t*)dac_buffer[dac_buffer_pos]);
+    }
+    play_a_buffer(dac_buffer[dac_buffer_pos]);
+    dac_buffer_pos += 1;
+    dac_buffer_pos %= AUDIO_FIFO_NUM;
+    // Out播放完毕则退出
+    if (!trigger_offset) break;
+  }
+  trigger_offset = 0;
 }
 static void Play_RunningLOOP(void)
 {
