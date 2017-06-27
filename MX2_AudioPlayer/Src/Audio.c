@@ -6,6 +6,18 @@
 #include "DEBUG.h"
 #include "main.h"
 #include "path.h"
+/** #001 说明  ：为提升音质、消除循环中由于重复的open/close操作造成的间断感--------*/
+/**
+ [1] 为避免运行态时重复open/close以及seek音频文件，添加静态文件变量"file_1"、"file_2"
+     来保存文件信息避免重复的open/close操作
+ [2] 由于运行态实行中断机制，为保证被中断的音频文件关闭，需在Play_RunningLOOPwithTrigger
+     中添加中断发生时关闭文件的操作
+ [3] read_a_buffer通过当前文件偏移量seek来判断是否open/close文件
+     当seek为0时代表需要执行open操作
+     当seek到文件结尾时代表需要执行close操作
+ [4] 为保证从运行态到待机态再到运行态时变量处于初始化状态，从运行态到待机态的时候关闭
+     "file_1"以及"file_2"，将hum以及trigger的偏移量置0
+ */
 /* Variables -----------------------------------------------------------------*/
 extern osThreadId defaultTaskHandle;
 extern osThreadId DACTaskHandle;
@@ -16,8 +28,8 @@ extern osMessageQId LED_CMDHandle;
 extern osSemaphoreId DAC_Complete_FlagHandle;
 
 ///循环音文件偏移量(运行态每次循环只会读取一部分音频)
-__IO static UINT hum_offset = 0;
-__IO static UINT trigger_offset = 0;
+static UINT hum_offset = 0;
+static UINT trigger_offset = 0;
 static char trigger_path[50];
 __IO static char pri_now = 0x0F;
 
@@ -26,6 +38,8 @@ __IO static float audio_convert_f = 1;
 static uint16_t dac_buffer[AUDIO_FIFO_NUM][AUDIO_FIFO_SIZE];
 static uint16_t trigger_buffer[AUDIO_FIFO_SIZE];
 __IO static uint16_t dac_buffer_pos = 0;
+// 详见 #001 [1]
+static FIL file_1, file_2;
 /* Function prototypes -------------------------------------------------------*/
 static void Play_simple_wav(char *filepath);
 static void Play_IN_wav(void);
@@ -36,11 +50,11 @@ static void Play_TriggerE_END(void);
 static void Play_RunningLOOP(void);
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri);
 static void play_a_buffer(uint16_t*);
-
+__STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek);
 __STATIC_INLINE void pcm_convert(int16_t*);
 __STATIC_INLINE void pcm_convert2(int16_t*, int16_t*);
-
-
+#define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
+#define convert_ms2filesize(ms)   (ms * sizeof(uint16_t) * 22)
 
 int8_t Audio_Play_Start(Audio_ID_t id)
 {
@@ -159,6 +173,11 @@ void Wav_Task(void const * argument)
 					break;
 				case Audio_intoRunning:
 				  pri_now = 0x0F;
+          // 详见 #001 [4]
+				  f_close(&file_1);
+				  f_close(&file_2);
+				  hum_offset = 0;
+				  trigger_offset = 0;
 					Play_OUT_wav();
 					break;
 
@@ -284,6 +303,7 @@ static void Play_TriggerE(void)
 }
 static void Play_TriggerE_END(void)
 {
+  f_close(&file_2);
   trigger_path[0] = 0;
   trigger_offset = 0;
   pri_now = 0x0F;
@@ -304,89 +324,60 @@ static void Play_OUT_wav(void)
   uint8_t cnt = (USR.triggerOut + USR.bank_now)->number;
   uint8_t num = HAL_GetTick() % cnt;
   char path[50];
+  char hum_path[50];
 
+  UINT point = convert_ms2filesize(USR.config->Out_Delay);
+  sprintf(hum_path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
   sprintf(path, "0:/Bank%d/"TRIGGER(OUT)"/", USR.bank_now+1);
   strcat(path, (USR.triggerOut + USR.bank_now)->path_arry + 30*num);
 
-  Play_simple_wav(path);
+  // Play_simple_wav(path);
+  while (1) {
+    // 读取Out
+    if (read_a_buffer(&file_2, path, dac_buffer[dac_buffer_pos], &trigger_offset) != FR_OK) continue;
+    // 达到Out_Delay延时读取hum.wav
+    if (trigger_offset >= point) {
+      read_hum_again_1:
+      if (read_a_buffer(&file_1, hum_path, trigger_buffer, &hum_offset) != FR_OK) continue;
+      if (!hum_offset) goto read_hum_again_1;
+    }
+    // 播放一个缓冲块
+    if (trigger_offset >= point) {
+      pcm_convert2((int16_t*)dac_buffer[dac_buffer_pos], (int16_t*)trigger_buffer);
+    }
+    else {
+      pcm_convert((int16_t*)dac_buffer[dac_buffer_pos]);
+    }
+    play_a_buffer(dac_buffer[dac_buffer_pos]);
+    dac_buffer_pos += 1;
+    dac_buffer_pos %= AUDIO_FIFO_NUM;
+    // Out播放完毕则退出
+    if (!trigger_offset) break;
+  }
+  trigger_offset = 0;
 }
 static void Play_RunningLOOP(void)
 {
-  FIL file;
   char path[30];
-  FRESULT f_err;
-  UINT f_cnt;
 
   sprintf(path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
 
-  if (hum_offset + AUDIO_FIFO_SIZE*sizeof(uint16_t) > USR.humsize[USR.bank_now])
-  {
-    hum_offset = 0;
-  }
-
-  taskENTER_CRITICAL();
-  if ((f_err = f_open(&file, path, FA_READ)) != FR_OK)
-  {
-    DEBUG(0, "[Hum.wav] can't open[%s]:%d", path, f_err);
-    taskEXIT_CRITICAL();
-    return;
-  }
-  if ((f_err = f_lseek(&file, sizeof(struct _AF_PCM) + sizeof(struct _AF_PCM) + hum_offset)) != FR_OK)
-  {
-    DEBUG(0, "lseek hum.wav Error:%d", f_err);
-    f_close(&file);
-    taskEXIT_CRITICAL();
-    return;
-  }
-  if ((f_err = f_read(&file, dac_buffer[dac_buffer_pos], AUDIO_FIFO_SIZE*sizeof(uint16_t), &f_cnt)) != FR_OK && f_cnt != 0)
-  {
-    DEBUG(0, "Read hum.wave Error:%d", f_err);
-    f_close(&file);
-    taskEXIT_CRITICAL();
-    return;
-  }
-  f_close(&file);
+  read_hum_again:
+  if (read_a_buffer(&file_1, path, dac_buffer[dac_buffer_pos], &hum_offset) != FR_OK) return;
+  if (!hum_offset) goto read_hum_again;
   if (pri_now < 0x0F)
   {
-    if ((f_err = f_open(&file, trigger_path, FA_READ)) != FR_OK)
+    read_trigger_again:
+    if (read_a_buffer(&file_2, trigger_path, trigger_buffer, &trigger_offset) != FR_OK) return;
+    if (!trigger_offset)
     {
-      DEBUG(0, "trigger:%s can't open:%d", path, f_err);
-      taskEXIT_CRITICAL();
-      return;
+      if (pri_now == 0) goto read_trigger_again;
+      trigger_path[0] = '\0';
+      trigger_offset = 0;
+      pri_now = 0x0F;
     }
-    if (file.fsize < sizeof(struct _AF_PCM) + sizeof(struct _AF_PCM) + trigger_offset + AUDIO_FIFO_SIZE*sizeof(uint16_t))
-    {
-      if (pri_now) {
-        trigger_path[0] = '\0';
-        trigger_offset = 0;
-        pri_now = 0x0F;
-        f_close(&file);
-        goto outoftrigger;
-      } else { //TriggerE
-        trigger_offset = 0;
-      }
-    }
-
-    if ((f_err = f_lseek(&file, sizeof(struct _AF_PCM) + sizeof(struct _AF_PCM) + trigger_offset)) != FR_OK && f_cnt != 0)
-    {
-      DEBUG(1, "lseek trigger:%s Error:%d", trigger_path, f_err);
-      f_close(&file);
-      taskEXIT_CRITICAL();
-      return;
-    }
-    if ((f_err = f_read(&file, trigger_buffer, AUDIO_FIFO_SIZE*sizeof(uint16_t), &f_cnt)) != FR_OK && f_cnt != 0)
-    {
-      DEBUG(1, "Read tirrger:%s Error:%d", trigger_path, f_err);
-      f_close(&file);
-      taskEXIT_CRITICAL();
-      return;
-    }
-    f_close(&file);
-    trigger_offset += AUDIO_FIFO_SIZE*sizeof(uint16_t);
   }
 
-outoftrigger:
-  taskEXIT_CRITICAL();
   if (pri_now == 0x0F)
     pcm_convert((int16_t*)dac_buffer[dac_buffer_pos]);
   else {
@@ -395,12 +386,13 @@ outoftrigger:
   play_a_buffer(dac_buffer[dac_buffer_pos]);
   dac_buffer_pos += 1;
   dac_buffer_pos %= AUDIO_FIFO_NUM;
-  hum_offset += f_cnt;
 }
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
 {
   if (pri_now < pri) return;
   else {
+    // 详见 #001 [2]
+    if (pri_now != 0x0F) { f_close(&file_2); }
     strcpy(trigger_path, triggerpath);
     pri_now = pri;
     trigger_offset = 0;
@@ -457,7 +449,55 @@ __STATIC_INLINE void pcm_convert2(int16_t* pt1, int16_t* pt2)
   }
 }
 
+/**
+ * @brief  读取一个缓存块
+ * @NOTE   当读取到文件结尾处不能填满一个缓存块，将seek指向变量置0，不做读取操作退出
+ */
+__STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek)
+{
+  FRESULT f_err;
+  UINT f_cnt;
 
+  taskENTER_CRITICAL();
+  // 详见 #001 [3]
+  if (*seek == 0 && (f_err = f_open(fpt, path, FA_READ)) != FR_OK)
+  {
+    DEBUG(0, "Can't open file:%s:%d", path, f_err);
+    taskEXIT_CRITICAL();
+    return f_err;
+  }
+
+  if (*seek + AUDIO_FIFO_SIZE*sizeof(uint16_t) > fpt->fsize - sizeof(struct _AF_PCM) - sizeof(struct _AF_DATA))
+  {
+    *seek = 0;
+    f_close(fpt);
+    taskEXIT_CRITICAL();
+    return FR_OK;
+  }
+
+  if ((f_err = f_lseek(fpt, *seek + sizeof(struct _AF_PCM) + sizeof(struct _AF_DATA))) != FR_OK)
+  {
+    DEBUG(0, "Can't seek file:%s:%d", path, f_err);
+    f_close(fpt);
+    taskEXIT_CRITICAL();
+    return f_err;
+  }
+
+  if ((f_err = f_read(fpt, buffer, sizeof(uint16_t)*AUDIO_FIFO_SIZE, &f_cnt)) != FR_OK)
+  {
+    DEBUG(0, "Can't read file:%s:%c", path, f_err);
+    f_close(fpt);
+    taskEXIT_CRITICAL();
+    return f_err;
+  }
+
+  *seek += f_cnt;
+
+  // 详见 #001 [3]
+  // f_close(fpt);
+  taskEXIT_CRITICAL();
+  return FR_OK;
+}
 /**
  * @Brief Play a buffer
  */

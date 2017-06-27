@@ -22,11 +22,12 @@
 					<Add option="-mfloat-abi=soft" />
 					<Add option="-std=c99" />
 					<Add option="-ffunction-sections" />
-					<Add option="-O0" />
+					<Add option="-Os" />
 					<Add option="-g3" />
 					<Add symbol="STM32F103xE" />
 					<Add symbol="USE_HAL_DRIVER" />
 					<Add symbol="ARM_MATH_CM3" />
+					<Add symbol="USE_DEBUG" />
 				</Compiler>
 				<Assembler>
 					<Add option="--gdwarf-2" />
