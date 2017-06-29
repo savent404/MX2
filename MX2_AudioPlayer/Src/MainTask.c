@@ -294,6 +294,7 @@ void StartDefaultTask(void const * argument)
       Audio_Play_Start(Audio_Recharge);
       osDelay(2000);
       HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+      while (1);
     }
     /// 充电检测
     if (HAL_GPIO_ReadPin(Charge_Check_GPIO_Port, Charge_Check_Pin) == GPIO_PIN_SET)
