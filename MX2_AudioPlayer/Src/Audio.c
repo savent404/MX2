@@ -192,6 +192,9 @@ void Wav_Task(void const * argument)
         case Audio_Erro:
 					Play_simple_wav(WAV_ERROR);
 					break;
+        case Audio_Recharge:
+          Play_simple_wav(WAV_RECHARGE);
+          break;
       }
     }
   }
