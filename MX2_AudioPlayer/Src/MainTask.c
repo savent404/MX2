@@ -418,19 +418,19 @@ static void filesystem_init(void)
 static void beep_error(void)
 {
   /// SD card can't initialize, so make a warning wave by soft.
-  uint16_t *pt = (uint16_t*)pvPortMalloc(sizeof(uint16_t)*1024*15);
+  uint16_t *pt = (uint16_t*)pvPortMalloc(sizeof(uint16_t)*1024);
   uint16_t *ppt = pt;
-  uint16_t cnt = 1024*15;
+  uint16_t cnt = 1024;
   HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_SET);
   while (cnt--)
   {
     *pt = ((float)(sin(cnt*3.1514926/20)/2)*0x1000) + 0x1000/2;
     pt += 1;
   }
-  cnt = 1;
+  cnt = 10;
   while (cnt--) {
-    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)ppt, 1024*20, DAC_ALIGN_12B_R);
-    osDelay(1000);
+    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)ppt, 1024, DAC_ALIGN_12B_R);
+    osDelay(50);
   }
   HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
   while (1);
