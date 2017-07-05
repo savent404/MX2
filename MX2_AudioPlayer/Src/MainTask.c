@@ -58,6 +58,7 @@ static uint8_t ask_trigger(uint8_t triggerid);
 static void ticktock_trigger(void);
 static void move_detected(void);
 static uint8_t auto_off(uint32_t* ready_cnt, uint32_t *poweroff_cnt);
+static uint16_t GetVoltage(void);
 extern void MX_FATFS_Init(void);
 #define AUTO_CNT_CLEAR()  auto_intoready_cnt = 0, auto_poweroff_cnt = 0
 
@@ -117,8 +118,16 @@ void StartDefaultTask(void const * argument)
   }
 
   // Power voltage check
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&power_adc_val, 1);
-  osDelay(100);
+  // HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&power_adc_val, 1);
+  HAL_ADC_Start(&hadc1);
+  {
+    uint32_t cnt = 10;
+    while (cnt--)
+    {
+      power_adc_val = GetVoltage();
+      osDelay(10);
+    }
+  }
 
   // 低电压检测：忽略静音标志发送2次低电压报警
   if (power_adc_val <= STATIC_USR.vol_warning)
@@ -286,6 +295,8 @@ void StartDefaultTask(void const * argument)
         Audio_Play_Start(Audio_Charging);
       }
     }
+
+    power_adc_val = GetVoltage();
     /// 电源管理部分
     if (power_adc_val <= STATIC_USR.vol_poweroff)
     {
@@ -491,4 +502,21 @@ static void ticktock_trigger(void) {
       frozen_trigger_cnt[i] -= LOOP_DELAY;
     }
   }
+}
+
+static uint16_t GetVoltage(void)
+{
+  static uint16_t val = 0;
+  uint16_t buf = HAL_ADC_GetValue(&hadc1);
+  int16_t div = buf - val;
+
+  if ((div > 0 ? div : -div) >= 50)
+  {
+    val += div / 3;
+  }
+  else {
+    val = buf;
+  }
+
+  return val;
 }
