@@ -58,7 +58,7 @@ __STATIC_INLINE void pcm_convert2(int16_t*, int16_t*);
 #define RESET_Buffer()            f_close(&file_1); \
 				                          f_close(&file_2); \
 				                          hum_offset = 0;   \
-				                          trigger_offset = 0;\
+				                          trigger_offset = 0;
 int8_t Audio_Play_Start(Audio_ID_t id)
 {
   if (!USR.mute_flag && USR.config->Vol != 0) {
