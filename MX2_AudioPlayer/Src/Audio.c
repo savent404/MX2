@@ -55,7 +55,10 @@ __STATIC_INLINE void pcm_convert(int16_t*);
 __STATIC_INLINE void pcm_convert2(int16_t*, int16_t*);
 #define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
 #define convert_ms2filesize(ms)   (ms * sizeof(uint16_t) * 22)
-
+#define RESET_Buffer()            f_close(&file_1); \
+				                          f_close(&file_2); \
+				                          hum_offset = 0;   \
+				                          trigger_offset = 0;
 int8_t Audio_Play_Start(Audio_ID_t id)
 {
   if (!USR.mute_flag && USR.config->Vol != 0) {
@@ -174,10 +177,7 @@ void Wav_Task(void const * argument)
 				case Audio_intoRunning:
 				  pri_now = 0x0F;
           // 详见 #001 [4]
-				  f_close(&file_1);
-				  f_close(&file_2);
-				  hum_offset = 0;
-				  trigger_offset = 0;
+				  RESET_Buffer();
 					Play_OUT_wav();
 					break;
 
@@ -185,6 +185,7 @@ void Wav_Task(void const * argument)
     }
     else if (USR.sys_status == System_Close)
     {
+      RESET_Buffer();
       switch(evt.value.v) {
         case Audio_PowerOff:
 					Play_simple_wav(WAV_POWEROFF);
