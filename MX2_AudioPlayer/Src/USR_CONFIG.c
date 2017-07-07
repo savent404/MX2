@@ -11,7 +11,7 @@ PARA_DYNAMIC_t USR;
 
 const PARA_STATIC_t STATIC_USR = {
 
-  .vol_warning = 2321,   //3.4v / 2 = 1.7v
+  .vol_warning = 2240,   //3.28v / 2 = 1.64v
   .vol_poweroff = 2116, //3.1v / 2 = 1.55v
   .vol_chargecomplete = 2853, //4.18v / 2 = 2.09v
   .filelimits = {
