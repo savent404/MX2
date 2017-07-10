@@ -187,6 +187,7 @@ void StartDefaultTask(void const * argument)
           }
           else
           {
+            if (!Audio_IsSimplePlayIsReady()) { osDelay(10); continue;}
             DEBUG(5, "System going to running");
             auto_intoready_cnt = 0;
             USR.sys_status = System_Running;

@@ -34,6 +34,8 @@ extern osSemaphoreId DAC_Complete_FlagHandle;
 #define PRI_TRIGGER_NULL        0x0F
 #define PRI_TRIGGER_COLORSWITCH 5
 #define PRI(x) PRI_TRIGGER_##x
+
+static uint8_t SIMPLE_PLAY_READY = 1;
 ///循环音文件偏移量(运行态每次循环只会读取一部分音频)
 static UINT hum_offset = 0;
 static UINT trigger_offset = 0;
@@ -219,9 +221,11 @@ static void Play_simple_wav(char *filepath)
   UINT f_cnt;
   struct _AF_DATA data;
   taskENTER_CRITICAL();
+  SIMPLE_PLAY_READY = 0;
   if((f_err = f_open(&file, filepath, FA_READ)) != FR_OK)
   {
     DEBUG(1, "Open wave file:%s Error:%d", filepath, f_err);
+    SIMPLE_PLAY_READY = 1;
     taskEXIT_CRITICAL();
     return;
   }
@@ -233,6 +237,7 @@ static void Play_simple_wav(char *filepath)
   {
     DEBUG(1, "Read wave file:%s Error:%d", filepath, f_err);
     f_close(&file);
+    SIMPLE_PLAY_READY = 1;
     taskEXIT_CRITICAL();
     return;
   }
@@ -246,6 +251,7 @@ static void Play_simple_wav(char *filepath)
     {
       DEBUG(1, "Read wave file:%s Error:%d", filepath, f_err);
       f_close(&file);
+      SIMPLE_PLAY_READY = 1;
       return;
     }
     taskEXIT_CRITICAL();
@@ -258,6 +264,7 @@ static void Play_simple_wav(char *filepath)
     data.size -= f_cnt;
   }
   f_close(&file);
+  SIMPLE_PLAY_READY = 1;
 }
 
 /**
@@ -522,4 +529,9 @@ void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
   osSemaphoreRelease(DAC_Complete_FlagHandle);
   USR.audio_busy = 0;
+}
+
+uint8_t Audio_IsSimplePlayIsReady(void)
+{
+  return SIMPLE_PLAY_READY;
 }
