@@ -32,7 +32,7 @@ extern osSemaphoreId DAC_Complete_FlagHandle;
 #define PRI_TRIGGER_D           4
 #define PRI_TRIGGER_E           1
 #define PRI_TRIGGER_NULL        0x0F
-#define PRI_TRIGGER_COLORSWITCH 0
+#define PRI_TRIGGER_COLORSWITCH 5
 #define PRI(x) PRI_TRIGGER_##x
 ///循环音文件偏移量(运行态每次循环只会读取一部分音频)
 static UINT hum_offset = 0;
