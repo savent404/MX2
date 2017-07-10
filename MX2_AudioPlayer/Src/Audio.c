@@ -27,11 +27,18 @@ extern osMessageQId DAC_CMDHandle;
 extern osMessageQId LED_CMDHandle;
 extern osSemaphoreId DAC_Complete_FlagHandle;
 
+#define PRI_TRIGGER_B           2
+#define PRI_TRIGGER_C           3
+#define PRI_TRIGGER_D           4
+#define PRI_TRIGGER_E           1
+#define PRI_TRIGGER_NULL        0x0F
+#define PRI_TRIGGER_COLORSWITCH 0
+#define PRI(x) PRI_TRIGGER_##x
 ///循环音文件偏移量(运行态每次循环只会读取一部分音频)
 static UINT hum_offset = 0;
 static UINT trigger_offset = 0;
 static char trigger_path[50];
-__IO static char pri_now = 0x0F;
+__IO static char pri_now = PRI(NULL);
 
 __IO static float audio_convert_f = 1;
 
@@ -175,7 +182,7 @@ void Wav_Task(void const * argument)
 					Play_Trigger_wav(3);
 					break;
 				case Audio_intoRunning:
-				  pri_now = 0x0F;
+				  pri_now = PRI(NULL);
           // 详见 #001 [4]
 				  RESET_Buffer();
 					Play_OUT_wav();
@@ -269,9 +276,9 @@ static void Play_Trigger_wav(uint8_t triggerid)
     uint8_t pri;
     switch (triggerid)
     {
-      case 0: cnt = (USR.triggerB + USR.bank_now)->number; pri = 3;break;
-      case 1: cnt = (USR.triggerC + USR.bank_now)->number; pri = 2;break;
-      case 2: cnt = (USR.triggerD + USR.bank_now)->number; pri = 1;break;
+      case 0: cnt = (USR.triggerB + USR.bank_now)->number; pri = PRI(B);break;
+      case 1: cnt = (USR.triggerC + USR.bank_now)->number; pri = PRI(C);break;
+      case 2: cnt = (USR.triggerD + USR.bank_now)->number; pri = PRI(D);break;
     } num = HAL_GetTick() % cnt;
     //sprintf(path, "0:/Bank%d/Trigger_%c/", USR.bank_now + 1, triggerid + 'B');
     switch (triggerid) {
@@ -289,16 +296,16 @@ static void Play_Trigger_wav(uint8_t triggerid)
   }
   else if (triggerid == 3)
   {
-    // Change Colorswitch.wav as mixture mode, pri:4
+    // Change Colorswitch.wav as mixture mode, pri:0
     // Play_simple_wav(WAV_COLORSWITCH);
-    Play_RunningLOOPwithTrigger(WAV_COLORSWITCH, 4);
+    Play_RunningLOOPwithTrigger(WAV_COLORSWITCH, PRI(COLORSWITCH));
   }
 }
 static void Play_TriggerE(void)
 {
   char path[50];
   uint8_t cnt = (USR.triggerE + USR.bank_now)->number;
-  uint8_t pri = 0;
+  uint8_t pri = PRI(E);
   uint8_t num = HAL_GetTick() % cnt;
   sprintf(path, "0:/Bank%d/"TRIGGER(E)"/", USR.bank_now + 1);
   strcat(path, (USR.triggerE + USR.bank_now)->path_arry + 30*num);
@@ -310,7 +317,7 @@ static void Play_TriggerE_END(void)
   f_close(&file_2);
   trigger_path[0] = 0;
   trigger_offset = 0;
-  pri_now = 0x0F;
+  pri_now = PRI(NULL);
 }
 static void Play_IN_wav(void)
 {
@@ -369,20 +376,20 @@ static void Play_RunningLOOP(void)
   read_hum_again:
   if (read_a_buffer(&file_1, path, dac_buffer[dac_buffer_pos], &hum_offset) != FR_OK) return;
   if (!hum_offset) goto read_hum_again;
-  if (pri_now < 0x0F)
+  if (pri_now < PRI(NULL))
   {
     read_trigger_again:
     if (read_a_buffer(&file_2, trigger_path, trigger_buffer, &trigger_offset) != FR_OK) return;
     if (!trigger_offset)
     {
-      if (pri_now == 0) goto read_trigger_again;
+      if (pri_now == PRI(E)) goto read_trigger_again;
       trigger_path[0] = '\0';
       trigger_offset = 0;
-      pri_now = 0x0F;
+      pri_now = PRI(NULL);
     }
   }
 
-  if (pri_now == 0x0F)
+  if (pri_now == PRI(NULL))
     pcm_convert((int16_t*)dac_buffer[dac_buffer_pos]);
   else {
     pcm_convert2((int16_t*)dac_buffer[dac_buffer_pos], (int16_t*)trigger_buffer);
@@ -396,7 +403,7 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
   if (pri_now < pri) return;
   else {
     // 详见 #001 [2]
-    if (pri_now != 0x0F) { f_close(&file_2); }
+    if (pri_now != PRI(NULL)) { f_close(&file_2); }
     strcpy(trigger_path, triggerpath);
     pri_now = pri;
     trigger_offset = 0;
