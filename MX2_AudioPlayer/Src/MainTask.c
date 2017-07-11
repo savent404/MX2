@@ -311,9 +311,11 @@ void StartDefaultTask(void const * argument)
     /// 充电检测
     if (HAL_GPIO_ReadPin(Charge_Check_GPIO_Port, Charge_Check_Pin) == GPIO_PIN_SET)
     {
+      /*
       if (USR.sys_status == System_Charged || USR.sys_status == System_Charging) {
 
-      } else if (STATIC_USR.vol_chargecomplete < power_adc_val){
+      } else */
+      if (STATIC_USR.vol_chargecomplete < power_adc_val){
         USR.sys_status = System_Charged;
       } else {
         USR.sys_status = System_Charging;
