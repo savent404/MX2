@@ -1,0 +1,45 @@
+﻿//
+Vol=2             /音量设置(0无声，1小声，2中等，3大声)
+
+Tpon=800          /开机按钮时长，收货后请改为800左右
+Tpoff=800         /关机按钮时长
+Tout=200          /开剑按钮时长
+Tin=500           /收剑按钮时长
+Ts_switch=500     /切换配置按钮时长，Tin & Ts_switch 必须小于TEtrigger
+
+
+Tautoin=60000     /自动收剑时长，0为不自动收剑
+Tautooff=120000   /收剑后自动关机时长，0表示不自动关机
+
+Tmute=500         /关机状态下，进入静音模式的双键复合触发时长
+TLcolor=200       /开机状态下，LEDbank变更的双键复合触发时长，若TLcolor>TEtrigger,或TLcolor>Tin,则此参数无效
+
+TBfreeze=200      
+TBMode=1
+TCfreeze=150
+TCMode=2,3
+TDfreeze=150
+TDmode=2,3
+TEtrigger=600
+TEmode=4
+TLon=2000
+TLoff=700
+Lbright=1023
+Ldeep=768
+LMode=2
+T_Breath=1000
+MD=30
+MT=2
+CD=4
+CT=30
+CL=30
+CW=0
+
+BANK1=1023,1023,0,0  /主灯色彩配置
+FBank1=1023,0,1023,0 /Foc色彩配置
+
+BANK2=1023,0,1023,0
+FBANK2=1023,1023,0,0
+
+BANK3=0,0,1023,0
+FBANK3=1023,0,1023,0
