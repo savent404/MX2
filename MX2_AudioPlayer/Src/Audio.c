@@ -27,8 +27,8 @@ extern osMessageQId DAC_CMDHandle;
 extern osMessageQId LED_CMDHandle;
 extern osSemaphoreId DAC_Complete_FlagHandle;
 
-#define PRI_TRIGGER_B           2
-#define PRI_TRIGGER_C           3
+#define PRI_TRIGGER_B           3
+#define PRI_TRIGGER_C           2
 #define PRI_TRIGGER_D           4
 #define PRI_TRIGGER_E           1
 #define PRI_TRIGGER_NULL        0x0F
