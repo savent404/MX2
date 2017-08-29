@@ -139,6 +139,8 @@ void Wav_Task(void const * argument)
 					Play_simple_wav(WAV_LOWPOWER);
 					break;
         case Audio_intoReady:
+          pri_now = PRI(NULL);
+          RESET_Buffer();
 					Play_IN_wav();
 					break;
         case Audio_BankSwitch:
