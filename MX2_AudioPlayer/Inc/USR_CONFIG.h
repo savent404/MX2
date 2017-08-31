@@ -60,10 +60,18 @@ typedef struct _usr_config_structure {
   uint16_t Out_Delay; // 触发Out时， 延时Hum播放时间
 } USR_CONFIG_t;
 
+// 小型LED动作
+typedef struct _simple_led {
+  uint16_t Delay;
+  uint8_t Num;
+  uint8_t *Action;
+} SimpleLED_Acction_t;
+
 typedef struct _accent_structure {
-  uint32_t delay_ms;
-  uint8_t N;
-  uint8_t *arry;
+  SimpleLED_Acction_t *Standby;
+  SimpleLED_Acction_t *On;
+  SimpleLED_Acction_t *Lockup;
+  SimpleLED_Acction_t *Clash;
 } Accent_t;
 
 typedef struct _file_number_limits {
@@ -108,7 +116,7 @@ typedef struct _usr_dynamic_parameter {
   uint8_t bank_color;       /**< 当前LED使用的Bank(相对位移,需与Bank_now一起使用) */
   uint8_t mute_flag:1;      /**< 静音标志位(1Bit) */
   uint8_t audio_busy:1;     /**< 音频输出标志 */
-
+  uint8_t SimpleLED_MASK;   /**< 小型LED掩码，标志1允许亮，标志0则不亮，LSB代表LED0 */
   #ifdef USE_DEBUG
   /// Analyze Paramter
   uint16_t Stack_Free[4];

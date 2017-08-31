@@ -26,7 +26,7 @@ const PARA_STATIC_t STATIC_USR = {
 };
 
 #if _USE_LFN //使用Heap模式， 为Fatfs长文件名模式提供一个缓存
-static TCHAR LFN_BUF[100];
+static TCHAR LFN_BUF[120];
 #endif
 
 // 字符串函数 补全gcc未提供的一些字符串处理函数
@@ -205,7 +205,7 @@ uint8_t usr_config_init(void)
   USR.accent = (Accent_t*)pvPortMalloc(sizeof(Accent_t)*USR.nBank);
   for (uint8_t nBank = 0; nBank < USR.nBank; nBank++)
   {
-    f_err = get_accent_para(nBank + 1, &USR);
+    f_err = get_accent_para(nBank, &USR);
     if (f_err) return f_err;
   } USR.config = USR._config;
 
@@ -349,61 +349,78 @@ int strcasecmp(const char *src1, const char *src2)
   return res;
 }
 #endif
-static uint8_t get_accent_para(uint8_t Bank, PARA_DYNAMIC_t *pt)
+
+static uint8_t __get_accent_para(char Bank, char *filepath, SimpleLED_Acction_t **pt)
 {
   FIL file;
   FRESULT f_err;
-  uint16_t cnt = 0;
+  uint8_t cnt = 0;
   char path[30];
 
-  sprintf(path, "0:/Bank%d/Accent.txt", Bank);
+  sprintf(path, "0:/Bank%d/Accent/%s", Bank, filepath);
   if ((f_err = f_open(&file, path, FA_READ)) != FR_OK)
   {
-    DEBUG(0, "Can't Open %s:%d", path, f_err);
-    return 1;
-  }
-  while (f_gets(path, 30, &file) != 0)
-  {
-    if (path[0] == 'T' || path[0] == 't')
+    if (f_err == FR_NO_FILE)
     {
-      sscanf(path, "%*[^=]=%ld", &((pt->accent+Bank-1)->delay_ms));
-    } else {
-      cnt += 1;
+      *pt = NULL;
+      return 0;
+    }
+    else {
+      DEBUG(4, "Open File(%s) Error:%d", path, (int)f_err);
+      return 0;
     }
   }
-  f_close(&file);
-  (pt->accent+Bank-1)->N = cnt;
-  (pt->accent+Bank-1)->arry = (uint8_t*)pvPortMalloc(sizeof(uint8_t)*cnt);
-
-
-  cnt = 0;
-  sprintf(path, "0:/Bank%d/Accent.txt", Bank);
-  if ((f_err = f_open(&file, path, FA_READ)) != FR_OK)
-  {
-    DEBUG(0, "Can't Open %s:%d", path, f_err);
-    return 1;
-  }
-  while (f_gets(path, 30, &file) != 0)
-  {
+  else {
+    *pt = (SimpleLED_Acction_t*)pvPortMalloc(sizeof(SimpleLED_Acction_t));
+    f_gets(path, 30, &file); // 第一行喂狗
+    f_gets(path, 30, &file); // 读取间隔周期
     if (path[0] == 'T' || path[0] == 't')
     {
-    } else {
-      char *spt = path;
-      uint8_t buf = 0;
+      int d;
+      sscanf(path, "%*[^=]=%ld", &d);
+      (*pt)->Delay = d;
+      // sscanf(path, "%*[^=]=%ld", &((*pt)->Delay));
+      while (f_gets(path, 30, &file) != 0)
+      { if (path[0] >= '0' || path[1] <= '9') cnt++; }
 
-      while (*spt == '0' || *spt == '1')
+      (*pt)->Action = (uint8_t *)pvPortMalloc(cnt);
+      (*pt)->Num = cnt;
+
+      f_lseek(&file, 0);
+      f_gets(path, 30, &file);
+      f_gets(path, 30, &file);
+      while (f_gets(path, 30, &file) != 0)
       {
-        buf <<= 1;
-        if (*spt == '1')
-        {
-          buf |= 1;
-        } spt += 1;
+        int buf;
+        uint8_t ans = 0;
+        sscanf(path, "%d", &buf);
+        if (buf % 2) ans |= 0x01;
+        buf /= 10;
+        if (buf % 2) ans |= 0x02;
+        buf /= 10;
+        if (buf % 2) ans |= 0x04;
+        buf /= 10;
+        if (buf % 2) ans |= 0x08;
+        buf /= 10;
+        if (buf % 2) ans |= 0x10;
+        buf /= 10;
+        if (buf % 2) ans |= 0x20;
+        buf /= 10;
+        if (buf % 2) ans |= 0x40;
+        buf /= 10;
+        if (buf % 2) ans |= 0x80;
       }
-      (pt->accent+Bank-1)->arry[cnt] = buf;
-      cnt += 1;
+      f_close(&file);
     }
-  } f_close(&file);
-  return 0;
+    return 0;
+  }
+}
+static uint8_t get_accent_para(uint8_t Bank, PARA_DYNAMIC_t *pt)
+{
+  __get_accent_para(Bank + 1, "Standby.txt", &((pt->accent + Bank)->Standby));
+  __get_accent_para(Bank + 1, "On.txt", &((pt->accent + Bank)->On));
+  __get_accent_para(Bank + 1, "Lockup.txt", &((pt->accent + Bank)->Lockup));
+  __get_accent_para(Bank + 1, "Clash.txt", &((pt->accent + Bank)->Clash));
 }
 
 char* upper(char *src)
