@@ -6,7 +6,8 @@
 // TODO: LED2 LED3 为晶振输入IO，未处理复用引脚造成无法debug之前，不对LED2 LED3进行操作
 
 static SimpleLED_Acction_t *pacction;
-static uint32_t cnt;
+static int32_t SimpleLED_Timer_cnt = 0;
+static int32_t SimpleLED_LED_cnt = 0;
 static bool loopflag;
 
 static SimpleLED_Acction_t* GetAction(SimpleLED_Status_t status);
@@ -20,26 +21,22 @@ void SimpleLED_ChangeStatus(SimpleLED_Status_t status)
 
 void SimpleLED_Handle(void const *arg)
 {
-  SimpleLED_Init();
+  if (--SimpleLED_Timer_cnt > 0) return;
 
-  pacction = GetAction(SIMPLELED_STATUS_SLEEP);
-
-  while (1)
+  if ((int)pacction == 0)
   {
-
-    if ((int)pacction == 0)
-    {
-      SimpleLED_Opra(0x00);
-      osDelay(10);
-    }
-    else
-    {
-      if (loopflag == false && cnt < pacction->Num)
-        SimpleLED_Opra(*(pacction->Action + cnt++) & USR.SimpleLED_MASK);
-      else if (loopflag == true)
-        SimpleLED_Opra(*(pacction->Action + (cnt++ % pacction->Num)) & USR.SimpleLED_MASK);
-      osDelay(pacction->Delay);
-    }
+    SimpleLED_Opra(0x00);
+    SimpleLED_Timer_cnt = 100 / 10;
+    return;
+  }
+  else
+  {
+    if (loopflag == false && SimpleLED_LED_cnt < pacction->Num)
+      SimpleLED_Opra(*(pacction->Action + SimpleLED_LED_cnt++) & USR.SimpleLED_MASK);
+    else if (loopflag == true)
+      SimpleLED_Opra(*(pacction->Action + (SimpleLED_LED_cnt++ % pacction->Num)) & USR.SimpleLED_MASK);
+    // osDelay(pacction->Delay);
+    SimpleLED_Timer_cnt = pacction->Delay / 10;
   }
 }
 
@@ -52,19 +49,19 @@ static SimpleLED_Acction_t* GetAction(SimpleLED_Status_t status)
       ans = NULL;
       break;
     case SIMPLELED_STATUS_STANDBY:
-      ans = USR.accent->Standby + USR.bank_now;
+      ans = (USR.accent + USR.bank_now)->Standby;
       loopflag = true;
       break;
     case SIMPLELED_STATUS_ON:
-      ans = USR.accent->On + USR.bank_now;
+      ans =( USR.accent + USR.bank_now)->On;
       loopflag = true;
       break;
     case SIMPLELED_STATUS_CLASH:
-      ans = USR.accent->Clash + USR.bank_now;
+      ans = (USR.accent + USR.bank_now)->Clash;
       loopflag = false;
       break;
     case SIMPLELED_STATUS_LOCKUP:
-      ans = USR.accent->Lockup + USR.bank_now;
+      ans = (USR.accent + USR.bank_now)->Lockup;
       loopflag = true;
       break;
     default:
@@ -72,7 +69,8 @@ static SimpleLED_Acction_t* GetAction(SimpleLED_Status_t status)
       loopflag = false;
   }
 
-  cnt = 0;
+  SimpleLED_LED_cnt = 0;
+  SimpleLED_Timer_cnt = 0;
   return ans;
 }
 
@@ -99,6 +97,8 @@ void SimpleLED_Init(void)
 
   gpiox.Pin = 0x3000;
   HAL_GPIO_Init(GPIOC, &gpiox);
+
+  pacction = GetAction(SIMPLELED_STATUS_SLEEP);
 }
 
 void SimpleLED_DeInit(void)

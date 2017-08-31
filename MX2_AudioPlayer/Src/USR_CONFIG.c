@@ -389,6 +389,8 @@ static uint8_t __get_accent_para(char Bank, char *filepath, SimpleLED_Acction_t 
       f_lseek(&file, 0);
       f_gets(path, 30, &file);
       f_gets(path, 30, &file);
+
+      uint8_t *act = (*pt)->Action;
       while (f_gets(path, 30, &file) != 0)
       {
         int buf;
@@ -409,6 +411,8 @@ static uint8_t __get_accent_para(char Bank, char *filepath, SimpleLED_Acction_t 
         if (buf % 2) ans |= 0x40;
         buf /= 10;
         if (buf % 2) ans |= 0x80;
+
+        *act++ = ans;
       }
       f_close(&file);
     }
@@ -484,6 +488,7 @@ static void set_config(PARA_DYNAMIC_t *pt)
 {
   pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
   pt->config->Out_Delay = 200; //Out 循环音延时200ms
+  pt->SimpleLED_MASK = 0xFF;
 }
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
 {

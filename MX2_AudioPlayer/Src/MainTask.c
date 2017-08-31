@@ -34,6 +34,7 @@ extern osThreadId defaultTaskHandle;
 extern osThreadId DACTaskHandle;
 extern osThreadId LEDTaskHandle;
 extern osThreadId WavTaskHandle;
+extern osTimerId SimpleLEDHandle;
 extern osMessageQId DAC_BufferHandle;
 extern osMessageQId DAC_CMDHandle;
 extern osMessageQId LED_CMDHandle;
@@ -140,10 +141,13 @@ void StartDefaultTask(void const * argument)
     USR.mute_flag = buf;
   }
 #endif
-  // 初始化音
-  Audio_Play_Start(Audio_Boot);
 
+  Audio_Play_Start(Audio_Boot);
+  osDelay(100);
+  SimpleLED_Init();
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+  osTimerStart(SimpleLEDHandle, 10);
+  
 
   USR.sys_status = System_Ready;
 
