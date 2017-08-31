@@ -19,24 +19,34 @@ void SimpleLED_ChangeStatus(SimpleLED_Status_t status)
   pacction = GetAction(status);
 }
 
+void SimpleLED_Callback(void const *arg)
+{
+  if ((SimpleLED_Timer_cnt -= (int)arg) > 0) return;
+
+    if ((int)pacction == 0)
+    {
+      SimpleLED_Opra(0x00);
+      SimpleLED_Timer_cnt = 100;
+      return;
+    }
+    else
+    {
+      if (loopflag == false && SimpleLED_LED_cnt < pacction->Num)
+        SimpleLED_Opra(*(pacction->Action + SimpleLED_LED_cnt++) & USR.SimpleLED_MASK);
+      else if (loopflag == true)
+        SimpleLED_Opra(*(pacction->Action + (SimpleLED_LED_cnt++ % pacction->Num)) & USR.SimpleLED_MASK);
+      // osDelay(pacction->Delay);
+      SimpleLED_Timer_cnt = pacction->Delay;
+    }
+}
 void SimpleLED_Handle(void const *arg)
 {
-  if (--SimpleLED_Timer_cnt > 0) return;
+  SimpleLED_Init();
 
-  if ((int)pacction == 0)
+  while (1)
   {
-    SimpleLED_Opra(0x00);
-    SimpleLED_Timer_cnt = 100 / 10;
-    return;
-  }
-  else
-  {
-    if (loopflag == false && SimpleLED_LED_cnt < pacction->Num)
-      SimpleLED_Opra(*(pacction->Action + SimpleLED_LED_cnt++) & USR.SimpleLED_MASK);
-    else if (loopflag == true)
-      SimpleLED_Opra(*(pacction->Action + (SimpleLED_LED_cnt++ % pacction->Num)) & USR.SimpleLED_MASK);
-    // osDelay(pacction->Delay);
-    SimpleLED_Timer_cnt = pacction->Delay / 10;
+    osDelay(10);
+    SimpleLED_Callback(10);
   }
 }
 
@@ -87,16 +97,16 @@ static void SimpleLED_Opra(uint8_t led)
 
 void SimpleLED_Init(void)
 {
-  GPIO_InitTypeDef gpiox;
+  // GPIO_InitTypeDef gpiox;
 
-  // LED 4~7
-  gpiox.Pin = 0x0F;
-  gpiox.Mode = GPIO_MODE_OUTPUT_PP;
-  gpiox.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOC, &gpiox);
+  // // LED 4~7
+  // gpiox.Pin = 0x0F;
+  // gpiox.Mode = GPIO_MODE_OUTPUT_PP;
+  // gpiox.Pull = GPIO_PULLUP;
+  // HAL_GPIO_Init(GPIOC, &gpiox);
 
-  gpiox.Pin = 0x3000;
-  HAL_GPIO_Init(GPIOC, &gpiox);
+  // gpiox.Pin = 0x3000;
+  // HAL_GPIO_Init(GPIOC, &gpiox);
 
   pacction = GetAction(SIMPLELED_STATUS_SLEEP);
 }

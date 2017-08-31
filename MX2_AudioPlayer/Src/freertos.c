@@ -61,7 +61,7 @@ osMessageQId LED_CMDHandle;
 osSemaphoreId DAC_Complete_FlagHandle;
 
 /* USER CODE BEGIN Variables */
-
+osThreadId SimpleLEDHandle;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -74,7 +74,7 @@ extern void MX_FATFS_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
-
+extern void SimpleLED_Handle(void const *arg);
 /* USER CODE END FunctionPrototypes */
 
 /* Hook prototypes */
@@ -153,6 +153,8 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  osThreadDef(SimpleLED, SimpleLED_Handle, osPriorityLow, 0, 128);
+  SimpleLEDHandle = osThreadCreate(osThread(SimpleLED), NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* Create the queue(s) */

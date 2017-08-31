@@ -17,7 +17,7 @@ typedef enum {
 
 void SimpleLED_Init(void);
 void SimpleLED_DeInit(void);
-
+void SimpleLED_Callback(void const *arg);
 void SimpleLED_ChangeStatus(SimpleLED_Status_t status);
 
 #endif
