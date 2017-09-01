@@ -47,7 +47,7 @@ static const char name_string[][10] = {
     /**< Position:18~23 */
     "TLon", "TLoff", "Lbright", "Ldeep", "LMode", "CH1_Delay",
     /**< Position:24~29 */
-    "CH2_Delay", "CH3_Delay", "CH4_Delay", "T_Breath", "Out_Delay", "Unknow",
+    "CH2_Delay", "CH3_Delay", "CH4_Delay", "T_Breath", "Out_Delay", "LEDMASK",
     /**< Position:30~35 */
     "Unknow", "MD", "MT", "CD", "CT", "CL",
     /**< Position:36 */
@@ -488,7 +488,7 @@ static void set_config(PARA_DYNAMIC_t *pt)
 {
   pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
   pt->config->Out_Delay = 200; //Out 循环音延时200ms
-  pt->SimpleLED_MASK = 0xFF;
+  pt->config->SimpleLED_MASK = 0xFF;
 }
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
 {
@@ -546,8 +546,8 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       case 26: sscanf(spt,"%*[^=]=%hd", (pt->config->ChDelay+3));break;
       case 27: sscanf(spt,"%*[^=]=%hd", &(pt->config->T_Breath));break;
       case 28: sscanf(spt,"%*[^=]=%hd", &(pt->config->Out_Delay));break;
-      /*case 29: sscanf(spt,"%*[^=]=%d", &(pt->config->Cl));break;
-      case 30: sscanf(spt,"%*[^=]=%d", &(pt->config->Ch));break;*/
+      case 29: sscanf(spt,"%*[^=]=%*[^xX]%*c%x", &(pt->config->SimpleLED_MASK));break;
+      /*case 30: sscanf(spt,"%*[^=]=%d", &(pt->config->Ch));break;*/
       case 31: sscanf(spt,"%*[^=]=%hd", &(pt->config->MD));break;
       case 32: sscanf(spt,"%*[^=]=%hd", &(pt->config->MT));break;
       case 33: sscanf(spt,"%*[^=]=%hd", &(pt->config->CD));break;

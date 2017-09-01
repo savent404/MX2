@@ -32,9 +32,9 @@ void SimpleLED_Callback(void const *arg)
     else
     {
       if (loopflag == false && SimpleLED_LED_cnt < pacction->Num)
-        SimpleLED_Opra(*(pacction->Action + SimpleLED_LED_cnt++) & USR.SimpleLED_MASK);
+        SimpleLED_Opra(*(pacction->Action + SimpleLED_LED_cnt++) & USR.config->SimpleLED_MASK);
       else if (loopflag == true)
-        SimpleLED_Opra(*(pacction->Action + (SimpleLED_LED_cnt++ % pacction->Num)) & USR.SimpleLED_MASK);
+        SimpleLED_Opra(*(pacction->Action + (SimpleLED_LED_cnt++ % pacction->Num)) & USR.config->SimpleLED_MASK);
       // osDelay(pacction->Delay);
       SimpleLED_Timer_cnt = pacction->Delay;
     }

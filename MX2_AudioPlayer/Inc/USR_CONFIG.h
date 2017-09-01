@@ -52,7 +52,7 @@ typedef struct _usr_config_structure {
   uint16_t  CT;
   uint16_t  CL;
   uint16_t  CW;
-
+  uint16_t SimpleLED_MASK;   /**< 小型LED掩码，标志1允许亮，标志0则不亮，LSB代表LED0 */
   uint16_t ChDelay[4];
 
   uint16_t T_Breath; //LMode 呼吸延时
@@ -116,7 +116,7 @@ typedef struct _usr_dynamic_parameter {
   uint8_t bank_color;       /**< 当前LED使用的Bank(相对位移,需与Bank_now一起使用) */
   uint8_t mute_flag:1;      /**< 静音标志位(1Bit) */
   uint8_t audio_busy:1;     /**< 音频输出标志 */
-  uint8_t SimpleLED_MASK;   /**< 小型LED掩码，标志1允许亮，标志0则不亮，LSB代表LED0 */
+  
   #ifdef USE_DEBUG
   /// Analyze Paramter
   uint16_t Stack_Free[4];
