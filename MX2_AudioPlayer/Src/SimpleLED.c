@@ -97,16 +97,13 @@ static void SimpleLED_Opra(uint8_t led)
 
 void SimpleLED_Init(void)
 {
-  // GPIO_InitTypeDef gpiox;
+  GPIO_InitTypeDef gpiox;
 
-  // // LED 4~7
-  // gpiox.Pin = 0x0F;
-  // gpiox.Mode = GPIO_MODE_OUTPUT_PP;
-  // gpiox.Pull = GPIO_PULLUP;
-  // HAL_GPIO_Init(GPIOC, &gpiox);
-
-  // gpiox.Pin = 0x3000;
-  // HAL_GPIO_Init(GPIOC, &gpiox);
+  HAL_GPIO_DeInit(GPIOC, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_14 | GPIO_PIN_15);
+  gpiox.Mode = GPIO_MODE_OUTPUT_PP;
+  gpiox.Pull = GPIO_PULLUP;
+  gpiox.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_14 | GPIO_PIN_15;
+  HAL_GPIO_Init(GPIOC, &gpiox);
 
   pacction = GetAction(SIMPLELED_STATUS_SLEEP);
 }
