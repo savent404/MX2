@@ -41,6 +41,7 @@ void SimpleLED_Callback(void const *arg)
 }
 void SimpleLED_Handle(void const *arg)
 {
+  SimpleLED_DeInit();
   SimpleLED_Init();
 
   while (1)
@@ -93,6 +94,9 @@ static void SimpleLED_Opra(uint8_t led)
   // LED 0~1
   GPIOC->ODR |= ((uint16_t)led & 0x03) << 14;
   GPIOC->ODR &= ((uint16_t)led & 0x03) << 14 | 0x3FFF;
+
+  GPIOD->ODR |= (((uint16_t)led >> 2) & 0x03);
+  GPIOD->ODR &= (((uint16_t)led >> 2) & 0x03) | 0xFFFC;
 }
 
 void SimpleLED_Init(void)
@@ -105,6 +109,9 @@ void SimpleLED_Init(void)
   gpiox.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_14 | GPIO_PIN_15;
   HAL_GPIO_Init(GPIOC, &gpiox);
 
+  //gpiox.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+  //HAL_GPIO_Init(GPIOD, &gpiox);
+  //__HAL_AFIO_REMAP_PD01_ENABLE();
   pacction = GetAction(SIMPLELED_STATUS_SLEEP);
 }
 
@@ -114,5 +121,8 @@ void SimpleLED_DeInit(void)
   HAL_GPIO_DeInit(GPIOC, 0x0F);
 
   // LED 0~1
-  HAL_GPIO_DeInit(GPIOC, 0x3000);
+  HAL_GPIO_DeInit(GPIOC, 0xC000);
+
+  // LED 2~3
+  HAL_GPIO_DeInit(GPIOD, 0x0003);
 }
