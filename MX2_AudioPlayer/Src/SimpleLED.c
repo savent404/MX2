@@ -32,6 +32,8 @@ void SimpleLED_Callback(void const *arg)
     {
       if (loopflag == false && SimpleLED_LED_cnt < pacction->Num)
         SimpleLED_Opra(*(pacction->Action + SimpleLED_LED_cnt++) & USR.config->SimpleLED_MASK);
+      else if (loopflag == false)
+        pacction = GetAction(SIMPLELED_STATUS_ON);
       else if (loopflag == true)
         SimpleLED_Opra(*(pacction->Action + (SimpleLED_LED_cnt++ % pacction->Num)) & USR.config->SimpleLED_MASK);
       SimpleLED_Timer_cnt = pacction->Delay;
