@@ -9,7 +9,6 @@ static SimpleLED_Acction_t *pacction;
 static int32_t SimpleLED_Timer_cnt = 0;
 static int32_t SimpleLED_LED_cnt = 0;
 static bool loopflag;
-
 static SimpleLED_Acction_t* GetAction(SimpleLED_Status_t status);
 static void SimpleLED_Opra(uint8_t led);
 
@@ -35,10 +34,10 @@ void SimpleLED_Callback(void const *arg)
         SimpleLED_Opra(*(pacction->Action + SimpleLED_LED_cnt++) & USR.config->SimpleLED_MASK);
       else if (loopflag == true)
         SimpleLED_Opra(*(pacction->Action + (SimpleLED_LED_cnt++ % pacction->Num)) & USR.config->SimpleLED_MASK);
-      // osDelay(pacction->Delay);
       SimpleLED_Timer_cnt = pacction->Delay;
     }
 }
+
 void SimpleLED_Handle(void const *arg)
 {
   SimpleLED_DeInit();
@@ -87,16 +86,18 @@ static SimpleLED_Acction_t* GetAction(SimpleLED_Status_t status)
 
 static void SimpleLED_Opra(uint8_t led)
 {
+  uint16_t odr_buffer;
+  odr_buffer = 0;
   // LED 4~7
-  GPIOC->ODR |= led >> 4;
-  GPIOC->ODR &= led >> 4 | 0xFFF0;
-
+  odr_buffer |= led >> 4;
   // LED 0~1
-  GPIOC->ODR |= ((uint16_t)led & 0x03) << 14;
-  GPIOC->ODR &= ((uint16_t)led & 0x03) << 14 | 0x3FFF;
-
-  GPIOD->ODR |= (((uint16_t)led >> 2) & 0x03);
-  GPIOD->ODR &= (((uint16_t)led >> 2) & 0x03) | 0xFFFC;
+  odr_buffer |= (led & 0x03) << 14;
+  GPIOC->ODR &= 0x3FF0;
+  GPIOC->ODR |= odr_buffer;
+  // LED 2~3
+  odr_buffer = (led & 0x03) >> 2;
+  GPIOD->ODR &= 0xFFFC;
+  GPIOD->ODR |= odr_buffer;
 }
 
 void SimpleLED_Init(void)
@@ -107,6 +108,7 @@ void SimpleLED_Init(void)
   gpiox.Mode = GPIO_MODE_OUTPUT_PP;
   gpiox.Pull = GPIO_PULLUP;
   gpiox.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_14 | GPIO_PIN_15;
+  gpiox.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &gpiox);
 
   //gpiox.Pin = GPIO_PIN_0 | GPIO_PIN_1;
