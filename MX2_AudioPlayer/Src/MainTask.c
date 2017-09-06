@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 // STM32 Lib
 #include "stm32f1xx_hal.h"
@@ -44,7 +45,7 @@ extern osSemaphoreId DAC_Complete_FlagHandle;
 #define LOOP_DELAY 15
 
 // 冻结时间计数值
-static uint16_t frozen_trigger_cnt[3] = {0, 0, 0};
+static int16_t frozen_trigger_cnt[3] = {0, 0, 0};
 // 电源电压检测采集到的ADC值
 static uint16_t power_adc_val;
 // 自动待机定时器值
@@ -423,7 +424,7 @@ static void move_detected(void) {
         AUTO_CNT_CLEAR();
     }
     //TriggerB
-    if (move && !ask_trigger(0)) {
+    if (move && ask_trigger(0)) {
         LED_Start_Trigger(LED_TriggerB);
         Audio_Play_Start(Audio_TriggerB);
         AUTO_CNT_CLEAR();
@@ -510,9 +511,15 @@ static uint8_t ask_trigger(uint8_t triggerid)
 {
   if (!frozen_trigger_cnt[triggerid]) {
     switch (triggerid) {
-      case 0: frozen_trigger_cnt[0] = USR.config->TBfreeze; break;
-      case 1: frozen_trigger_cnt[1] = USR.config->TCfreeze; break;
-      case 2: frozen_trigger_cnt[2] = USR.config->TDfreeze; break;
+      case 0:
+        frozen_trigger_cnt[0] = (USR.config->TBfreeze > INT16_MAX ? INT16_MAX : USR.config->TBfreeze);
+        break;
+      case 1:
+        frozen_trigger_cnt[1] = (USR.config->TCfreeze > INT16_MAX ? INT16_MAX : USR.config->TCfreeze);
+        break;
+      case 2:
+        frozen_trigger_cnt[2] = (USR.config->TDfreeze > INT16_MAX ? INT16_MAX : USR.config->TDfreeze);
+        break;
     } return 1;
   } return 0;
 }
@@ -525,6 +532,9 @@ static void ticktock_trigger(void) {
   {
     if (frozen_trigger_cnt[i] > 0) {
       frozen_trigger_cnt[i] -= LOOP_DELAY;
+    }
+    if (frozen_trigger_cnt[i] < 0) {
+      frozen_trigger_cnt[i] = 0;
     }
   }
 }
