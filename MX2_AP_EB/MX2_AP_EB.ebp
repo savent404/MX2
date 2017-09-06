@@ -188,6 +188,7 @@
 		<Unit filename="..\MX2_AudioPlayer\Inc\Lis3D.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\main.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\sdio.h" />
+		<Unit filename="..\MX2_AudioPlayer\Inc\SimpleLED.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\spi.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\stm32f1xx_hal_conf.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\stm32f1xx_it.h" />
@@ -297,6 +298,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\Src\sdio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX2_AudioPlayer\Src\SimpleLED.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\Src\spi.c">

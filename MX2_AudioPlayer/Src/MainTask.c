@@ -28,12 +28,14 @@
 #include "Audio.h"
 #include "Lis3D.h"
 #include "LED.h"
+#include "SimpleLED.h"
 
 /* Variables -----------------------------------------------------------------*/
 extern osThreadId defaultTaskHandle;
 extern osThreadId DACTaskHandle;
 extern osThreadId LEDTaskHandle;
 extern osThreadId WavTaskHandle;
+extern osTimerId SimpleLEDHandle;
 extern osMessageQId DAC_BufferHandle;
 extern osMessageQId DAC_CMDHandle;
 extern osMessageQId LED_CMDHandle;
@@ -129,7 +131,7 @@ void StartDefaultTask(void const * argument)
       osDelay(10);
     }
   }
-
+#ifndef USE_DEBUG
   // 低电压检测：忽略静音标志发送2次低电压报警
   if (power_adc_val <= STATIC_USR.vol_warning)
   {
@@ -139,9 +141,14 @@ void StartDefaultTask(void const * argument)
     Audio_Play_Start(Audio_LowPower);
     USR.mute_flag = buf;
   }
+#endif
 
-  // 初始化音
   Audio_Play_Start(Audio_Boot);
+  osDelay(100);
+  SimpleLED_Init();
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+  osTimerStart(SimpleLEDHandle, 10);
+  
 
   USR.sys_status = System_Ready;
 
@@ -181,6 +188,7 @@ void StartDefaultTask(void const * argument)
               (USR.config->Tpoff < USR.config->Tout && USR.config->Tout > timeout))
           {
             DEBUG(5, "System going to close");
+            SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
             USR.sys_status = System_Close;
             Audio_Play_Start(Audio_PowerOff);
             osDelay(3000); //3s
@@ -191,6 +199,7 @@ void StartDefaultTask(void const * argument)
             if (!Audio_IsSimplePlayIsReady()) { osDelay(10); continue;}
             DEBUG(5, "System going to running");
             auto_intoready_cnt = 0;
+            SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON); // 小型LED进入On模式
             USR.sys_status = System_Running;
             LED_Bank_Update(&USR); //确保每次进入运行态时LED配色都是最新的
             Audio_Play_Start(Audio_intoRunning);
@@ -214,6 +223,7 @@ void StartDefaultTask(void const * argument)
           DEBUG(5, "System Bank Switch");
           USR.config = USR._config + USR.bank_now;
           LED_Bank_Update(&USR);
+          SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
           Audio_Play_Start(Audio_BankSwitch);
         }
       }
@@ -244,6 +254,7 @@ void StartDefaultTask(void const * argument)
         else if (timeout >= USR.config->Tin)
         {
           DEBUG(5, "System going to ready");
+          SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY); // 小型LED进入Standby模式
           USR.sys_status = System_Ready;
           LED_Start_Trigger(LED_Trigger_Stop);
           Audio_Play_Start(Audio_intoReady);
@@ -264,12 +275,14 @@ void StartDefaultTask(void const * argument)
           if (timeout >= USR.config->TEtrigger)
           {
             DEBUG(5, "Trigger E");
+            SimpleLED_ChangeStatus(SIMPLELED_STATUS_LOCKUP);
             LED_Start_Trigger(LED_TriggerE);
             Audio_Play_Start(Audio_TriggerE);
             while (!(key_scan() & 0x02)) {
                 osDelay(10);
             }
             DEBUG(5, "Trigger E END");
+            SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
             LED_Start_Trigger(LED_TriggerE_END);
             Audio_Play_Stop(Audio_TriggerE);
             break;
@@ -299,16 +312,19 @@ void StartDefaultTask(void const * argument)
     }
 
     power_adc_val = GetVoltage();
+#ifndef USE_DEBUG
     /// 电源管理部分
     if (power_adc_val <= STATIC_USR.vol_poweroff)
     {
       DEBUG(5, "System should be Power off");
+      SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
       USR.sys_status = System_Close;
       Audio_Play_Start(Audio_Recharge);
       osDelay(2000);
       HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
       while (1);
     }
+#endif
     /// 充电检测
     if (HAL_GPIO_ReadPin(Charge_Check_GPIO_Port, Charge_Check_Pin) == GPIO_PIN_SET)
     {
@@ -317,12 +333,15 @@ void StartDefaultTask(void const * argument)
 
       } else */
       if (STATIC_USR.vol_chargecomplete < power_adc_val){
+        SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
         USR.sys_status = System_Charged;
       } else {
+        SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
         USR.sys_status = System_Charging;
       }
     } else if (USR.sys_status == System_Charged || USR.sys_status == System_Charging)
     {
+      SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
       USR.sys_status = System_Close;
       Audio_Play_Start(Audio_PowerOff);
       osDelay(2000); // 2s
@@ -340,11 +359,13 @@ void StartDefaultTask(void const * argument)
     {
       if (t == 1) {
           DEBUG(5, "System going to ready");
+          SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
           USR.sys_status = System_Ready;
           LED_Start_Trigger(LED_Trigger_Stop);
           Audio_Play_Start(Audio_intoReady);
       } else if (t == 2) {
           DEBUG(5, "System going to close");
+          SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP);
           USR.sys_status = System_Close;
           Audio_Play_Start(Audio_PowerOff);
           osDelay(3000); //3s
@@ -397,6 +418,7 @@ static void move_detected(void) {
     //Lis3DH parts
     //TriggerC
     if (click && ask_trigger(1)) {
+        SimpleLED_ChangeStatus(SIMPLELED_STATUS_CLASH);
         LED_Start_Trigger(LED_TriggerC);
         Audio_Play_Start(Audio_TriggerC);
         AUTO_CNT_CLEAR();
