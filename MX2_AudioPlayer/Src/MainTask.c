@@ -222,6 +222,7 @@ void StartDefaultTask(void const * argument)
           DEBUG(5, "System Bank Switch");
           USR.config = USR._config + USR.bank_now;
           LED_Bank_Update(&USR);
+          SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
           Audio_Play_Start(Audio_BankSwitch);
         }
       }
