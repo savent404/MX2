@@ -90,16 +90,13 @@ static void SimpleLED_Opra(uint8_t led)
 {
   uint16_t odr_buffer;
   odr_buffer = 0;
-  // LED 4~7
-  odr_buffer |= led >> 4;
   // LED 0~1
   odr_buffer |= (led & 0x03) << 14;
+  // LED 2~5
+  odr_buffer |= led >> 2;
+
   GPIOC->ODR &= 0x3FF0;
   GPIOC->ODR |= odr_buffer;
-  // LED 2~3
-  odr_buffer = (led & 0x03) >> 2;
-  GPIOD->ODR &= 0xFFFC;
-  GPIOD->ODR |= odr_buffer;
 }
 
 void SimpleLED_Init(void)
