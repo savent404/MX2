@@ -530,8 +530,16 @@ static void play_a_buffer(uint16_t* pt)
 
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
-  osSemaphoreRelease(DAC_Complete_FlagHandle);
-  USR.audio_busy = 0;
+
+	static osEvent evt;
+	evt = osMessageGet(DAC_BufferHandle, osWaitForever);
+	if (evt.status != osEventMessage) {
+	  osSemaphoreRelease(DAC_Complete_FlagHandle);
+	  USR.audio_busy = 0;
+	}
+	else {
+		HAL_DAC_Start_DMA(hdac, DAC_CHANNEL_1, (uint32_t*)evt.value.p, AUDIO_FIFO_SIZE, DAC_ALIGN_12B_R);
+	}
 }
 
 uint8_t Audio_IsSimplePlayIsReady(void)
