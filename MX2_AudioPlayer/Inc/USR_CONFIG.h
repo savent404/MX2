@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef enum {
   System_Restart,
@@ -94,6 +95,7 @@ typedef struct _usr_static_parameter {
 typedef struct _usr_trigger_path {
   uint16_t number;
   char *path_arry;
+  char **path_ptr; // 指向path_arry中某元素的指针
 } TRIGGER_PATH_t;
 
 typedef uint32_t HumSize_t;
