@@ -298,9 +298,9 @@ static void Play_Trigger_wav(uint8_t triggerid)
     }
     switch (triggerid)
     {
-      case 0: strcat(path, (USR.triggerB + USR.bank_now)->path_arry + 30*num); break;
-      case 1: strcat(path, (USR.triggerC + USR.bank_now)->path_arry + 30*num); break;
-      case 2: strcat(path, (USR.triggerD + USR.bank_now)->path_arry + 30*num); break;
+      case 0: strcat(path, (USR.triggerB + USR.bank_now)->path_ptr[num]); break;
+      case 1: strcat(path, (USR.triggerC + USR.bank_now)->path_ptr[num]); break;
+      case 2: strcat(path, (USR.triggerD + USR.bank_now)->path_ptr[num]); break;
     }
     Play_RunningLOOPwithTrigger(path, pri);
   }
@@ -336,7 +336,7 @@ static void Play_IN_wav(void)
   char path[50];
 
   sprintf(path, "0:/Bank%d/"TRIGGER(IN)"/", USR.bank_now+1);
-  strcat(path, (USR.triggerIn + USR.bank_now)->path_arry + 30*num);
+  strcat(path, (USR.triggerIn + USR.bank_now)->path_ptr[num]);
 
   Play_simple_wav(path);
 }
@@ -350,7 +350,7 @@ static void Play_OUT_wav(void)
   UINT point = convert_ms2filesize(USR.config->Out_Delay);
   sprintf(hum_path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
   sprintf(path, "0:/Bank%d/"TRIGGER(OUT)"/", USR.bank_now+1);
-  strcat(path, (USR.triggerOut + USR.bank_now)->path_arry + 30*num);
+  strcat(path, (USR.triggerOut + USR.bank_now)->path_ptr[num]);
 
   // Play_simple_wav(path);
   while (1) {

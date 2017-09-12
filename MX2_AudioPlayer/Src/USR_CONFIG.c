@@ -240,102 +240,96 @@ static uint8_t get_humsize(PARA_DYNAMIC_t* pt)
 
 static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t *pt)
 {
+  uint32_t mem_req = 0;
+  uint32_t max_trigger_cnt = 0;
+  TRIGGER_PATH_t *pTriggerPath;
+  bool goto_flag = false;
+  uint8_t trigger_cnt = 0;
   DIR dir; FILINFO info; char path[25]; FRESULT f_err;
   #if _USE_LFN
   info.lfname = LFN_BUF;
   #endif
-  uint8_t trigger_cnt = 0;
-  switch (triggerid)
-  {
-    case 0: sprintf(path, "0://Bank%d/"TRIGGER(B), Bank); break;
-    case 1: sprintf(path, "0://Bank%d/"TRIGGER(C), Bank); break;
-    case 2: sprintf(path, "0://Bank%d/"TRIGGER(D), Bank); break;
-    case 3: sprintf(path, "0://Bank%d/"TRIGGER(E), Bank); break;
-    case 4: sprintf(path, "0://Bank%d/"TRIGGER(IN), Bank); break;
-    case 5: sprintf(path, "0://Bank%d/"TRIGGER(OUT), Bank); break;
+  
+get_trigger_again:
+
+  if (goto_flag == false) {
+    switch (triggerid) {
+      case 0:
+        sprintf(path, "0://Bank%d/" TRIGGER(B), Bank);
+        max_trigger_cnt = TRIGGER_MAX_NUM(B);
+        pTriggerPath = pt->triggerB + Bank - 1;
+        break;
+      case 1:
+        sprintf(path, "0://Bank%d/" TRIGGER(C), Bank);
+        max_trigger_cnt = TRIGGER_MAX_NUM(C);
+        pTriggerPath = pt->triggerC + Bank - 1;
+        break;
+      case 2:
+        sprintf(path, "0://Bank%d/" TRIGGER(D), Bank);
+        max_trigger_cnt = TRIGGER_MAX_NUM(D);
+        pTriggerPath = pt->triggerD + Bank - 1;
+        break;
+      case 3:
+        sprintf(path, "0://Bank%d/" TRIGGER(E), Bank);
+        max_trigger_cnt = TRIGGER_MAX_NUM(E);
+        pTriggerPath = pt->triggerE + Bank - 1;
+        break;
+      case 4:
+        sprintf(path, "0://Bank%d/" TRIGGER(IN), Bank);
+        max_trigger_cnt = TRIGGER_MAX_NUM(in);
+        pTriggerPath = pt->triggerIn + Bank - 1;
+        break;
+      case 5:
+        sprintf(path, "0://Bank%d/" TRIGGER(OUT), Bank);
+        max_trigger_cnt = TRIGGER_MAX_NUM(out);
+        pTriggerPath = pt->triggerOut + Bank - 1;
+        break;
+    }
   }
-  // if (triggerid < 4)
-  //   sprintf(path, "0://Bank%d/Trigger_%c", Bank, triggerid + 'B');
-  // else if (triggerid == 4)
-  //   sprintf(path, "0://Bank%d/In", Bank);
-  // else if (triggerid == 5)
-  //   sprintf(path, "0://Bank%d/Out", Bank);
+  else
+  {
+    pTriggerPath->number = trigger_cnt;
+    pTriggerPath->path_arry = (char *)pvPortMalloc(sizeof(char)*mem_req);
+    pTriggerPath->path_ptr = (char **)pvPortMalloc(sizeof(char*)*trigger_cnt);
+  }
+
+  trigger_cnt = 0;
+  mem_req = 0;
 
   if ((f_err = f_opendir(&dir, path)) != FR_OK) {
     DEBUG(0, "Open Bank%d Trigger%c Error:%d", Bank, triggerid +'B', f_err);
     return 1;
   }
   while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0') {
+      // Trigger number limits
+      if (trigger_cnt >= max_trigger_cnt)
+        break;
+      
+      // 防止长文件名导致内存溢出，限制文件名长度为30
+      int num = strlen(info.fname);
+      if (num >= 30)
+        continue;
+
+
+      if (goto_flag == true)
+      {
+        pTriggerPath->path_ptr[trigger_cnt] = pTriggerPath->path_arry + mem_req;
+        strcpy(pTriggerPath->path_ptr[trigger_cnt], info.fname);
+      }
       trigger_cnt += 1;
+      mem_req += num + 1;
+      
   } f_closedir(&dir);
 
-  // Number limits
-  switch (triggerid) {
-    case 0:
-      if (trigger_cnt > TRIGGER_MAX_NUM(B))
-        trigger_cnt = TRIGGER_MAX_NUM(B);
-      break;
-    case 1:
-      if (trigger_cnt > TRIGGER_MAX_NUM(C))
-        trigger_cnt = TRIGGER_MAX_NUM(C);
-      break;
-    case 2:
-      if (trigger_cnt > TRIGGER_MAX_NUM(D))
-        trigger_cnt = TRIGGER_MAX_NUM(D);
-      break;
-    case 3:
-      if (trigger_cnt > TRIGGER_MAX_NUM(E))
-        trigger_cnt = TRIGGER_MAX_NUM(E);
-      break;
-    case 4:
-      if (trigger_cnt > TRIGGER_MAX_NUM(in))
-        trigger_cnt = TRIGGER_MAX_NUM(in);
-      break;
-    case 5:
-      if (trigger_cnt > TRIGGER_MAX_NUM(out))
-        trigger_cnt = TRIGGER_MAX_NUM(out);
-      break;
+  if (goto_flag == false)
+  {
+    goto_flag = true;
+    goto get_trigger_again;
   }
 
-  switch (triggerid) {
-    case 0: (pt->triggerB + Bank - 1)->number = trigger_cnt;
-            (pt->triggerB + Bank - 1)->path_arry = (char*)pvPortMalloc(sizeof(char)*30*trigger_cnt);
-            break;
-    case 1: (pt->triggerC + Bank - 1)->number = trigger_cnt;
-            (pt->triggerC + Bank - 1)->path_arry = (char*)pvPortMalloc(sizeof(char)*30*trigger_cnt);
-            break;
-    case 2: (pt->triggerD + Bank - 1)->number = trigger_cnt;
-            (pt->triggerD + Bank - 1)->path_arry = (char*)pvPortMalloc(sizeof(char)*30*trigger_cnt);
-            break;
-    case 3: (pt->triggerE + Bank - 1)->number = trigger_cnt;
-            (pt->triggerE + Bank - 1)->path_arry = (char*)pvPortMalloc(sizeof(char)*30*trigger_cnt);
-            break;
-    case 4: (pt->triggerIn + Bank - 1)->number = trigger_cnt;
-            (pt->triggerIn + Bank - 1)->path_arry  = (char*)pvPortMalloc((sizeof(char)*30*trigger_cnt));
-            break;
-    case 5: (pt->triggerOut + Bank - 1)->number = trigger_cnt;
-            (pt->triggerOut + Bank - 1)->path_arry = (char*)pvPortMalloc((sizeof(char)*30*trigger_cnt));
-            break;
-  }
-
-
-  if ((f_err = f_opendir(&dir, path)) != FR_OK) {
-    DEBUG(0, "Open Bank%d Trigger%c Error:%d", Bank, triggerid+'B', f_err);
-    return 1;
-  }
-  uint16_t i = 0;
-  while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0' && ++i <= trigger_cnt) {
-    switch (triggerid) {
-      case 0: strcpy((pt->triggerB + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
-      case 1: strcpy((pt->triggerC + Bank - 1)->path_arry+ (30)*(i - 1), info.fname); break;
-      case 2: strcpy((pt->triggerD + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
-      case 3: strcpy((pt->triggerE + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
-      case 4: strcpy((pt->triggerIn + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
-      case 5: strcpy((pt->triggerOut + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
-    }
-  } f_closedir(&dir);
   return 0;
 }
+
 #ifdef __GUNC__
 int strcasecmp(const char *src1, const char *src2)
 {
