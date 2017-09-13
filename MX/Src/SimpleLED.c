@@ -1,7 +1,5 @@
 #include "SimpleLED.h"
-#include "USR_CONFIG.h"
-#include "cmsis_os.h"
-#include "stm32f1xx.h"
+
 
 // TODO: LED2 LED3 为晶振输入IO，未处理复用引脚造成无法debug之前，不对LED2 LED3进行操作
 

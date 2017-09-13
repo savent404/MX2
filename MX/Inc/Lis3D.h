@@ -1,7 +1,8 @@
 #ifndef _LIS3D_H_
 #define _LIS3D_H_
-#include "math.h"
-#include "stdint.h"
+
+#include "mx-spi.h"
+#include <stdint.h>
 typedef struct Source
 {
   uint8_t Dx_L;

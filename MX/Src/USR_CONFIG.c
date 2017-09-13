@@ -1,12 +1,5 @@
 #include "USR_CONFIG.h"
-#include "AF.h"
-#include "DEBUG.h"
-#include "ff.h"
-#include "freeRTOS.h"
-#include "path.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
+
 PARA_DYNAMIC_t USR;
 
 const PARA_STATIC_t STATIC_USR = {

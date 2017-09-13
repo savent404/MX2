@@ -1,17 +1,7 @@
 #include "LED.h"
-#include "DEBUG.h"
-#include "USR_CONFIG.h"
-#include "tim.h"
+
 
 /* Var *************************************************/
-extern osThreadId defaultTaskHandle;
-extern osThreadId DACTaskHandle;
-extern osThreadId LEDTaskHandle;
-extern osThreadId WavTaskHandle;
-extern osMessageQId DAC_BufferHandle;
-extern osMessageQId DAC_CMDHandle;
-extern osMessageQId LED_CMDHandle;
-extern osSemaphoreId DAC_Complete_FlagHandle;
 
 static uint16_t BankColor[4];  //R G B L
 static uint16_t FBankColor[4]; //R G B L

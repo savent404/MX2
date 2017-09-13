@@ -1,11 +1,5 @@
 #include "Audio.h"
-#include "AF.h"
-#include "DEBUG.h"
-#include "USR_CONFIG.h"
-#include "dac.h"
-#include "ff.h"
-#include "main.h"
-#include "path.h"
+
 /** #001 说明  ：为提升音质、消除循环中由于重复的open/close操作造成的间断感--------*/
 /**
  [1] 为避免运行态时重复open/close以及seek音频文件，添加静态文件变量"file_1"、"file_2"
@@ -19,22 +13,6 @@
      "file_1"以及"file_2"，将hum以及trigger的偏移量置0
  */
 /* Variables -----------------------------------------------------------------*/
-extern osThreadId defaultTaskHandle;
-extern osThreadId DACTaskHandle;
-extern osThreadId LEDTaskHandle;
-extern osMessageQId DAC_BufferHandle;
-extern osMessageQId DAC_CMDHandle;
-extern osMessageQId LED_CMDHandle;
-extern osSemaphoreId DAC_Complete_FlagHandle;
-
-#define PRI_TRIGGER_B 3
-#define PRI_TRIGGER_C 2
-#define PRI_TRIGGER_D 4
-#define PRI_TRIGGER_E 1
-#define PRI_TRIGGER_NULL 0x0F
-#define PRI_TRIGGER_COLORSWITCH 5
-#define PRI(x) PRI_TRIGGER_##x
-
 static uint8_t SIMPLE_PLAY_READY = 1;
 ///循环音文件偏移量(运行态每次循环只会读取一部分音频)
 static UINT hum_offset = 0;

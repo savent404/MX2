@@ -308,6 +308,12 @@
 		<Unit filename="..\MX\Inc\DEBUG.h" />
 		<Unit filename="..\MX\Inc\LED.h" />
 		<Unit filename="..\MX\Inc\Lis3D.h" />
+		<Unit filename="..\MX\Inc\mx-adc.h" />
+		<Unit filename="..\MX\Inc\mx-audio.h" />
+		<Unit filename="..\MX\Inc\mx-gpio.h" />
+		<Unit filename="..\MX\Inc\mx-spi.h" />
+		<Unit filename="..\MX\Inc\mx-tim.h" />
+		<Unit filename="..\MX\Inc\MX_osID.h" />
 		<Unit filename="..\MX\Inc\path.h" />
 		<Unit filename="..\MX\Inc\SimpleLED.h" />
 		<Unit filename="..\MX\Inc\USR_CONFIG.h" />

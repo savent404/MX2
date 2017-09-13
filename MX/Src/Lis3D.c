@@ -1,7 +1,4 @@
 #include "lis3d.h"
-#include "main.h"
-#include "spi.h"
-#include "stm32f1xx_hal.h"
 
 static unsigned char LIS3DH_SPI_RD(unsigned char addr);
 static void LIS3DH_SPI_WR(unsigned char addr, unsigned char wrdata);

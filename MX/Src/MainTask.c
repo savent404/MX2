@@ -7,9 +7,8 @@
 #include <string.h>
 
 // STM32 Lib
-#include "adc.h"
-#include "dac.h"
-#include "stm32f1xx_hal.h"
+#include "mx-adc.h"
+#include "mx-audio.h"
 
 // OS Lib
 #include "FreeRTOS.h"
@@ -19,25 +18,16 @@
 
 // User Lib
 #include "Audio.h"
+#include "DEBUG.h"
 #include "LED.h"
 #include "Lis3D.h"
+#include "MX_osID.h"
 #include "SimpleLED.h"
 #include "USR_CONFIG.h"
-#include "dac.h"
-#include "debug.h"
 #include "ff.h"
 #include "main.h"
 
 /* Variables -----------------------------------------------------------------*/
-extern osThreadId defaultTaskHandle;
-extern osThreadId DACTaskHandle;
-extern osThreadId LEDTaskHandle;
-extern osThreadId WavTaskHandle;
-extern osTimerId SimpleLEDHandle;
-extern osMessageQId DAC_BufferHandle;
-extern osMessageQId DAC_CMDHandle;
-extern osMessageQId LED_CMDHandle;
-extern osSemaphoreId DAC_Complete_FlagHandle;
 ///NOTE: 由于各种触发为低概率事件， 循环中的定时器的定时间隔又软件延时产生，间隔时间为LOOP_DELAY
 ///切勿将LOOP_DELAY改为0
 #define LOOP_DELAY 15

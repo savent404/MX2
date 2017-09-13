@@ -1343,3 +1343,120 @@
 	<stdbool.h>
 	"DEBUG.h"
 
+1505266603 e:\github_clone\mx2\mx\inc\lis3d.h
+	"mx-spi.h"
+	<stdint.h>
+
+1505266242 source:e:\github_clone\mx2\mx\src\maintask.c
+	<math.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"mx-adc.h"
+	"mx-audio.h"
+	"FreeRTOS.h"
+	"cmsis_os.h"
+	"queue.h"
+	"task.h"
+	"Audio.h"
+	"DEBUG.h"
+	"LED.h"
+	"Lis3D.h"
+	"MX_osID.h"
+	"SimpleLED.h"
+	"USR_CONFIG.h"
+	"ff.h"
+	"main.h"
+
+1505266495 e:\github_clone\mx2\mx\inc\audio.h
+	"AF.h"
+	"DEBUG.h"
+	"FreeRTOS.h"
+	"MX_osID.h"
+	"USR_CONFIG.h"
+	"cmsis_os.h"
+	"ff.h"
+	"main.h"
+	"mx-audio.h"
+	"path.h"
+
+1505264645 e:\github_clone\mx2\mx\inc\af.h
+	<stdint.h>
+	<stdio.h>
+
+1505266006 e:\github_clone\mx2\mx\inc\debug.h
+	<stdint.h>
+	<stdio.h>
+	<string.h>
+
+1505265010 e:\github_clone\mx2\mx\inc\mx_osid.h
+	"cmsis_os.h"
+
+1505266324 e:\github_clone\mx2\mx\inc\usr_config.h
+	"AF.h"
+	"DEBUG.h"
+	"ff.h"
+	"freeRTOS.h"
+	"path.h"
+	<stdbool.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1505265995 e:\github_clone\mx2\mx\inc\attribute.h
+	"gpio.h"
+
+1496634397 e:\github_clone\mx2\mx\inc\path.h
+	"main.h"
+
+1505266589 e:\github_clone\mx2\mx\inc\led.h
+	"DEBUG.h"
+	"MX_osID.h"
+	"USR_CONFIG.h"
+	"cmsis_os.h"
+	"freertos.h"
+	"mx-tim.h"
+	<math.h>
+	<stdint.h>
+
+1505266199 e:\github_clone\mx2\mx\inc\simpleled.h
+	"DEBUG.h"
+	"USR_CONFIG.h"
+	"cmsis_os.h"
+	"mx-gpio.h"
+	<stdbool.h>
+	<stdint.h>
+	<stdio.h>
+
+1505266197 source:e:\github_clone\mx2\mx\src\simpleled.c
+	"SimpleLED.h"
+
+1505266187 source:e:\github_clone\mx2\mx\src\usr_config.c
+	"USR_CONFIG.h"
+
+1505266279 source:e:\github_clone\mx2\mx\src\audio.c
+	"Audio.h"
+
+1505266291 source:e:\github_clone\mx2\mx\src\led.c
+	"LED.h"
+
+1505266257 source:e:\github_clone\mx2\mx\src\lis3d.c
+	"lis3d.h"
+
+1505265754 e:\github_clone\mx2\mx\inc\mx-spi.h
+	"spi.h"
+
+1505265711 e:\github_clone\mx2\mx\inc\mx-audio.h
+	"dac.h"
+
+1505266066 e:\github_clone\mx2\mx\inc\mx-tim.h
+	"tim.h"
+
+1505265690 e:\github_clone\mx2\mx\inc\mx-adc.h
+	"adc.h"
+
+1505265734 e:\github_clone\mx2\mx\inc\mx-gpio.h
+	"gpio.h"
+

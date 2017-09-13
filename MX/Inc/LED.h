@@ -1,20 +1,14 @@
 #ifndef _LED_H_
 #define _LED_H_
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "stm32f1xx_hal.h"
-
+#include "DEBUG.h"
+#include "MX_osID.h"
+#include "USR_CONFIG.h"
 #include "cmsis_os.h"
 #include "freertos.h"
-
+#include "mx-tim.h"
+#include <math.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "USR_CONFIG.h"
 
 typedef enum _led_message {
     LED_Trigger_EXIT = 0x00,

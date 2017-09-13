@@ -1,9 +1,16 @@
 #ifndef USR_CONFIG_H_
 #define USR_CONFIG_H_
 
+#include "AF.h"
+#include "DEBUG.h"
+#include "ff.h"
+#include "freeRTOS.h"
+#include "path.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef enum {
   System_Restart,
