@@ -134,7 +134,10 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-
+void MX_SPI_Lis3dh_TxRx(uint8_t *tx, uint8_t *rx, uint8_t cnt)
+{
+  HAL_SPI_TransmitReceive(&hspi2, tx, rx, cnt, 10);
+}
 /* USER CODE END 1 */
 
 /**

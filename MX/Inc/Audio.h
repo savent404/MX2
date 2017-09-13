@@ -1,12 +1,24 @@
 #ifndef _AUDIO_H_
 #define _AUDIO_H_
 
-#include "stm32f1xx_hal.h"
+#include "AF.h"
+#include "DEBUG.h"
 #include "FreeRTOS.h"
+#include "MX_osID.h"
+#include "USR_CONFIG.h"
 #include "cmsis_os.h"
+#include "ff.h"
+#include "main.h"
+#include "mx-audio.h"
+#include "path.h"
 
-#define AUDIO_FIFO_NUM  3
+#ifndef AUDIO_FIFO_NUM
+#define AUDIO_FIFO_NUM 3
+#endif
+
+#ifndef AUDIO_FIFO_SIZE
 #define AUDIO_FIFO_SIZE 512
+#endif
 
 typedef enum _play_audio_id {
   Audio_Erro = 0x00,
@@ -25,6 +37,14 @@ typedef enum _play_audio_id {
   Audio_TriggerE = 0x0d,
   Audio_BankSwitch = 0x0e,
 } Audio_ID_t;
+
+#define PRI_TRIGGER_B 3
+#define PRI_TRIGGER_C 2
+#define PRI_TRIGGER_D 4
+#define PRI_TRIGGER_E 1
+#define PRI_TRIGGER_NULL 0x0F
+#define PRI_TRIGGER_COLORSWITCH 5
+#define PRI(x) PRI_TRIGGER_##x
 
 int8_t Audio_Play_Start(Audio_ID_t id);
 int8_t Audio_Play_Stop(Audio_ID_t id);

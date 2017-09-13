@@ -1,12 +1,7 @@
 #include "lis3d.h"
-#include "stm32f1xx_hal.h"
-#include "spi.h"
-#include "main.h"
 
 static unsigned char LIS3DH_SPI_RD(unsigned char addr);
-static void LIS3DH_SPI_WR(unsigned char addr,unsigned char wrdata);
-static void SPI1_CS_Low(void);
-static void SPI1_CS_High(void);
+static void LIS3DH_SPI_WR(unsigned char addr, unsigned char wrdata);
 static uint8_t SPI_LIS3DH_SendByte(uint8_t byte);
 
 void Lis3d_Init(void)
@@ -73,33 +68,33 @@ void Lis3d_Init(void)
     */
   LIS3DH_SPI_WR(0x3D, 0); //About 0ms
 
-
-	/* Latch AOI INTERRUPT
+  /* Latch AOI INTERRUPT
 	 */
-	LIS3DH_SPI_WR(0x24, 0x80);
+  LIS3DH_SPI_WR(0x24, 0x80);
 
-	/* Enable AOI on interrupt 2
+  /* Enable AOI on interrupt 2
 	 */
-	LIS3DH_SPI_WR(0x25, 0x40);
+  LIS3DH_SPI_WR(0x25, 0x40);
 
-	/* INT1 CFG
+  /* INT1 CFG
 	 * Enable 6D detection
 	 * And every aixs
 	 */
-	LIS3DH_SPI_WR(0x30, 0x7F);
+  LIS3DH_SPI_WR(0x30, 0x7F);
 
-	/* INT1 THS
+  /* INT1 THS
 	 * Never mind
 	 */
-	LIS3DH_SPI_WR(0x32, 2);
+  LIS3DH_SPI_WR(0x32, 2);
 
-	/* INT1_DURATION
+  /* INT1_DURATION
 	 * LSB : 2.5ms
 	 */
-	LIS3DH_SPI_WR(0x33, 30); // 50ms
+  LIS3DH_SPI_WR(0x33, 30); // 50ms
 }
 
-void Lis3d_Set(Lis3dConfig *para) {
+void Lis3d_Set(Lis3dConfig *para)
+{
   /* Configuration Description
    * Normal Mode
    * High-pass filter set to 1Hz
@@ -162,72 +157,64 @@ void Lis3d_Set(Lis3dConfig *para) {
     */
   LIS3DH_SPI_WR(0x3D, para->CW); //About 0ms
 
-
-	/* Latch AOI INTERRUPT
+  /* Latch AOI INTERRUPT
 	 */
-	LIS3DH_SPI_WR(0x24, 0x80);
+  LIS3DH_SPI_WR(0x24, 0x80);
 
-	/* Enable AOI on interrupt 2
+  /* Enable AOI on interrupt 2
 	 */
-	LIS3DH_SPI_WR(0x25, 0x40);
+  LIS3DH_SPI_WR(0x25, 0x40);
 
-	/* INT1 CFG
+  /* INT1 CFG
 	 * Enable 6D detection
 	 * And every aixs
 	 */
-	LIS3DH_SPI_WR(0x30, 0x7F);
+  LIS3DH_SPI_WR(0x30, 0x7F);
 
-	/* INT1 THS
+  /* INT1 THS
 	 * Never mind
 	 */
-	LIS3DH_SPI_WR(0x32, para->MT);
+  LIS3DH_SPI_WR(0x32, para->MT);
 
-	/* INT1_DURATION
+  /* INT1_DURATION
 	 * LSB : 2.5ms
 	 */
-	LIS3DH_SPI_WR(0x33, para->MD); // 50ms
+  LIS3DH_SPI_WR(0x33, para->MD); // 50ms
 }
 
-uint8_t Lis3d_isClick(void) {
+uint8_t Lis3d_isClick(void)
+{
   return LIS3DH_SPI_RD(0x39);
 }
-uint8_t Lis3d_isMove(void) {
+uint8_t Lis3d_isMove(void)
+{
   return LIS3DH_SPI_RD(0x31);
 }
 
 static unsigned char LIS3DH_SPI_RD(unsigned char addr)
 {
   unsigned char temp;
-  SPI1_CS_Low();
+  MX_GPIO_Lis3DCSEnable(true);
   //Delay_Spi(10);
   SPI_LIS3DH_SendByte((addr | 0x80) & 0xbf);
   temp = SPI_LIS3DH_SendByte(0xff);
   //Delay_Spi(10);
-  SPI1_CS_High();
+  MX_GPIO_Lis3DCSEnable(false);
   return temp;
 }
 
 //SPI1写函数
 static void LIS3DH_SPI_WR(unsigned char addr, unsigned char wrdata)
 {
-  SPI1_CS_Low();
+  MX_GPIO_Lis3DCSEnable(true);
   SPI_LIS3DH_SendByte(addr & 0x7f);
   SPI_LIS3DH_SendByte(wrdata);
-  SPI1_CS_High();
-}
-
-static void SPI1_CS_Low(void)
-{
-    HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
-}
-static void SPI1_CS_High(void)
-{
-    HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
+  MX_GPIO_Lis3DCSEnable(false);
 }
 
 static uint8_t SPI_LIS3DH_SendByte(uint8_t byte)
 {
-    uint8_t buf[1];
-    HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&byte, buf, 1, 10);
-    return *buf;
+  uint8_t buf[1];
+  MX_SPI_Lis3dh_TxRx((uint8_t*)&byte, buf, 1);
+  return *buf;
 }

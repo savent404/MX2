@@ -174,26 +174,19 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\Inc\adc.h" />
-		<Unit filename="..\MX2_AudioPlayer\Inc\AF.h" />
-		<Unit filename="..\MX2_AudioPlayer\Inc\Audio.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\bsp_driver_sd.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\dac.h" />
-		<Unit filename="..\MX2_AudioPlayer\Inc\DEBUG.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\dma.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\fatfs.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\ffconf.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\FreeRTOSConfig.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\gpio.h" />
-		<Unit filename="..\MX2_AudioPlayer\Inc\LED.h" />
-		<Unit filename="..\MX2_AudioPlayer\Inc\Lis3D.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\main.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\sdio.h" />
-		<Unit filename="..\MX2_AudioPlayer\Inc\SimpleLED.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\spi.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\stm32f1xx_hal_conf.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\stm32f1xx_it.h" />
 		<Unit filename="..\MX2_AudioPlayer\Inc\tim.h" />
-		<Unit filename="..\MX2_AudioPlayer\Inc\USR_CONFIG.h" />
 		<Unit filename="..\MX2_AudioPlayer\Middlewares\Third_Party\FatFs\src\diskio.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -264,9 +257,6 @@
 		<Unit filename="..\MX2_AudioPlayer\Src\adc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\MX2_AudioPlayer\Src\Audio.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\Src\bsp_driver_sd.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -285,22 +275,10 @@
 		<Unit filename="..\MX2_AudioPlayer\Src\gpio.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\MX2_AudioPlayer\Src\LED.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="..\MX2_AudioPlayer\Src\Lis3D.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\Src\main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\MX2_AudioPlayer\Src\MainTask.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\Src\sdio.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="..\MX2_AudioPlayer\Src\SimpleLED.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\Src\spi.c">
@@ -321,13 +299,42 @@
 		<Unit filename="..\MX2_AudioPlayer\Src\tim.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\MX2_AudioPlayer\Src\USR_CONFIG.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\startup\startup_stm32f103xe.S">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\STM32F103RDTx_FLASH.ld" />
+		<Unit filename="..\MX\Inc\AF.h" />
+		<Unit filename="..\MX\Inc\Audio.h" />
+		<Unit filename="..\MX\Inc\DEBUG.h" />
+		<Unit filename="..\MX\Inc\LED.h" />
+		<Unit filename="..\MX\Inc\Lis3D.h" />
+		<Unit filename="..\MX\Inc\mx-adc.h" />
+		<Unit filename="..\MX\Inc\mx-audio.h" />
+		<Unit filename="..\MX\Inc\mx-gpio.h" />
+		<Unit filename="..\MX\Inc\mx-spi.h" />
+		<Unit filename="..\MX\Inc\mx-tim.h" />
+		<Unit filename="..\MX\Inc\MX_osID.h" />
+		<Unit filename="..\MX\Inc\path.h" />
+		<Unit filename="..\MX\Inc\SimpleLED.h" />
+		<Unit filename="..\MX\Inc\USR_CONFIG.h" />
+		<Unit filename="..\MX\Src\Audio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\LED.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\Lis3D.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\MainTask.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\SimpleLED.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\USR_CONFIG.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Extensions>
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />
@@ -340,7 +347,7 @@
 			</DoxyBlocks>
 			<code_completion />
 			<debugger>
-				<target_debugging_settings target="Release" active_interface="ST-link">
+				<target_debugging_settings target="Debug" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
@@ -357,7 +364,7 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="Debug" active_interface="ST-link">
+				<target_debugging_settings target="Release" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />

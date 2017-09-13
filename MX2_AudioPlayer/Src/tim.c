@@ -236,7 +236,52 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-
+void MX_TIM_PowerLEDStart(void)
+{
+  HAL_TIM_Base_Start(&htim1);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+}
+void MX_TIM_PowerLEDOpra(uint8_t ch, uint16_t max_1024)
+{
+  switch (ch)
+  {
+    case 1:
+    TIM1->CCR1 = max_1024;
+    break;
+    case 2:
+    TIM1->CCR2 = max_1024;
+    break;
+    case 3:
+    TIM1->CCR3 = max_1024;
+    break;
+    case 4:
+    TIM1->CCR4 = max_1024;
+    break;
+  }
+}
+uint16_t MX_TIM_PowerLEDRead(uint8_t ch)
+{
+  uint16_t buf;
+  switch (ch)
+  {
+    case 1:
+    buf = TIM1->CCR1;
+    break;
+    case 2:
+    buf = TIM1->CCR2;
+    break;
+    case 3:
+    buf = TIM1->CCR3;
+    break;
+    case 4:
+    buf = TIM1->CCR4;
+    break;
+  }
+  return buf;
+}
 /* USER CODE END 1 */
 
 /**
