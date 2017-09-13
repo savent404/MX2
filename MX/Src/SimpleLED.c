@@ -9,9 +9,8 @@ static SimpleLED_Acction_t *pacction;
 static int32_t SimpleLED_Timer_cnt = 0;
 static int32_t SimpleLED_LED_cnt = 0;
 static bool loopflag;
-static SimpleLED_Acction_t* GetAction(SimpleLED_Status_t status);
+static SimpleLED_Acction_t *GetAction(SimpleLED_Status_t status);
 static void SimpleLED_Opra(uint8_t led);
-
 
 void SimpleLED_ChangeStatus(SimpleLED_Status_t status)
 {
@@ -20,24 +19,25 @@ void SimpleLED_ChangeStatus(SimpleLED_Status_t status)
 
 void SimpleLED_Callback(void const *arg)
 {
-  if ((SimpleLED_Timer_cnt -= (int)arg) > 0) return;
+  if ((SimpleLED_Timer_cnt -= (int)arg) > 0)
+    return;
 
-    if ((int)pacction == 0)
-    {
-      SimpleLED_Opra(0x00);
-      SimpleLED_Timer_cnt = 100;
-      return;
-    }
-    else
-    {
-      if (loopflag == false && SimpleLED_LED_cnt < pacction->Num)
-        SimpleLED_Opra(*(pacction->Action + SimpleLED_LED_cnt++) & USR.config->SimpleLED_MASK);
-      else if (loopflag == false)
-        pacction = GetAction(SIMPLELED_STATUS_ON);
-      else if (loopflag == true)
-        SimpleLED_Opra(*(pacction->Action + (SimpleLED_LED_cnt++ % pacction->Num)) & USR.config->SimpleLED_MASK);
-      SimpleLED_Timer_cnt = pacction->Delay;
-    }
+  if ((int)pacction == 0)
+  {
+    SimpleLED_Opra(0x00);
+    SimpleLED_Timer_cnt = 100;
+    return;
+  }
+  else
+  {
+    if (loopflag == false && SimpleLED_LED_cnt < pacction->Num)
+      SimpleLED_Opra(*(pacction->Action + SimpleLED_LED_cnt++) & USR.config->SimpleLED_MASK);
+    else if (loopflag == false)
+      pacction = GetAction(SIMPLELED_STATUS_ON);
+    else if (loopflag == true)
+      SimpleLED_Opra(*(pacction->Action + (SimpleLED_LED_cnt++ % pacction->Num)) & USR.config->SimpleLED_MASK);
+    SimpleLED_Timer_cnt = pacction->Delay;
+  }
 }
 
 void SimpleLED_Handle(void const *arg)
@@ -52,33 +52,33 @@ void SimpleLED_Handle(void const *arg)
   }
 }
 
-static SimpleLED_Acction_t* GetAction(SimpleLED_Status_t status)
+static SimpleLED_Acction_t *GetAction(SimpleLED_Status_t status)
 {
   SimpleLED_Acction_t *ans;
   switch (status)
   {
-    case SIMPLELED_STATUS_SLEEP:
-      ans = NULL;
-      break;
-    case SIMPLELED_STATUS_STANDBY:
-      ans = (USR.accent + USR.bank_now)->Standby;
-      loopflag = true;
-      break;
-    case SIMPLELED_STATUS_ON:
-      ans =( USR.accent + USR.bank_now)->On;
-      loopflag = true;
-      break;
-    case SIMPLELED_STATUS_CLASH:
-      ans = (USR.accent + USR.bank_now)->Clash;
-      loopflag = false;
-      break;
-    case SIMPLELED_STATUS_LOCKUP:
-      ans = (USR.accent + USR.bank_now)->Lockup;
-      loopflag = true;
-      break;
-    default:
-      ans = NULL;
-      loopflag = false;
+  case SIMPLELED_STATUS_SLEEP:
+    ans = NULL;
+    break;
+  case SIMPLELED_STATUS_STANDBY:
+    ans = (USR.accent + USR.bank_now)->Standby;
+    loopflag = true;
+    break;
+  case SIMPLELED_STATUS_ON:
+    ans = (USR.accent + USR.bank_now)->On;
+    loopflag = true;
+    break;
+  case SIMPLELED_STATUS_CLASH:
+    ans = (USR.accent + USR.bank_now)->Clash;
+    loopflag = false;
+    break;
+  case SIMPLELED_STATUS_LOCKUP:
+    ans = (USR.accent + USR.bank_now)->Lockup;
+    loopflag = true;
+    break;
+  default:
+    ans = NULL;
+    loopflag = false;
   }
 
   SimpleLED_LED_cnt = 0;

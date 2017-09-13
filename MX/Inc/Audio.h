@@ -1,11 +1,11 @@
 #ifndef _AUDIO_H_
 #define _AUDIO_H_
 
-#include "stm32f1xx_hal.h"
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
+#include "stm32f1xx_hal.h"
 
-#define AUDIO_FIFO_NUM  3
+#define AUDIO_FIFO_NUM 3
 #define AUDIO_FIFO_SIZE 512
 
 typedef enum _play_audio_id {

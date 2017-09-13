@@ -1,34 +1,32 @@
 // STD Lib
 /* Includes ------------------------------------------------------------------*/
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
 
 // STM32 Lib
-#include "stm32f1xx_hal.h"
 #include "adc.h"
 #include "dac.h"
+#include "stm32f1xx_hal.h"
 
 // OS Lib
 #include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
 #include "cmsis_os.h"
+#include "queue.h"
+#include "task.h"
 
 // User Lib
-#include "main.h"
-#include "ff.h"
-#include "debug.h"
+#include "Audio.h"
+#include "LED.h"
+#include "Lis3D.h"
+#include "SimpleLED.h"
 #include "USR_CONFIG.h"
 #include "dac.h"
-#include "Audio.h"
-#include "Lis3D.h"
-#include "LED.h"
-#include "SimpleLED.h"
+#include "debug.h"
+#include "ff.h"
+#include "main.h"
 
 /* Variables -----------------------------------------------------------------*/
 extern osThreadId defaultTaskHandle;
@@ -60,18 +58,20 @@ static uint8_t key_scan(void);
 static uint8_t ask_trigger(uint8_t triggerid);
 static void ticktock_trigger(void);
 static void move_detected(void);
-static uint8_t auto_off(uint32_t* ready_cnt, uint32_t *poweroff_cnt);
+static uint8_t auto_off(uint32_t *ready_cnt, uint32_t *poweroff_cnt);
 static uint16_t GetVoltage(void);
 extern void MX_FATFS_Init(void);
-#define AUTO_CNT_CLEAR()  auto_intoready_cnt = 0, auto_poweroff_cnt = 0
+#define AUTO_CNT_CLEAR() auto_intoready_cnt = 0, auto_poweroff_cnt = 0
 
-void StartDefaultTask(void const * argument)
+void StartDefaultTask(void const *argument)
 {
   // 检测是否静音启动
   if (HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin) == GPIO_PIN_RESET)
   {
     USR.mute_flag = 1;
-  } else {
+  }
+  else
+  {
     USR.mute_flag = 0;
   }
 
@@ -90,9 +90,9 @@ void StartDefaultTask(void const * argument)
   // 使能电源使能端
   HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_SET);
 
-  #if USE_DEBUG
+#if USE_DEBUG
   __ASM("BKPT 0");
-  #endif
+#endif
 
   /**< 由于多Bank可能不同的Vol值，初始化时判断Vol为0不再是安全的操作 */
   // // 当配置音频音量为0时，默认与静音启动相同操作
@@ -148,7 +148,6 @@ void StartDefaultTask(void const * argument)
   SimpleLED_Init();
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
   osTimerStart(SimpleLEDHandle, 10);
-  
 
   USR.sys_status = System_Ready;
 
@@ -158,13 +157,13 @@ void StartDefaultTask(void const * argument)
     // 检测按键上升/下降沿
     uint8_t key_status = key_scan();
 
-    // 系统参数分析
-    #if USE_DEBUG
+// 系统参数分析
+#if USE_DEBUG
     USR.Stack_Free[0] = uxTaskGetStackHighWaterMark(defaultTaskHandle);
     USR.Stack_Free[1] = uxTaskGetStackHighWaterMark(DACTaskHandle);
     USR.Stack_Free[2] = uxTaskGetStackHighWaterMark(LEDTaskHandle);
     USR.Stack_Free[3] = uxTaskGetStackHighWaterMark(WavTaskHandle);
-    #endif
+#endif
 
     ///Button check ant its function
     if (USR.sys_status == System_Ready)
@@ -182,7 +181,7 @@ void StartDefaultTask(void const * argument)
           osDelay(10);
           timeout += 10;
         }
-        if (timeout > (USR.config->Tpoff>USR.config->Tout?USR.config->Tout:USR.config->Tpoff))
+        if (timeout > (USR.config->Tpoff > USR.config->Tout ? USR.config->Tout : USR.config->Tpoff))
         {
           if ((USR.config->Tpoff >= USR.config->Tout && USR.config->Tpoff <= timeout) ||
               (USR.config->Tpoff < USR.config->Tout && USR.config->Tout > timeout))
@@ -196,7 +195,11 @@ void StartDefaultTask(void const * argument)
           }
           else
           {
-            if (!Audio_IsSimplePlayIsReady()) { osDelay(10); continue;}
+            if (!Audio_IsSimplePlayIsReady())
+            {
+              osDelay(10);
+              continue;
+            }
             DEBUG(5, "System going to running");
             auto_intoready_cnt = 0;
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON); // 小型LED进入On模式
@@ -211,7 +214,7 @@ void StartDefaultTask(void const * argument)
       else if (key_status & 0x08)
       {
         uint16_t timeout = 0;
-        while ((!(key_scan()& 0x02)) && (timeout < USR.config->Ts_switch))
+        while ((!(key_scan() & 0x02)) && (timeout < USR.config->Ts_switch))
         {
           osDelay(10);
           timeout += 10;
@@ -236,9 +239,9 @@ void StartDefaultTask(void const * argument)
       {
         uint16_t timeout = 0;
         while (
-         (!((key_status = key_scan()) & 0x01))  //Waiting for PowerKey UP
-         &&(!(key_status & 0x08))               //Waiting for UserKey  DOWN
-         &&timeout < USR.config->Tin)           //Waiting for Timeout
+            (!((key_status = key_scan()) & 0x01)) //Waiting for PowerKey UP
+            && (!(key_status & 0x08))             //Waiting for UserKey  DOWN
+            && timeout < USR.config->Tin)         //Waiting for Timeout
         {
           osDelay(10);
           timeout += 10;
@@ -258,8 +261,8 @@ void StartDefaultTask(void const * argument)
           USR.sys_status = System_Ready;
           LED_Start_Trigger(LED_Trigger_Stop);
           Audio_Play_Start(Audio_intoReady);
-          USR.bank_color   = 0; //每次退出都将清零Colorswitch的值
-          LED_Bank_Update(&USR);  //更新当前LED配色
+          USR.bank_color = 0;    //每次退出都将清零Colorswitch的值
+          LED_Bank_Update(&USR); //更新当前LED配色
         }
       }
 
@@ -278,8 +281,9 @@ void StartDefaultTask(void const * argument)
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_LOCKUP);
             LED_Start_Trigger(LED_TriggerE);
             Audio_Play_Start(Audio_TriggerE);
-            while (!(key_scan() & 0x02)) {
-                osDelay(10);
+            while (!(key_scan() & 0x02))
+            {
+              osDelay(10);
             }
             DEBUG(5, "Trigger E END");
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
@@ -300,7 +304,6 @@ void StartDefaultTask(void const * argument)
 
     else if (USR.sys_status == System_Charged)
     {
-
     }
 
     else if (USR.sys_status == System_Charging)
@@ -322,7 +325,8 @@ void StartDefaultTask(void const * argument)
       Audio_Play_Start(Audio_Recharge);
       osDelay(2000);
       HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
-      while (1);
+      while (1)
+        ;
     }
 #endif
     /// 充电检测
@@ -332,14 +336,18 @@ void StartDefaultTask(void const * argument)
       if (USR.sys_status == System_Charged || USR.sys_status == System_Charging) {
 
       } else */
-      if (STATIC_USR.vol_chargecomplete < power_adc_val){
+      if (STATIC_USR.vol_chargecomplete < power_adc_val)
+      {
         SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
         USR.sys_status = System_Charged;
-      } else {
+      }
+      else
+      {
         SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
         USR.sys_status = System_Charging;
       }
-    } else if (USR.sys_status == System_Charged || USR.sys_status == System_Charging)
+    }
+    else if (USR.sys_status == System_Charged || USR.sys_status == System_Charging)
     {
       SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
       USR.sys_status = System_Close;
@@ -349,27 +357,31 @@ void StartDefaultTask(void const * argument)
     }
 
     ///当有按键动作时清空自动关机\待机定时器
-    if (key_status != 0) {
-        AUTO_CNT_CLEAR();
+    if (key_status != 0)
+    {
+      AUTO_CNT_CLEAR();
     }
 
     /// 自动关机\待机定时器 当达到配置文件的计数值后触发动作
     uint8_t t;
     if ((t = auto_off(&auto_intoready_cnt, &auto_poweroff_cnt)) != 0)
     {
-      if (t == 1) {
-          DEBUG(5, "System going to ready");
-          SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
-          USR.sys_status = System_Ready;
-          LED_Start_Trigger(LED_Trigger_Stop);
-          Audio_Play_Start(Audio_intoReady);
-      } else if (t == 2) {
-          DEBUG(5, "System going to close");
-          SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP);
-          USR.sys_status = System_Close;
-          Audio_Play_Start(Audio_PowerOff);
-          osDelay(3000); //3s
-          HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+      if (t == 1)
+      {
+        DEBUG(5, "System going to ready");
+        SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+        USR.sys_status = System_Ready;
+        LED_Start_Trigger(LED_Trigger_Stop);
+        Audio_Play_Start(Audio_intoReady);
+      }
+      else if (t == 2)
+      {
+        DEBUG(5, "System going to close");
+        SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP);
+        USR.sys_status = System_Close;
+        Audio_Play_Start(Audio_PowerOff);
+        osDelay(3000); //3s
+        HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
       }
     }
 
@@ -387,48 +399,59 @@ void StartDefaultTask(void const * argument)
  * @Para  poweroff_cnt 待机态转关机的计时器
  * @Retvl 0-No trigger | 1-转待机 | 2-转关机
  */
-static uint8_t auto_off(uint32_t* ready_cnt, uint32_t *poweroff_cnt)
+static uint8_t auto_off(uint32_t *ready_cnt, uint32_t *poweroff_cnt)
 {
-  if (USR.sys_status == System_Ready) {
-      *poweroff_cnt += LOOP_DELAY;
-      if (*poweroff_cnt >= USR.config->Tautooff && USR.config->Tautooff != 0)
-        return 2;
-  } else if (USR.sys_status == System_Running) {
-      *ready_cnt += LOOP_DELAY;
-      if (*ready_cnt >= USR.config->Tautoin && USR.config->Tautoin != 0)
-        return 1;
-  } return 0;
+  if (USR.sys_status == System_Ready)
+  {
+    *poweroff_cnt += LOOP_DELAY;
+    if (*poweroff_cnt >= USR.config->Tautooff && USR.config->Tautooff != 0)
+      return 2;
+  }
+  else if (USR.sys_status == System_Running)
+  {
+    *ready_cnt += LOOP_DELAY;
+    if (*ready_cnt >= USR.config->Tautoin && USR.config->Tautoin != 0)
+      return 1;
+  }
+  return 0;
 }
 
 /**
  * @Brief  加速度计检测，当有触发后触发相应动作并清空自动待机定时器
  */
-static void move_detected(void) {
-    uint8_t move,click, __move, __click;
-    static  uint8_t _move = 0, _click = 0;
-    __move = Lis3d_isMove();
-    __click = Lis3d_isClick();
+static void move_detected(void)
+{
+  uint8_t move, click, __move, __click;
+  static uint8_t _move = 0, _click = 0;
+  __move = Lis3d_isMove();
+  __click = Lis3d_isClick();
 
-    if (__move > 0 && _move == 0) move = 1;
-    else move = 0;
-    if (__click > 0 && _click == 0) click = 1;
-    else click = 0;
-    _move = __move;
-    _click = __click;
-    //Lis3DH parts
-    //TriggerC
-    if (click && ask_trigger(1)) {
-        SimpleLED_ChangeStatus(SIMPLELED_STATUS_CLASH);
-        LED_Start_Trigger(LED_TriggerC);
-        Audio_Play_Start(Audio_TriggerC);
-        AUTO_CNT_CLEAR();
-    }
-    //TriggerB
-    if (move && ask_trigger(0)) {
-        LED_Start_Trigger(LED_TriggerB);
-        Audio_Play_Start(Audio_TriggerB);
-        AUTO_CNT_CLEAR();
-    }
+  if (__move > 0 && _move == 0)
+    move = 1;
+  else
+    move = 0;
+  if (__click > 0 && _click == 0)
+    click = 1;
+  else
+    click = 0;
+  _move = __move;
+  _click = __click;
+  //Lis3DH parts
+  //TriggerC
+  if (click && ask_trigger(1))
+  {
+    SimpleLED_ChangeStatus(SIMPLELED_STATUS_CLASH);
+    LED_Start_Trigger(LED_TriggerC);
+    Audio_Play_Start(Audio_TriggerC);
+    AUTO_CNT_CLEAR();
+  }
+  //TriggerB
+  if (move && ask_trigger(0))
+  {
+    LED_Start_Trigger(LED_TriggerB);
+    Audio_Play_Start(Audio_TriggerB);
+    AUTO_CNT_CLEAR();
+  }
 }
 /**
  * @Brief  Init fatfs and then initial all user configuration
@@ -455,23 +478,24 @@ static void filesystem_init(void)
 static void beep_error(void)
 {
   /// SD card can't initialize, so make a warning wave by soft.
-  uint16_t *pt = (uint16_t*)pvPortMalloc(sizeof(uint16_t)*1024);
+  uint16_t *pt = (uint16_t *)pvPortMalloc(sizeof(uint16_t) * 1024);
   uint16_t *ppt = pt;
   uint16_t cnt = 1024;
   HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_SET);
   while (cnt--)
   {
-    *pt = ((float)(sin(cnt*3.1514926/20)/2)*0x1000) + 0x1000/2;
+    *pt = ((float)(sin(cnt * 3.1514926 / 20) / 2) * 0x1000) + 0x1000 / 2;
     pt += 1;
   }
   cnt = 10;
-  while (cnt--) {
-    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)ppt, 1024, DAC_ALIGN_12B_R);
+  while (cnt--)
+  {
+    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)ppt, 1024, DAC_ALIGN_12B_R);
     osDelay(50);
   }
   HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
-  while (1);
-
+  while (1)
+    ;
 }
 
 /**
@@ -484,22 +508,33 @@ static uint8_t key_scan(void)
   static uint8_t status = 1;
   uint8_t buf = 0, pre_buf;
 
-  if (HAL_GPIO_ReadPin(POWER_GPIO_Port, POWER_Pin) == GPIO_PIN_SET) {
+  if (HAL_GPIO_ReadPin(POWER_GPIO_Port, POWER_Pin) == GPIO_PIN_SET)
+  {
     buf |= 0x01;
-  } if (HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin) == GPIO_PIN_RESET) {
+  }
+  if (HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin) == GPIO_PIN_RESET)
+  {
     buf |= 0x02;
   }
   pre_buf = buf;
   buf ^= status;
   status = pre_buf;
 
-  if (buf & 0x01) {
-    if (pre_buf & 0x01) buf = 0x04;
-    else buf = 0x01;
-  } if (buf & 0x02) {
-    if (pre_buf & 0x02) buf = 0x08;
-    else buf = 0x02;
-  } return buf;
+  if (buf & 0x01)
+  {
+    if (pre_buf & 0x01)
+      buf = 0x04;
+    else
+      buf = 0x01;
+  }
+  if (buf & 0x02)
+  {
+    if (pre_buf & 0x02)
+      buf = 0x08;
+    else
+      buf = 0x02;
+  }
+  return buf;
 }
 
 /**
@@ -509,31 +544,38 @@ static uint8_t key_scan(void)
  */
 static uint8_t ask_trigger(uint8_t triggerid)
 {
-  if (!frozen_trigger_cnt[triggerid]) {
-    switch (triggerid) {
-      case 0:
-        frozen_trigger_cnt[0] = (USR.config->TBfreeze > INT16_MAX ? INT16_MAX : USR.config->TBfreeze);
-        break;
-      case 1:
-        frozen_trigger_cnt[1] = (USR.config->TCfreeze > INT16_MAX ? INT16_MAX : USR.config->TCfreeze);
-        break;
-      case 2:
-        frozen_trigger_cnt[2] = (USR.config->TDfreeze > INT16_MAX ? INT16_MAX : USR.config->TDfreeze);
-        break;
-    } return 1;
-  } return 0;
+  if (!frozen_trigger_cnt[triggerid])
+  {
+    switch (triggerid)
+    {
+    case 0:
+      frozen_trigger_cnt[0] = (USR.config->TBfreeze > INT16_MAX ? INT16_MAX : USR.config->TBfreeze);
+      break;
+    case 1:
+      frozen_trigger_cnt[1] = (USR.config->TCfreeze > INT16_MAX ? INT16_MAX : USR.config->TCfreeze);
+      break;
+    case 2:
+      frozen_trigger_cnt[2] = (USR.config->TDfreeze > INT16_MAX ? INT16_MAX : USR.config->TDfreeze);
+      break;
+    }
+    return 1;
+  }
+  return 0;
 }
 
 /**
  * @Brief  Update trigger's frozen time, put it in MainTask's loop.
  */
-static void ticktock_trigger(void) {
+static void ticktock_trigger(void)
+{
   for (uint8_t i = 0; i < 3; i++)
   {
-    if (frozen_trigger_cnt[i] > 0) {
+    if (frozen_trigger_cnt[i] > 0)
+    {
       frozen_trigger_cnt[i] -= LOOP_DELAY;
     }
-    if (frozen_trigger_cnt[i] < 0) {
+    if (frozen_trigger_cnt[i] < 0)
+    {
       frozen_trigger_cnt[i] = 0;
     }
   }
@@ -549,7 +591,8 @@ static uint16_t GetVoltage(void)
   {
     val += div / 3;
   }
-  else {
+  else
+  {
     val = buf;
   }
 

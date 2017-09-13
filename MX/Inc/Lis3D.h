@@ -1,7 +1,7 @@
 #ifndef _LIS3D_H_
 #define _LIS3D_H_
-#include "stdint.h"
 #include "math.h"
+#include "stdint.h"
 typedef struct Source
 {
   uint8_t Dx_L;
@@ -10,16 +10,14 @@ typedef struct Source
   uint8_t Dx_H;
   uint8_t Dy_H;
   uint8_t Dz_H;
-}
-Lis3dSourceData;
+} Lis3dSourceData;
 
 typedef struct Data
 {
   int16_t Dx;
   int16_t Dy;
   int16_t Dz;
-}
-Lis3dData;
+} Lis3dData;
 
 typedef struct _Lis3dConfig
 {
