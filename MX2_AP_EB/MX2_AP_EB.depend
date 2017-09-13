@@ -1206,8 +1206,9 @@
 	"cmsis_os.h"
 	"stm32f1xx_hal.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\gpio.c
+1505270845 source:e:\github_clone\mx2\mx2_audioplayer\src\gpio.c
 	"gpio.h"
+	"mx-gpio.h"
 
 1504201824 source:e:\github_clone\mx2\mx2_audioplayer\src\led.c
 	"LED.h"
@@ -1293,7 +1294,7 @@
 	"sdio.h"
 	"gpio.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\spi.c
+1505271061 source:e:\github_clone\mx2\mx2_audioplayer\src\spi.c
 	"spi.h"
 	"gpio.h"
 
@@ -1343,11 +1344,12 @@
 	<stdbool.h>
 	"DEBUG.h"
 
-1505266603 e:\github_clone\mx2\mx\inc\lis3d.h
+1505270526 e:\github_clone\mx2\mx\inc\lis3d.h
+	"mx-gpio.h"
 	"mx-spi.h"
 	<stdint.h>
 
-1505266242 source:e:\github_clone\mx2\mx\src\maintask.c
+1505270411 source:e:\github_clone\mx2\mx\src\maintask.c
 	<math.h>
 	<stdint.h>
 	<stdio.h>
@@ -1355,6 +1357,7 @@
 	<string.h>
 	"mx-adc.h"
 	"mx-audio.h"
+	"mx-gpio.h"
 	"FreeRTOS.h"
 	"cmsis_os.h"
 	"queue.h"
@@ -1430,22 +1433,22 @@
 	<stdint.h>
 	<stdio.h>
 
-1505266197 source:e:\github_clone\mx2\mx\src\simpleled.c
+1505270866 source:e:\github_clone\mx2\mx\src\simpleled.c
 	"SimpleLED.h"
 
 1505266187 source:e:\github_clone\mx2\mx\src\usr_config.c
 	"USR_CONFIG.h"
 
-1505266279 source:e:\github_clone\mx2\mx\src\audio.c
+1505266903 source:e:\github_clone\mx2\mx\src\audio.c
 	"Audio.h"
 
-1505266291 source:e:\github_clone\mx2\mx\src\led.c
+1505266903 source:e:\github_clone\mx2\mx\src\led.c
 	"LED.h"
 
-1505266257 source:e:\github_clone\mx2\mx\src\lis3d.c
+1505271092 source:e:\github_clone\mx2\mx\src\lis3d.c
 	"lis3d.h"
 
-1505265754 e:\github_clone\mx2\mx\inc\mx-spi.h
+1505271032 e:\github_clone\mx2\mx\inc\mx-spi.h
 	"spi.h"
 
 1505265711 e:\github_clone\mx2\mx\inc\mx-audio.h
@@ -1457,6 +1460,7 @@
 1505265690 e:\github_clone\mx2\mx\inc\mx-adc.h
 	"adc.h"
 
-1505265734 e:\github_clone\mx2\mx\inc\mx-gpio.h
+1505270817 e:\github_clone\mx2\mx\inc\mx-gpio.h
 	"gpio.h"
+	<stdbool.h>
 

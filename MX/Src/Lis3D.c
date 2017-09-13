@@ -215,6 +215,6 @@ static void LIS3DH_SPI_WR(unsigned char addr, unsigned char wrdata)
 static uint8_t SPI_LIS3DH_SendByte(uint8_t byte)
 {
   uint8_t buf[1];
-  HAL_SPI_TransmitReceive(&hspi2, (uint8_t *)&byte, buf, 1, 10);
+  MX_SPI_Lis3dh_TxRx((uint8_t*)&byte, buf, 1);
   return *buf;
 }
