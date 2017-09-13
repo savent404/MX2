@@ -2,8 +2,6 @@
 
 static unsigned char LIS3DH_SPI_RD(unsigned char addr);
 static void LIS3DH_SPI_WR(unsigned char addr, unsigned char wrdata);
-static void SPI1_CS_Low(void);
-static void SPI1_CS_High(void);
 static uint8_t SPI_LIS3DH_SendByte(uint8_t byte);
 
 void Lis3d_Init(void)
@@ -196,31 +194,22 @@ uint8_t Lis3d_isMove(void)
 static unsigned char LIS3DH_SPI_RD(unsigned char addr)
 {
   unsigned char temp;
-  SPI1_CS_Low();
+  MX_GPIO_Lis3DCSEnable(true);
   //Delay_Spi(10);
   SPI_LIS3DH_SendByte((addr | 0x80) & 0xbf);
   temp = SPI_LIS3DH_SendByte(0xff);
   //Delay_Spi(10);
-  SPI1_CS_High();
+  MX_GPIO_Lis3DCSEnable(false);
   return temp;
 }
 
 //SPI1写函数
 static void LIS3DH_SPI_WR(unsigned char addr, unsigned char wrdata)
 {
-  SPI1_CS_Low();
+  MX_GPIO_Lis3DCSEnable(true);
   SPI_LIS3DH_SendByte(addr & 0x7f);
   SPI_LIS3DH_SendByte(wrdata);
-  SPI1_CS_High();
-}
-
-static void SPI1_CS_Low(void)
-{
-  HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
-}
-static void SPI1_CS_High(void)
-{
-  HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
+  MX_GPIO_Lis3DCSEnable(false);
 }
 
 static uint8_t SPI_LIS3DH_SendByte(uint8_t byte)

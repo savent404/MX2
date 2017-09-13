@@ -6,17 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-// STM32 Lib
 #include "mx-adc.h"
 #include "mx-audio.h"
-
-// OS Lib
+#include "mx-gpio.h"
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
 #include "queue.h"
 #include "task.h"
-
-// User Lib
 #include "Audio.h"
 #include "DEBUG.h"
 #include "LED.h"
@@ -26,6 +22,7 @@
 #include "USR_CONFIG.h"
 #include "ff.h"
 #include "main.h"
+
 
 /* Variables -----------------------------------------------------------------*/
 ///NOTE: 由于各种触发为低概率事件， 循环中的定时器的定时间隔又软件延时产生，间隔时间为LOOP_DELAY
@@ -72,7 +69,7 @@ extern void MX_FATFS_Init(void);
 void StartDefaultTask(void const *argument)
 {
   // 检测是否静音启动
-  if (HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin) == GPIO_PIN_RESET)
+  if (MX_GPIO_IsPress(KEY_USR))
   {
     USR.mute_flag = 1;
   }
@@ -94,7 +91,7 @@ void StartDefaultTask(void const *argument)
     osDelay(USR.config->Tpon);
 
   // 使能电源使能端
-  HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_SET);
+  MX_GPIO_Enable(true);
 
 #if USE_DEBUG
   __ASM("BKPT 0");
@@ -239,7 +236,7 @@ void StartDefaultTask(void const *argument)
     }
 #endif
     /// 充电检测
-    if (HAL_GPIO_ReadPin(Charge_Check_GPIO_Port, Charge_Check_Pin) == GPIO_PIN_SET)
+    if (MX_GPIO_PlugIn())
     {
       if (STATIC_USR.vol_chargecomplete < power_adc_val)
       {
@@ -367,7 +364,7 @@ static void beep_error(void)
   uint16_t *pt = (uint16_t *)pvPortMalloc(sizeof(uint16_t) * 1024);
   uint16_t *ppt = pt;
   uint16_t cnt = 1024;
-  HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_SET);
+  MX_GPIO_Enable(true);
   while (cnt--)
   {
     *pt = ((float)(sin(cnt * 3.1514926 / 20) / 2) * 0x1000) + 0x1000 / 2;
@@ -379,7 +376,7 @@ static void beep_error(void)
     HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)ppt, 1024, DAC_ALIGN_12B_R);
     osDelay(50);
   }
-  HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+  MX_GPIO_Enable(false);
   while (1)
     ;
 }
@@ -393,11 +390,11 @@ static uint8_t key_scan(void)
   static uint8_t status = 1;
   uint8_t buf = 0, pre_buf;
 
-  if (HAL_GPIO_ReadPin(POWER_GPIO_Port, POWER_Pin) == GPIO_PIN_SET)
+  if (MX_GPIO_IsPress(KEY_MUX))
   {
     buf |= 0x01;
   }
-  if (HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin) == GPIO_PIN_RESET)
+  if (MX_GPIO_IsPress(KEY_USR))
   {
     buf |= 0x02;
   }
@@ -491,7 +488,7 @@ static void H_Close(void)
   USR.sys_status = System_Close;
   Audio_Play_Start(Audio_PowerOff);
   osDelay(3000); //3s
-  HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+  MX_GPIO_Enable(false);
 }
 static void H_Ready(void)
 {
@@ -609,7 +606,7 @@ static void H_Recharge(void)
   USR.sys_status = System_Close;
   Audio_Play_Start(Audio_Recharge);
   osDelay(2000);
-  HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+  MX_GPIO_Enable(false);
   while (1)
       ;
 }

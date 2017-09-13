@@ -8,7 +8,7 @@ static int32_t SimpleLED_Timer_cnt = 0;
 static int32_t SimpleLED_LED_cnt = 0;
 static bool loopflag;
 static SimpleLED_Acction_t *GetAction(SimpleLED_Status_t status);
-static void SimpleLED_Opra(uint8_t led);
+void SimpleLED_Opra(uint8_t led);
 
 void SimpleLED_ChangeStatus(SimpleLED_Status_t status)
 {
@@ -42,7 +42,7 @@ void SimpleLED_Handle(void const *arg)
 {
   SimpleLED_DeInit();
   SimpleLED_Init();
-
+  pacction = GetAction(SIMPLELED_STATUS_SLEEP);
   while (1)
   {
     osDelay(10);
@@ -84,7 +84,7 @@ static SimpleLED_Acction_t *GetAction(SimpleLED_Status_t status)
   return ans;
 }
 
-static void SimpleLED_Opra(uint8_t led)
+__weak void SimpleLED_Opra(uint8_t led)
 {
   uint16_t odr_buffer;
   odr_buffer = 0;
@@ -97,7 +97,7 @@ static void SimpleLED_Opra(uint8_t led)
   GPIOC->ODR |= odr_buffer;
 }
 
-void SimpleLED_Init(void)
+__weak void SimpleLED_Init(void)
 {
   GPIO_InitTypeDef gpiox;
 
@@ -107,14 +107,9 @@ void SimpleLED_Init(void)
   gpiox.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_14 | GPIO_PIN_15;
   gpiox.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &gpiox);
-
-  //gpiox.Pin = GPIO_PIN_0 | GPIO_PIN_1;
-  //HAL_GPIO_Init(GPIOD, &gpiox);
-  //__HAL_AFIO_REMAP_PD01_ENABLE();
-  pacction = GetAction(SIMPLELED_STATUS_SLEEP);
 }
 
-void SimpleLED_DeInit(void)
+__weak void SimpleLED_DeInit(void)
 {
   // LED 4~7
   HAL_GPIO_DeInit(GPIOC, 0x0F);
