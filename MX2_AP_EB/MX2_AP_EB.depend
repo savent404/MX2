@@ -861,7 +861,7 @@
 1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_cortex.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac.c
+1505137394 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac.c
 	"stm32f1xx_hal.h"
 
 1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac_ex.c
@@ -954,7 +954,7 @@
 	"projdefs.h"
 	"portable.h"
 
-1504611112 e:\github_clone\mx2\mx2_audioplayer\inc\freertosconfig.h
+1504706390 e:\github_clone\mx2\mx2_audioplayer\inc\freertosconfig.h
 	<stdint.h>
 	"main.h"
 
@@ -1158,9 +1158,10 @@
 	"FreeRTOS.h"
 	"cmsis_os.h"
 
-1504611112 e:\github_clone\mx2\mx2_audioplayer\inc\usr_config.h
+1505263664 e:\github_clone\mx2\mx2_audioplayer\inc\usr_config.h
 	<stdio.h>
 	<stdint.h>
+	<stdbool.h>
 
 1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\dac.h
 	"stm32f1xx_hal.h"
@@ -1199,7 +1200,7 @@
 
 1504200167 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\drivers\sd_diskio.h
 
-1504125605 source:e:\github_clone\mx2\mx2_audioplayer\src\freertos.c
+1504706390 source:e:\github_clone\mx2\mx2_audioplayer\src\freertos.c
 	"FreeRTOS.h"
 	"task.h"
 	"cmsis_os.h"
@@ -1263,13 +1264,14 @@
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1504125192 source:e:\github_clone\mx2\mx2_audioplayer\src\maintask.c
+1504706390 source:e:\github_clone\mx2\mx2_audioplayer\src\maintask.c
 	<stdio.h>
 	<string.h>
 	<stdlib.h>
 	<math.h>
 	<stdio.h>
 	<stdlib.h>
+	<stdint.h>
 	"stm32f1xx_hal.h"
 	"adc.h"
 	"dac.h"
@@ -1285,6 +1287,7 @@
 	"Audio.h"
 	"Lis3D.h"
 	"LED.h"
+	"SimpleLED.h"
 
 1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\sdio.c
 	"sdio.h"
@@ -1317,7 +1320,7 @@
 
 1504195633 source:e:\github_clone\mx2\mx2_audioplayer\startup\startup_stm32f103xe.s
 
-1504155095 source:e:\github_clone\mx2\mx2_audioplayer\src\usr_config.c
+1505263664 source:e:\github_clone\mx2\mx2_audioplayer\src\usr_config.c
 	"USR_CONFIG.h"
 	"ff.h"
 	"freeRTOS.h"
@@ -1328,14 +1331,15 @@
 	"AF.h"
 	"path.h"
 
-1504155198 source:e:\github_clone\mx2\mx2_audioplayer\src\simpleled.c
+1504706390 source:e:\github_clone\mx2\mx2_audioplayer\src\simpleled.c
 	"SimpleLED.h"
 	"USR_CONFIG.h"
 	"cmsis_os.h"
 	"stm32f1xx.h"
 
-1504125605 e:\github_clone\mx2\mx2_audioplayer\inc\simpleled.h
+1504706390 e:\github_clone\mx2\mx2_audioplayer\inc\simpleled.h
 	<stdio.h>
 	<stdint.h>
+	<stdbool.h>
 	"DEBUG.h"
 
