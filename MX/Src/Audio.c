@@ -79,7 +79,8 @@ void DACOutput(void const *argument)
     if (evt.value.v == 0)
       continue;
     osSemaphoreWait(DAC_Complete_FlagHandle, osWaitForever);
-    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)evt.value.p, AUDIO_FIFO_SIZE, DAC_ALIGN_12B_R);
+    
+    MX_Audio_Start((uint16_t*)evt.value.p, AUDIO_FIFO_SIZE);
   }
 }
 
@@ -561,9 +562,8 @@ static void play_a_buffer(uint16_t *pt)
     ;
 }
 
-void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef *hdac)
+void MX_Audio_Callback(void)
 {
-
   static osEvent evt;
   evt = osMessageGet(DAC_BufferHandle, osWaitForever);
   if (evt.status != osEventMessage)
@@ -573,9 +573,10 @@ void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef *hdac)
   }
   else
   {
-    HAL_DAC_Start_DMA(hdac, DAC_CHANNEL_1, (uint32_t *)evt.value.p, AUDIO_FIFO_SIZE, DAC_ALIGN_12B_R);
+    MX_Audio_Start((uint16_t*)evt.value.p, AUDIO_FIFO_SIZE);
   }
 }
+
 
 uint8_t Audio_IsSimplePlayIsReady(void)
 {

@@ -1182,10 +1182,12 @@
 1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\bsp_driver_sd.c
 	"bsp_driver_sd.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\dac.c
+1505272338 source:e:\github_clone\mx2\mx2_audioplayer\src\dac.c
 	"dac.h"
 	"gpio.h"
 	"dma.h"
+	"mx-audio.h"
+	"tim.h"
 
 1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\dma.c
 	"dma.h"
@@ -1246,7 +1248,7 @@
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\main.c
+1505272319 source:e:\github_clone\mx2\mx2_audioplayer\src\main.c
 	"main.h"
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
@@ -1260,6 +1262,7 @@
 	"gpio.h"
 	<stdio.h>
 	"lis3d.h"
+	"mx-audio.h"
 
 1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\sdio.h
 	"stm32f1xx_hal.h"
@@ -1316,7 +1319,7 @@
 1496634397 source:e:\github_clone\mx2\mx2_audioplayer\src\system_stm32f1xx.c
 	"stm32f1xx.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\tim.c
+1505271973 source:e:\github_clone\mx2\mx2_audioplayer\src\tim.c
 	"tim.h"
 
 1504195633 source:e:\github_clone\mx2\mx2_audioplayer\startup\startup_stm32f103xe.s
@@ -1439,10 +1442,10 @@
 1505266187 source:e:\github_clone\mx2\mx\src\usr_config.c
 	"USR_CONFIG.h"
 
-1505266903 source:e:\github_clone\mx2\mx\src\audio.c
+1505272246 source:e:\github_clone\mx2\mx\src\audio.c
 	"Audio.h"
 
-1505266903 source:e:\github_clone\mx2\mx\src\led.c
+1505271919 source:e:\github_clone\mx2\mx\src\led.c
 	"LED.h"
 
 1505271092 source:e:\github_clone\mx2\mx\src\lis3d.c
@@ -1451,7 +1454,7 @@
 1505271032 e:\github_clone\mx2\mx\inc\mx-spi.h
 	"spi.h"
 
-1505265711 e:\github_clone\mx2\mx\inc\mx-audio.h
+1505272068 e:\github_clone\mx2\mx\inc\mx-audio.h
 	"dac.h"
 
 1505271968 e:\github_clone\mx2\mx\inc\mx-tim.h
