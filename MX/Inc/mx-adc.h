@@ -3,4 +3,6 @@
 
 #include "adc.h"
 
+uint16_t BatteryGet(void);
+void BatteryStart(void);
 #endif

@@ -466,7 +466,7 @@ static void ticktock_trigger(void)
 static uint16_t GetVoltage(void)
 {
   static uint16_t val = 0;
-  uint16_t buf = HAL_ADC_GetValue(&hadc1);
+  uint16_t buf = BatteryGet();
   int16_t div = buf - val;
 
   if ((div > 0 ? div : -div) >= 50)
@@ -513,7 +513,7 @@ static void H_Ready(void)
   }
 
   // Power voltage check
-  HAL_ADC_Start(&hadc1);
+  BatteryStart();
   {
     uint32_t cnt = 10;
     while (cnt--)
