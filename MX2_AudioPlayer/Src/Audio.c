@@ -426,18 +426,18 @@ __STATIC_INLINE void pcm_convert(int16_t* _pt)
   if (USR.config->Vol == 0) offset = 15;
   for (uint32_t i = 0; i < AUDIO_FIFO_SIZE; i++)
   {
-    if (*pt > INT16_MAX / 2) {
-        audio_convert_f = (float)INT16_MAX / 2 / (float) *pt;
-        *pt = INT16_MAX / 2;
-    } *pt *= audio_convert_f;
-    if (*pt < INT16_MIN / 2) {
-        audio_convert_f = (float)INT16_MIN / 2 / (float) *pt;
-        *pt = INT16_MIN / 2;
-    }
-    if (audio_convert_f < 1)
-    {
-      audio_convert_f += ((float)1 - audio_convert_f) / (float) 32;
-    }
+    // if (*pt > INT16_MAX / 2) {
+    //     audio_convert_f = (float)INT16_MAX / 2 / (float) *pt;
+    //     *pt = INT16_MAX / 2;
+    // } *pt *= audio_convert_f;
+    // if (*pt < INT16_MIN / 2) {
+    //     audio_convert_f = (float)INT16_MIN / 2 / (float) *pt;
+    //     *pt = INT16_MIN / 2;
+    // }
+    // if (audio_convert_f < 1)
+    // {
+    //   audio_convert_f += ((float)1 - audio_convert_f) / (float) 32;
+    // }
     *pt = (*pt >> offset) + 0x1000/2;
     pt += 1;
   }
@@ -452,17 +452,17 @@ __STATIC_INLINE void pcm_convert2(int16_t* pt1, int16_t* pt2)
   for (uint32_t i = 0; i < AUDIO_FIFO_SIZE; i++)
   {
     int32_t buf = *p1 + *p2;
-    if (buf > INT16_MAX / 2) {
-        audio_convert_f = (float)INT16_MAX / 2 / (float)buf;
-        buf = INT16_MAX / 2;
-    } buf *= audio_convert_f;
-    if (buf < INT16_MIN / 2) {
-        audio_convert_f = (float)INT16_MIN /2 / (float)buf;
-        buf = INT16_MIN / 2;
-    }
-    if (audio_convert_f < 1) {
-      audio_convert_f += ((float)1 - f) / (float)32;
-    }
+    // if (buf > INT16_MAX / 2) {
+    //     audio_convert_f = (float)INT16_MAX / 2 / (float)buf;
+    //     buf = INT16_MAX / 2;
+    // } buf *= audio_convert_f;
+    // if (buf < INT16_MIN / 2) {
+    //     audio_convert_f = (float)INT16_MIN /2 / (float)buf;
+    //     buf = INT16_MIN / 2;
+    // }
+    // if (audio_convert_f < 1) {
+    //   audio_convert_f += ((float)1 - f) / (float)32;
+    // }
 
     *p1 = (buf >> offset) + 0x1000/2;
 
