@@ -25,9 +25,7 @@ static LED_Trigger_Method_t LED_Trigger_Method(LED_Message_t trigger_bcd);
 static void LED_RGB_Output(uint16_t r, uint16_t g, uint16_t b, uint16_t l);
 static void LED_RGB_Limited(uint16_t r, uint16_t g, uint16_t b, uint16_t l);
 static void LED_RGB_Output_Light(uint16_t *colors, float light);
-// static void LED_Simple_Method(void);
-// static void LED_Simple_Output(uint8_t buff);
-#define CHx_VAL(x) (TIM1->CCR##x)
+
 // Ever time run single step, if a trigger is coming, return triggerid
 static LED_Message_t LED_RGB_Breath(uint32_t step, uint32_t step_ms, uint32_t period_ms);
 static LED_Message_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms);
@@ -80,11 +78,7 @@ void LEDOpra(void const *argument)
     enum _led_message message;
     ///Init something
     osDelay(1000);
-    HAL_TIM_Base_Start(&htim1);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+    MX_TIM_PowerLEDStart();
     LED_RGB_Output(0, 0, 0, 0);
     while (1)
     {
@@ -273,10 +267,10 @@ static LED_Trigger_Method_t LED_Trigger_Method(LED_Message_t trigger_bcd)
 
 static void LED_RGB_Output(uint16_t r, uint16_t g, uint16_t b, uint16_t l)
 {
-    CHx_VAL(1) = r;
-    CHx_VAL(2) = g;
-    CHx_VAL(3) = b;
-    CHx_VAL(4) = l;
+    MX_TIM_PowerLEDOpra(1, r);
+    MX_TIM_PowerLEDOpra(2, g);
+    MX_TIM_PowerLEDOpra(3, b);
+    MX_TIM_PowerLEDOpra(4, l);
 }
 static void LED_RGB_Limited(uint16_t r, uint16_t g, uint16_t b, uint16_t l)
 {
@@ -286,20 +280,20 @@ static void LED_RGB_Limited(uint16_t r, uint16_t g, uint16_t b, uint16_t l)
         ave = a / ave;
     else
         ave = 1;
-    CHx_VAL(1) = r * ave;
-    CHx_VAL(2) = g * ave;
-    CHx_VAL(3) = b * ave;
-    CHx_VAL(4) = l * ave;
+    MX_TIM_PowerLEDOpra(1, r * ave);
+    MX_TIM_PowerLEDOpra(2, g * ave);
+    MX_TIM_PowerLEDOpra(3, b * ave);
+    MX_TIM_PowerLEDOpra(4, l * ave);
 }
 static void LED_RGB_Output_Light(uint16_t *colors, float light)
 {
     uint16_t *pt = colors;
     float ave = (pt[0] + pt[1] + pt[2] + pt[3]) / 1024.0f / 4.0f;
     float a = light / ave;
-    CHx_VAL(1) = a * pt[0];
-    CHx_VAL(2) = a * pt[1];
-    CHx_VAL(3) = a * pt[2];
-    CHx_VAL(4) = a * pt[3];
+    MX_TIM_PowerLEDOpra(1, a * pt[0]);
+    MX_TIM_PowerLEDOpra(2, a * pt[1]);
+    MX_TIM_PowerLEDOpra(3, a * pt[2]);
+    MX_TIM_PowerLEDOpra(4, a * pt[3]);
 }
 // Ever time run single step, if a trigger is coming, return triggerid
 
@@ -415,22 +409,19 @@ static LED_Message_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms,
     {
 
     case 0:
-        LED_RGB_Output(BankColor[0] * d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4));
+        LED_RGB_Output(BankColor[0] * d, MX_TIM_PowerLEDRead(2), MX_TIM_PowerLEDRead(3), MX_TIM_PowerLEDRead(4));
         break;
     case 1:
-        LED_RGB_Output(CHx_VAL(1), BankColor[1] * d, CHx_VAL(3), CHx_VAL(4));
+        LED_RGB_Output(MX_TIM_PowerLEDRead(1), BankColor[1] * d, MX_TIM_PowerLEDRead(3), MX_TIM_PowerLEDRead(4));
         break;
     case 2:
-        LED_RGB_Output(CHx_VAL(1), CHx_VAL(2), BankColor[2] * d, CHx_VAL(4));
+        LED_RGB_Output(MX_TIM_PowerLEDRead(1), MX_TIM_PowerLEDRead(2), BankColor[2] * d, MX_TIM_PowerLEDRead(4));
         break;
     case 3:
-        LED_RGB_Output(CHx_VAL(1), CHx_VAL(2), CHx_VAL(3), BankColor[3] * d);
+        LED_RGB_Output(MX_TIM_PowerLEDRead(1), MX_TIM_PowerLEDRead(2), MX_TIM_PowerLEDRead(3), BankColor[3] * d);
         break;
     }
-    //LED_RGB_Limited(BankColor[0]*d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4));
-    // osEvent evt = osMessageGet(LED_CMDHandle, step_ms);
-    // if (evt.status != osEventMessage) return LED_NoTrigger;
-    // else return evt.value.v;
+
     return LED_NoTrigger;
 }
 static LED_Message_t LED_RGB_SoftDown(uint32_t step, uint32_t step_ms, uint32_t total_ms)
@@ -442,7 +433,7 @@ static LED_Message_t LED_RGB_SoftDown(uint32_t step, uint32_t step_ms, uint32_t 
     float d = cos(pi_div2 * (float)step / (float)step_num);
 
     if (step == 0)
-        r = CHx_VAL(1), g = CHx_VAL(2), b = CHx_VAL(3), l = CHx_VAL(4);
+        r = MX_TIM_PowerLEDRead(1), g = MX_TIM_PowerLEDRead(2), b = MX_TIM_PowerLEDRead(3), l = MX_TIM_PowerLEDRead(4);
     LED_RGB_Limited(r * d, g * d, b * d, l * d);
     osEvent evt = osMessageGet(LED_CMDHandle, step_ms);
     if (evt.status != osEventMessage)
