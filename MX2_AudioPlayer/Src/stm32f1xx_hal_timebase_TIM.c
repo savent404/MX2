@@ -3,6 +3,11 @@
   * @file    stm32f1xx_hal_timebase_TIM.c 
   * @brief   HAL time base based on the hardware TIM.
   ******************************************************************************
+  * This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * Copyright (c) 2017 STMicroelectronics International N.V. 
   * All rights reserved.
@@ -56,13 +61,13 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-TIM_HandleTypeDef        htim6; 
+TIM_HandleTypeDef        htim8; 
 uint32_t                 uwIncrementState = 0;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
 /**
-  * @brief  This function configures the TIM6 as a time base source. 
+  * @brief  This function configures the TIM8 as a time base source. 
   *         The time source is configured  to have 1ms time base with a dedicated 
   *         Tick interrupt priority. 
   * @note   This function is called  automatically at the beginning of program after
@@ -77,41 +82,41 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   uint32_t              uwPrescalerValue = 0;
   uint32_t              pFLatency;
   
-  /*Configure the TIM6 IRQ priority */
-  HAL_NVIC_SetPriority(TIM6_IRQn, TickPriority ,0); 
+  /*Configure the TIM8 IRQ priority */
+  HAL_NVIC_SetPriority(TIM8_UP_IRQn, TickPriority ,0); 
   
-  /* Enable the TIM6 global Interrupt */
-  HAL_NVIC_EnableIRQ(TIM6_IRQn); 
+  /* Enable the TIM8 global Interrupt */
+  HAL_NVIC_EnableIRQ(TIM8_UP_IRQn); 
   
-  /* Enable TIM6 clock */
-  __HAL_RCC_TIM6_CLK_ENABLE();
+  /* Enable TIM8 clock */
+  __HAL_RCC_TIM8_CLK_ENABLE();
   
   /* Get clock configuration */
   HAL_RCC_GetClockConfig(&clkconfig, &pFLatency);
   
-  /* Compute TIM6 clock */
-  uwTimclock = 2*HAL_RCC_GetPCLK1Freq();
+  /* Compute TIM8 clock */
+  uwTimclock = HAL_RCC_GetPCLK2Freq();
    
-  /* Compute the prescaler value to have TIM6 counter clock equal to 1MHz */
+  /* Compute the prescaler value to have TIM8 counter clock equal to 1MHz */
   uwPrescalerValue = (uint32_t) ((uwTimclock / 1000000) - 1);
   
-  /* Initialize TIM6 */
-  htim6.Instance = TIM6;
+  /* Initialize TIM8 */
+  htim8.Instance = TIM8;
   
   /* Initialize TIMx peripheral as follow:
-  + Period = [(TIM6CLK/1000) - 1]. to have a (1/1000) s time base.
+  + Period = [(TIM8CLK/1000) - 1]. to have a (1/1000) s time base.
   + Prescaler = (uwTimclock/1000000 - 1) to have a 1MHz counter clock.
   + ClockDivision = 0
   + Counter direction = Up
   */
-  htim6.Init.Period = (1000000 / 1000) - 1;
-  htim6.Init.Prescaler = uwPrescalerValue;
-  htim6.Init.ClockDivision = 0;
-  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  if(HAL_TIM_Base_Init(&htim6) == HAL_OK)
+  htim8.Init.Period = (1000000 / 1000) - 1;
+  htim8.Init.Prescaler = uwPrescalerValue;
+  htim8.Init.ClockDivision = 0;
+  htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
+  if(HAL_TIM_Base_Init(&htim8) == HAL_OK)
   {
     /* Start the TIM time Base generation in interrupt mode */
-    return HAL_TIM_Base_Start_IT(&htim6);
+    return HAL_TIM_Base_Start_IT(&htim8);
   }
   
   /* Return function status */
@@ -120,26 +125,26 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 
 /**
   * @brief  Suspend Tick increment.
-  * @note   Disable the tick increment by disabling TIM6 update interrupt.
+  * @note   Disable the tick increment by disabling TIM8 update interrupt.
   * @param  None
   * @retval None
   */
 void HAL_SuspendTick(void)
 {
-  /* Disable TIM6 update Interrupt */
-  __HAL_TIM_DISABLE_IT(&htim6, TIM_IT_UPDATE);                                                  
+  /* Disable TIM8 update Interrupt */
+  __HAL_TIM_DISABLE_IT(&htim8, TIM_IT_UPDATE);                                                  
 }
 
 /**
   * @brief  Resume Tick increment.
-  * @note   Enable the tick increment by Enabling TIM6 update interrupt.
+  * @note   Enable the tick increment by Enabling TIM8 update interrupt.
   * @param  None
   * @retval None
   */
 void HAL_ResumeTick(void)
 {
-  /* Enable TIM6 Update interrupt */
-  __HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
+  /* Enable TIM8 Update interrupt */
+  __HAL_TIM_ENABLE_IT(&htim8, TIM_IT_UPDATE);
 }
 
 /**

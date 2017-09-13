@@ -70,7 +70,6 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="..\MX2_AudioPlayer\_FLASH.ld" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xe.h" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f1xx.h" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\CMSIS\Device\ST\STM32F1xx\Include\system_stm32f1xx.h" />
@@ -205,7 +204,7 @@
 		<Unit filename="..\MX2_AudioPlayer\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h" />
 		<Unit filename="..\MX2_AudioPlayer\Middlewares\Third_Party\FatFs\src\ffconf_template.h" />
 		<Unit filename="..\MX2_AudioPlayer\Middlewares\Third_Party\FatFs\src\integer.h" />
-		<Unit filename="..\MX2_AudioPlayer\Middlewares\Third_Party\FatFs\src\option\ccsbcs.c">
+		<Unit filename="..\MX2_AudioPlayer\Middlewares\Third_Party\FatFs\src\option\cc932.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\Middlewares\Third_Party\FatFs\src\option\syscall.c">
@@ -347,7 +346,7 @@
 			</DoxyBlocks>
 			<code_completion />
 			<debugger>
-				<target_debugging_settings target="Debug" active_interface="ST-link">
+				<target_debugging_settings target="Release" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
@@ -364,7 +363,7 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="Release" active_interface="ST-link">
+				<target_debugging_settings target="Debug" active_interface="ST-link">
 					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="" dont_start_server="false" backoff_time="1000" options="2" reg_filter="0" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
