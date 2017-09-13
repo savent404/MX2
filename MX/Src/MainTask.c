@@ -42,6 +42,22 @@ static uint32_t auto_intoready_cnt = 0;
 static uint32_t auto_poweroff_cnt = 0;
 FATFS fatfs;
 /* Function prototypes -------------------------------------------------------*/
+static void H_Close(void);
+static void H_Ready(void);
+static void H_IN(void);
+static void H_OUT(void);
+static void H_TriggerB(void);
+static void H_TriggerC(void);
+static void H_TriggerD(void);
+static void H_TriggerE(void);
+static void H_TriggerEOff(void);
+static void H_BankSwitch(void);
+static void H_ColorSwitch(void);
+static void H_LowPower(void);
+static void H_Recharge(void);
+static void H_Charged(void);
+static void H_Charging(void);
+
 static void filesystem_init(void);
 static void beep_error(void);
 static uint8_t key_scan(void);
@@ -84,62 +100,7 @@ void StartDefaultTask(void const *argument)
   __ASM("BKPT 0");
 #endif
 
-  /**< 由于多Bank可能不同的Vol值，初始化时判断Vol为0不再是安全的操作 */
-  // // 当配置音频音量为0时，默认与静音启动相同操作
-  // if (USR.config->Vol == 0) {
-  //     USR.mute_flag = 1;
-  // }
-
-  // 初始化结构体中的参数
-  USR.sys_status = System_Restart;
-  USR.bank_now = 0;
-  USR.bank_color = 0;
-
-  // 更新LED用到的变量
-  LED_Bank_Update(&USR);
-
-  ///Lis3DHTR initialize
-  {
-    Lis3dConfig config;
-    config.CD = USR.config->CD;
-    config.CL = USR.config->CL;
-    config.CT = USR.config->CT;
-    config.CW = USR.config->CW;
-    config.MD = USR.config->MD;
-    config.MT = USR.config->MT;
-    Lis3d_Set(&config);
-  }
-
-  // Power voltage check
-  // HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&power_adc_val, 1);
-  HAL_ADC_Start(&hadc1);
-  {
-    uint32_t cnt = 10;
-    while (cnt--)
-    {
-      power_adc_val = GetVoltage();
-      osDelay(10);
-    }
-  }
-#ifndef USE_DEBUG
-  // 低电压检测：忽略静音标志发送2次低电压报警
-  if (power_adc_val <= STATIC_USR.vol_warning)
-  {
-    uint8_t buf = USR.mute_flag;
-    USR.mute_flag = 0;
-    Audio_Play_Start(Audio_LowPower);
-    Audio_Play_Start(Audio_LowPower);
-    USR.mute_flag = buf;
-  }
-#endif
-
-  Audio_Play_Start(Audio_Boot);
-  osDelay(100);
-  SimpleLED_Init();
-  SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
-  osTimerStart(SimpleLEDHandle, 10);
-
-  USR.sys_status = System_Ready;
+  H_Ready();
 
   for (;;)
   {
@@ -163,25 +124,20 @@ void StartDefaultTask(void const *argument)
       if (key_status & 0x04)
       {
         uint16_t timeout = 0;
-
+        uint16_t max = USR.config->Tpoff > USR.config->Tout ? USR.config->Tpoff : USR.config->Tout;
+        uint16_t min = USR.config->Tpoff > USR.config->Tout ? USR.config->Tout : USR.config->Tpoff;
         //Wait for POWER Key rising
-        while (!(key_scan() & 0x01) &&
-               (timeout < (USR.config->Tpoff > USR.config->Tout ? USR.config->Tpoff : USR.config->Tout)))
+        while (!(key_scan() & 0x01) && (timeout < max))
         {
           osDelay(10);
           timeout += 10;
         }
-        if (timeout > (USR.config->Tpoff > USR.config->Tout ? USR.config->Tout : USR.config->Tpoff))
+        if (timeout > min)
         {
           if ((USR.config->Tpoff >= USR.config->Tout && USR.config->Tpoff <= timeout) ||
               (USR.config->Tpoff < USR.config->Tout && USR.config->Tout > timeout))
           {
-            DEBUG(5, "System going to close");
-            SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
-            USR.sys_status = System_Close;
-            Audio_Play_Start(Audio_PowerOff);
-            osDelay(3000); //3s
-            HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+            H_Close();
           }
           else
           {
@@ -190,13 +146,7 @@ void StartDefaultTask(void const *argument)
               osDelay(10);
               continue;
             }
-            DEBUG(5, "System going to running");
-            auto_intoready_cnt = 0;
-            SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON); // 小型LED进入On模式
-            USR.sys_status = System_Running;
-            LED_Bank_Update(&USR); //确保每次进入运行态时LED配色都是最新的
-            Audio_Play_Start(Audio_intoRunning);
-            LED_Start_Trigger(LED_Trigger_Start);
+            H_OUT();
           }
         }
       }
@@ -204,21 +154,14 @@ void StartDefaultTask(void const *argument)
       else if (key_status & 0x08)
       {
         uint16_t timeout = 0;
-        while ((!(key_scan() & 0x02)) && (timeout < USR.config->Ts_switch))
+        uint16_t max = USR.config->Ts_switch;
+        while ((!(key_scan() & 0x02)) && max)
         {
           osDelay(10);
           timeout += 10;
         }
-        if (timeout >= USR.config->Ts_switch)
-        {
-          USR.bank_now += 1;
-          USR.bank_now %= USR.nBank;
-          DEBUG(5, "System Bank Switch");
-          USR.config = USR._config + USR.bank_now;
-          LED_Bank_Update(&USR);
-          SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
-          Audio_Play_Start(Audio_BankSwitch);
-        }
+        if (timeout >= max)
+          H_BankSwitch();
       }
     }
 
@@ -239,20 +182,11 @@ void StartDefaultTask(void const *argument)
 
         if (timeout < USR.config->Tin && (key_status & 0x08))
         {
-          DEBUG(5, "System ColorSwitch");
-          USR.bank_color += 1;
-          LED_Bank_Update(&USR);
-          Audio_Play_Start(Audio_ColorSwitch);
+          H_ColorSwitch();
         }
         else if (timeout >= USR.config->Tin)
         {
-          DEBUG(5, "System going to ready");
-          SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY); // 小型LED进入Standby模式
-          USR.sys_status = System_Ready;
-          LED_Start_Trigger(LED_Trigger_Stop);
-          Audio_Play_Start(Audio_intoReady);
-          USR.bank_color = 0;    //每次退出都将清零Colorswitch的值
-          LED_Bank_Update(&USR); //更新当前LED配色
+          H_IN();
         }
       }
 
@@ -267,26 +201,18 @@ void StartDefaultTask(void const *argument)
 
           if (timeout >= USR.config->TEtrigger)
           {
-            DEBUG(5, "Trigger E");
-            SimpleLED_ChangeStatus(SIMPLELED_STATUS_LOCKUP);
-            LED_Start_Trigger(LED_TriggerE);
-            Audio_Play_Start(Audio_TriggerE);
+            H_TriggerE();
             while (!(key_scan() & 0x02))
             {
               osDelay(10);
             }
-            DEBUG(5, "Trigger E END");
-            SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
-            LED_Start_Trigger(LED_TriggerE_END);
-            Audio_Play_Stop(Audio_TriggerE);
+            H_TriggerEOff();
             break;
           }
         }
         if (timeout < USR.config->TEtrigger && ask_trigger(2))
         {
-          DEBUG(5, "Trigger D");
-          LED_Start_Trigger(LED_TriggerD);
-          Audio_Play_Start(Audio_TriggerD);
+          H_TriggerD();
         }
       }
       move_detected();
@@ -309,41 +235,25 @@ void StartDefaultTask(void const *argument)
     /// 电源管理部分
     if (power_adc_val <= STATIC_USR.vol_poweroff)
     {
-      DEBUG(5, "System should be Power off");
-      SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
-      USR.sys_status = System_Close;
-      Audio_Play_Start(Audio_Recharge);
-      osDelay(2000);
-      HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
-      while (1)
-        ;
+      H_Recharge();
     }
 #endif
     /// 充电检测
     if (HAL_GPIO_ReadPin(Charge_Check_GPIO_Port, Charge_Check_Pin) == GPIO_PIN_SET)
     {
-      /*
-      if (USR.sys_status == System_Charged || USR.sys_status == System_Charging) {
-
-      } else */
       if (STATIC_USR.vol_chargecomplete < power_adc_val)
       {
-        SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
-        USR.sys_status = System_Charged;
+        H_Charged();
       }
       else
       {
-        SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
-        USR.sys_status = System_Charging;
+        H_Charging();
       }
     }
     else if (USR.sys_status == System_Charged || USR.sys_status == System_Charging)
     {
-      SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
-      USR.sys_status = System_Close;
-      Audio_Play_Start(Audio_PowerOff);
-      osDelay(2000); // 2s
-      HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+      H_Close();
+
     }
 
     ///当有按键动作时清空自动关机\待机定时器
@@ -358,20 +268,11 @@ void StartDefaultTask(void const *argument)
     {
       if (t == 1)
       {
-        DEBUG(5, "System going to ready");
-        SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
-        USR.sys_status = System_Ready;
-        LED_Start_Trigger(LED_Trigger_Stop);
-        Audio_Play_Start(Audio_intoReady);
+        H_IN();
       }
       else if (t == 2)
       {
-        DEBUG(5, "System going to close");
-        SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP);
-        USR.sys_status = System_Close;
-        Audio_Play_Start(Audio_PowerOff);
-        osDelay(3000); //3s
-        HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+        H_Close();
       }
     }
 
@@ -430,17 +331,12 @@ static void move_detected(void)
   //TriggerC
   if (click && ask_trigger(1))
   {
-    SimpleLED_ChangeStatus(SIMPLELED_STATUS_CLASH);
-    LED_Start_Trigger(LED_TriggerC);
-    Audio_Play_Start(Audio_TriggerC);
-    AUTO_CNT_CLEAR();
+    H_TriggerC();
   }
   //TriggerB
   if (move && ask_trigger(0))
   {
-    LED_Start_Trigger(LED_TriggerB);
-    Audio_Play_Start(Audio_TriggerB);
-    AUTO_CNT_CLEAR();
+    H_TriggerB();
   }
 }
 /**
@@ -494,7 +390,6 @@ static void beep_error(void)
  */
 static uint8_t key_scan(void)
 {
-  // 第一次检测时可以确定Power按键按下|User按键未按下
   static uint8_t status = 1;
   uint8_t buf = 0, pre_buf;
 
@@ -587,4 +482,161 @@ static uint16_t GetVoltage(void)
   }
 
   return val;
+}
+
+static void H_Close(void)
+{
+  DEBUG(5, "System going to close");
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
+  USR.sys_status = System_Close;
+  Audio_Play_Start(Audio_PowerOff);
+  osDelay(3000); //3s
+  HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+}
+static void H_Ready(void)
+{
+  // 初始化结构体中的参数
+  USR.sys_status = System_Restart;
+  USR.bank_now = 0;
+  USR.bank_color = 0;
+
+  // 更新LED用到的变量
+  LED_Bank_Update(&USR);
+
+  ///Lis3DHTR initialize
+  {
+    Lis3dConfig config;
+    config.CD = USR.config->CD;
+    config.CL = USR.config->CL;
+    config.CT = USR.config->CT;
+    config.CW = USR.config->CW;
+    config.MD = USR.config->MD;
+    config.MT = USR.config->MT;
+    Lis3d_Set(&config);
+  }
+
+  // Power voltage check
+  HAL_ADC_Start(&hadc1);
+  {
+    uint32_t cnt = 10;
+    while (cnt--)
+    {
+      power_adc_val = GetVoltage();
+      osDelay(10);
+    }
+  }
+#ifndef USE_DEBUG
+  // 低电压检测：忽略静音标志发送2次低电压报警
+  if (power_adc_val <= STATIC_USR.vol_warning)
+  {
+    H_LowPower();
+  }
+#endif
+
+  Audio_Play_Start(Audio_Boot);
+  osDelay(100);
+  SimpleLED_Init();
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+  osTimerStart(SimpleLEDHandle, 10);
+
+  USR.sys_status = System_Ready;
+}
+static void H_IN(void)
+{
+  DEBUG(5, "System going to ready");
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+  USR.sys_status = System_Ready;
+  LED_Start_Trigger(LED_Trigger_Stop);
+  Audio_Play_Start(Audio_intoReady);
+  USR.bank_color = 0;
+  LED_Bank_Update(&USR);
+}
+static void H_OUT(void)
+{
+  DEBUG(5, "System going to running");
+  auto_intoready_cnt = 0;
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
+  USR.sys_status = System_Running;
+  LED_Bank_Update(&USR);
+  Audio_Play_Start(Audio_intoRunning);
+  LED_Start_Trigger(LED_Trigger_Start);
+}
+static void H_TriggerB(void)
+{
+  LED_Start_Trigger(LED_TriggerB);
+  Audio_Play_Start(Audio_TriggerB);
+  AUTO_CNT_CLEAR();
+}
+static void H_TriggerC(void)
+{
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_CLASH);
+  LED_Start_Trigger(LED_TriggerC);
+  Audio_Play_Start(Audio_TriggerC);
+  AUTO_CNT_CLEAR();
+}
+static void H_TriggerD(void)
+{
+  DEBUG(5, "Trigger D");
+  LED_Start_Trigger(LED_TriggerD);
+  Audio_Play_Start(Audio_TriggerD);
+}
+static void H_TriggerE(void)
+{
+  DEBUG(5, "Trigger E");
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_LOCKUP);
+  LED_Start_Trigger(LED_TriggerE);
+  Audio_Play_Start(Audio_TriggerE);
+}
+static void H_TriggerEOff(void)
+{
+  DEBUG(5, "Trigger E END");
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
+  LED_Start_Trigger(LED_TriggerE_END);
+  Audio_Play_Stop(Audio_TriggerE);
+}
+static void H_LowPower(void)
+{
+  uint8_t buf = USR.mute_flag;
+  USR.mute_flag = 0;
+  Audio_Play_Start(Audio_LowPower);
+  Audio_Play_Start(Audio_LowPower);
+  USR.mute_flag = buf;
+}
+static void H_Recharge(void)
+{
+  DEBUG(5, "System should be Power off");
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
+  USR.sys_status = System_Close;
+  Audio_Play_Start(Audio_Recharge);
+  osDelay(2000);
+  HAL_GPIO_WritePin(Power_EN_GPIO_Port, Power_EN_Pin, GPIO_PIN_RESET);
+  while (1)
+      ;
+}
+static void H_Charged(void)
+{
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+  USR.sys_status = System_Charged;
+}
+static void H_Charging(void)
+{
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+  USR.sys_status = System_Charging;
+}
+static void H_BankSwitch(void)
+{
+  DEBUG(5, "System Bank Switch");
+  USR.bank_now += 1;
+  USR.bank_now %= USR.nBank;
+  USR.config = USR._config + USR.bank_now;
+  LED_Bank_Update(&USR);
+  SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+  Audio_Play_Start(Audio_BankSwitch);
+}
+static void H_ColorSwitch(void)
+{
+  DEBUG(5, "System ColorSwitch");
+  USR.bank_color += 1;
+  LED_Bank_Update(&USR);
+  Audio_Play_Start(Audio_ColorSwitch);
 }
