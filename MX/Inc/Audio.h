@@ -12,6 +12,10 @@
 #include "mx-audio.h"
 #include "path.h"
 
+#ifndef AUDIO_SOFTMIX
+#define AUDIO_SOFTMIX 1
+#endif
+
 #ifndef AUDIO_FIFO_NUM
 #define AUDIO_FIFO_NUM 3
 #endif
@@ -19,6 +23,11 @@
 #ifndef AUDIO_FIFO_SIZE
 #define AUDIO_FIFO_SIZE 512
 #endif
+typedef enum _track
+{
+  Track_0 = 0,
+  Track_1 = 1,
+} Audio_Track_t;
 
 typedef enum _play_audio_id {
   Audio_Erro = 0x00,

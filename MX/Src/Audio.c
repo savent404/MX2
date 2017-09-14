@@ -1,16 +1,14 @@
 #include "Audio.h"
 /* Variables -----------------------------------------------------------------*/
 static uint8_t SIMPLE_PLAY_READY = 1;
-static UINT hum_offset = 0;
-static UINT trigger_offset = 0;
+static FIL  audio_file[2];
+static UINT file_offset[2] = {0, 0};
 static char trigger_path[50];
 __IO static char pri_now = PRI(NULL);
 __IO static float audio_convert_f = 1;
 static uint16_t dac_buffer[AUDIO_FIFO_NUM][AUDIO_FIFO_SIZE];
 static uint16_t trigger_buffer[AUDIO_FIFO_SIZE];
 __IO static uint16_t dac_buffer_pos = 0;
-// 详见 #001 [1]
-static FIL file_1, file_2;
 /* Function prototypes -------------------------------------------------------*/
 static void Play_simple_wav(char *filepath);
 static void Play_IN_wav(void);
@@ -26,10 +24,10 @@ __STATIC_INLINE void SoftMix(int16_t *, int16_t *);
 #define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
 #define convert_ms2filesize(ms) (ms * sizeof(uint16_t) * 22)
 #define RESET_Buffer() \
-  f_close(&file_1);    \
-  f_close(&file_2);    \
-  hum_offset = 0;      \
-  trigger_offset = 0;
+  f_close(&audio_file[Track_0]);    \
+  f_close(&audio_file[Track_1]);    \
+  file_offset[Track_0] = 0;      \
+  file_offset[Track_1] = 0;
 
 int8_t Audio_Play_Start(Audio_ID_t id)
 {
@@ -302,9 +300,9 @@ static void Play_TriggerE(void)
 }
 static void Play_TriggerE_END(void)
 {
-  f_close(&file_2);
+  f_close(&audio_file[Track_1]);
   trigger_path[0] = 0;
-  trigger_offset = 0;
+  file_offset[Track_1] = 0;
   pri_now = PRI(NULL);
 }
 static void Play_IN_wav(void)
@@ -334,19 +332,19 @@ static void Play_OUT_wav(void)
   while (1)
   {
     // 读取Out
-    if (read_a_buffer(&file_2, path, dac_buffer[dac_buffer_pos], &trigger_offset) != FR_OK)
+    if (read_a_buffer(&audio_file[Track_1], path, dac_buffer[dac_buffer_pos], &file_offset[Track_1]) != FR_OK)
       continue;
     // 达到Out_Delay延时读取hum.wav
-    if (trigger_offset >= point)
+    if (file_offset[Track_1] >= point)
     {
     read_hum_again_1:
-      if (read_a_buffer(&file_1, hum_path, trigger_buffer, &hum_offset) != FR_OK)
+      if (read_a_buffer(&audio_file[Track_0], hum_path, trigger_buffer, &file_offset[Track_0]) != FR_OK)
         continue;
-      if (!hum_offset)
+      if (!file_offset[Track_0])
         goto read_hum_again_1;
     }
     // 播放一个缓冲块
-    if (trigger_offset >= point)
+    if (file_offset[Track_1] >= point)
     {
       SoftMix((int16_t *)dac_buffer[dac_buffer_pos], (int16_t *)trigger_buffer);
     }
@@ -357,10 +355,10 @@ static void Play_OUT_wav(void)
     dac_buffer_pos += 1;
     dac_buffer_pos %= AUDIO_FIFO_NUM;
     // Out播放完毕则退出
-    if (!trigger_offset)
+    if (!file_offset[Track_1])
       break;
   }
-  trigger_offset = 0;
+  file_offset[Track_1] = 0;
 }
 static void Play_RunningLOOP(void)
 {
@@ -369,21 +367,21 @@ static void Play_RunningLOOP(void)
   sprintf(path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
 
 read_hum_again:
-  if (read_a_buffer(&file_1, path, dac_buffer[dac_buffer_pos], &hum_offset) != FR_OK)
+  if (read_a_buffer(&audio_file[Track_0], path, dac_buffer[dac_buffer_pos], &file_offset[Track_0]) != FR_OK)
     return;
-  if (!hum_offset)
+  if (!file_offset[Track_0])
     goto read_hum_again;
   if (pri_now < PRI(NULL))
   {
   read_trigger_again:
-    if (read_a_buffer(&file_2, trigger_path, trigger_buffer, &trigger_offset) != FR_OK)
+    if (read_a_buffer(&audio_file[Track_1], trigger_path, trigger_buffer, &file_offset[Track_1]) != FR_OK)
       return;
-    if (!trigger_offset)
+    if (!file_offset[Track_1])
     {
       if (pri_now == PRI(E))
         goto read_trigger_again;
       trigger_path[0] = '\0';
-      trigger_offset = 0;
+      file_offset[Track_1] = 0;
       pri_now = PRI(NULL);
     }
   }
@@ -407,11 +405,11 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
     // 详见 #001 [2]
     if (pri_now != PRI(NULL))
     {
-      f_close(&file_2);
+      f_close(&audio_file[Track_1]);
     }
     strcpy(trigger_path, triggerpath);
     pri_now = pri;
-    trigger_offset = 0;
+    file_offset[Track_1] = 0;
   }
 }
 
