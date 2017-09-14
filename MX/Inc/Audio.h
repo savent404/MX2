@@ -16,6 +16,14 @@
 #define AUDIO_SOFTMIX 1
 #endif
 
+#if AUDIO_SOFTMIX
+#undef AUDIO_TRACK_NUM
+#define AUDIO_TRACK_NUM 1
+#else
+#undef AUDIO_TRACK_NUM
+#define AUDIO_TRACK_NUM 2
+#endif
+
 #ifndef AUDIO_FIFO_NUM
 #define AUDIO_FIFO_NUM 3
 #endif
