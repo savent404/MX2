@@ -12,9 +12,7 @@
 #include "mx-audio.h"
 #include "path.h"
 
-#ifndef AUDIO_SOFTMIX
-#define AUDIO_SOFTMIX 1
-#endif
+
 
 #if AUDIO_SOFTMIX
 #undef AUDIO_TRACK_NUM
