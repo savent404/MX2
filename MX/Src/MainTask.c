@@ -152,7 +152,7 @@ void StartDefaultTask(void const *argument)
       {
         uint16_t timeout = 0;
         uint16_t max = USR.config->Ts_switch;
-        while ((!(key_scan() & 0x02)) && max)
+        while ((!(key_scan() & 0x02)) && timeout < max)
         {
           osDelay(10);
           timeout += 10;
