@@ -5,7 +5,6 @@ static FIL  audio_file[2];
 static UINT file_offset[2] = {0, 0};
 static char trigger_path[50];
 __IO static char pri_now = PRI(NULL);
-__IO static float audio_convert_f = 1;
 static uint16_t dac_buffer[AUDIO_TRACK_NUM][AUDIO_FIFO_NUM][AUDIO_FIFO_SIZE];
 __IO static uint16_t dac_buffer_pos = 0;
 static uint16_t trigger_buffer[AUDIO_FIFO_SIZE];
@@ -59,7 +58,7 @@ void DACOutput(void const *argument)
     if (evt.status != osEventMessage)
       continue;
     osSemaphoreWait(DAC_Complete_FlagHandle, osWaitForever);
-    
+
     MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
   }
 }
@@ -253,7 +252,7 @@ static void Play_Trigger_wav(uint8_t triggerid)
     uint8_t cnt;
     uint8_t pri;
     uint8_t num;
-    
+
     switch (triggerid)
     {
     case 0:
@@ -278,7 +277,7 @@ static void Play_Trigger_wav(uint8_t triggerid)
       strcat(path, (USR.triggerD + USR.bank_now)->path_ptr[num]);
       break;
     }
-    
+
     Play_RunningLOOPwithTrigger(path, pri);
   }
   else if (triggerid == 3)
@@ -326,7 +325,6 @@ static void Play_OUT_wav(void)
   sprintf(path, "0:/Bank%d/" TRIGGER(OUT) "/", USR.bank_now + 1);
   strcat(path, (USR.triggerOut + USR.bank_now)->path_ptr[num]);
 
-  // Play_simple_wav(path);
   while (1)
   {
     // 读取Out
@@ -400,7 +398,6 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
     return;
   else
   {
-    // 详见 #001 [2]
     if (pri_now != PRI(NULL))
     {
       f_close(&audio_file[Track_1]);
@@ -413,12 +410,8 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
 
 __STATIC_INLINE void SoftMix(int16_t *pt1, int16_t *pt2)
 {
-  uint8_t offset = 4 + 3 - USR.config->Vol;
   int16_t *p1 = (int16_t *)pt1, *p2 = (int16_t *)pt2;
-  static float f = 1;
 
-  if (USR.config->Vol == 0)
-    offset = 15;
   for (uint32_t i = 0; i < AUDIO_FIFO_SIZE; i++)
   {
     *p1= *p1 + *p2;
@@ -436,7 +429,7 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer,
   UINT f_cnt;
 
   taskENTER_CRITICAL();
-  // 详见 #001 [3]
+
   if (*seek == 0 && (f_err = f_open(fpt, path, FA_READ)) != FR_OK)
   {
     DEBUG(0, "Can't open file:%s:%d", path, f_err);
@@ -470,8 +463,6 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer,
 
   *seek += f_cnt;
 
-  // 详见 #001 [3]
-  // f_close(fpt);
   taskEXIT_CRITICAL();
   return FR_OK;
 }
