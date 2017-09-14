@@ -7,7 +7,7 @@ static char trigger_path[50];
 __IO static char pri_now = PRI(NULL);
 __IO static float audio_convert_f = 1;
 static uint16_t dac_buffer[AUDIO_TRACK_NUM][AUDIO_FIFO_NUM][AUDIO_FIFO_SIZE];
-__IO static uint16_t dac_buffer_pos[AUDIO_TRACK_NUM] = {0};
+__IO static uint16_t dac_buffer_pos = 0;
 static uint16_t trigger_buffer[AUDIO_FIFO_SIZE];
 /* Function prototypes -------------------------------------------------------*/
 static void Play_simple_wav(char *filepath);
@@ -18,7 +18,7 @@ static void Play_TriggerE(void);
 static void Play_TriggerE_END(void);
 static void Play_RunningLOOP(void);
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri);
-static void play_a_buffer(uint16_t *);
+static void play_a_buffer(uint16_t buffer_pos);
 __STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer, UINT *seek);
 __STATIC_INLINE void SoftMix(int16_t *, int16_t *);
 #define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
@@ -58,11 +58,9 @@ void DACOutput(void const *argument)
     osEvent evt = osMessageGet(DAC_BufferHandle, osWaitForever);
     if (evt.status != osEventMessage)
       continue;
-    if (evt.value.v == 0)
-      continue;
     osSemaphoreWait(DAC_Complete_FlagHandle, osWaitForever);
     
-    MX_Audio_Start((uint16_t*)evt.value.p, USR.config->Vol, AUDIO_FIFO_SIZE);
+    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
   }
 }
 
@@ -222,7 +220,7 @@ static void Play_simple_wav(char *filepath)
   {
     taskENTER_CRITICAL();
     /**< Read a Block */
-    if ((f_err = f_read(&file, dac_buffer[Track_0][dac_buffer_pos[Track_0]], sizeof(uint16_t) * AUDIO_FIFO_SIZE, &f_cnt)) != FR_OK && f_cnt != 0)
+    if ((f_err = f_read(&file, dac_buffer[Track_0][dac_buffer_pos], sizeof(uint16_t) * AUDIO_FIFO_SIZE, &f_cnt)) != FR_OK && f_cnt != 0)
     {
       DEBUG(1, "Read wave file:%s Error:%d", filepath, f_err);
       f_close(&file);
@@ -231,10 +229,10 @@ static void Play_simple_wav(char *filepath)
     }
     taskEXIT_CRITICAL();
 
-    play_a_buffer(dac_buffer[Track_0][dac_buffer_pos[Track_0]]);
+    play_a_buffer(dac_buffer_pos);
 
-    dac_buffer_pos[Track_0] += 1;
-    dac_buffer_pos[Track_0] %= AUDIO_FIFO_NUM;
+    dac_buffer_pos += 1;
+    dac_buffer_pos %= AUDIO_FIFO_NUM;
     data.size -= f_cnt;
   }
   f_close(&file);
@@ -332,7 +330,7 @@ static void Play_OUT_wav(void)
   while (1)
   {
     // 读取Out
-    if (read_a_buffer(&audio_file[Track_1], path, dac_buffer[Track_0][dac_buffer_pos[Track_0]], &file_offset[Track_1]) != FR_OK)
+    if (read_a_buffer(&audio_file[Track_1], path, dac_buffer[Track_0][dac_buffer_pos], &file_offset[Track_1]) != FR_OK)
       continue;
     // 达到Out_Delay延时读取hum.wav
     if (file_offset[Track_1] >= point)
@@ -346,14 +344,14 @@ static void Play_OUT_wav(void)
     // 播放一个缓冲块
     if (file_offset[Track_1] >= point)
     {
-      SoftMix((int16_t *)dac_buffer[Track_0][dac_buffer_pos[Track_0]], (int16_t *)trigger_buffer);
+      SoftMix((int16_t *)dac_buffer[Track_0][dac_buffer_pos], (int16_t *)trigger_buffer);
     }
     else
     {
     }
-    play_a_buffer(dac_buffer[Track_0][dac_buffer_pos[Track_0]]);
-    dac_buffer_pos[Track_0] += 1;
-    dac_buffer_pos[Track_0] %= AUDIO_FIFO_NUM;
+    play_a_buffer(dac_buffer_pos);
+    dac_buffer_pos += 1;
+    dac_buffer_pos %= AUDIO_FIFO_NUM;
     // Out播放完毕则退出
     if (!file_offset[Track_1])
       break;
@@ -367,7 +365,7 @@ static void Play_RunningLOOP(void)
   sprintf(path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
 
 read_hum_again:
-  if (read_a_buffer(&audio_file[Track_0], path, dac_buffer[Track_0][dac_buffer_pos[Track_0]], &file_offset[Track_0]) != FR_OK)
+  if (read_a_buffer(&audio_file[Track_0], path, dac_buffer[Track_0][dac_buffer_pos], &file_offset[Track_0]) != FR_OK)
     return;
   if (!file_offset[Track_0])
     goto read_hum_again;
@@ -390,11 +388,11 @@ read_hum_again:
     ;
   else
   {
-    SoftMix((int16_t *)dac_buffer[Track_0][dac_buffer_pos[Track_0]], (int16_t *)trigger_buffer);
+    SoftMix((int16_t *)dac_buffer[Track_0][dac_buffer_pos], (int16_t *)trigger_buffer);
   }
-  play_a_buffer(dac_buffer[Track_0][dac_buffer_pos[Track_0]]);
-  dac_buffer_pos[Track_0] += 1;
-  dac_buffer_pos[Track_0] %= AUDIO_FIFO_NUM;
+  play_a_buffer(dac_buffer_pos);
+  dac_buffer_pos += 1;
+  dac_buffer_pos %= AUDIO_FIFO_NUM;
 }
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
 {
@@ -480,10 +478,10 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer,
 /**
  * @Brief Play a buffer
  */
-static void play_a_buffer(uint16_t *pt)
+static void play_a_buffer(uint16_t pos)
 {
   USR.audio_busy = 1;
-  while (osMessagePut(DAC_BufferHandle, (uint32_t)pt, osWaitForever) != osOK)
+  while (osMessagePut(DAC_BufferHandle, (uint32_t)pos, osWaitForever) != osOK)
     ;
 }
 
@@ -498,7 +496,7 @@ void MX_Audio_Callback(void)
   }
   else
   {
-    MX_Audio_Start((uint16_t*)evt.value.p, USR.config->Vol, AUDIO_FIFO_SIZE);
+    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
   }
 }
 
