@@ -1,27 +1,11 @@
 #include "Audio.h"
-
-/** #001 说明  ：为提升音质、消除循环中由于重复的open/close操作造成的间断感--------*/
-/**
- [1] 为避免运行态时重复open/close以及seek音频文件，添加静态文件变量"file_1"、"file_2"
-     来保存文件信息避免重复的open/close操作
- [2] 由于运行态实行中断机制，为保证被中断的音频文件关闭，需在Play_RunningLOOPwithTrigger
-     中添加中断发生时关闭文件的操作
- [3] read_a_buffer通过当前文件偏移量seek来判断是否open/close文件
-     当seek为0时代表需要执行open操作
-     当seek到文件结尾时代表需要执行close操作
- [4] 为保证从运行态到待机态再到运行态时变量处于初始化状态，从运行态到待机态的时候关闭
-     "file_1"以及"file_2"，将hum以及trigger的偏移量置0
- */
 /* Variables -----------------------------------------------------------------*/
 static uint8_t SIMPLE_PLAY_READY = 1;
-///循环音文件偏移量(运行态每次循环只会读取一部分音频)
 static UINT hum_offset = 0;
 static UINT trigger_offset = 0;
 static char trigger_path[50];
 __IO static char pri_now = PRI(NULL);
-
 __IO static float audio_convert_f = 1;
-
 static uint16_t dac_buffer[AUDIO_FIFO_NUM][AUDIO_FIFO_SIZE];
 static uint16_t trigger_buffer[AUDIO_FIFO_SIZE];
 __IO static uint16_t dac_buffer_pos = 0;
@@ -46,6 +30,7 @@ __STATIC_INLINE void SoftMix(int16_t *, int16_t *);
   f_close(&file_2);    \
   hum_offset = 0;      \
   trigger_offset = 0;
+
 int8_t Audio_Play_Start(Audio_ID_t id)
 {
   if (!USR.mute_flag && USR.config->Vol != 0)
@@ -178,7 +163,6 @@ void Wav_Task(void const *argument)
         break;
       case Audio_intoRunning:
         pri_now = PRI(NULL);
-        // 详见 #001 [4]
         RESET_Buffer();
         Play_OUT_wav();
         break;
@@ -271,55 +255,38 @@ static void Play_Trigger_wav(uint8_t triggerid)
   if (triggerid < 3)
   {
     uint8_t cnt;
-    uint8_t num;
     uint8_t pri;
+    uint8_t num;
+    
     switch (triggerid)
     {
     case 0:
       cnt = (USR.triggerB + USR.bank_now)->number;
+      num = HAL_GetTick() % cnt;
       pri = PRI(B);
-      break;
-    case 1:
-      cnt = (USR.triggerC + USR.bank_now)->number;
-      pri = PRI(C);
-      break;
-    case 2:
-      cnt = (USR.triggerD + USR.bank_now)->number;
-      pri = PRI(D);
-      break;
-    }
-    num = HAL_GetTick() % cnt;
-    //sprintf(path, "0:/Bank%d/Trigger_%c/", USR.bank_now + 1, triggerid + 'B');
-    switch (triggerid)
-    {
-    case 0:
       sprintf(path, "0:/Bank%d/" TRIGGER(B) "/", USR.bank_now + 1);
-      break;
-    case 1:
-      sprintf(path, "0:/Bank%d/" TRIGGER(C) "/", USR.bank_now + 1);
-      break;
-    case 2:
-      sprintf(path, "0:/Bank%d/" TRIGGER(D) "/", USR.bank_now + 1);
-      break;
-    }
-    switch (triggerid)
-    {
-    case 0:
       strcat(path, (USR.triggerB + USR.bank_now)->path_ptr[num]);
       break;
     case 1:
+      cnt = (USR.triggerC + USR.bank_now)->number;
+      num = HAL_GetTick() % cnt;
+      pri = PRI(C);
+      sprintf(path, "0:/Bank%d/" TRIGGER(C) "/", USR.bank_now + 1);
       strcat(path, (USR.triggerC + USR.bank_now)->path_ptr[num]);
       break;
     case 2:
+      cnt = (USR.triggerD + USR.bank_now)->number;
+      num = HAL_GetTick() % cnt;
+      pri = PRI(D);
+      sprintf(path, "0:/Bank%d/" TRIGGER(D) "/", USR.bank_now + 1);
       strcat(path, (USR.triggerD + USR.bank_now)->path_ptr[num]);
       break;
     }
+    
     Play_RunningLOOPwithTrigger(path, pri);
   }
   else if (triggerid == 3)
   {
-    // Change Colorswitch.wav as mixture mode, pri:0
-    // Play_simple_wav(WAV_COLORSWITCH);
     Play_RunningLOOPwithTrigger(WAV_COLORSWITCH, PRI(COLORSWITCH));
   }
 }
