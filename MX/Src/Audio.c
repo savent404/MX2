@@ -38,7 +38,7 @@ static void Play_RunningLOOP(void);
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri);
 static void play_a_buffer(uint16_t *);
 __STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer, UINT *seek);
-__STATIC_INLINE void AUDIO_SoftMUX(int16_t *, int16_t *);
+__STATIC_INLINE void SoftMix(int16_t *, int16_t *);
 #define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
 #define convert_ms2filesize(ms) (ms * sizeof(uint16_t) * 22)
 #define RESET_Buffer() \
@@ -381,7 +381,7 @@ static void Play_OUT_wav(void)
     // 播放一个缓冲块
     if (trigger_offset >= point)
     {
-      AUDIO_SoftMUX((int16_t *)dac_buffer[dac_buffer_pos], (int16_t *)trigger_buffer);
+      SoftMix((int16_t *)dac_buffer[dac_buffer_pos], (int16_t *)trigger_buffer);
     }
     else
     {
@@ -425,7 +425,7 @@ read_hum_again:
     ;
   else
   {
-    AUDIO_SoftMUX((int16_t *)dac_buffer[dac_buffer_pos], (int16_t *)trigger_buffer);
+    SoftMix((int16_t *)dac_buffer[dac_buffer_pos], (int16_t *)trigger_buffer);
   }
   play_a_buffer(dac_buffer[dac_buffer_pos]);
   dac_buffer_pos += 1;
@@ -448,7 +448,7 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
   }
 }
 
-__STATIC_INLINE void AUDIO_SoftMUX(int16_t *pt1, int16_t *pt2)
+__STATIC_INLINE void SoftMix(int16_t *pt1, int16_t *pt2)
 {
   uint8_t offset = 4 + 3 - USR.config->Vol;
   int16_t *p1 = (int16_t *)pt1, *p2 = (int16_t *)pt2;
