@@ -4,9 +4,9 @@ static uint8_t SIMPLE_PLAY_READY = 1;
 static FIL  audio_file[2];
 static UINT file_offset[2] = {0, 0};
 static char trigger_path[50];
-__IO static char pri_now = PRI(NULL);
+static char pri_now = PRI(NULL);
 static uint16_t dac_buffer[AUDIO_TRACK_NUM][AUDIO_FIFO_NUM][AUDIO_FIFO_SIZE];
-__IO static uint16_t dac_buffer_pos = 0;
+static uint16_t dac_buffer_pos = 0;
 static uint16_t trigger_buffer[AUDIO_FIFO_SIZE];
 /* Function prototypes -------------------------------------------------------*/
 static void Play_simple_wav(char *filepath);
@@ -18,11 +18,11 @@ static void Play_TriggerE_END(void);
 static void Play_RunningLOOP(void);
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri);
 static void play_a_buffer(uint16_t buffer_pos);
-__STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer, UINT *seek);
-__STATIC_INLINE void SoftMix(int16_t *, int16_t *);
+static FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer, UINT *seek);
+static void SoftMix(int16_t *, int16_t *);
 #define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
 #define convert_ms2filesize(ms) (ms * sizeof(uint16_t) * 22)
-#define RESET_Buffer() \
+#define RESET_FILE_Buffer() \
   f_close(&audio_file[Track_0]);    \
   f_close(&audio_file[Track_1]);    \
   file_offset[Track_0] = 0;      \
@@ -110,7 +110,7 @@ void Wav_Task(void const *argument)
         break;
       case Audio_intoReady:
         pri_now = PRI(NULL);
-        RESET_Buffer();
+        RESET_FILE_Buffer();
         Play_IN_wav();
         break;
       case Audio_BankSwitch:
@@ -158,14 +158,14 @@ void Wav_Task(void const *argument)
         break;
       case Audio_intoRunning:
         pri_now = PRI(NULL);
-        RESET_Buffer();
+        RESET_FILE_Buffer();
         Play_OUT_wav();
         break;
       }
     }
     else if (USR.sys_status == System_Close)
     {
-      RESET_Buffer();
+      RESET_FILE_Buffer();
       switch (evt.value.v)
       {
       case Audio_PowerOff:
