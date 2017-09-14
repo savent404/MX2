@@ -152,13 +152,29 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+__STATIC_INLINE void pcm_convert(int16_t *_pt, uint8_t offset, uint32_t cnt)
+{
+  int16_t *pt = _pt;
+  while (cnt--)
+  {
+    *pt = (*pt >> offset) + 0x1000 / 2;
+    pt += 1;
+  }
+}
+
 void MX_Audio_Init(void)
 {
   HAL_TIM_Base_Start(&htim7);
 }
-void MX_Audio_Start(uint16_t* pt, uint32_t cnt)
+
+void MX_Audio_Start(uint16_t* pt, uint8_t vol, uint32_t cnt)
 {
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)pt, cnt, DAC_ALIGN_12B_R);
+  if (vol >= 0)
+  {
+    pcm_convert((int16_t*)pt, 4 + 3 - vol, cnt);
+    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)pt, cnt, DAC_ALIGN_12B_R);
+  }
+  
 }
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef *hdac)
 {

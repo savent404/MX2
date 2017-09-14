@@ -38,8 +38,7 @@ static void Play_RunningLOOP(void);
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri);
 static void play_a_buffer(uint16_t *);
 __STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer, UINT *seek);
-__STATIC_INLINE void pcm_convert(int16_t *);
-__STATIC_INLINE void pcm_convert2(int16_t *, int16_t *);
+__STATIC_INLINE void AUDIO_SoftMUX(int16_t *, int16_t *);
 #define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
 #define convert_ms2filesize(ms) (ms * sizeof(uint16_t) * 22)
 #define RESET_Buffer() \
@@ -80,7 +79,7 @@ void DACOutput(void const *argument)
       continue;
     osSemaphoreWait(DAC_Complete_FlagHandle, osWaitForever);
     
-    MX_Audio_Start((uint16_t*)evt.value.p, AUDIO_FIFO_SIZE);
+    MX_Audio_Start((uint16_t*)evt.value.p, USR.config->Vol, AUDIO_FIFO_SIZE);
   }
 }
 
@@ -249,7 +248,6 @@ static void Play_simple_wav(char *filepath)
       return;
     }
     taskEXIT_CRITICAL();
-    pcm_convert((int16_t *)dac_buffer[dac_buffer_pos]);
 
     play_a_buffer(dac_buffer[dac_buffer_pos]);
 
@@ -383,11 +381,10 @@ static void Play_OUT_wav(void)
     // 播放一个缓冲块
     if (trigger_offset >= point)
     {
-      pcm_convert2((int16_t *)dac_buffer[dac_buffer_pos], (int16_t *)trigger_buffer);
+      AUDIO_SoftMUX((int16_t *)dac_buffer[dac_buffer_pos], (int16_t *)trigger_buffer);
     }
     else
     {
-      pcm_convert((int16_t *)dac_buffer[dac_buffer_pos]);
     }
     play_a_buffer(dac_buffer[dac_buffer_pos]);
     dac_buffer_pos += 1;
@@ -425,10 +422,10 @@ read_hum_again:
   }
 
   if (pri_now == PRI(NULL))
-    pcm_convert((int16_t *)dac_buffer[dac_buffer_pos]);
+    ;
   else
   {
-    pcm_convert2((int16_t *)dac_buffer[dac_buffer_pos], (int16_t *)trigger_buffer);
+    AUDIO_SoftMUX((int16_t *)dac_buffer[dac_buffer_pos], (int16_t *)trigger_buffer);
   }
   play_a_buffer(dac_buffer[dac_buffer_pos]);
   dac_buffer_pos += 1;
@@ -450,31 +447,8 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
     trigger_offset = 0;
   }
 }
-__STATIC_INLINE void pcm_convert(int16_t *_pt)
-{
-  int16_t *pt = (int16_t *)_pt;
-  uint8_t offset = 4 + 3 - USR.config->Vol;
-  if (USR.config->Vol == 0)
-    offset = 15;
-  for (uint32_t i = 0; i < AUDIO_FIFO_SIZE; i++)
-  {
-    // if (*pt > INT16_MAX / 2) {
-    //     audio_convert_f = (float)INT16_MAX / 2 / (float) *pt;
-    //     *pt = INT16_MAX / 2;
-    // } *pt *= audio_convert_f;
-    // if (*pt < INT16_MIN / 2) {
-    //     audio_convert_f = (float)INT16_MIN / 2 / (float) *pt;
-    //     *pt = INT16_MIN / 2;
-    // }
-    // if (audio_convert_f < 1)
-    // {
-    //   audio_convert_f += ((float)1 - audio_convert_f) / (float) 32;
-    // }
-    *pt = (*pt >> offset) + 0x1000 / 2;
-    pt += 1;
-  }
-}
-__STATIC_INLINE void pcm_convert2(int16_t *pt1, int16_t *pt2)
+
+__STATIC_INLINE void AUDIO_SoftMUX(int16_t *pt1, int16_t *pt2)
 {
   uint8_t offset = 4 + 3 - USR.config->Vol;
   int16_t *p1 = (int16_t *)pt1, *p2 = (int16_t *)pt2;
@@ -484,21 +458,7 @@ __STATIC_INLINE void pcm_convert2(int16_t *pt1, int16_t *pt2)
     offset = 15;
   for (uint32_t i = 0; i < AUDIO_FIFO_SIZE; i++)
   {
-    int32_t buf = *p1 + *p2;
-    // if (buf > INT16_MAX / 2) {
-    //     audio_convert_f = (float)INT16_MAX / 2 / (float)buf;
-    //     buf = INT16_MAX / 2;
-    // } buf *= audio_convert_f;
-    // if (buf < INT16_MIN / 2) {
-    //     audio_convert_f = (float)INT16_MIN /2 / (float)buf;
-    //     buf = INT16_MIN / 2;
-    // }
-    // if (audio_convert_f < 1) {
-    //   audio_convert_f += ((float)1 - f) / (float)32;
-    // }
-
-    *p1 = (buf >> offset) + 0x1000 / 2;
-
+    *p1= *p1 + *p2;
     p1 += 1, p2 += 1;
   }
 }
@@ -573,7 +533,7 @@ void MX_Audio_Callback(void)
   }
   else
   {
-    MX_Audio_Start((uint16_t*)evt.value.p, AUDIO_FIFO_SIZE);
+    MX_Audio_Start((uint16_t*)evt.value.p, USR.config->Vol, AUDIO_FIFO_SIZE);
   }
 }
 
