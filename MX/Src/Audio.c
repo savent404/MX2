@@ -59,7 +59,14 @@ void DACOutput(void const *argument)
       continue;
     osSemaphoreWait(DAC_Complete_FlagHandle, osWaitForever);
 
+    #if AUDIO_SOFTMIX
     MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
+    #else
+    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v],
+                   (uint16_t*)dac_buffer[Track_1][evt.value.v],
+                   USR.config->Vol,
+                   AUDIO_FIFO_SIZE);
+    #endif
   }
 }
 
@@ -487,7 +494,14 @@ void MX_Audio_Callback(void)
   }
   else
   {
+    #if AUDIO_SOFTMIX
     MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
+    #else
+    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v],
+                   (uint16_t*)dac_buffer[Track_1][evt.value.v],
+                   USR.config->Vol,
+                   AUDIO_FIFO_SIZE);
+    #endif
   }
 }
 
