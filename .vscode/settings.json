@@ -4,6 +4,9 @@
     "lis3d.h": "c",
     "usr_config.h": "c",
     "simpleled.h": "c",
-    "led.h": "c"
+    "led.h": "c",
+    "main.h": "c",
+    "mx-audio.h": "c",
+    "mx-gpio.h": "c"
   }
 }
