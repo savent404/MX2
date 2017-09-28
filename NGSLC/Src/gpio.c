@@ -98,6 +98,12 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = KEY_USR_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(KEY_USR_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = KEY_MUX_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -118,8 +124,9 @@ bool MX_GPIO_IsPress(MX_KEY_t key)
     break;
 
     case KEY_USR:
-    // TODO:KEY_USR opra
-    flag = false;
+    flag = HAL_GPIO_ReadPin(KEY_USR_GPIO_Port,
+                            KEY_USR_Pin) == GPIO_PIN_SET ?
+                            false : true;
     break;
   }
   return flag;
@@ -137,7 +144,9 @@ void MX_GPIO_Enable(bool is)
 }
 void MX_GPIO_Lis3DCSEnable(bool is)
 {
-  // TODO:
+  HAL_GPIO_WritePin(SPI2_NSS_GPIO_Port,
+                    SPI2_NSS_Pin,
+                    is ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
 void SimpleLED_Init(void)
 {

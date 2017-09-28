@@ -60,6 +60,8 @@
 #define AUDIO_EN_GPIO_Port GPIOA
 #define SPI2_NSS_Pin GPIO_PIN_12
 #define SPI2_NSS_GPIO_Port GPIOB
+#define KEY_USR_Pin GPIO_PIN_10
+#define KEY_USR_GPIO_Port GPIOA
 #define POWER_EN_Pin GPIO_PIN_8
 #define POWER_EN_GPIO_Port GPIOB
 #define KEY_MUX_Pin GPIO_PIN_9
