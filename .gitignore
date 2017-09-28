@@ -59,12 +59,12 @@ dkms.conf
 /NGLSC_EB/obj/
 
 
-/NGLSC/*.cproject
-/NGLSC/*.mxproject
-/NGLSC/*.project
-/NGLSC/*.xml
-/NGLSC/.settings
-/NGLSC/.vscode
+/MX2_AudioPlayer/*.cproject
+/MX2_AudioPlayer/*.mxproject
+/MX2_AudioPlayer/*.project
+/MX2_AudioPlayer/*.xml
+/MX2_AudioPlayer/.settings
+/MX2_AudioPlayer/.vscode
 /NGLSC/*.cproject
 /NGLSC/*.mxproject
 /NGLSC/*.project
