@@ -14,6 +14,7 @@ void MX_Audio_Start(uint16_t* pt, uint8_t vol, uint32_t cnt);
 #else
 void MX_Audio_Start(uint16_t* pt1, uint16_t *pt2, uint8_t vol, uint32_t cnt);
 #endif
+void MX_Audio_HWBeep(void);
 void MX_Audio_Callback(void);
 
 #endif
