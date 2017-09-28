@@ -182,6 +182,7 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
 void MX_Audio_Init(void)
 {
   HAL_TIM_Base_Start(&htim7);
+  MX_Audio_Mute(true);
 }
 __STATIC_INLINE void pcm_convert(int16_t *_pt, uint8_t offset, uint32_t cnt)
 {
@@ -197,18 +198,13 @@ void MX_Audio_Start(uint16_t* pt1, uint16_t *pt2, uint8_t vol, uint32_t cnt)
   if (vol == 0) return;
   pcm_convert((int16_t*)pt1, 4 + 3 - vol, cnt);
   pcm_convert((int16_t*)pt2, 4 + 3 - vol, cnt);
-  HAL_GPIO_WritePin(AUDIO_EN_GPIO_Port,
-                    AUDIO_EN_Pin,
-                    GPIO_PIN_SET);
+  MX_Audio_Mute(false);
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)pt1, cnt, DAC_ALIGN_12B_R);
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)pt2, cnt, DAC_ALIGN_12B_R);
 }
 
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
-  HAL_GPIO_WritePin(AUDIO_EN_GPIO_Port,
-                    AUDIO_EN_Pin,
-                    GPIO_PIN_RESET);
   MX_Audio_Callback();
 }
 
@@ -219,9 +215,7 @@ void MX_Audio_HWBeep(void)
   uint16_t *ppt = pt;
   uint16_t cnt = 1024;
   MX_GPIO_Enable(true);
-  HAL_GPIO_WritePin(AUDIO_EN_GPIO_Port,
-                    AUDIO_EN_Pin,
-                    GPIO_PIN_SET);
+  MX_Audio_Mute(false);
   while (cnt--)
   {
     *pt = ((float)(sin(cnt * 3.1514926 / 20) / 2) * 0x1000) + 0x1000 / 2;
@@ -233,12 +227,17 @@ void MX_Audio_HWBeep(void)
     HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)ppt, 1024, DAC_ALIGN_12B_R);
     osDelay(50);
   }
-  HAL_GPIO_WritePin(AUDIO_EN_GPIO_Port,
-                    AUDIO_EN_Pin,
-                    GPIO_PIN_RESET);
+  MX_Audio_Mute(true);
   MX_GPIO_Enable(false);
   while (1)
     ;
+}
+
+void MX_Audio_Mute(bool en)
+{
+  HAL_GPIO_WritePin(AUDIO_EN_GPIO_Port,
+                    AUDIO_EN_Pin,
+                    en ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
 /* USER CODE END 1 */
 

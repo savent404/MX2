@@ -54,9 +54,12 @@ void DACOutput(void const *argument)
 {
   while (1)
   {
-    osEvent evt = osMessageGet(DAC_BufferHandle, osWaitForever);
+    osEvent evt = osMessageGet(DAC_BufferHandle, 50);
     if (evt.status != osEventMessage)
+    {
+      MX_Audio_Mute(true);
       continue;
+    }
     osSemaphoreWait(DAC_Complete_FlagHandle, osWaitForever);
 
     #if AUDIO_SOFTMIX
