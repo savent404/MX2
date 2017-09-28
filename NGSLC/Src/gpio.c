@@ -106,7 +106,7 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = KEY_MUX_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(KEY_MUX_GPIO_Port, &GPIO_InitStruct);
 
 }
@@ -119,7 +119,7 @@ bool MX_GPIO_IsPress(MX_KEY_t key)
   {
     case KEY_MUX:
     flag = HAL_GPIO_ReadPin(KEY_MUX_GPIO_Port,
-                            KEY_MUX_Pin) == GPIO_PIN_SET ?
+                            KEY_MUX_Pin) == GPIO_PIN_RESET ?
                             false : true;
     break;
 
