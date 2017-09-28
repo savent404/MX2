@@ -417,6 +417,7 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
 
 __STATIC_INLINE void SoftMix(int16_t *pt1, int16_t *pt2)
 {
+  #if AUDIO_SOFTMIX
   int16_t *p1 = (int16_t *)pt1, *p2 = (int16_t *)pt2;
 
   for (uint32_t i = 0; i < AUDIO_FIFO_SIZE; i++)
@@ -424,6 +425,8 @@ __STATIC_INLINE void SoftMix(int16_t *pt1, int16_t *pt2)
     *p1= *p1 + *p2;
     p1 += 1, p2 += 1;
   }
+  #else
+  #endif
 }
 
 /**
