@@ -5,8 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef USE_DEBUG
+#ifndef EBmonitorBufLen 
 #define EBmonitorBufLen 0x800
+#endif
+
+#ifdef USE_DEBUG
+
 extern char EBmonitorBuf[EBmonitorBufLen];
 void EBmonitor_buffer(FILE *, char *, uint16_t);
 void EBmonitor_flush(FILE *);
@@ -25,6 +29,8 @@ int EBmonitor_kbhit();
 #else
 #define DEBUG(level, format, ...) ;
 #define EBmonitor_Init() ;
+#undef EBmonitorBufLen
+#define EBmonitorBufLen 0
 #endif
 
 #endif
