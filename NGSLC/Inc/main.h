@@ -56,12 +56,36 @@
 
 /* Private define ------------------------------------------------------------*/
 
+#define LED1_Pin GPIO_PIN_14
+#define LED1_GPIO_Port GPIOC
+#define LED2_Pin GPIO_PIN_0
+#define LED2_GPIO_Port GPIOC
+#define LED3_Pin GPIO_PIN_1
+#define LED3_GPIO_Port GPIOC
+#define LED4_Pin GPIO_PIN_2
+#define LED4_GPIO_Port GPIOC
+#define LED5_Pin GPIO_PIN_3
+#define LED5_GPIO_Port GPIOC
+#define LED8_Pin GPIO_PIN_0
+#define LED8_GPIO_Port GPIOA
+#define LED6_Pin GPIO_PIN_1
+#define LED6_GPIO_Port GPIOA
+#define LED7_Pin GPIO_PIN_2
+#define LED7_GPIO_Port GPIOA
 #define AUDIO_EN_Pin GPIO_PIN_3
 #define AUDIO_EN_GPIO_Port GPIOA
 #define SPI2_NSS_Pin GPIO_PIN_12
 #define SPI2_NSS_GPIO_Port GPIOB
 #define KEY_USR_Pin GPIO_PIN_10
 #define KEY_USR_GPIO_Port GPIOA
+#define LEDD_Pin GPIO_PIN_11
+#define LEDD_GPIO_Port GPIOA
+#define LEDC_Pin GPIO_PIN_15
+#define LEDC_GPIO_Port GPIOA
+#define LEDB_Pin GPIO_PIN_4
+#define LEDB_GPIO_Port GPIOB
+#define LEDA_Pin GPIO_PIN_5
+#define LEDA_GPIO_Port GPIOB
 #define POWER_EN_Pin GPIO_PIN_8
 #define POWER_EN_GPIO_Port GPIOB
 #define KEY_MUX_Pin GPIO_PIN_9

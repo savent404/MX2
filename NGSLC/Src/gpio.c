@@ -74,22 +74,37 @@ void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(AUDIO_EN_GPIO_Port, AUDIO_EN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin 
+                          |LED5_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, LED8_Pin|LED6_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, LED7_Pin|AUDIO_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, SPI2_NSS_Pin|POWER_EN_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = AUDIO_EN_Pin;
+  /*Configure GPIO pins : PCPin PCPin PCPin PCPin 
+                           PCPin */
+  GPIO_InitStruct.Pin = LED1_Pin|LED2_Pin|LED3_Pin|LED4_Pin 
+                          |LED5_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(AUDIO_EN_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PAPin PAPin PAPin PAPin */
+  GPIO_InitStruct.Pin = LED8_Pin|LED6_Pin|LED7_Pin|AUDIO_EN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin */
   GPIO_InitStruct.Pin = SPI2_NSS_Pin|POWER_EN_Pin;
@@ -150,23 +165,29 @@ void MX_GPIO_Lis3DCSEnable(bool is)
 }
 void SimpleLED_Init(void)
 {
-  // TODO:
+  // Inited
 }
 void SimpleLED_DeInit(void)
 {
-  // TODO:
+  HAL_GPIO_DeInit(LED1_GPIO_Port, LED1_Pin);
+  HAL_GPIO_DeInit(LED2_GPIO_Port, LED2_Pin);
+  HAL_GPIO_DeInit(LED3_GPIO_Port, LED3_Pin);
+  HAL_GPIO_DeInit(LED4_GPIO_Port, LED4_Pin);
+  HAL_GPIO_DeInit(LED5_GPIO_Port, LED5_Pin);
+  HAL_GPIO_DeInit(LED6_GPIO_Port, LED6_Pin);
+  HAL_GPIO_DeInit(LED7_GPIO_Port, LED7_Pin);
+  HAL_GPIO_DeInit(LED8_GPIO_Port, LED8_Pin);
 }
 void SimpleLED_Opra(uint8_t led)
 {
-  // TODO:
-}
-void SimpleLED_Callback(void const *arg)
-{
-  // TODO:
-}
-void SimpleLED_ChangeStatus(SimpleLED_Status_t status)
-{
-  // TODO:
+  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, led & 1 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, led & 2 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, led & 4 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, led & 8 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED5_GPIO_Port, LED5_Pin, led & 16 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED6_GPIO_Port, LED6_Pin, led & 32 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED7_GPIO_Port, LED7_Pin, led & 64 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED8_GPIO_Port, LED8_Pin, led & 128 ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
 /* USER CODE END 2 */
 
