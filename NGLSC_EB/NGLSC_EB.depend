@@ -1,11 +1,11 @@
 # depslib dependency file v1.0
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal.c
 	"stm32f1xx_hal.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal.h
 	"stm32f1xx_hal_conf.h"
 
-1506585568 e:\github_clone\mx2\ngslc\inc\stm32f1xx_hal_conf.h
+1507090906 e:\github_clone\mx2\ngslc\inc\stm32f1xx_hal_conf.h
 	"main.h"
 	"stm32f1xx_hal_rcc.h"
 	"stm32f1xx_hal_gpio.h"
@@ -39,18 +39,18 @@
 	"stm32f1xx_hal_pcd.h"
 	"stm32f1xx_hal_hcd.h"
 
-1506585568 e:\github_clone\mx2\ngslc\inc\main.h
+1507090906 e:\github_clone\mx2\ngslc\inc\main.h
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_rcc.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_rcc.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_rcc_ex.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_def.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_def.h
 	"stm32f1xx.h"
 	"Legacy/stm32_hal_legacy.h"
 	<stdio.h>
 
-1500434774 e:\github_clone\mx2\ngslc\drivers\cmsis\device\st\stm32f1xx\include\stm32f1xx.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\cmsis\device\st\stm32f1xx\include\stm32f1xx.h
 	"stm32f100xb.h"
 	"stm32f100xe.h"
 	"stm32f101x6.h"
@@ -67,17 +67,17 @@
 	"stm32f107xc.h"
 	"stm32f1xx_hal.h"
 
-1500434774 e:\github_clone\mx2\ngslc\drivers\cmsis\device\st\stm32f1xx\include\stm32f103xe.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\cmsis\device\st\stm32f1xx\include\stm32f103xe.h
 	"core_cm3.h"
 	"system_stm32f1xx.h"
 	<stdint.h>
 
-1500434824 e:\github_clone\mx2\ngslc\drivers\cmsis\include\core_cm3.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\cmsis\include\core_cm3.h
 	<stdint.h>
 	"core_cmInstr.h"
 	"core_cmFunc.h"
 
-1500434824 e:\github_clone\mx2\ngslc\drivers\cmsis\include\core_cminstr.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\cmsis\include\core_cminstr.h
 	"cmsis_armcc.h"
 	"cmsis_armcc_V6.h"
 	"cmsis_gcc.h"
@@ -85,13 +85,13 @@
 	<cmsis_ccs.h>
 	<cmsis_csm.h>
 
-1500434824 e:\github_clone\mx2\ngslc\drivers\cmsis\include\cmsis_armcc.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\cmsis\include\cmsis_armcc.h
 
-1500434824 e:\github_clone\mx2\ngslc\drivers\cmsis\include\cmsis_armcc_v6.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\cmsis\include\cmsis_armcc_v6.h
 
-1500434824 e:\github_clone\mx2\ngslc\drivers\cmsis\include\cmsis_gcc.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\cmsis\include\cmsis_gcc.h
 
-1500434824 e:\github_clone\mx2\ngslc\drivers\cmsis\include\core_cmfunc.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\cmsis\include\core_cmfunc.h
 	"cmsis_armcc.h"
 	"cmsis_armcc_V6.h"
 	"cmsis_gcc.h"
@@ -99,158 +99,158 @@
 	<cmsis_ccs.h>
 	<cmsis_csm.h>
 
-1500434774 e:\github_clone\mx2\ngslc\drivers\cmsis\device\st\stm32f1xx\include\system_stm32f1xx.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\cmsis\device\st\stm32f1xx\include\system_stm32f1xx.h
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\legacy\stm32_hal_legacy.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\legacy\stm32_hal_legacy.h
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_rcc_ex.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_rcc_ex.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_gpio.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_gpio.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_gpio_ex.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_gpio_ex.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_gpio_ex.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dma.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dma.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_dma_ex.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dma_ex.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dma_ex.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_cortex.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_cortex.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_adc.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_adc.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_adc_ex.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_adc_ex.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_adc_ex.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dac.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dac.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_dac_ex.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dac_ex.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dac_ex.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_flash.h
+1507090905 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_flash.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_flash_ex.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_flash_ex.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_flash_ex.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_pwr.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_pwr.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_sd.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_sd.h
 	"stm32f1xx_ll_sdmmc.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_ll_sdmmc.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_ll_sdmmc.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_spi.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_spi.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_tim.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_tim.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_tim_ex.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_tim_ex.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_tim_ex.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_uart.h
+1507090906 e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_uart.h
 	"stm32f1xx_hal_def.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_adc.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_adc.c
 	"stm32f1xx_hal.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_adc_ex.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_adc_ex.c
 	"stm32f1xx_hal.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_cortex.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_cortex.c
 	"stm32f1xx_hal.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac.c
 	"stm32f1xx_hal.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac_ex.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac_ex.c
 	"stm32f1xx_hal.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dma.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dma.c
 	"stm32f1xx_hal.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_flash.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_flash.c
 	"stm32f1xx_hal.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_flash_ex.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_flash_ex.c
 	"stm32f1xx_hal.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_gpio.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_gpio.c
 	"stm32f1xx_hal.h"
 
-1500434825 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_gpio_ex.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_gpio_ex.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_pwr.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_pwr.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_rcc.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_rcc.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_rcc_ex.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_rcc_ex.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_sd.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_sd.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_spi.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_spi.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_spi_ex.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_spi_ex.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_tim.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_tim.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_tim_ex.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_tim_ex.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_uart.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_uart.c
 	"stm32f1xx_hal.h"
 
-1500434826 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_ll_sdmmc.c
+1507090906 source:e:\github_clone\mx2\ngslc\drivers\stm32f1xx_hal_driver\src\stm32f1xx_ll_sdmmc.c
 	"stm32f1xx_hal.h"
 
-1500434831 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\diskio.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\diskio.c
 	"diskio.h"
 	"ff_gen_drv.h"
 
-1500434831 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\diskio.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\diskio.h
 	"integer.h"
 
-1500434831 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\integer.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\integer.h
 	<windows.h>
 	<tchar.h>
 
-1500434831 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\ff_gen_drv.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\ff_gen_drv.h
 	"diskio.h"
 	"ff.h"
 
-1500434831 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\ff.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\ff.h
 	"integer.h"
 	"ffconf.h"
 
-1506585566 e:\github_clone\mx2\ngslc\inc\ffconf.h
+1507090906 e:\github_clone\mx2\ngslc\inc\ffconf.h
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
 	"bsp_driver_sd.h"
 
-1500434831 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.h
 	"FreeRTOS.h"
 	"task.h"
 	"timers.h"
@@ -261,7 +261,7 @@
 	"osObjects.h"
 	"osObjects.h"
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\freertos.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\freertos.h
 	<stddef.h>
 	<stdint.h>
 	"FreeRTOSConfig.h"
@@ -269,18 +269,18 @@
 	"portable.h"
 	<reent.h>
 
-1506585567 e:\github_clone\mx2\ngslc\inc\freertosconfig.h
+1507090906 e:\github_clone\mx2\ngslc\inc\freertosconfig.h
 	<stdint.h>
 	"main.h"
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\projdefs.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\projdefs.h
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\portable.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\portable.h
 	"deprecated_definitions.h"
 	"portmacro.h"
 	"mpu_wrappers.h"
 
-1500434831 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\deprecated_definitions.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\deprecated_definitions.h
 	"..\..\Source\portable\owatcom\16bitdos\pc\portmacro.h"
 	"..\..\Source\portable\owatcom\16bitdos\flsh186\portmacro.h"
 	"../portable/GCC/ATMega323/portmacro.h"
@@ -339,82 +339,82 @@
 	"../../Source/portable/IAR/78K0R/portmacro.h"
 	"../../Source/portable/IAR/78K0R/portmacro.h"
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\portmacro.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\portmacro.h
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\mpu_wrappers.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\mpu_wrappers.h
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\task.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\task.h
 	"list.h"
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\list.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\list.h
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\timers.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\timers.h
 	"task.h"
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\queue.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\queue.h
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\semphr.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\semphr.h
 	"queue.h"
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\event_groups.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\event_groups.h
 	"timers.h"
 
-1506585566 e:\github_clone\mx2\ngslc\inc\bsp_driver_sd.h
+1507090906 e:\github_clone\mx2\ngslc\inc\bsp_driver_sd.h
 	"stm32f1xx_hal.h"
 
-1500434831 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\drivers\sd_diskio.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\drivers\sd_diskio.c
 	<string.h>
 	"ff_gen_drv.h"
 
-1500434831 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\ff.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\ff.c
 	"ff.h"
 	"diskio.h"
 	<stdarg.h>
 
-1500434831 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\ff_gen_drv.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\ff_gen_drv.c
 	"ff_gen_drv.h"
 
-1500434831 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\option\syscall.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\option\syscall.c
 	<stdlib.h>
 	"../ff.h"
 
-1500434831 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.c
 	<string.h>
 	"cmsis_os.h"
 	"cmsis_armcc.h"
 	"cmsis_gcc.h"
 	<cmsis_iar.h>
 
-1500434831 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\croutine.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\croutine.c
 	"FreeRTOS.h"
 	"task.h"
 	"croutine.h"
 
-1500434831 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\croutine.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\croutine.h
 	"list.h"
 
-1500434831 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\event_groups.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\event_groups.c
 	<stdlib.h>
 	"FreeRTOS.h"
 	"task.h"
 	"timers.h"
 	"event_groups.h"
 
-1500434832 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\list.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\list.c
 	<stdlib.h>
 	"FreeRTOS.h"
 	"list.h"
 
-1500434832 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\port.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\port.c
 	"FreeRTOS.h"
 	"task.h"
 
-1500434832 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\portable\memmang\heap_4.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\portable\memmang\heap_4.c
 	<stdlib.h>
 	"FreeRTOS.h"
 	"task.h"
 
-1500434832 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\queue.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\queue.c
 	<stdlib.h>
 	<string.h>
 	"FreeRTOS.h"
@@ -422,7 +422,7 @@
 	"queue.h"
 	"croutine.h"
 
-1500434832 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\tasks.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\tasks.c
 	<stdlib.h>
 	<string.h>
 	"FreeRTOS.h"
@@ -432,71 +432,71 @@
 	<stdio.h>
 	"tasks_test_access_functions.h"
 
-1500434832 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\stackmacros.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\include\stackmacros.h
 
-1500434832 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\timers.c
+1507090906 source:e:\github_clone\mx2\ngslc\middlewares\third_party\freertos\source\timers.c
 	<stdlib.h>
 	"FreeRTOS.h"
 	"task.h"
 	"queue.h"
 	"timers.h"
 
-1506585565 source:e:\github_clone\mx2\ngslc\src\adc.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\adc.c
 	"adc.h"
 	"gpio.h"
 	"mx-adc.h"
 
-1506585565 e:\github_clone\mx2\ngslc\inc\adc.h
+1507090906 e:\github_clone\mx2\ngslc\inc\adc.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1506585565 e:\github_clone\mx2\ngslc\inc\gpio.h
+1507090906 e:\github_clone\mx2\ngslc\inc\gpio.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1506585566 source:e:\github_clone\mx2\ngslc\src\bsp_driver_sd.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\bsp_driver_sd.c
 	"bsp_driver_sd.h"
 
-1506586091 source:e:\github_clone\mx2\ngslc\src\dac.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\dac.c
 	"dac.h"
 	"gpio.h"
 	"dma.h"
 	"mx-audio.h"
 	"tim.h"
 
-1506585565 e:\github_clone\mx2\ngslc\inc\dac.h
+1507090906 e:\github_clone\mx2\ngslc\inc\dac.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1506585565 e:\github_clone\mx2\ngslc\inc\dma.h
+1507090906 e:\github_clone\mx2\ngslc\inc\dma.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1506585565 source:e:\github_clone\mx2\ngslc\src\dma.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\dma.c
 	"dma.h"
 
-1506585566 source:e:\github_clone\mx2\ngslc\src\fatfs.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\fatfs.c
 	"fatfs.h"
 
-1506585566 e:\github_clone\mx2\ngslc\inc\fatfs.h
+1507090906 e:\github_clone\mx2\ngslc\inc\fatfs.h
 	"ff.h"
 	"ff_gen_drv.h"
 	"sd_diskio.h"
 
-1500434831 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\drivers\sd_diskio.h
+1507090906 e:\github_clone\mx2\ngslc\middlewares\third_party\fatfs\src\drivers\sd_diskio.h
 
-1506585565 source:e:\github_clone\mx2\ngslc\src\gpio.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\gpio.c
 	"gpio.h"
 	"mx-gpio.h"
 	"SimpleLED.h"
 
-1506585567 source:e:\github_clone\mx2\ngslc\src\freertos.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\freertos.c
 	"FreeRTOS.h"
 	"task.h"
 	"cmsis_os.h"
 	"stm32f1xx_hal.h"
 
-1506586218 source:e:\github_clone\mx2\ngslc\src\main.c
+1507091148 source:e:\github_clone\mx2\ngslc\src\main.c
 	"main.h"
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
@@ -510,61 +510,62 @@
 	"usart.h"
 	"gpio.h"
 	"mx-audio.h"
+	"mx-gpio.h"
 
-1506585567 e:\github_clone\mx2\ngslc\inc\sdio.h
+1507090906 e:\github_clone\mx2\ngslc\inc\sdio.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1506585567 e:\github_clone\mx2\ngslc\inc\spi.h
+1507090906 e:\github_clone\mx2\ngslc\inc\spi.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1506585567 e:\github_clone\mx2\ngslc\inc\tim.h
+1507090906 e:\github_clone\mx2\ngslc\inc\tim.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1506585568 e:\github_clone\mx2\ngslc\inc\usart.h
+1507090906 e:\github_clone\mx2\ngslc\inc\usart.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1506585567 source:e:\github_clone\mx2\ngslc\src\sdio.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\sdio.c
 	"sdio.h"
 	"gpio.h"
 
-1506585567 source:e:\github_clone\mx2\ngslc\src\spi.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\spi.c
 	"spi.h"
 	"gpio.h"
 	"mx-spi.h"
 
-1506585568 source:e:\github_clone\mx2\ngslc\src\stm32f1xx_hal_msp.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\stm32f1xx_hal_msp.c
 	"stm32f1xx_hal.h"
 
-1506585568 source:e:\github_clone\mx2\ngslc\src\stm32f1xx_hal_timebase_tim.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\stm32f1xx_hal_timebase_tim.c
 	"stm32f1xx_hal.h"
 	"stm32f1xx_hal_tim.h"
 
-1506585568 source:e:\github_clone\mx2\ngslc\src\stm32f1xx_it.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\stm32f1xx_it.c
 	"stm32f1xx_hal.h"
 	"stm32f1xx.h"
 	"stm32f1xx_it.h"
 	"cmsis_os.h"
 
-1506585568 e:\github_clone\mx2\ngslc\inc\stm32f1xx_it.h
+1507090906 e:\github_clone\mx2\ngslc\inc\stm32f1xx_it.h
 
-1500434775 source:e:\github_clone\mx2\ngslc\src\system_stm32f1xx.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\system_stm32f1xx.c
 	"stm32f1xx.h"
 
-1506585567 source:e:\github_clone\mx2\ngslc\src\tim.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\tim.c
 	"tim.h"
 	"mx-tim.h"
 
-1506585567 source:e:\github_clone\mx2\ngslc\src\usart.c
+1507090906 source:e:\github_clone\mx2\ngslc\src\usart.c
 	"usart.h"
 	"gpio.h"
 
-1500434775 source:e:\github_clone\mx2\ngslc\startup_stm32f103xe.s
+1507090906 source:e:\github_clone\mx2\ngslc\startup_stm32f103xe.s
 
-1506584221 source:e:\github_clone\mx2\mx\src\audio.c
+1507090905 source:e:\github_clone\mx2\mx\src\audio.c
 	"Audio.h"
 
 1506583742 e:\github_clone\mx2\mx\inc\audio.h
@@ -583,7 +584,7 @@
 	<stdint.h>
 	<stdio.h>
 
-1505299784 e:\github_clone\mx2\mx\inc\debug.h
+1506588104 e:\github_clone\mx2\mx\inc\debug.h
 	<stdint.h>
 	<stdio.h>
 	<string.h>
@@ -606,9 +607,10 @@
 1496634397 e:\github_clone\mx2\mx\inc\path.h
 	"main.h"
 
-1506581733 e:\github_clone\mx2\mx\inc\mx-audio.h
+1507090905 e:\github_clone\mx2\mx\inc\mx-audio.h
 	"dac.h"
 	"audio.h"
+	<stdbool.h>
 
 1505272602 source:e:\github_clone\mx2\mx\src\led.c
 	"LED.h"
@@ -634,14 +636,14 @@
 	"mx-spi.h"
 	<stdint.h>
 
-1505272602 e:\github_clone\mx2\mx\inc\mx-gpio.h
+1507091056 e:\github_clone\mx2\mx\inc\mx-gpio.h
 	"gpio.h"
 	<stdbool.h>
 
 1505272602 e:\github_clone\mx2\mx\inc\mx-spi.h
 	"spi.h"
 
-1505390222 source:e:\github_clone\mx2\mx\src\maintask.c
+1507090905 source:e:\github_clone\mx2\mx\src\maintask.c
 	<math.h>
 	<stdint.h>
 	<stdio.h>
@@ -679,6 +681,6 @@
 1505272602 source:e:\github_clone\mx2\mx\src\simpleled.c
 	"SimpleLED.h"
 
-1506583468 source:e:\github_clone\mx2\mx\src\usr_config.c
+1507090905 source:e:\github_clone\mx2\mx\src\usr_config.c
 	"USR_CONFIG.h"
 
