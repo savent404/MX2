@@ -9,6 +9,8 @@ typedef enum
   KEY_USR
 } MX_KEY_t;
 
+#define AFIO_RELEASE() __HAL_AFIO_REMAP_SWJ_NONJTRST()
+
 bool MX_GPIO_IsPress(MX_KEY_t key);
 bool MX_GPIO_PlugIn(void);
 void MX_GPIO_Enable(bool is);
