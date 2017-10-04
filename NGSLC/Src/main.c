@@ -62,6 +62,7 @@
 /* USER CODE BEGIN Includes */
 #include "mx-audio.h"
 #include "mx-gpio.h"
+#include "DEBUG.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -82,6 +83,7 @@ void MX_FREERTOS_Init(void);
 
 /* USER CODE BEGIN 0 */
 
+char EBmonitorBuffer[EBmonitorBufLen];
 /* USER CODE END 0 */
 
 int main(void)
@@ -122,6 +124,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   AFIO_RELEASE();
   MX_Audio_Init();
+
+  EBmonitor_Init();
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

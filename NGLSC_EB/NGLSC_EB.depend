@@ -496,7 +496,7 @@
 	"cmsis_os.h"
 	"stm32f1xx_hal.h"
 
-1507091148 source:e:\github_clone\mx2\ngslc\src\main.c
+1507099393 source:e:\github_clone\mx2\ngslc\src\main.c
 	"main.h"
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
@@ -511,6 +511,7 @@
 	"gpio.h"
 	"mx-audio.h"
 	"mx-gpio.h"
+	"DEBUG.h"
 
 1507090906 e:\github_clone\mx2\ngslc\inc\sdio.h
 	"stm32f1xx_hal.h"
@@ -584,7 +585,7 @@
 	<stdint.h>
 	<stdio.h>
 
-1506588104 e:\github_clone\mx2\mx\inc\debug.h
+1507099346 e:\github_clone\mx2\mx\inc\debug.h
 	<stdint.h>
 	<stdio.h>
 	<string.h>
@@ -643,7 +644,7 @@
 1505272602 e:\github_clone\mx2\mx\inc\mx-spi.h
 	"spi.h"
 
-1507090905 source:e:\github_clone\mx2\mx\src\maintask.c
+1507099556 source:e:\github_clone\mx2\mx\src\maintask.c
 	<math.h>
 	<stdint.h>
 	<stdio.h>
