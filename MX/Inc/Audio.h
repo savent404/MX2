@@ -10,9 +10,8 @@
 #include "ff.h"
 #include "main.h"
 #include "mx-audio.h"
+#include "mx-config.h"
 #include "path.h"
-
-
 
 #if AUDIO_SOFTMIX
 #undef AUDIO_TRACK_NUM
@@ -29,8 +28,7 @@
 #ifndef AUDIO_FIFO_SIZE
 #define AUDIO_FIFO_SIZE 512
 #endif
-typedef enum _track
-{
+typedef enum _track {
   Track_0 = 0,
   Track_1 = 1,
 } Audio_Track_t;

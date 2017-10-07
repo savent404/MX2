@@ -4,6 +4,7 @@
 #include "DEBUG.h"
 #include "USR_CONFIG.h"
 #include "cmsis_os.h"
+#include "mx-config.h"
 #include "mx-gpio.h"
 #include <stdbool.h>
 #include <stdint.h>

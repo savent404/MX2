@@ -1,6 +1,7 @@
 #ifndef _MX_TIM_H_
 #define _MX_TIM_H_
 
+#include "mx-config.h"
 #include "tim.h"
 
 void MX_TIM_PowerLEDStart(void);

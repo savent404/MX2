@@ -2,9 +2,10 @@
 #define _MX_GPIO_H_
 
 #include "gpio.h"
+#include "mx-config.h"
 #include <stdbool.h>
-typedef enum
-{
+
+typedef enum {
   KEY_MUX,
   KEY_USR
 } MX_KEY_t;

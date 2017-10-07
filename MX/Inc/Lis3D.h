@@ -1,5 +1,6 @@
 #ifndef _LIS3D_H_
 #define _LIS3D_H_
+#include "mx-config.h"
 #include "mx-gpio.h"
 #include "mx-spi.h"
 #include <stdint.h>

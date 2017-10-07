@@ -1,11 +1,12 @@
 #ifndef _DEBUG_H_
 #define _DEBUG_H_
 
+#include "mx-config.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#ifndef EBmonitorBufLen 
+#ifndef EBmonitorBufLen
 #define EBmonitorBufLen 0x800
 #endif
 
