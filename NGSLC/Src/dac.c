@@ -182,7 +182,11 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
 void MX_Audio_Init(void)
 {
   HAL_TIM_Base_Start(&htim7);
+#if AUDIO_SOFTMIX == 1
+  HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
+  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, 0x1000 / 2, DAC_ALIGN_12B_R);
   MX_Audio_Mute(true);
+#endif
 }
 __STATIC_INLINE void pcm_convert(int16_t *_pt, uint8_t offset, uint32_t cnt)
 {
@@ -193,22 +197,27 @@ __STATIC_INLINE void pcm_convert(int16_t *_pt, uint8_t offset, uint32_t cnt)
     pt += 1;
   }
 }
-void MX_Audio_Start(uint16_t* pt1, uint16_t *pt2, uint8_t vol, uint32_t cnt)
 
 #if AUDIO_SOFTMIX == 0
+void MX_Audio_Start(uint16_t *pt1, uint16_t *pt2, uint8_t vol, uint32_t cnt)
+{
   if (vol == 0)
     return;
+  pcm_convert((int16_t *)pt1, 4 + 3 - vol, cnt);
+  pcm_convert((int16_t *)pt2, 4 + 3 - vol, cnt);
+  MX_Audio_Mute(false);
+  HAL_TIM_Base_Stop(&htim7);
+  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)pt1, cnt, DAC_ALIGN_12B_R);
+  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t *)pt2, cnt, DAC_ALIGN_12B_R);
+  HAL_TIM_Base_Start(&htim7);
+}
 #else
 void MX_Audio_Start(uint16_t *pt, uint8_t vol, uint32_t cnt)
 {
-  pcm_convert((int16_t*)pt1, 4 + 3 - vol, cnt);
-  pcm_convert((int16_t*)pt2, 4 + 3 - vol, cnt);
   if (vol == 0)
     return;
   pcm_convert((int16_t *)pt, 4 + 3 - vol, cnt);
   MX_Audio_Mute(false);
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)pt1, cnt, DAC_ALIGN_12B_R);
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)pt2, cnt, DAC_ALIGN_12B_R);
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)pt, cnt, DAC_ALIGN_12B_R);
 }
 #endif
