@@ -207,8 +207,9 @@ void MX_Audio_Start(uint16_t *pt1, uint16_t *pt2, uint8_t vol, uint32_t cnt)
   pcm_convert((int16_t *)pt2, 4 + 3 - vol, cnt);
   MX_Audio_Mute(false);
   HAL_TIM_Base_Stop(&htim7);
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)pt1, cnt, DAC_ALIGN_12B_R);
+  HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_2);
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t *)pt2, cnt, DAC_ALIGN_12B_R);
+  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)pt1, cnt, DAC_ALIGN_12B_R);
   HAL_TIM_Base_Start(&htim7);
 }
 #else
