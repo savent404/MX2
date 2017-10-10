@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<EmBitz_project_file>
+	<EmBitzVersion release="1.11" revision="0" />
+	<FileVersion major="1" minor="0" />
+	<Project>
+		<Option title="NGLSC_EB" />
+		<Option pch_mode="2" />
+		<Option compiler="armgcc_eb" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\NGLSC_EB.elf" />
+				<Option object_output="obj\Debug\" />
+				<Option type="0" />
+				<Option compiler="armgcc_eb" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Device>
+					<Add option="$device=cortex-m3" />
+					<Add option="$lscript=../NGLSC/STM32F103RDTx_FLASH.ld" />
+					<Add option="$stack=1024" />
+					<Add option="$heap=1024" />
+				</Device>
+				<Compiler>
+					<Add option="-O0" />
+					<Add option="-g2" />
+					<Add symbol="STM32F103xE" />
+					<Add symbol="USE_HAL_DRIVER" />
+					<Add symbol="ARM_MATH_CM3" />
+					<Add symbol="USE_DEBUG" />
+					<Add symbol="AUDIO_SOFTMIX=0" />
+				</Compiler>
+				<Assembler>
+					<Add option="--gdwarf-2" />
+				</Assembler>
+				<Linker>
+					<Add option="-eb_lib=s" />
+					<Add option="-eb_start_files" />
+					<Add option="-eb_use_mon" />
+					<Add option="-Wl,--gc-sections" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\NGLSC_EB.elf" />
+				<Option object_output="obj\Release\" />
+				<Option type="0" />
+				<Option compiler="armgcc_eb" />
+				<Device>
+					<Add option="$device=cortex-m3" />
+					<Add option="$lscript=../NGLSC/STM32F103RDTx_FLASH.ld" />
+					<Add option="$stack=0" />
+					<Add option="$heap=1024" />
+				</Device>
+				<Compiler>
+					<Add option="-std=c99" />
+					<Add option="-fdata-sections" />
+					<Add option="-Ofast" />
+					<Add option="-g1" />
+					<Add symbol="STM32F103xE" />
+					<Add symbol="USE_HAL_DRIVER" />
+					<Add symbol="ARM_MATH_CM3" />
+					<Add symbol="AUDIO_SOFTMIX=0" />
+				</Compiler>
+				<Linker>
+					<Add option="-eb_lib=s" />
+					<Add option="-eb_start_files" />
+					<Add option="-Wl,--gc-sections" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="..\MX\Inc\AF.h" />
+		<Unit filename="..\MX\Inc\Audio.h" />
+		<Unit filename="..\MX\Inc\DEBUG.h" />
+		<Unit filename="..\MX\Inc\LED.h" />
+		<Unit filename="..\MX\Inc\Lis3D.h" />
+		<Unit filename="..\MX\Inc\mx-adc.h" />
+		<Unit filename="..\MX\Inc\mx-audio.h" />
+		<Unit filename="..\MX\Inc\mx-config.h" />
+		<Unit filename="..\MX\Inc\mx-gpio.h" />
+		<Unit filename="..\MX\Inc\mx-spi.h" />
+		<Unit filename="..\MX\Inc\mx-tim.h" />
+		<Unit filename="..\MX\Inc\MX_osID.h" />
+		<Unit filename="..\MX\Inc\path.h" />
+		<Unit filename="..\MX\Inc\SimpleLED.h" />
+		<Unit filename="..\MX\Inc\USR_CONFIG.h" />
+		<Unit filename="..\MX\Src\Audio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\LED.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\Lis3D.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\MainTask.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\mx-audio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\SimpleLED.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\USR_CONFIG.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xe.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f1xx.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Device\ST\STM32F1xx\Include\system_stm32f1xx.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\arm_common_tables.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\arm_const_structs.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\arm_math.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\cmsis_armcc.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\cmsis_armcc_V6.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\cmsis_gcc.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_cm0.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_cm0plus.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_cm3.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_cm4.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_cm7.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_cmFunc.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_cmInstr.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_cmSimd.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_sc000.h" />
+		<Unit filename="..\NGLSC\Drivers\CMSIS\Include\core_sc300.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_adc.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_adc_ex.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_cortex.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_dac.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_dac_ex.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_def.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_dma.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_dma_ex.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_flash.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_flash_ex.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_gpio.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_gpio_ex.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pwr.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc_ex.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_sd.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_spi.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim_ex.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_uart.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_ll_sdmmc.h" />
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_adc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_adc_ex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_cortex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_dac.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_dac_ex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_dma.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_flash.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_flash_ex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_gpio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_gpio_ex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_pwr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_rcc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_rcc_ex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_sd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_spi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_spi_ex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_tim.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_tim_ex.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_uart.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_ll_sdmmc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Inc\adc.h" />
+		<Unit filename="..\NGLSC\Inc\bsp_driver_sd.h" />
+		<Unit filename="..\NGLSC\Inc\dac.h" />
+		<Unit filename="..\NGLSC\Inc\dma.h" />
+		<Unit filename="..\NGLSC\Inc\fatfs.h" />
+		<Unit filename="..\NGLSC\Inc\ffconf.h" />
+		<Unit filename="..\NGLSC\Inc\FreeRTOSConfig.h" />
+		<Unit filename="..\NGLSC\Inc\gpio.h" />
+		<Unit filename="..\NGLSC\Inc\main.h" />
+		<Unit filename="..\NGLSC\Inc\sdio.h" />
+		<Unit filename="..\NGLSC\Inc\spi.h" />
+		<Unit filename="..\NGLSC\Inc\stm32f1xx_hal_conf.h" />
+		<Unit filename="..\NGLSC\Inc\stm32f1xx_it.h" />
+		<Unit filename="..\NGLSC\Inc\tim.h" />
+		<Unit filename="..\NGLSC\Inc\usart.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\diskio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\diskio.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\drivers\sd_diskio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\drivers\sd_diskio.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\ff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\ff.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\ff_gen_drv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\ffconf_template.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\integer.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FatFs\src\option\syscall.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS\cmsis_os.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\croutine.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\event_groups.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\croutine.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\deprecated_definitions.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\event_groups.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\FreeRTOS.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\FreeRTOSConfig_template.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\list.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\mpu_prototypes.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\mpu_wrappers.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\portable.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\projdefs.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\queue.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\semphr.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\StackMacros.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\task.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\include\timers.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\list.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM3\port.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM3\portmacro.h" />
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\portable\MemMang\heap_4.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\queue.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\tasks.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Middlewares\Third_Party\FreeRTOS\Source\timers.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\adc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\bsp_driver_sd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\dac.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\dma.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\fatfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\freertos.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\gpio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\sdio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\spi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\stm32f1xx_hal_msp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\stm32f1xx_hal_timebase_TIM.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\stm32f1xx_it.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\system_stm32f1xx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\tim.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\Src\usart.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\NGLSC\startup_stm32f103xe.S">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger>
+				<target_debugging_settings target="Release" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
+						<family_options family_id="STMicroelectronics">
+							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
+							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
+							<option opt_id="ID_RESET_TYPE" opt_value="System" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="0" />
+							<option opt_id="ID_RAM_EXEC" opt_value="0" />
+							<option opt_id="ID_VEC_TABLE" opt_value="1" />
+							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
+							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
+							<option opt_id="ID_DEV_ADDR" opt_value="" />
+							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
+						</family_options>
+					</debug_interface>
+				</target_debugging_settings>
+				<target_debugging_settings target="Debug" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
+						<family_options family_id="STMicroelectronics">
+							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
+							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
+							<option opt_id="ID_RESET_TYPE" opt_value="System" />
+							<option opt_id="ID_LOAD_PROGRAM" opt_value="1" />
+							<option opt_id="ID_SEMIHOST_CHECK" opt_value="0" />
+							<option opt_id="ID_RAM_EXEC" opt_value="0" />
+							<option opt_id="ID_VEC_TABLE" opt_value="1" />
+							<option opt_id="ID_DONT_CONN_RESET" opt_value="0" />
+							<option opt_id="ID_ALL_MODE_DEBUG" opt_value="0" />
+							<option opt_id="ID_DEV_ADDR" opt_value="" />
+							<option opt_id="ID_VERBOSE_LEVEL" opt_value="3" />
+						</family_options>
+					</debug_interface>
+				</target_debugging_settings>
+			</debugger>
+			<envvars />
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
+		</Extensions>
+	</Project>
+</EmBitz_project_file>

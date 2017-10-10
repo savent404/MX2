@@ -56,7 +56,6 @@ static void H_Charged(void);
 static void H_Charging(void);
 
 static void filesystem_init(void);
-static void beep_error(void);
 static uint8_t key_scan(void);
 static uint8_t ask_trigger(uint8_t triggerid);
 static void ticktock_trigger(void);
@@ -345,40 +344,14 @@ static void filesystem_init(void)
   if ((f_err = f_mount(&fatfs, "0:/", 1)) != FR_OK)
   {
     DEBUG(0, "mount error:%d", f_err);
-    beep_error();
+    MX_Audio_HWBeep();
   }
 
   if ((f_err = usr_config_init()) != 0)
   {
     DEBUG(0, "User Configuration has some problem:%d", f_err);
-    beep_error();
+    MX_Audio_HWBeep();
   }
-}
-
-/**
- * @Brief When fatfs init error, call this function notifi user by Beep
- */
-static void beep_error(void)
-{
-  /// SD card can't initialize, so make a warning wave by soft.
-  uint16_t *pt = (uint16_t *)pvPortMalloc(sizeof(uint16_t) * 1024);
-  uint16_t *ppt = pt;
-  uint16_t cnt = 1024;
-  MX_GPIO_Enable(true);
-  while (cnt--)
-  {
-    *pt = ((float)(sin(cnt * 3.1514926 / 20) / 2) * 0x1000) + 0x1000 / 2;
-    pt += 1;
-  }
-  cnt = 10;
-  while (cnt--)
-  {
-    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)ppt, 1024, DAC_ALIGN_12B_R);
-    osDelay(50);
-  }
-  MX_GPIO_Enable(false);
-  while (1)
-    ;
 }
 
 /**

@@ -7,7 +7,9 @@ static char trigger_path[50];
 static char pri_now = PRI(NULL);
 static uint16_t dac_buffer[AUDIO_TRACK_NUM][AUDIO_FIFO_NUM][AUDIO_FIFO_SIZE];
 static uint16_t dac_buffer_pos = 0;
+#if AUDIO_SOFTMIX
 static uint16_t trigger_buffer[AUDIO_FIFO_SIZE];
+#endif
 /* Function prototypes -------------------------------------------------------*/
 static void Play_simple_wav(char *filepath);
 static void Play_IN_wav(void);
@@ -54,12 +56,22 @@ void DACOutput(void const *argument)
 {
   while (1)
   {
-    osEvent evt = osMessageGet(DAC_BufferHandle, osWaitForever);
+    osEvent evt = osMessageGet(DAC_BufferHandle, 50);
     if (evt.status != osEventMessage)
+    {
+      MX_Audio_Mute(true);
       continue;
+    }
     osSemaphoreWait(DAC_Complete_FlagHandle, osWaitForever);
 
+    #if AUDIO_SOFTMIX
     MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
+    #else
+    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v],
+                   (uint16_t*)dac_buffer[Track_1][evt.value.v],
+                   USR.config->Vol,
+                   AUDIO_FIFO_SIZE);
+    #endif
   }
 }
 
@@ -319,6 +331,11 @@ static void Play_OUT_wav(void)
   uint8_t num = HAL_GetTick() % cnt;
   char path[50];
   char hum_path[50];
+#if AUDIO_SOFTMIX
+  uint16_t *pt_trigger = trigger_buffer;
+#else
+  uint16_t *pt_trigger = dac_buffer[Track_1][dac_buffer_pos];
+#endif
 
   UINT point = convert_ms2filesize(USR.config->Out_Delay);
   sprintf(hum_path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
@@ -334,7 +351,7 @@ static void Play_OUT_wav(void)
     if (file_offset[Track_1] >= point)
     {
     read_hum_again_1:
-      if (read_a_buffer(&audio_file[Track_0], hum_path, trigger_buffer, &file_offset[Track_0]) != FR_OK)
+      if (read_a_buffer(&audio_file[Track_0], hum_path, pt_trigger, &file_offset[Track_0]) != FR_OK)
         continue;
       if (!file_offset[Track_0])
         goto read_hum_again_1;
@@ -342,10 +359,10 @@ static void Play_OUT_wav(void)
     // 播放一个缓冲块
     if (file_offset[Track_1] >= point)
     {
-      SoftMix((int16_t *)dac_buffer[Track_0][dac_buffer_pos], (int16_t *)trigger_buffer);
-    }
-    else
-    {
+#if AUDIO_SOFTMIX
+      SoftMix((int16_t *)dac_buffer[Track_0][dac_buffer_pos], (int16_t *)pt_trigger);
+#else
+#endif
     }
     play_a_buffer(dac_buffer_pos);
     dac_buffer_pos += 1;
@@ -359,7 +376,11 @@ static void Play_OUT_wav(void)
 static void Play_RunningLOOP(void)
 {
   char path[30];
-
+#if AUDIO_SOFTMIX
+  uint16_t *pt_trigger = trigger_buffer;
+#else
+  uint16_t *pt_trigger = dac_buffer[Track_1][dac_buffer_pos];
+#endif
   sprintf(path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
 
 read_hum_again:
@@ -370,7 +391,7 @@ read_hum_again:
   if (pri_now < PRI(NULL))
   {
   read_trigger_again:
-    if (read_a_buffer(&audio_file[Track_1], trigger_path, trigger_buffer, &file_offset[Track_1]) != FR_OK)
+    if (read_a_buffer(&audio_file[Track_1], trigger_path, pt_trigger, &file_offset[Track_1]) != FR_OK)
       return;
     if (!file_offset[Track_1])
     {
@@ -386,7 +407,9 @@ read_hum_again:
     ;
   else
   {
-    SoftMix((int16_t *)dac_buffer[Track_0][dac_buffer_pos], (int16_t *)trigger_buffer);
+#if AUDIO_SOFTMIX
+    SoftMix((int16_t *)dac_buffer[Track_0][dac_buffer_pos], (int16_t *)pt_trigger);
+#endif
   }
   play_a_buffer(dac_buffer_pos);
   dac_buffer_pos += 1;
@@ -410,6 +433,7 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
 
 __STATIC_INLINE void SoftMix(int16_t *pt1, int16_t *pt2)
 {
+  #if AUDIO_SOFTMIX
   int16_t *p1 = (int16_t *)pt1, *p2 = (int16_t *)pt2;
 
   for (uint32_t i = 0; i < AUDIO_FIFO_SIZE; i++)
@@ -417,6 +441,8 @@ __STATIC_INLINE void SoftMix(int16_t *pt1, int16_t *pt2)
     *p1= *p1 + *p2;
     p1 += 1, p2 += 1;
   }
+  #else
+  #endif
 }
 
 /**
@@ -487,7 +513,14 @@ void MX_Audio_Callback(void)
   }
   else
   {
+    #if AUDIO_SOFTMIX
     MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
+    #else
+    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v],
+                   (uint16_t*)dac_buffer[Track_1][evt.value.v],
+                   USR.config->Vol,
+                   AUDIO_FIFO_SIZE);
+    #endif
   }
 }
 

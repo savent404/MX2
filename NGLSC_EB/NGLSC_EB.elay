@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<EmBitz_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="..\MX\Src\Audio.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2050" topLine="13" />
+		</Cursor>
+	</File>
+	<File name="..\MX\Src\LED.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3473" topLine="57" />
+		</Cursor>
+	</File>
+	<File name="..\MX\Src\Lis3D.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5087" topLine="163" />
+		</Cursor>
+	</File>
+	<File name="..\MX\Src\MainTask.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2696" topLine="71" />
+		</Cursor>
+	</File>
+	<File name="..\MX\Src\SimpleLED.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="555" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="..\MX\Src\USR_CONFIG.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="12789" topLine="438" />
+		</Cursor>
+	</File>
+	<File name="..\NGSLC\Inc\tim.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3529" topLine="28" />
+		</Cursor>
+	</File>
+	<File name="..\NGSLC\Middlewares\Third_Party\FreeRTOS\Source\tasks.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="107177" topLine="3165" />
+		</Cursor>
+	</File>
+	<File name="..\NGSLC\Src\dac.c" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6731" topLine="167" />
+		</Cursor>
+	</File>
+	<File name="..\NGSLC\Src\freertos.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6084" topLine="101" />
+		</Cursor>
+	</File>
+	<File name="..\NGSLC\Src\gpio.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5035" topLine="78" />
+		</Cursor>
+	</File>
+	<File name="..\NGSLC\Src\main.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4026" topLine="48" />
+		</Cursor>
+	</File>
+	<File name="..\NGSLC\Src\stm32f1xx_it.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4690" topLine="131" />
+		</Cursor>
+	</File>
+	<File name="..\NGSLC\Src\tim.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7141" topLine="148" />
+		</Cursor>
+	</File>
+	<File name="..\NGSLC\startup_stm32f103xe.S" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3854" topLine="26" />
+		</Cursor>
+	</File>
+</EmBitz_layout_file>

@@ -2,7 +2,7 @@
 #define _MX_OSID_H_
 
 #include "cmsis_os.h"
-
+#include "mx-config.h"
 extern osThreadId defaultTaskHandle;
 extern osThreadId DACTaskHandle;
 extern osThreadId LEDTaskHandle;
@@ -14,4 +14,3 @@ extern osMessageQId LED_CMDHandle;
 extern osSemaphoreId DAC_Complete_FlagHandle;
 
 #endif
-

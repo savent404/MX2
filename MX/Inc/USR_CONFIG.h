@@ -5,6 +5,7 @@
 #include "DEBUG.h"
 #include "ff.h"
 #include "freeRTOS.h"
+#include "mx-config.h"
 #include "path.h"
 #include <stdbool.h>
 #include <stdint.h>

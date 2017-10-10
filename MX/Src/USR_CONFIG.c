@@ -25,7 +25,7 @@ static TCHAR LFN_BUF[120];
 char *upper(char *src);
 #ifdef __GNUC__
 int strcasecmp(const char *src1, const char *src2);
-int strncasecmp(char *src1, char *src2, int num);
+int strncasecmp(const char *src1,const char *src2, size_t num);
 
 #endif
 
@@ -459,7 +459,7 @@ char *upper(char *src)
   return src;
 }
 #ifdef __GNUC__
-int strncasecmp(char *src1, char *src2, int num)
+int strncasecmp(const char *src1,const char *src2, size_t num)
 {
   return strncmp(upper(src1), upper(src2), num);
 }

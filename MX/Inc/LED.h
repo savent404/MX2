@@ -6,6 +6,7 @@
 #include "USR_CONFIG.h"
 #include "cmsis_os.h"
 #include "freertos.h"
+#include "mx-config.h"
 #include "mx-tim.h"
 #include <math.h>
 #include <stdint.h>

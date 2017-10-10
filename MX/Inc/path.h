@@ -2,6 +2,7 @@
 #define _PATH_H_
 
 #include "main.h"
+#include "mx-config.h"
 
 #ifndef PATH_CONFIG
 #define PATH_CONFIG "0://SETTING.txt"
