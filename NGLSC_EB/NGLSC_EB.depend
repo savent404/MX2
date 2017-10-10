@@ -1193,13 +1193,13 @@
 	"elog.h"
 	<stdio.h>
 
-1507648724 e:\github_clone\mx2\easylogger\inc\elog.h
-	"elog_cfg.h"
+1507138486 e:\github_clone\mx2\easylogger\inc\elog.h
+	<elog_cfg.h>
 	<stdint.h>
 	<stddef.h>
 	<stdbool.h>
 
-1507649024 e:\github_clone\mx2\easylogger\inc\elog_cfg.h
+1507650806 e:\github_clone\mx2\easylogger\inc\elog_cfg.h
 
 1507646975 source:e:\github_clone\mx2\nglsc\src\fatfs.c
 	"fatfs.h"
@@ -1222,7 +1222,7 @@
 	"mx-gpio.h"
 	"SimpleLED.h"
 
-1507646975 source:e:\github_clone\mx2\nglsc\src\main.c
+1507650295 source:e:\github_clone\mx2\nglsc\src\main.c
 	"main.h"
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
@@ -1238,6 +1238,7 @@
 	"mx-audio.h"
 	"mx-gpio.h"
 	"DEBUG.h"
+	"elog.h"
 
 1507646975 e:\github_clone\mx2\nglsc\inc\sdio.h
 	"stm32f1xx_hal.h"
@@ -1283,4 +1284,28 @@
 	"gpio.h"
 
 1507646975 source:e:\github_clone\mx2\nglsc\startup_stm32f103xe.s
+
+1507138486 source:e:\github_clone\mx2\easylogger\port\elog_port.c
+	<elog.h>
+
+1507650448 source:e:\github_clone\mx2\easylogger\src\elog.c
+	<elog.h>
+	<string.h>
+	<stdarg.h>
+	<stdio.h>
+
+1507138486 source:e:\github_clone\mx2\easylogger\src\elog_buf.c
+	<elog.h>
+	<string.h>
+
+1507138486 source:e:\github_clone\mx2\easylogger\src\elog_async.c
+	<elog.h>
+	<string.h>
+	<pthread.h>
+	<sched.h>
+	<semaphore.h>
+
+1507138486 source:e:\github_clone\mx2\easylogger\src\elog_utils.c
+	<elog.h>
+	<string.h>
 

@@ -76,6 +76,15 @@
 		<Unit filename="..\easylogger\src\elog.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\easylogger\src\elog_async.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\easylogger\src\elog_buf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\easylogger\src\elog_utils.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\MX2_AudioPlayer\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xe.h" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f1xx.h" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\CMSIS\Device\ST\STM32F1xx\Include\system_stm32f1xx.h" />

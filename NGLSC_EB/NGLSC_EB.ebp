@@ -74,6 +74,15 @@
 		<Unit filename="..\easylogger\src\elog.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\easylogger\src\elog_async.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\easylogger\src\elog_buf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\easylogger\src\elog_utils.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\MX\Inc\AF.h" />
 		<Unit filename="..\MX\Inc\Audio.h" />
 		<Unit filename="..\MX\Inc\DEBUG.h" />
