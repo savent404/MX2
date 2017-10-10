@@ -180,6 +180,33 @@ void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef *hdac)
 {
   MX_Audio_Callback();
 }
+
+void MX_Audio_HWBeep(void)
+{
+  uint16_t *pt = (uint16_t *)pvPortMalloc(sizeof(uint16_t) * 1024);
+  uint16_t *ppt = pt;
+  uint16_t cnt = 1024;
+
+  while (cnt--)
+  {
+    *pt = ((float)(sin(cnt * 3.1514926 / 20) / 2) * 0x1000) + 0x1000 / 2;
+    pt += 1;
+  }
+
+  cnt = 10;
+  while (cnt--)
+  {
+    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)ppt, 1024, DAC_ALIGN_12B_R);
+    osDelay(50);
+  }
+  while (1)
+    ;
+}
+
+void MX_Audio_Mute(bool en)
+{
+  ;
+}
 /* USER CODE END 1 */
 
 /**
