@@ -44,7 +44,7 @@
 /* output filter's keyword max length */
 #define ELOG_FILTER_KW_MAX_LEN                   16
 /* output newline sign */
-#define ELOG_NEWLINE_SIGN                        "\n"
+#define ELOG_NEWLINE_SIGN                        "\r\n"
 
 /* enable log color */
 #define ELOG_COLOR_ENABLE

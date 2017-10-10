@@ -28,7 +28,7 @@
 
 #define LOG_TAG      "elog"
 
-#include <elog.h>
+#include "elog.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -403,7 +403,7 @@ void elog_output(uint8_t level, const char *tag, const char *file, const char *f
     if (level > elog.filter.level) {
         return;
     } else if (!strstr(tag, elog.filter.tag)) { /* tag filter */
-        //TODO ¿ÉÒÔ¿¼ÂÇ²ÉÓÃKMP¼°ÆÓËØÄ£Ê½Æ¥Åä×Ö·û´®£¬ÌáÉýÐÔÄÜ
+        //TODO ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½Ç²ï¿½ï¿½ï¿½KMPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½Æ¥ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         return;
     }
     /* args point to the first variable parameter */
@@ -477,7 +477,7 @@ void elog_output(uint8_t level, const char *tag, const char *file, const char *f
         }
         /* package thread info */
         if (get_fmt_enabled(level, ELOG_FMT_LINE)) {
-            //TODO snprintf×ÊÔ´Õ¼ÓÃ¿ÉÄÜ½Ï¸ß£¬´ýÓÅ»¯
+            //TODO snprintfï¿½ï¿½Ô´Õ¼ï¿½Ã¿ï¿½ï¿½Ü½Ï¸ß£ï¿½ï¿½ï¿½ï¿½Å»ï¿½
             snprintf(line_num, ELOG_LINE_NUM_MAX_LEN, "%ld", line);
             log_len += elog_strcpy(log_len, log_buf + log_len, line_num);
         }
@@ -497,7 +497,7 @@ void elog_output(uint8_t level, const char *tag, const char *file, const char *f
 
     /* keyword filter */
     if (!strstr(log_buf, elog.filter.keyword)) {
-        //TODO ¿ÉÒÔ¿¼ÂÇ²ÉÓÃKMP¼°ÆÓËØÄ£Ê½Æ¥Åä×Ö·û´®£¬ÌáÉýÐÔÄÜ
+        //TODO ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½Ç²ï¿½ï¿½ï¿½KMPï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½Æ¥ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /* unlock output */
         elog_output_unlock();
         return;
