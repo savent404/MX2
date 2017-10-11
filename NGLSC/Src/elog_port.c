@@ -25,8 +25,10 @@
  * Function: Portable interface for each platform.
  * Created on: 2015-04-28
  */
- 
+
 #include "elog.h"
+#include "cmsis_os.h"
+#include "stm32f1xx_hal.h"
 #include <stdio.h>
 
 /**
@@ -38,7 +40,7 @@ ElogErrCode elog_port_init(void) {
     ElogErrCode result = ELOG_NO_ERR;
 
     /* add your code here */
-    
+
     return result;
 }
 
@@ -49,7 +51,7 @@ ElogErrCode elog_port_init(void) {
  * @param size log size
  */
 void elog_port_output(const char *log, size_t size) {
-    
+
     /* add your code here */
     while (size--)
     {
@@ -61,18 +63,18 @@ void elog_port_output(const char *log, size_t size) {
  * output lock
  */
 void elog_port_output_lock(void) {
-    
+
     /* add your code here */
-    
+
 }
 
 /**
  * output unlock
  */
 void elog_port_output_unlock(void) {
-    
+
     /* add your code here */
-    
+
 }
 
 /**
@@ -81,9 +83,12 @@ void elog_port_output_unlock(void) {
  * @return current time
  */
 const char *elog_port_get_time(void) {
-    
+    static char buffer[10];
     /* add your code here */
-    return "00:00:00";
+    uint32_t cnt = osKernelSysTick();
+    uint32_t sec = cnt / osKernelSysTickFrequency;
+    snprintf(buffer, 10, "%d:%d:%d", sec / 60, sec % 60, cnt % osKernelSysTickFrequency);
+    return (const char*) buffer;
 }
 
 /**
@@ -92,9 +97,9 @@ const char *elog_port_get_time(void) {
  * @return current process name
  */
 const char *elog_port_get_p_info(void) {
-    
+
     /* add your code here */
-    return "P:0";
+    return "";
 }
 
 /**
@@ -103,7 +108,11 @@ const char *elog_port_get_p_info(void) {
  * @return current thread name
  */
 const char *elog_port_get_t_info(void) {
-    
+    static char buffer[20];
     /* add your code here */
-    return "PID:0";
+    osThreadId id = osThreadGetId();
+    if (!id)
+        return "";
+    snprintf(buffer, 20, "P:%s", pcTaskGetName(id));
+    return (const char*) buffer;
 }
