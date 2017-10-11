@@ -69,6 +69,20 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="..\easylogger\inc\elog.h" />
+		<Unit filename="..\easylogger\inc\elog_cfg.h" />
+		<Unit filename="..\easylogger\src\elog.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\easylogger\src\elog_async.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\easylogger\src\elog_buf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\easylogger\src\elog_utils.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\MX\Inc\AF.h" />
 		<Unit filename="..\MX\Inc\Audio.h" />
 		<Unit filename="..\MX\Inc\DEBUG.h" />
@@ -302,6 +316,9 @@
 		<Unit filename="..\NGLSC\Src\dma.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\NGLSC\Src\elog_port.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\NGLSC\Src\fatfs.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -344,8 +361,8 @@
 		<Extensions>
 			<code_completion />
 			<debugger>
-				<target_debugging_settings target="Release" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
+				<target_debugging_settings target="Debug" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
@@ -361,8 +378,8 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="Debug" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
+				<target_debugging_settings target="Release" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />

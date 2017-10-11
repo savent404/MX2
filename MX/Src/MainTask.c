@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define LOG_TAG "Main"
+
 #include "mx-adc.h"
 #include "mx-audio.h"
 #include "mx-gpio.h"
@@ -343,13 +345,13 @@ static void filesystem_init(void)
   int f_err;
   if ((f_err = f_mount(&fatfs, "0:/", 1)) != FR_OK)
   {
-    DEBUG(0, "mount error:%d", f_err);
+    elog_error("FATFS", "mount error:%d", f_err);
     MX_Audio_HWBeep();
   }
 
   if ((f_err = usr_config_init()) != 0)
   {
-    DEBUG(0, "User Configuration has some problem:%d", f_err);
+    log_e("User Configuration has some problem:%d", f_err);
     MX_Audio_HWBeep();
   }
 }
@@ -456,7 +458,7 @@ static uint16_t GetVoltage(void)
 
 static void H_Close(void)
 {
-  DEBUG(5, "System going to close");
+  log_v("System going to close");
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
   USR.sys_status = System_Close;
   Audio_Play_Start(Audio_PowerOff);
@@ -513,7 +515,7 @@ static void H_Ready(void)
 }
 static void H_IN(void)
 {
-  DEBUG(5, "System going to ready");
+  log_v("System going to ready");
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
   USR.sys_status = System_Ready;
   LED_Start_Trigger(LED_Trigger_Stop);
@@ -523,7 +525,7 @@ static void H_IN(void)
 }
 static void H_OUT(void)
 {
-  DEBUG(5, "System going to running");
+  log_v("System going to running");
   auto_intoready_cnt = 0;
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
   USR.sys_status = System_Running;
@@ -546,20 +548,20 @@ static void H_TriggerC(void)
 }
 static void H_TriggerD(void)
 {
-  DEBUG(5, "Trigger D");
+  log_v("Trigger D");
   LED_Start_Trigger(LED_TriggerD);
   Audio_Play_Start(Audio_TriggerD);
 }
 static void H_TriggerE(void)
 {
-  DEBUG(5, "Trigger E");
+  log_v("Trigger E");
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_LOCKUP);
   LED_Start_Trigger(LED_TriggerE);
   Audio_Play_Start(Audio_TriggerE);
 }
 static void H_TriggerEOff(void)
 {
-  DEBUG(5, "Trigger E END");
+  log_v("Trigger E END");
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
   LED_Start_Trigger(LED_TriggerE_END);
   Audio_Play_Stop(Audio_TriggerE);
@@ -574,7 +576,7 @@ static void H_LowPower(void)
 }
 static void H_Recharge(void)
 {
-  DEBUG(5, "System should be Power off");
+  log_v("System should be Power off");
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP); // 小型LED进入休眠模式
   USR.sys_status = System_Close;
   Audio_Play_Start(Audio_Recharge);
@@ -595,7 +597,7 @@ static void H_Charging(void)
 }
 static void H_BankSwitch(void)
 {
-  DEBUG(5, "System Bank Switch");
+  log_v("System Bank Switch");
   USR.bank_now += 1;
   USR.bank_now %= USR.nBank;
   USR.config = USR._config + USR.bank_now;
@@ -605,7 +607,7 @@ static void H_BankSwitch(void)
 }
 static void H_ColorSwitch(void)
 {
-  DEBUG(5, "System ColorSwitch");
+  log_v("System ColorSwitch");
   USR.bank_color += 1;
   LED_Bank_Update(&USR);
   Audio_Play_Start(Audio_ColorSwitch);

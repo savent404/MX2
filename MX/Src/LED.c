@@ -41,7 +41,7 @@ static LED_Message_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t p
  */
 void LED_Start_Trigger(LED_Message_t message)
 {
-    DEBUG(3, "LED send Message:%d", message);
+    log_v("LED send Message:%d", message);
     osMessagePut(LED_CMDHandle, message, osWaitForever);
 }
 /**

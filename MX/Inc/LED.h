@@ -1,6 +1,10 @@
 #ifndef _LED_H_
 #define _LED_H_
 
+#ifndef LOG_TAG
+#define LOG_TAG "PWM_led"
+#endif
+
 #include "DEBUG.h"
 #include "MX_osID.h"
 #include "USR_CONFIG.h"

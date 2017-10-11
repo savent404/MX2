@@ -34,7 +34,7 @@ int8_t Audio_Play_Start(Audio_ID_t id)
 {
   if (!USR.mute_flag && USR.config->Vol != 0)
   {
-    DEBUG(4, "[Message] Put AudioID:%02x", id);
+    log_v("Audio start:%d", id);
     while (osMessagePut(DAC_CMDHandle, id, osWaitForever) != osOK)
       ;
   }
@@ -45,7 +45,7 @@ int8_t Audio_Play_Stop(Audio_ID_t id)
 {
   if (!USR.mute_flag)
   {
-    DEBUG(4, "[Message] Put AudioID:%02x", id);
+    log_v("Audio stop:%d", id);
     while (osMessagePut(DAC_CMDHandle, id | 0x80, osWaitForever) != osOK)
       ;
   }
@@ -208,7 +208,7 @@ static void Play_simple_wav(char *filepath)
   SIMPLE_PLAY_READY = 0;
   if ((f_err = f_open(&file, filepath, FA_READ)) != FR_OK)
   {
-    DEBUG(1, "Open wave file:%s Error:%d", filepath, f_err);
+    log_w("Open wave file:%s:%d", filepath, f_err);
     SIMPLE_PLAY_READY = 1;
     taskEXIT_CRITICAL();
     return;
@@ -219,7 +219,7 @@ static void Play_simple_wav(char *filepath)
   // Read about this file's length
   if ((f_err = f_read(&file, &data, sizeof(struct _AF_DATA), &f_cnt)) != FR_OK)
   {
-    DEBUG(1, "Read wave file:%s Error:%d", filepath, f_err);
+    log_w("Read wave file:%s Error:%d", filepath, f_err);
     f_close(&file);
     SIMPLE_PLAY_READY = 1;
     taskEXIT_CRITICAL();
@@ -233,7 +233,7 @@ static void Play_simple_wav(char *filepath)
     /**< Read a Block */
     if ((f_err = f_read(&file, dac_buffer[Track_0][dac_buffer_pos], sizeof(uint16_t) * AUDIO_FIFO_SIZE, &f_cnt)) != FR_OK && f_cnt != 0)
     {
-      DEBUG(1, "Read wave file:%s Error:%d", filepath, f_err);
+      log_w("Read wave file:%s Error:%d", filepath, f_err);
       f_close(&file);
       SIMPLE_PLAY_READY = 1;
       return;
@@ -461,7 +461,7 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer,
 
   if (*seek == 0 && (f_err = f_open(fpt, path, FA_READ)) != FR_OK)
   {
-    DEBUG(0, "Can't open file:%s:%d", path, f_err);
+    log_w("Can't open file:%s:%d", path, f_err);
     taskEXIT_CRITICAL();
     return f_err;
   }
@@ -476,7 +476,7 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer,
 
   if ((f_err = f_lseek(fpt, *seek + sizeof(struct _AF_PCM) + sizeof(struct _AF_DATA))) != FR_OK)
   {
-    DEBUG(0, "Can't seek file:%s:%d", path, f_err);
+    log_w("Can't seek file:%s:%d", path, f_err);
     f_close(fpt);
     taskEXIT_CRITICAL();
     return f_err;
@@ -484,7 +484,7 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer,
 
   if ((f_err = f_read(fpt, buffer, sizeof(uint16_t) * AUDIO_FIFO_SIZE, &f_cnt)) != FR_OK)
   {
-    DEBUG(0, "Can't read file:%s:%c", path, f_err);
+    log_w("Can't read file:%s:%c", path, f_err);
     f_close(fpt);
     taskEXIT_CRITICAL();
     return f_err;

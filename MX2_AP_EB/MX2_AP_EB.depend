@@ -1251,7 +1251,7 @@
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1505290706 source:e:\github_clone\mx2\mx2_audioplayer\src\main.c
+1507090371 source:e:\github_clone\mx2\mx2_audioplayer\src\main.c
 	"main.h"
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
@@ -1350,7 +1350,8 @@
 	<stdbool.h>
 	"DEBUG.h"
 
-1505272602 e:\github_clone\mx2\mx\inc\lis3d.h
+1507646975 e:\github_clone\mx2\mx\inc\lis3d.h
+	"mx-config.h"
 	"mx-gpio.h"
 	"mx-spi.h"
 	<stdint.h>
@@ -1378,7 +1379,7 @@
 	"ff.h"
 	"main.h"
 
-1505266495 e:\github_clone\mx2\mx\inc\audio.h
+1507646975 e:\github_clone\mx2\mx\inc\audio.h
 	"AF.h"
 	"DEBUG.h"
 	"FreeRTOS.h"
@@ -1388,25 +1389,29 @@
 	"ff.h"
 	"main.h"
 	"mx-audio.h"
+	"mx-config.h"
 	"path.h"
 
 1505264645 e:\github_clone\mx2\mx\inc\af.h
 	<stdint.h>
 	<stdio.h>
 
-1505266006 e:\github_clone\mx2\mx\inc\debug.h
+1507646975 e:\github_clone\mx2\mx\inc\debug.h
+	"mx-config.h"
 	<stdint.h>
 	<stdio.h>
 	<string.h>
 
-1505265010 e:\github_clone\mx2\mx\inc\mx_osid.h
+1507646975 e:\github_clone\mx2\mx\inc\mx_osid.h
 	"cmsis_os.h"
+	"mx-config.h"
 
-1505266324 e:\github_clone\mx2\mx\inc\usr_config.h
+1507646975 e:\github_clone\mx2\mx\inc\usr_config.h
 	"AF.h"
 	"DEBUG.h"
 	"ff.h"
 	"freeRTOS.h"
+	"mx-config.h"
 	"path.h"
 	<stdbool.h>
 	<stdint.h>
@@ -1417,23 +1422,26 @@
 1505265995 e:\github_clone\mx2\mx\inc\attribute.h
 	"gpio.h"
 
-1496634397 e:\github_clone\mx2\mx\inc\path.h
+1507646975 e:\github_clone\mx2\mx\inc\path.h
 	"main.h"
+	"mx-config.h"
 
-1505266589 e:\github_clone\mx2\mx\inc\led.h
+1507646975 e:\github_clone\mx2\mx\inc\led.h
 	"DEBUG.h"
 	"MX_osID.h"
 	"USR_CONFIG.h"
 	"cmsis_os.h"
 	"freertos.h"
+	"mx-config.h"
 	"mx-tim.h"
 	<math.h>
 	<stdint.h>
 
-1505266199 e:\github_clone\mx2\mx\inc\simpleled.h
+1507646975 e:\github_clone\mx2\mx\inc\simpleled.h
 	"DEBUG.h"
 	"USR_CONFIG.h"
 	"cmsis_os.h"
+	"mx-config.h"
 	"mx-gpio.h"
 	<stdbool.h>
 	<stdint.h>
@@ -1454,22 +1462,31 @@
 1505272602 source:e:\github_clone\mx2\mx\src\lis3d.c
 	"lis3d.h"
 
-1505272602 e:\github_clone\mx2\mx\inc\mx-spi.h
+1507646975 e:\github_clone\mx2\mx\inc\mx-spi.h
+	"mx-config.h"
 	"spi.h"
 
-1505272602 e:\github_clone\mx2\mx\inc\mx-audio.h
+1507646975 e:\github_clone\mx2\mx\inc\mx-audio.h
+	"audio.h"
 	"dac.h"
+	"mx-config.h"
+	<stdbool.h>
 
-1505272602 e:\github_clone\mx2\mx\inc\mx-tim.h
+1507646975 e:\github_clone\mx2\mx\inc\mx-tim.h
+	"mx-config.h"
 	"tim.h"
 
 1505272602 e:\github_clone\mx2\mx\inc\mx-adc.h
 	"adc.h"
 
-1505272602 e:\github_clone\mx2\mx\inc\mx-gpio.h
+1507646975 e:\github_clone\mx2\mx\inc\mx-gpio.h
 	"gpio.h"
+	"mx-config.h"
 	<stdbool.h>
 
 1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\option\cc932.c
 	"../ff.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\mx-config.h
+	"main.h"
 

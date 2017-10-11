@@ -7,6 +7,8 @@
     "led.h": "c",
     "main.h": "c",
     "mx-audio.h": "c",
-    "mx-gpio.h": "c"
+    "mx-gpio.h": "c",
+    "stdio.h": "c",
+    "cstdio": "c"
   }
 }
