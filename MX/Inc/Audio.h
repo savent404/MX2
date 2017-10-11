@@ -1,6 +1,10 @@
 #ifndef _AUDIO_H_
 #define _AUDIO_H_
 
+#ifndef LOG_TAG
+#define LOG_TAG "Audio"
+#endif
+
 #include "AF.h"
 #include "DEBUG.h"
 #include "FreeRTOS.h"

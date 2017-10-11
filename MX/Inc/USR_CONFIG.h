@@ -1,7 +1,9 @@
 #ifndef USR_CONFIG_H_
 #define USR_CONFIG_H_
 
+#ifndef LOG_TAG
 #define LOG_TAG "FileConfig"
+#endif
 
 #include "AF.h"
 #include "DEBUG.h"
