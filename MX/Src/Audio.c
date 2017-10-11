@@ -344,6 +344,9 @@ static void Play_OUT_wav(void)
 
   while (1)
   {
+#if AUDIO_SOFTMIX == 0
+    pt_trigger = dac_buffer[Track_1][dac_buffer_pos];
+#endif
     // 读取Out
     if (read_a_buffer(&audio_file[Track_1], path, dac_buffer[Track_0][dac_buffer_pos], &file_offset[Track_1]) != FR_OK)
       continue;
