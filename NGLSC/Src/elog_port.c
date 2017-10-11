@@ -87,7 +87,7 @@ const char *elog_port_get_time(void) {
     /* add your code here */
     uint32_t cnt = osKernelSysTick();
     uint32_t sec = cnt / osKernelSysTickFrequency;
-    snprintf(buffer, 10, "%d:%d:%d", sec / 60, sec % 60, cnt % osKernelSysTickFrequency);
+    snprintf(buffer, 10, "%d:%d:%d", (int)(sec / 60), (int)(sec % 60), (int)(cnt % osKernelSysTickFrequency));
     return (const char*) buffer;
 }
 
