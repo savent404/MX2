@@ -108,7 +108,7 @@ uint8_t usr_config_init(void)
     /**< Open Dir:[0:/] */
     if ((f_err = f_opendir(&dir, "0:/")) != FR_OK)
     {
-      DEBUG(0, "Can't Open Dir(0:/):%d", f_err);
+      log_e("Can't Open Dir(0:/):%d", f_err);
       return 1;
     }
     /**< Get Number of Banks */
@@ -121,7 +121,7 @@ uint8_t usr_config_init(void)
     /**< Close Dir */
     if ((f_err = f_closedir(&dir)) != FR_OK)
     {
-      DEBUG(0, "Can't Close Dir:%d", f_err);
+      log_e("Can't Close Dir:%d", f_err);
       return 1;
     }
     /**< Bank number limits */
@@ -150,7 +150,7 @@ uint8_t usr_config_init(void)
   /**< 获取CONFIG.txt中的信息,包含各种配置信息以及功率LED灯的颜色信息*/
   if ((f_err = f_open(file, PATH_CONFIG, FA_READ)) != FR_OK)
   {
-    DEBUG(0, "Can't find %s:%d", PATH_CONFIG, f_err);
+    log_e("Can't find %s:%d", PATH_CONFIG, f_err);
     return 1;
   }
   set_config(&USR);
@@ -159,7 +159,7 @@ uint8_t usr_config_init(void)
     return f_err;
   if ((f_err = f_close(file)) != FR_OK)
   {
-    DEBUG(0, "Can't close %s:%d", PATH_CONFIG, f_err);
+    log_e("Can't close %s:%d", PATH_CONFIG, f_err);
     return 1;
   }
 
@@ -173,6 +173,7 @@ uint8_t usr_config_init(void)
   {
     char path[20];
     sprintf(path, "0:/Bank%d/" REPLACE_NAME, i + 1);
+    log_v("Try to read effect file:%s", path);
     if (f_open(file, path, FA_READ) != FR_OK)
       continue;
     USR.config = USR._config + i;
@@ -232,7 +233,7 @@ static uint8_t get_humsize(PARA_DYNAMIC_t *pt)
     sprintf(path, "0:/Bank%d/hum.wav", i + 1);
     if ((f_err = f_open(&file, path, FA_READ)) != FR_OK)
     {
-      DEBUG(0, "Open %s Error:%d", path, f_err);
+      log_e("Open %s Error:%d", path, f_err);
       return 1;
     }
     f_lseek(&file, sizeof(struct _AF_PCM) + 4);
@@ -308,7 +309,7 @@ get_trigger_again:
 
   if ((f_err = f_opendir(&dir, path)) != FR_OK)
   {
-    DEBUG(0, "Open Bank%d Trigger%c Error:%d", Bank, triggerid + 'B', f_err);
+    log_e("Open Bank%d Trigger%c Error:%d", Bank, triggerid + 'B', f_err);
     return 1;
   }
   while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0')
@@ -372,7 +373,7 @@ static uint8_t __get_accent_para(char Bank, char *filepath, SimpleLED_Acction_t 
     }
     else
     {
-      DEBUG(4, "Open File(%s) Error:%d", path, (int)f_err);
+      log_v("Can't open accent file(%s):(%d)", path, (int)f_err);
       return 0;
     }
   }
