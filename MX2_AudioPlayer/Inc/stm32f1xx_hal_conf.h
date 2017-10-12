@@ -74,6 +74,7 @@
 /*#define HAL_RCC_MODULE_ENABLED   */
 /*#define HAL_RTC_MODULE_ENABLED   */
 #define HAL_SD_MODULE_ENABLED
+/*#define HAL_MMC_MODULE_ENABLED   */
 /*#define HAL_SDRAM_MODULE_ENABLED   */
 /*#define HAL_SMARTCARD_MODULE_ENABLED   */
 #define HAL_SPI_MODULE_ENABLED
@@ -112,6 +113,15 @@
 #if !defined  (HSI_VALUE)
   #define HSI_VALUE    ((uint32_t)8000000) /*!< Value of the Internal oscillator in Hz*/
 #endif /* HSI_VALUE */
+
+/**
+  * @brief Internal Low Speed oscillator (LSI) value.
+  */
+#if !defined  (LSI_VALUE) 
+ #define LSI_VALUE               40000U    /*!< LSI Typical Value in Hz */
+#endif /* LSI_VALUE */                     /*!< Value of the Internal Low Speed oscillator in Hz
+                                                The real value may vary depending on the variations
+                                                in voltage and temperature. */
 
 /**
   * @brief External Low Speed oscillator (LSE) value.
@@ -285,6 +295,10 @@
  #include "stm32f1xx_hal_sd.h"
 #endif /* HAL_SD_MODULE_ENABLED */  
 
+#ifdef HAL_MMC_MODULE_ENABLED
+ #include "stm32f1xx_hal_mmc.h"
+#endif /* HAL_MMC_MODULE_ENABLED */
+
 #ifdef HAL_NAND_MODULE_ENABLED
  #include "stm32f1xx_hal_nand.h"
 #endif /* HAL_NAND_MODULE_ENABLED */     
@@ -336,11 +350,11 @@
   *         If expr is true, it returns no value.
   * @retval None
   */
-  #define assert_param(expr) ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__, __LINE__))
+  #define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
 /* Exported functions ------------------------------------------------------- */
   void assert_failed(uint8_t* file, uint32_t line);
 #else
-  #define assert_param(expr) ((void)0)
+  #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
 
 #ifdef __cplusplus

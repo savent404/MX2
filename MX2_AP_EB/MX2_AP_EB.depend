@@ -689,13 +689,13 @@
 	<stdlib.h>
 	<stdio.h>
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal.c
 	"stm32f1xx_hal.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal.h
 	"stm32f1xx_hal_conf.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\stm32f1xx_hal_conf.h
+1505290706 e:\github_clone\mx2\mx2_audioplayer\inc\stm32f1xx_hal_conf.h
 	"main.h"
 	"stm32f1xx_hal_rcc.h"
 	"stm32f1xx_hal_gpio.h"
@@ -717,6 +717,7 @@
 	"stm32f1xx_hal_rtc.h"
 	"stm32f1xx_hal_pccard.h"
 	"stm32f1xx_hal_sd.h"
+	"stm32f1xx_hal_mmc.h"
 	"stm32f1xx_hal_nand.h"
 	"stm32f1xx_hal_spi.h"
 	"stm32f1xx_hal_tim.h"
@@ -728,18 +729,18 @@
 	"stm32f1xx_hal_pcd.h"
 	"stm32f1xx_hal_hcd.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\main.h
+1505290706 e:\github_clone\mx2\mx2_audioplayer\inc\main.h
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_rcc.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_rcc.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_rcc_ex.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_def.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_def.h
 	"stm32f1xx.h"
 	"Legacy/stm32_hal_legacy.h"
 	<stdio.h>
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\device\st\stm32f1xx\include\stm32f1xx.h
+1500434774 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\device\st\stm32f1xx\include\stm32f1xx.h
 	"stm32f100xb.h"
 	"stm32f100xe.h"
 	"stm32f101x6.h"
@@ -756,17 +757,17 @@
 	"stm32f107xc.h"
 	"stm32f1xx_hal.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\device\st\stm32f1xx\include\stm32f103xe.h
+1500434774 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\device\st\stm32f1xx\include\stm32f103xe.h
 	"core_cm3.h"
 	"system_stm32f1xx.h"
 	<stdint.h>
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\core_cm3.h
+1500434824 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\core_cm3.h
 	<stdint.h>
 	"core_cmInstr.h"
 	"core_cmFunc.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\core_cminstr.h
+1500434824 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\core_cminstr.h
 	"cmsis_armcc.h"
 	"cmsis_armcc_V6.h"
 	"cmsis_gcc.h"
@@ -774,13 +775,13 @@
 	<cmsis_ccs.h>
 	<cmsis_csm.h>
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\cmsis_armcc.h
+1500434824 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\cmsis_armcc.h
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\cmsis_armcc_v6.h
+1500434824 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\cmsis_armcc_v6.h
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\cmsis_gcc.h
+1500434824 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\cmsis_gcc.h
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\core_cmfunc.h
+1500434824 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\include\core_cmfunc.h
 	"cmsis_armcc.h"
 	"cmsis_armcc_V6.h"
 	"cmsis_gcc.h"
@@ -788,155 +789,152 @@
 	<cmsis_ccs.h>
 	<cmsis_csm.h>
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\device\st\stm32f1xx\include\system_stm32f1xx.h
+1500434774 e:\github_clone\mx2\mx2_audioplayer\drivers\cmsis\device\st\stm32f1xx\include\system_stm32f1xx.h
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\legacy\stm32_hal_legacy.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\legacy\stm32_hal_legacy.h
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_rcc_ex.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_rcc_ex.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_gpio.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_gpio.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_gpio_ex.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_gpio_ex.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_gpio_ex.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dma.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dma.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_dma_ex.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dma_ex.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dma_ex.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_cortex.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_cortex.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_adc.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_adc.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_adc_ex.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_adc_ex.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_adc_ex.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dac.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dac.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_dac_ex.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dac_ex.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_dac_ex.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_flash.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_flash.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_flash_ex.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_flash_ex.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_flash_ex.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_pwr.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_pwr.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_sd.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_sd.h
 	"stm32f1xx_ll_sdmmc.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_ll_sdmmc.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_ll_sdmmc.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_spi.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_spi.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_tim.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_tim.h
 	"stm32f1xx_hal_def.h"
 	"stm32f1xx_hal_tim_ex.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_tim_ex.h
+1500434825 e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\inc\stm32f1xx_hal_tim_ex.h
 	"stm32f1xx_hal_def.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_adc.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_adc.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_adc_ex.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_adc_ex.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_cortex.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_cortex.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac_ex.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dac_ex.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dma.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_dma.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_flash.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_flash.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_flash_ex.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_flash_ex.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_gpio.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_gpio.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_gpio_ex.c
+1500434825 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_gpio_ex.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_pwr.c
+1500434826 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_pwr.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_rcc.c
+1500434826 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_rcc.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_rcc_ex.c
+1500434826 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_rcc_ex.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_sd.c
+1500434826 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_sd.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_spi.c
+1500434826 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_spi.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_spi_ex.c
+1500434826 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_spi_ex.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_tim.c
+1500434826 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_tim.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_tim_ex.c
+1500434826 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_hal_tim_ex.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_ll_sdmmc.c
+1500434826 source:e:\github_clone\mx2\mx2_audioplayer\drivers\stm32f1xx_hal_driver\src\stm32f1xx_ll_sdmmc.c
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\diskio.c
+1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\diskio.c
 	"diskio.h"
 	"ff_gen_drv.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\diskio.h
+1500434831 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\diskio.h
 	"integer.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\integer.h
+1500434831 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\integer.h
 	<windows.h>
 	<tchar.h>
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\ff_gen_drv.h
+1500434831 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\ff_gen_drv.h
 	"diskio.h"
 	"ff.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\ff.h
+1500434831 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\ff.h
 	"integer.h"
 	"ffconf.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\ffconf.h
+1505290703 e:\github_clone\mx2\mx2_audioplayer\inc\ffconf.h
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
 	"bsp_driver_sd.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.h
-	<stdint.h>
-	<stddef.h>
-	"core_cmFunc.h"
+1500434831 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.h
 	"FreeRTOS.h"
 	"task.h"
 	"timers.h"
@@ -947,25 +945,26 @@
 	"osObjects.h"
 	"osObjects.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\freertos.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\freertos.h
 	<stddef.h>
 	<stdint.h>
 	"FreeRTOSConfig.h"
 	"projdefs.h"
 	"portable.h"
+	<reent.h>
 
-1504611112 e:\github_clone\mx2\mx2_audioplayer\inc\freertosconfig.h
+1505290704 e:\github_clone\mx2\mx2_audioplayer\inc\freertosconfig.h
 	<stdint.h>
 	"main.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\projdefs.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\projdefs.h
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\portable.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\portable.h
 	"deprecated_definitions.h"
 	"portmacro.h"
 	"mpu_wrappers.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\deprecated_definitions.h
+1500434831 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\deprecated_definitions.h
 	"..\..\Source\portable\owatcom\16bitdos\pc\portmacro.h"
 	"..\..\Source\portable\owatcom\16bitdos\flsh186\portmacro.h"
 	"../portable/GCC/ATMega323/portmacro.h"
@@ -1024,82 +1023,85 @@
 	"../../Source/portable/IAR/78K0R/portmacro.h"
 	"../../Source/portable/IAR/78K0R/portmacro.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\portmacro.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\portmacro.h
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\mpu_wrappers.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\mpu_wrappers.h
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\task.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\task.h
 	"list.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\list.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\list.h
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\timers.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\timers.h
 	"task.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\queue.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\queue.h
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\semphr.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\semphr.h
 	"queue.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\event_groups.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\event_groups.h
 	"timers.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\bsp_driver_sd.h
+1505290704 e:\github_clone\mx2\mx2_audioplayer\inc\bsp_driver_sd.h
 	"stm32f1xx_hal.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\drivers\sd_diskio.c
+1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\drivers\sd_diskio.c
 	<string.h>
 	"ff_gen_drv.h"
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\ff.c
+1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\ff.c
 	"ff.h"
 	"diskio.h"
 	<stdarg.h>
 
-1504200167 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\ff_gen_drv.c
+1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\ff_gen_drv.c
 	"ff_gen_drv.h"
 
 1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\option\ccsbcs.c
 	"../ff.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\option\syscall.c
+1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\option\syscall.c
 	<stdlib.h>
 	"../ff.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.c
+1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\cmsis_rtos\cmsis_os.c
 	<string.h>
 	"cmsis_os.h"
+	"cmsis_armcc.h"
+	"cmsis_gcc.h"
+	<cmsis_iar.h>
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\croutine.c
+1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\croutine.c
 	"FreeRTOS.h"
 	"task.h"
 	"croutine.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\croutine.h
+1500434831 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\croutine.h
 	"list.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\event_groups.c
+1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\event_groups.c
 	<stdlib.h>
 	"FreeRTOS.h"
 	"task.h"
 	"timers.h"
 	"event_groups.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\list.c
+1500434832 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\list.c
 	<stdlib.h>
 	"FreeRTOS.h"
 	"list.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\port.c
+1500434832 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\portable\gcc\arm_cm3\port.c
 	"FreeRTOS.h"
 	"task.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\portable\memmang\heap_4.c
+1500434832 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\portable\memmang\heap_4.c
 	<stdlib.h>
 	"FreeRTOS.h"
 	"task.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\queue.c
+1500434832 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\queue.c
 	<stdlib.h>
 	<string.h>
 	"FreeRTOS.h"
@@ -1107,7 +1109,7 @@
 	"queue.h"
 	"croutine.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\tasks.c
+1500434832 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\tasks.c
 	<stdlib.h>
 	<string.h>
 	"FreeRTOS.h"
@@ -1117,29 +1119,29 @@
 	<stdio.h>
 	"tasks_test_access_functions.h"
 
-1504200168 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\stackmacros.h
+1500434832 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\include\stackmacros.h
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\timers.c
+1500434832 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\freertos\source\timers.c
 	<stdlib.h>
 	"FreeRTOS.h"
 	"task.h"
 	"queue.h"
 	"timers.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\adc.c
+1505290703 source:e:\github_clone\mx2\mx2_audioplayer\src\adc.c
 	"adc.h"
 	"gpio.h"
 	"dma.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\adc.h
+1505290703 e:\github_clone\mx2\mx2_audioplayer\inc\adc.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\gpio.h
+1505290702 e:\github_clone\mx2\mx2_audioplayer\inc\gpio.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\dma.h
+1505290703 e:\github_clone\mx2\mx2_audioplayer\inc\dma.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
@@ -1158,11 +1160,12 @@
 	"FreeRTOS.h"
 	"cmsis_os.h"
 
-1504611112 e:\github_clone\mx2\mx2_audioplayer\inc\usr_config.h
+1505263664 e:\github_clone\mx2\mx2_audioplayer\inc\usr_config.h
 	<stdio.h>
 	<stdint.h>
+	<stdbool.h>
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\dac.h
+1505290703 e:\github_clone\mx2\mx2_audioplayer\inc\dac.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
@@ -1178,35 +1181,39 @@
 1496634397 e:\github_clone\mx2\mx2_audioplayer\inc\path.h
 	"main.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\bsp_driver_sd.c
+1505290704 source:e:\github_clone\mx2\mx2_audioplayer\src\bsp_driver_sd.c
+	"bsp_driver_sd.h"
 	"bsp_driver_sd.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\dac.c
+1505290703 source:e:\github_clone\mx2\mx2_audioplayer\src\dac.c
 	"dac.h"
 	"gpio.h"
 	"dma.h"
+	"mx-audio.h"
+	"tim.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\dma.c
+1505290703 source:e:\github_clone\mx2\mx2_audioplayer\src\dma.c
 	"dma.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\fatfs.c
+1505290704 source:e:\github_clone\mx2\mx2_audioplayer\src\fatfs.c
 	"fatfs.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\fatfs.h
+1505290704 e:\github_clone\mx2\mx2_audioplayer\inc\fatfs.h
 	"ff.h"
 	"ff_gen_drv.h"
 	"sd_diskio.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\drivers\sd_diskio.h
+1500434831 e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\drivers\sd_diskio.h
 
-1504125605 source:e:\github_clone\mx2\mx2_audioplayer\src\freertos.c
+1505290704 source:e:\github_clone\mx2\mx2_audioplayer\src\freertos.c
 	"FreeRTOS.h"
 	"task.h"
 	"cmsis_os.h"
 	"stm32f1xx_hal.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\gpio.c
+1505290702 source:e:\github_clone\mx2\mx2_audioplayer\src\gpio.c
 	"gpio.h"
+	"mx-gpio.h"
 
 1504201824 source:e:\github_clone\mx2\mx2_audioplayer\src\led.c
 	"LED.h"
@@ -1226,7 +1233,7 @@
 	<stdint.h>
 	"USR_CONFIG.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\tim.h
+1505290705 e:\github_clone\mx2\mx2_audioplayer\inc\tim.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
@@ -1240,11 +1247,11 @@
 	"stdint.h"
 	"math.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\spi.h
+1505290705 e:\github_clone\mx2\mx2_audioplayer\inc\spi.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\main.c
+1507090371 source:e:\github_clone\mx2\mx2_audioplayer\src\main.c
 	"main.h"
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
@@ -1258,18 +1265,20 @@
 	"gpio.h"
 	<stdio.h>
 	"lis3d.h"
+	"mx-audio.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\sdio.h
+1505290705 e:\github_clone\mx2\mx2_audioplayer\inc\sdio.h
 	"stm32f1xx_hal.h"
 	"main.h"
 
-1504125192 source:e:\github_clone\mx2\mx2_audioplayer\src\maintask.c
+1504706390 source:e:\github_clone\mx2\mx2_audioplayer\src\maintask.c
 	<stdio.h>
 	<string.h>
 	<stdlib.h>
 	<math.h>
 	<stdio.h>
 	<stdlib.h>
+	<stdint.h>
 	"stm32f1xx_hal.h"
 	"adc.h"
 	"dac.h"
@@ -1285,39 +1294,40 @@
 	"Audio.h"
 	"Lis3D.h"
 	"LED.h"
+	"SimpleLED.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\sdio.c
+1505290705 source:e:\github_clone\mx2\mx2_audioplayer\src\sdio.c
 	"sdio.h"
 	"gpio.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\spi.c
+1505290705 source:e:\github_clone\mx2\mx2_audioplayer\src\spi.c
 	"spi.h"
 	"gpio.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\stm32f1xx_hal_msp.c
+1505290705 source:e:\github_clone\mx2\mx2_audioplayer\src\stm32f1xx_hal_msp.c
 	"stm32f1xx_hal.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\stm32f1xx_hal_timebase_tim.c
+1505290705 source:e:\github_clone\mx2\mx2_audioplayer\src\stm32f1xx_hal_timebase_tim.c
 	"stm32f1xx_hal.h"
 	"stm32f1xx_hal_tim.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\stm32f1xx_it.c
+1505290705 source:e:\github_clone\mx2\mx2_audioplayer\src\stm32f1xx_it.c
 	"stm32f1xx_hal.h"
 	"stm32f1xx.h"
 	"stm32f1xx_it.h"
 	"cmsis_os.h"
 
-1504200167 e:\github_clone\mx2\mx2_audioplayer\inc\stm32f1xx_it.h
+1505290705 e:\github_clone\mx2\mx2_audioplayer\inc\stm32f1xx_it.h
 
 1496634397 source:e:\github_clone\mx2\mx2_audioplayer\src\system_stm32f1xx.c
 	"stm32f1xx.h"
 
-1504200168 source:e:\github_clone\mx2\mx2_audioplayer\src\tim.c
+1505290705 source:e:\github_clone\mx2\mx2_audioplayer\src\tim.c
 	"tim.h"
 
 1504195633 source:e:\github_clone\mx2\mx2_audioplayer\startup\startup_stm32f103xe.s
 
-1504155095 source:e:\github_clone\mx2\mx2_audioplayer\src\usr_config.c
+1505263664 source:e:\github_clone\mx2\mx2_audioplayer\src\usr_config.c
 	"USR_CONFIG.h"
 	"ff.h"
 	"freeRTOS.h"
@@ -1328,14 +1338,155 @@
 	"AF.h"
 	"path.h"
 
-1504155198 source:e:\github_clone\mx2\mx2_audioplayer\src\simpleled.c
+1504706390 source:e:\github_clone\mx2\mx2_audioplayer\src\simpleled.c
 	"SimpleLED.h"
 	"USR_CONFIG.h"
 	"cmsis_os.h"
 	"stm32f1xx.h"
 
-1504125605 e:\github_clone\mx2\mx2_audioplayer\inc\simpleled.h
+1504706390 e:\github_clone\mx2\mx2_audioplayer\inc\simpleled.h
 	<stdio.h>
 	<stdint.h>
+	<stdbool.h>
 	"DEBUG.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\lis3d.h
+	"mx-config.h"
+	"mx-gpio.h"
+	"mx-spi.h"
+	<stdint.h>
+
+1505272602 source:e:\github_clone\mx2\mx\src\maintask.c
+	<math.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"mx-adc.h"
+	"mx-audio.h"
+	"mx-gpio.h"
+	"FreeRTOS.h"
+	"cmsis_os.h"
+	"queue.h"
+	"task.h"
+	"Audio.h"
+	"DEBUG.h"
+	"LED.h"
+	"Lis3D.h"
+	"MX_osID.h"
+	"SimpleLED.h"
+	"USR_CONFIG.h"
+	"ff.h"
+	"main.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\audio.h
+	"AF.h"
+	"DEBUG.h"
+	"FreeRTOS.h"
+	"MX_osID.h"
+	"USR_CONFIG.h"
+	"cmsis_os.h"
+	"ff.h"
+	"main.h"
+	"mx-audio.h"
+	"mx-config.h"
+	"path.h"
+
+1505264645 e:\github_clone\mx2\mx\inc\af.h
+	<stdint.h>
+	<stdio.h>
+
+1507646975 e:\github_clone\mx2\mx\inc\debug.h
+	"mx-config.h"
+	<stdint.h>
+	<stdio.h>
+	<string.h>
+
+1507646975 e:\github_clone\mx2\mx\inc\mx_osid.h
+	"cmsis_os.h"
+	"mx-config.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\usr_config.h
+	"AF.h"
+	"DEBUG.h"
+	"ff.h"
+	"freeRTOS.h"
+	"mx-config.h"
+	"path.h"
+	<stdbool.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1505265995 e:\github_clone\mx2\mx\inc\attribute.h
+	"gpio.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\path.h
+	"main.h"
+	"mx-config.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\led.h
+	"DEBUG.h"
+	"MX_osID.h"
+	"USR_CONFIG.h"
+	"cmsis_os.h"
+	"freertos.h"
+	"mx-config.h"
+	"mx-tim.h"
+	<math.h>
+	<stdint.h>
+
+1507646975 e:\github_clone\mx2\mx\inc\simpleled.h
+	"DEBUG.h"
+	"USR_CONFIG.h"
+	"cmsis_os.h"
+	"mx-config.h"
+	"mx-gpio.h"
+	<stdbool.h>
+	<stdint.h>
+	<stdio.h>
+
+1505272602 source:e:\github_clone\mx2\mx\src\simpleled.c
+	"SimpleLED.h"
+
+1505266187 source:e:\github_clone\mx2\mx\src\usr_config.c
+	"USR_CONFIG.h"
+
+1505272729 source:e:\github_clone\mx2\mx\src\audio.c
+	"Audio.h"
+
+1505272602 source:e:\github_clone\mx2\mx\src\led.c
+	"LED.h"
+
+1505272602 source:e:\github_clone\mx2\mx\src\lis3d.c
+	"lis3d.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\mx-spi.h
+	"mx-config.h"
+	"spi.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\mx-audio.h
+	"audio.h"
+	"dac.h"
+	"mx-config.h"
+	<stdbool.h>
+
+1507646975 e:\github_clone\mx2\mx\inc\mx-tim.h
+	"mx-config.h"
+	"tim.h"
+
+1505272602 e:\github_clone\mx2\mx\inc\mx-adc.h
+	"adc.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\mx-gpio.h
+	"gpio.h"
+	"mx-config.h"
+	<stdbool.h>
+
+1500434831 source:e:\github_clone\mx2\mx2_audioplayer\middlewares\third_party\fatfs\src\option\cc932.c
+	"../ff.h"
+
+1507646975 e:\github_clone\mx2\mx\inc\mx-config.h
+	"main.h"
 

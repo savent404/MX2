@@ -44,7 +44,7 @@
 extern DMA_HandleTypeDef hdma_adc1;
 extern DMA_HandleTypeDef hdma_dac_ch1;
 
-extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim8;
 
 /******************************************************************************/
 /*            Cortex-M3 Processor Interruption and Exception Handlers         */ 
@@ -177,17 +177,17 @@ void DMA1_Channel1_IRQHandler(void)
 }
 
 /**
-* @brief This function handles TIM6 global interrupt.
+* @brief This function handles TIM8 update interrupt.
 */
-void TIM6_IRQHandler(void)
+void TIM8_UP_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM6_IRQn 0 */
+  /* USER CODE BEGIN TIM8_UP_IRQn 0 */
 
-  /* USER CODE END TIM6_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim6);
-  /* USER CODE BEGIN TIM6_IRQn 1 */
+  /* USER CODE END TIM8_UP_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim8);
+  /* USER CODE BEGIN TIM8_UP_IRQn 1 */
 
-  /* USER CODE END TIM6_IRQn 1 */
+  /* USER CODE END TIM8_UP_IRQn 1 */
 }
 
 /**

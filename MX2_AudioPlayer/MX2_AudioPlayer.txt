@@ -1,0 +1,89 @@
+Configuration	MX2_AudioPlayer
+STM32CubeMX 	4.22.0
+Date	09/13/2017
+MCU	STM32F103RDTx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC1	IN0	ADC1_IN0	PA0-WKUP
+DAC	DAC_OUT1	DAC_OUT1	PA4
+SDIO	SD 4 bits Wide bus	SDIO_CK	PC12
+SDIO	SD 4 bits Wide bus	SDIO_CMD	PD2
+SDIO	SD 4 bits Wide bus	SDIO_D0	PC8
+SDIO	SD 4 bits Wide bus	SDIO_D1	PC9
+SDIO	SD 4 bits Wide bus	SDIO_D2	PC10
+SDIO	SD 4 bits Wide bus	SDIO_D3	PC11
+SPI2	Full-Duplex Master	SPI2_MISO	PB14
+SPI2	Full-Duplex Master	SPI2_MOSI	PB15
+SPI2	Full-Duplex Master	SPI2_SCK	PB13
+SYS	Trace Asynchronous Sw	SYS_JTMS-SWDIO	PA13
+SYS	Trace Asynchronous Sw	SYS_JTCK-SWCLK	PA14
+SYS	Trace Asynchronous Sw	SYS_JTDO-TRACESWO	PB3
+SYS	TIM8	SYS_VS_tim8	VP_SYS_VS_tim8
+TIM1	Internal Clock	TIM1_VS_ClockSourceINT	VP_TIM1_VS_ClockSourceINT
+TIM1	PWM Generation CH1	TIM1_CH1	PA8
+TIM1	PWM Generation CH2	TIM1_CH2	PA9
+TIM1	PWM Generation CH3	TIM1_CH3	PA10
+TIM1	PWM Generation CH4	TIM1_CH4	PA11
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+3	PC14-OSC32_IN	GPIO_Output	
+4	PC15-OSC32_OUT	GPIO_Output	
+8	PC0	GPIO_Output	
+9	PC1	GPIO_Output	
+10	PC2	GPIO_Output	
+11	PC3	GPIO_Output	
+14	PA0-WKUP	ADC1_IN0	
+16	PA2	GPIO_Input	Charge_Check
+20	PA4	DAC_OUT1	
+28	PB2	GPIO_Output	Power_EN
+29	PB10	GPIO_Input	POWER
+30	PB11	GPIO_Input	KEY
+33	PB12	GPIO_Output	CS
+34	PB13	SPI2_SCK	
+35	PB14	SPI2_MISO	
+36	PB15	SPI2_MOSI	
+39	PC8	SDIO_D0	
+40	PC9	SDIO_D1	
+41	PA8	TIM1_CH1	
+42	PA9	TIM1_CH2	
+43	PA10	TIM1_CH3	
+44	PA11	TIM1_CH4	
+46	PA13	SYS_JTMS-SWDIO	
+49	PA14	SYS_JTCK-SWCLK	
+51	PC10	SDIO_D2	
+52	PC11	SDIO_D3	
+53	PC12	SDIO_CK	
+54	PD2	SDIO_CMD	
+55	PB3	SYS_JTDO-TRACESWO	
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : MX2_AudioPlayer
+Project Folder : E:\GitHub_Clone\MX2\MX2_AudioPlayer
+Toolchain / IDE : SW4STM32
+Firmware Package Name and Version : STM32Cube FW_F1 V1.6.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : Yes
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : Balanced Size/Speed
+
+
+
+
+
+

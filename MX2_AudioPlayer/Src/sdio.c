@@ -4,6 +4,11 @@
   * Description        : This file provides code for the configuration
   *                      of the SDIO instances.
   ******************************************************************************
+  * This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * Copyright (c) 2017 STMicroelectronics International N.V. 
   * All rights reserved.
@@ -52,7 +57,6 @@
 /* USER CODE END 0 */
 
 SD_HandleTypeDef hsd;
-HAL_SD_CardInfoTypedef SDCardInfo;
 
 /* SDIO init function */
 
@@ -78,7 +82,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef* sdHandle)
   /* USER CODE BEGIN SDIO_MspInit 0 */
 
   /* USER CODE END SDIO_MspInit 0 */
-    /* Peripheral clock enable */
+    /* SDIO clock enable */
     __HAL_RCC_SDIO_CLK_ENABLE();
   
     /**SDIO GPIO Configuration    
@@ -130,10 +134,10 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef* sdHandle)
 
     HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
 
-  }
   /* USER CODE BEGIN SDIO_MspDeInit 1 */
 
   /* USER CODE END SDIO_MspDeInit 1 */
+  }
 } 
 
 /* USER CODE BEGIN 1 */

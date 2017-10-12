@@ -54,6 +54,9 @@ dkms.conf
 /MX2_AP_EB/MX2_AP_EB.cscope_file_list
 /MX2_AP_EB/bin/
 /MX2_AP_EB/obj/
+/NGLSC_EB/*.cscope_file_list
+/NGLSC_EB/bin/
+/NGLSC_EB/obj/
 
 
 /MX2_AudioPlayer/*.cproject
@@ -62,4 +65,11 @@ dkms.conf
 /MX2_AudioPlayer/*.xml
 /MX2_AudioPlayer/.settings
 /MX2_AudioPlayer/.vscode
+/NGLSC/*.cproject
+/NGLSC/*.mxproject
+/NGLSC/*.project
+/NGLSC/*.xml
+/NGLSC/.settings
+/NGLSC/.vscode
 /SI/
+/.vscode

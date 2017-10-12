@@ -4,6 +4,11 @@
   * Description        : This file provides code for the configuration
   *                      of all used GPIO pins.
   ******************************************************************************
+  * This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * Copyright (c) 2017 STMicroelectronics International N.V. 
   * All rights reserved.
@@ -45,7 +50,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "gpio.h"
 /* USER CODE BEGIN 0 */
-
+#include "mx-gpio.h"
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -124,7 +129,80 @@ void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 2 */
+bool MX_GPIO_IsPress(MX_KEY_t key)
+{
+  if (key == KEY_MUX)
+  {
+    return HAL_GPIO_ReadPin(POWER_GPIO_Port,
+                            POWER_Pin) == GPIO_PIN_SET
+               ? true
+               : false;
+  }
+  else if (key == KEY_USR)
+  {
+    return HAL_GPIO_ReadPin(KEY_GPIO_Port,
+                            KEY_Pin) == GPIO_PIN_RESET
+               ? true
+               : false;
+  }
+  return false;
+}
+void MX_GPIO_Enable(bool is)
+{
+  HAL_GPIO_WritePin(Power_EN_GPIO_Port,
+                    Power_EN_Pin,
+                    is ? GPIO_PIN_SET : GPIO_PIN_RESET);
+}
+bool MX_GPIO_PlugIn(void)
+{
+  return HAL_GPIO_ReadPin(Charge_Check_GPIO_Port,
+                          Charge_Check_Pin) == GPIO_PIN_SET
+             ? true
+             : false;
+}
+void MX_GPIO_Lis3DCSEnable(bool is)
+{
+  HAL_GPIO_WritePin(CS_GPIO_Port,
+                    CS_Pin,
+                    is ? GPIO_PIN_RESET : GPIO_PIN_SET);
+}
 
+void SimpleLED_Opra(uint8_t led)
+{
+  uint16_t odr_buffer;
+  odr_buffer = 0;
+  // LED 0~1
+  odr_buffer |= (led & 0x03) << 14;
+  // LED 2~5
+  odr_buffer |= led >> 2;
+
+  GPIOC->ODR &= 0x3FF0;
+  GPIOC->ODR |= odr_buffer;
+}
+
+void SimpleLED_Init(void)
+{
+  GPIO_InitTypeDef gpiox;
+
+  HAL_GPIO_DeInit(GPIOC, GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_14 | GPIO_PIN_15);
+  gpiox.Mode = GPIO_MODE_OUTPUT_PP;
+  gpiox.Pull = GPIO_PULLUP;
+  gpiox.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_14 | GPIO_PIN_15;
+  gpiox.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &gpiox);
+}
+
+void SimpleLED_DeInit(void)
+{
+  // LED 4~7
+  HAL_GPIO_DeInit(GPIOC, 0x0F);
+
+  // LED 0~1
+  HAL_GPIO_DeInit(GPIOC, 0xC000);
+
+  // LED 2~3
+  HAL_GPIO_DeInit(GPIOD, 0x0003);
+}
 /* USER CODE END 2 */
 
 /**

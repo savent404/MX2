@@ -4,6 +4,11 @@
   * Description        : This file provides code for the configuration
   *                      of the DAC instances.
   ******************************************************************************
+  * This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * Copyright (c) 2017 STMicroelectronics International N.V. 
   * All rights reserved.
@@ -49,7 +54,8 @@
 #include "dma.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "mx-audio.h"
+#include "tim.h"
 /* USER CODE END 0 */
 
 DAC_HandleTypeDef hdac;
@@ -65,7 +71,7 @@ void MX_DAC_Init(void)
   hdac.Instance = DAC;
   if (HAL_DAC_Init(&hdac) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
     /**DAC channel OUT1 config 
@@ -74,7 +80,7 @@ void MX_DAC_Init(void)
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
   if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
 }
@@ -88,7 +94,7 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
   /* USER CODE BEGIN DAC_MspInit 0 */
 
   /* USER CODE END DAC_MspInit 0 */
-    /* Peripheral clock enable */
+    /* DAC clock enable */
     __HAL_RCC_DAC_CLK_ENABLE();
   
     /**DAC GPIO Configuration    
@@ -98,8 +104,8 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /* Peripheral DMA init*/
-  
+    /* DAC DMA Init */
+    /* DAC_CH1 Init */
     hdma_dac_ch1.Instance = DMA2_Channel3;
     hdma_dac_ch1.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_dac_ch1.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -110,7 +116,7 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
     hdma_dac_ch1.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_dac_ch1) != HAL_OK)
     {
-      Error_Handler();
+      _Error_Handler(__FILE__, __LINE__);
     }
 
     __HAL_LINKDMA(dacHandle,DMA_Handle1,hdma_dac_ch1);
@@ -137,16 +143,70 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4);
 
-    /* Peripheral DMA DeInit*/
+    /* DAC DMA DeInit */
     HAL_DMA_DeInit(dacHandle->DMA_Handle1);
-  }
   /* USER CODE BEGIN DAC_MspDeInit 1 */
 
   /* USER CODE END DAC_MspDeInit 1 */
+  }
 } 
 
 /* USER CODE BEGIN 1 */
+__STATIC_INLINE void pcm_convert(int16_t *_pt, uint8_t offset, uint32_t cnt)
+{
+  int16_t *pt = _pt;
+  while (cnt--)
+  {
+    *pt = (*pt >> offset) + 0x1000 / 2;
+    pt += 1;
+  }
+}
 
+void MX_Audio_Init(void)
+{
+  HAL_TIM_Base_Start(&htim7);
+}
+
+void MX_Audio_Start(uint16_t* pt, uint8_t vol, uint32_t cnt)
+{
+  if (vol >= 0)
+  {
+    pcm_convert((int16_t*)pt, 4 + 3 - vol, cnt);
+    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)pt, cnt, DAC_ALIGN_12B_R);
+  }
+  
+}
+void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef *hdac)
+{
+  MX_Audio_Callback();
+}
+
+void MX_Audio_HWBeep(void)
+{
+  uint16_t *pt = (uint16_t *)pvPortMalloc(sizeof(uint16_t) * 1024);
+  uint16_t *ppt = pt;
+  uint16_t cnt = 1024;
+
+  while (cnt--)
+  {
+    *pt = ((float)(sin(cnt * 3.1514926 / 20) / 2) * 0x1000) + 0x1000 / 2;
+    pt += 1;
+  }
+
+  cnt = 10;
+  while (cnt--)
+  {
+    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)ppt, 1024, DAC_ALIGN_12B_R);
+    osDelay(50);
+  }
+  while (1)
+    ;
+}
+
+void MX_Audio_Mute(bool en)
+{
+  ;
+}
 /* USER CODE END 1 */
 
 /**
