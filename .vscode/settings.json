@@ -9,6 +9,7 @@
     "mx-audio.h": "c",
     "mx-gpio.h": "c",
     "stdio.h": "c",
-    "cstdio": "c"
+    "cstdio": "c",
+    "mx-led.h": "c"
   }
 }
