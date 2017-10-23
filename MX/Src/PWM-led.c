@@ -212,21 +212,22 @@ static LED_Message_t pwm_trigger(LED_Message_t method)
   uint8_t using_mode;
   LED_Message_t message;
 
+  LED_Sync_Color();
+
   switch (method)
   {
   case LED_Trigger_Start:
   {
     uint32_t step = 0;
     uint32_t step_ms = 10;
-    uint32_t max_step = USR.config->ChDelay[0] / step_ms;
+    uint32_t delay_step = USR.config->ChDelay[0] / step_ms;
     uint8_t cnt = 0;
     for (cnt = 0; cnt < 3; cnt++)
     {
-      if (max_step < USR.config->ChDelay[cnt + 1] / step_ms)
-        ;
-      max_step = USR.config->ChDelay[cnt + 1] / step_ms;
+      if (delay_step < USR.config->ChDelay[cnt + 1] / step_ms)
+        delay_step = USR.config->ChDelay[cnt + 1] / step_ms;
     }
-    while (step < max_step + USR.config->TLon / step_ms)
+    while (step < delay_step + USR.config->TLon / step_ms)
     {
       LED_RGB_SoftRise_Single(0, USR.config->ChDelay[0], step, step_ms, USR.config->TLon);
       LED_RGB_SoftRise_Single(1, USR.config->ChDelay[1], step, step_ms, USR.config->TLon);
@@ -241,11 +242,11 @@ static LED_Message_t pwm_trigger(LED_Message_t method)
   case LED_Trigger_Stop:
   {
     uint32_t step = 0;
+    const float pi_div2 = 3.141592654 / 2;
+    uint32_t step_num = USR.config->TLoff / 10;
     while (step < USR.config->TLoff / 10)
     {
       uint16_t r, g, b, l;
-      const float pi_div2 = 3.141592654 / 2;
-      uint32_t step_num = USR.config->TLoff / 10;
       float d = cos(pi_div2 * (float)step / (float)step_num);
       if (step == 0)
       {
@@ -255,10 +256,12 @@ static LED_Message_t pwm_trigger(LED_Message_t method)
         l = MX_TIM_PowerLEDRead(4);
       }
       LED_RGB_Limited(r * d, g * d, b * d, l * d);
+      step += 1;
       osEvent evt = osMessageGet(LED_CMDHandle, 10);
       if (evt.status == osEventMessage)
         return evt.value.v;
     }
+    LED_RGB_Limited(0, 0, 0, 0);
   }
   break;
 
