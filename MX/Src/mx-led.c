@@ -21,7 +21,7 @@ void LEDOpra(void const *argument)
 
   while (1)
   {
-    osEvent evt = osMessageGet(LED_CMDHandle, 20);
+    osEvent evt = osMessageGet(LED_CMDHandle, osWaitForever);
 
     message = evt.value.v;
 
