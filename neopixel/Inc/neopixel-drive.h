@@ -5,13 +5,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "spi.h"
+#include "freeRTOS.h"
 
 #ifndef NP_MALLOC
-#define NP_MALLOC malloc
+#define NP_MALLOC pvPortMalloc
 #endif
 
 #ifndef NP_FREE
-#define NP_FREE   free
+#define NP_FREE   vPortFree
 #endif
 
 #ifndef NP_DMA_MAX_BITS

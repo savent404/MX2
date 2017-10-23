@@ -2,7 +2,7 @@
 #define _MX_FILE_H_
 
 #ifndef LOG_TAG
-#define LOG_TAG "MXFile"
+#define LOG_TAG "MX-File"
 #endif
 
 #include "DEBUG.h"
@@ -25,9 +25,9 @@ typedef enum {
   MX_NEOPIXEL_ID_NULL
 } MX_NeoPixel_ID_t;
 
-#define MX_NEOPIXEL_ID_STR_FRAMCNT "CNT"
-#define MX_NEOPIXEL_ID_STR_FRAMLEN "LEN"
-#define MX_NEOPIXEL_ID_STR_HZ "HZ0"
+#define MX_NEOPIXEL_ID_STR_FRAMECNT "Raw"
+#define MX_NEOPIXEL_ID_STR_FRAMELEN "Col"
+#define MX_NEOPIXEL_ID_STR_HZ "Freq"
 
 #define MX_NEOPIXEL_ID_STR(name) (MX_NEOPIXEL_ID_STR_##name)
 #define MX_NEOPIXEL_ID(id) (MX_NEOPIXEL_ID_##id)
@@ -36,6 +36,11 @@ typedef struct _MX_NeoPixel_Structure_t
   uint16_t frame_cnt;
   uint16_t frame_len;
   uint16_t Hz;
+
+  // System PCB
+  UINT payload_offset;
+  char filepath[MX_FILE_NEOPIXEL_STRLEN];
+  FIL  file;
 } MX_NeoPixel_Structure_t;
 
 /**
@@ -43,23 +48,17 @@ typedef struct _MX_NeoPixel_Structure_t
  * @NOTE   所有操作基于文件已打开的状态
  * @retvl  Error = false
  */
-bool MX_File_NeoPixel_OpenFile(const char *filepath);
+const MX_NeoPixel_Structure_t* MX_File_NeoPixel_OpenFile(const char *filepath);
 
 /**
  * @brief  关闭Neopixel文件
  */
-bool MX_File_NeoPixel_CloseFile(const char *filepath);
-
-/**
- * @brief  得到文件描述
- * @NOTE   在openfile操作后使用
- */
-bool MX_File_NeoPixel_GetInfo(MX_NeoPixel_Structure_t *pt, const char *filepath);
+bool MX_File_NeoPixel_CloseFile(MX_NeoPixel_Structure_t *pt);
 
 /**
  * @brief  得到一行数据
  * @NOTE   在openfile操作后使用
  */
-bool MX_File_NeoPixel_GetLine(const char *filepath, uint16_t line, void *buffer, size_t maxsize);
+bool MX_File_NeoPixel_GetLine(const MX_NeoPixel_Structure_t *pt, uint16_t line, void *buffer, size_t maxsize);
 
 #endif

@@ -34,6 +34,7 @@ typedef struct _LED_Opra_Method
 // PWM LED drive
 #include "PWM-LED.h"
 // NEO LED drive
+#include "NEO-LED.h"
 
 const LED_Opra_t *MX_LED_GetType(void);
 void LED_Start_Trigger(LED_Message_t message);

@@ -7,7 +7,7 @@ void LED_Start_Trigger(LED_Message_t message)
 }
 __weak const LED_Opra_t *MX_LED_GetType()
 {
-  return &PWM_LED_Opra;
+  return &NEO_LED_Opra;
 }
 
 void LEDOpra(void const *argument)

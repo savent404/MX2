@@ -1,173 +1,90 @@
-#include "MX-file.h"
+#include "mx-file.h"
 #include <string.h>
-static FIL neopixel_file_stru[MX_FILE_NEOPIXEL_STRNUM];
-static char neopixel_file_path[MX_FILE_NEOPIXEL_STRNUM][MX_FILE_NEOPIXEL_STRLEN];
-static bool neopixel_file_lock[MX_FILE_NEOPIXEL_STRNUM] = {false, false};
+
+static MX_NeoPixel_Structure_t fmap[MX_FILE_NEOPIXEL_STRNUM];
 
 /**
- * @brief  读字符串得到ID值
+ * @brief  打开Neopixel文件
+ * @NOTE   所有操作基于文件已打开的状态
+ * @retvl  Error = false
  */
-static MX_NeoPixel_ID_t getID(const char *str)
+const MX_NeoPixel_Structure_t* MX_File_NeoPixel_OpenFile(const char *filepath)
 {
-  if (!strncasecmp(MX_NEOPIXEL_ID_STR(FRAMECNT), str))
+  if (strlen(filepath) > MX_FILE_NEOPIXEL_STRLEN)
   {
-    return MX_NEOPIXEL_ID(FRAMECNT);
+    log_e("Buffer overflow");
+    return NULL;
   }
-  else if (!strncasecmp(MX_NEOPIXEL_ID_STR(FRAMLEN), str))
+  else if (strlen(filepath) == 0)
   {
-    return MX_NEOPIXEL_ID(FRAMLEN);
+    log_w("path is empty");
+    return NULL;
   }
-  else if (!strncasecmp(MX_NEOPIXEL_ID_STR(HZ), str))
-  {
-    return MX_NEOPIXEL_ID(HZ);
-  }
-
-  return MX_NEOPIXEL_ID(NULL);
-}
-
-/**
- * @brief  注册一个文件路径
- * @retvl  0--注册成功
- *         1--已存在
- *         -1-注册失败
- */
-static int register_path(const char *str)
-{
-  int retvl = -1;
-
-#if USE_DEBUG
-  if (strlen(str) == 0)
-    elog_w("Input file path is NULL");
-  else if (strlen(str) >= MX_FILE_NEOPIXEL_STRLEN)
-    elog_w("Input file path is too long");
-#endif
 
   for (int i = 0; i < MX_FILE_NEOPIXEL_STRNUM; i++)
   {
-    if ((strlen(neopixel_file_path[i]) == 0) && (neopixel_file_lock[i] == false))
+    if (!strlen(fmap[i].filepath))
     {
-      strcpy(neopixel_file_path[i], str);
-      neopixel_file_lock[i] = true;
-      retvl = 0;
-      break;
-    }
-    else if ((!strcasecmp(str, neopixel_file_path[i])) &&
-             (neopixel_file_lock[i] == true))
-    {
-      retvl = 1;
-      break;
-    }
-  }
-  return retvl;
-}
-/**
- * @brief  注销一个文件路径
- * @retvl  0--注销成功
- *         1--未注册的路径
- *         -1-注册失败
- */
-static int deregister_path(const char *str)
-{
-  int retvl = -1;
+      FRESULT res = f_open(&(fmap[i].file), filepath, FA_READ);
+      if (res != FR_OK)
+      {
+        log_w("Open file error");
+        return NULL;
+      }
+      strcpy(fmap[i].filepath, filepath);
 
-#if USE_DEBUG
-  if (strlen(str) == 0)
-    elog_w("Input file path is NULL");
-  else if (strlen(str) >= MX_FILE_NEOPIXEL_STRLEN)
-    elog_w("Input file path is too long");
-#endif
-
-  for (int i = 0; i < MX_FILE_NEOPIXEL_STRNUM; i++)
-  {
-    if (!strcasecmp(str, neopixel_file_path[i]))
-    {
-      if (neopixel_file_lock[i] == true)
-        retvl = 0;
-      else
-        retvl = 1;
-      neopixel_file_lock[i] = false;
-      neopixel_file_path[i][0] = '\0';
-      break;
+      // get info
+      fmap[i].frame_cnt = 50;
+      fmap[i].frame_len = 50;
+      fmap[i].Hz = 20;
+      fmap[i].payload_offset = 0x1E;
+      return (const MX_NeoPixel_Structure_t*)(fmap + i);
     }
   }
-  return retvl;
-}
-
-/**
- * @brief  得到一个文件路径指针
- * @retvl  FIL *
- */
-static FIL *getFilePath(const char *path)
-{
-#if USE_DEBUG
-  if (strlen(str) == 0)
-    elog_w("Input file path is NULL");
-  else if (strlen(str) >= MX_FILE_NEOPIXEL_STRLEN)
-    elog_w("Input file path is too long");
-#endif
-
-  for (int i = 0; i < MX_FILE_NEOPIXEL_STRNUM; i++)
-  {
-    if (!strcasecmp(path, neopixel_file_path[i]) && neopixel_file_lock[i] == true)
-    {
-      return &neopixel_file_stru[i];
-    }
-  }
-
-  elog_w("Can't fine file path:%s", path);
-
   return NULL;
 }
 
-bool MX_File_NeoPixel_OpenFile(const char *filepath)
+/**
+ * @brief  关闭Neopixel文件
+ */
+bool MX_File_NeoPixel_CloseFile(MX_NeoPixel_Structure_t *pt)
 {
-  int res = register_path(filepath);
+  f_close(&(pt->file));
+  pt->filepath[0] = '\0';
+  return true;
+}
 
-  if (res > 0)
-  {
-    log_w("Reopen a file:%s", filepath);
-    return true;
-  }
-  else if (res < 0)
-  {
-    log_w("Can't register a file path");
-    return false;
-  }
+/**
+ * @brief  得到一行数据
+ * @NOTE   在openfile操作后使用
+ */
+bool MX_File_NeoPixel_GetLine(const MX_NeoPixel_Structure_t *pt, uint16_t line, void *buffer, size_t maxsize)
+{
+  FRESULT res;
+  UINT read_len;
+  UINT cnt;
 
-  FIL *fpt = getFilePath(filepath);
-
-  FRESULT res = f_open(fpt, (const TCHAR *)filepath, FA_READ);
-
+  taskENTER_CRITICAL();
+  res = f_lseek(&(pt->file), pt->payload_offset + pt->frame_len * 3 * (line % (pt->frame_cnt)));
   if (res != FR_OK)
   {
-    log_w("Can't open neopixel file:%s:%d", filepath, res);
-    deregister_path(filepath);
+    taskEXIT_CRITICAL();
+    log_w("seek file error:%d", (int)res);
     return false;
   }
 
-  return true;
-}
-
-bool MX_File_NeoPixel_CloseFile(const char *filepath)
-{
-  FIL *fpt = getFilePath(filepath);
-
-  FRESULT res = f_close(fpt);
-
+  read_len = pt->frame_len * 3;
+  if (maxsize != 0 && read_len > maxsize)
+  {
+    read_len = maxsize;
+  }
+  res = f_read(&(pt->file), buffer, read_len, &cnt);
   if (res != FR_OK)
   {
+    taskEXIT_CRITICAL();
+    log_w("read file error:%d", (int)res);
     return false;
   }
-
-  return true;
-}
-
-bool MX_File_NeoPixel_GetInfo(MX_NeoPixel_Structure_t *pt, const char *filepath)
-{
-  return true;
-}
-
-bool MX_File_NeoPixel_GetLine(const char *filepath, uint16_t line, void *buffer, size_t maxsize)
-{
+  taskEXIT_CRITICAL();
   return true;
 }

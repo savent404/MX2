@@ -90,11 +90,13 @@
 		<Unit filename="..\MX\Inc\mx-adc.h" />
 		<Unit filename="..\MX\Inc\mx-audio.h" />
 		<Unit filename="..\MX\Inc\mx-config.h" />
+		<Unit filename="..\MX\Inc\MX-file.h" />
 		<Unit filename="..\MX\Inc\mx-gpio.h" />
 		<Unit filename="..\MX\Inc\mx-led.h" />
 		<Unit filename="..\MX\Inc\mx-spi.h" />
 		<Unit filename="..\MX\Inc\mx-tim.h" />
 		<Unit filename="..\MX\Inc\MX_osID.h" />
+		<Unit filename="..\MX\Inc\NEO-LED.h" />
 		<Unit filename="..\MX\Inc\path.h" />
 		<Unit filename="..\MX\Inc\PWM-led.h" />
 		<Unit filename="..\MX\Inc\SimpleLED.h" />
@@ -111,7 +113,13 @@
 		<Unit filename="..\MX\Src\mx-audio.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\MX\Src\MX-file.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\MX\Src\mx-led.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\NEO-LED.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX\Src\PWM-led.c">
@@ -121,6 +129,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX\Src\USR_CONFIG.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\neopixel\Inc\neopixel-drive.h" />
+		<Unit filename="..\neopixel\Src\neopixel-drive.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\NGLSC\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xe.h" />
