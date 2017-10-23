@@ -17,7 +17,8 @@
 #include "task.h"
 #include "Audio.h"
 #include "DEBUG.h"
-#include "LED.h"
+// #include "LED.h"
+#include "mx-led.h"
 #include "Lis3D.h"
 #include "MX_osID.h"
 #include "SimpleLED.h"
@@ -473,7 +474,7 @@ static void H_Ready(void)
   USR.bank_color = 0;
 
   // 更新LED用到的变量
-  LED_Bank_Update(&USR);
+  // LED_Bank_Update(&USR);
 
   ///Lis3DHTR initialize
   {
@@ -521,7 +522,7 @@ static void H_IN(void)
   LED_Start_Trigger(LED_Trigger_Stop);
   Audio_Play_Start(Audio_intoReady);
   USR.bank_color = 0;
-  LED_Bank_Update(&USR);
+  // LED_Bank_Update(&USR);
 }
 static void H_OUT(void)
 {
@@ -529,7 +530,7 @@ static void H_OUT(void)
   auto_intoready_cnt = 0;
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
   USR.sys_status = System_Running;
-  LED_Bank_Update(&USR);
+  // LED_Bank_Update(&USR);
   Audio_Play_Start(Audio_intoRunning);
   LED_Start_Trigger(LED_Trigger_Start);
 }
@@ -601,7 +602,7 @@ static void H_BankSwitch(void)
   USR.bank_now += 1;
   USR.bank_now %= USR.nBank;
   USR.config = USR._config + USR.bank_now;
-  LED_Bank_Update(&USR);
+  // LED_Bank_Update(&USR);
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
   Audio_Play_Start(Audio_BankSwitch);
 }
@@ -609,6 +610,6 @@ static void H_ColorSwitch(void)
 {
   log_v("System ColorSwitch");
   USR.bank_color += 1;
-  LED_Bank_Update(&USR);
+  // LED_Bank_Update(&USR);
   Audio_Play_Start(Audio_ColorSwitch);
 }
