@@ -5,10 +5,14 @@ void LED_Start_Trigger(LED_Message_t message)
   log_v("LED send Message ID:%d", message);
   osMessagePut(LED_CMDHandle, message, osWaitForever);
 }
+__weak const LED_Opra_t *MX_LED_GetType()
+{
+  return &PWM_LED_Opra;
+}
 
 void LEDOpra(void const *argument)
 {
-  LED_Opra_t *opra = MX_LED_GetType();
+  const LED_Opra_t *opra = MX_LED_GetType();
   enum _led_message message;
 
   uint32_t loop_step = 0;
