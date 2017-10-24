@@ -84,8 +84,6 @@
 #define LEDC_GPIO_Port GPIOA
 #define LEDB_Pin GPIO_PIN_4
 #define LEDB_GPIO_Port GPIOB
-#define LEDA_Pin GPIO_PIN_5
-#define LEDA_GPIO_Port GPIOB
 #define POWER_EN_Pin GPIO_PIN_8
 #define POWER_EN_GPIO_Port GPIOB
 #define KEY_MUX_Pin GPIO_PIN_9

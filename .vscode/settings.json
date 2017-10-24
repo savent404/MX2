@@ -10,6 +10,7 @@
     "mx-gpio.h": "c",
     "stdio.h": "c",
     "cstdio": "c",
-    "mx-led.h": "c"
+    "mx-led.h": "c",
+    "neo-led.h": "c"
   }
 }

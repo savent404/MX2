@@ -37,12 +37,13 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
-
+extern DMA_HandleTypeDef hdma_spi1_tx;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_dac_ch1;
 extern DMA_HandleTypeDef hdma_dac_ch2;
+extern DMA_HandleTypeDef hdma_spi1_tx;
 
 extern TIM_HandleTypeDef htim8;
 
@@ -162,6 +163,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+* @brief This function handles DMA1 channel3 global interrupt.
+*/
+void DMA1_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi1_tx);
+  /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel3_IRQn 1 */
+}
+
+/**
 * @brief This function handles TIM8 update interrupt.
 */
 void TIM8_UP_IRQHandler(void)
@@ -204,6 +219,9 @@ void DMA2_Channel4_5_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-
+// void DMA1_Channel3_IRQHandler(void)
+// {
+//   HAL_DMA_IRQHandler(&hdma_spi1_tx);
+// }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

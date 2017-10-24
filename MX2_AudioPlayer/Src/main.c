@@ -110,7 +110,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_TIM1_Init();
   MX_DAC_Init();
   MX_SDIO_SD_Init();
   MX_SPI2_Init();
