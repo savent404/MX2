@@ -53,6 +53,7 @@
 /* USER CODE BEGIN 0 */
 #include "mx-tim.h"
 #include "mx-gpio.h"
+#include "spi.h"
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim7;
@@ -125,6 +126,10 @@ static void tim_pwm_init(void)
   TIM_MasterConfigTypeDef sMasterConfig;
   TIM_OC_InitTypeDef sConfigOC;
   TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
+
+
+  // Deinit spi first
+  HAL_SPI_MspDeInit(&hspi1);
 
   __HAL_RCC_TIM1_CLK_ENABLE();
   __HAL_RCC_TIM2_CLK_ENABLE();

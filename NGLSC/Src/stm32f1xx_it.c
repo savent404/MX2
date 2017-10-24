@@ -37,7 +37,6 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
-extern DMA_HandleTypeDef hdma_spi1_tx;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -219,9 +218,6 @@ void DMA2_Channel4_5_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-// void DMA1_Channel3_IRQHandler(void)
-// {
-//   HAL_DMA_IRQHandler(&hdma_spi1_tx);
-// }
+
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

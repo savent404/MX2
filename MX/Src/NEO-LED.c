@@ -129,7 +129,7 @@ static LED_Message_t neo_playfile(const char *filepath)
       while (!NP_DeInit(&neo_io_handle))
         osDelay(10);
       return evt.value.v;
-    }
+  }
   }
   NP_Update(&neo_io_handle, reset_buffer, NP_DMA_MAX_BITS);
   vPortFree(buffer);
