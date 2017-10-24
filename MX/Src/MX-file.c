@@ -97,6 +97,10 @@ bool MX_File_NeoPixel_GetLine(const MX_NeoPixel_Structure_t *pt, uint16_t line, 
     log_w("read file error:%d", (int)res);
     return false;
   }
+  if (read_len != cnt)
+  {
+    log_e("read error: want(%d), give(%d)", read_len, cnt);
+  }
   taskEXIT_CRITICAL();
   return true;
 }
