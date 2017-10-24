@@ -1,14 +1,17 @@
 #include "mx-file.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static MX_NeoPixel_Structure_t fmap[MX_FILE_NEOPIXEL_STRNUM];
 
+static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t len);
 /**
  * @brief  打开Neopixel文件
  * @NOTE   所有操作基于文件已打开的状态
  * @retvl  Error = false
  */
-const MX_NeoPixel_Structure_t* MX_File_NeoPixel_OpenFile(const char *filepath)
+const MX_NeoPixel_Structure_t *MX_File_NeoPixel_OpenFile(const char *filepath)
 {
   if (strlen(filepath) > MX_FILE_NEOPIXEL_STRLEN)
   {
@@ -34,11 +37,20 @@ const MX_NeoPixel_Structure_t* MX_File_NeoPixel_OpenFile(const char *filepath)
       strcpy(fmap[i].filepath, filepath);
 
       // get info
-      fmap[i].frame_cnt = 50;
-      fmap[i].frame_len = 50;
-      fmap[i].Hz = 20;
-      fmap[i].payload_offset = 0x1E;
-      return (const MX_NeoPixel_Structure_t*)(fmap + i);
+      char buffer[50];
+      UINT cnt;
+
+      res = f_read(&(fmap[i].file), buffer, 2, &cnt);
+      if (res != FR_OK)
+      {
+        log_w("can't read file");
+      }
+      buffer[2] = '\0';
+      fmap[i].payload_offset = atoi(buffer);
+      res = f_read(&(fmap[i].file), buffer, fmap[i].payload_offset - 2, &cnt);
+      buffer[fmap[i].payload_offset - 1] = '\0';
+      keycatch(fmap + i, buffer, fmap[i].payload_offset - 1);
+      return (const MX_NeoPixel_Structure_t *)(fmap + i);
     }
   }
   return NULL;
@@ -87,4 +99,72 @@ bool MX_File_NeoPixel_GetLine(const MX_NeoPixel_Structure_t *pt, uint16_t line, 
   }
   taskEXIT_CRITICAL();
   return true;
+}
+static bool isChara(int a)
+{
+  if (a <= 'z' && a >= 'a')
+    return true;
+  else if (a <= 'Z' && a >= 'A')
+    return true;
+  else if (a <= '9' && a >= '0')
+    return true;
+  else
+    return false;
+}
+static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t len)
+{
+  uint8_t flag = 0;
+  uint8_t step = 0;
+  char buf[2][10];
+  uint8_t pos[2] = {0, 0};
+  for (int i = 0; i < len; i++)
+  {
+    if (buffer[i] == '{')
+    {
+      flag = 1;
+    }
+    else if (buffer[i] == '}')
+    {
+      flag = 2;
+      break;
+    }
+    else if (buffer[i] == ':')
+    {
+      step += 1;
+    }
+    else if (buffer[i] == ';')
+    {
+      buf[0][pos[0]] = '\0';
+      buf[1][pos[1]] = '\0';
+      log_v("searching key %s:%s", buf[0], buf[1]);
+      if (!strcasecmp(MX_NEOPIXEL_ID_STR(FRAMECNT), buf[0]))
+      {
+        pt->frame_cnt = atoi(buf[1]);
+      }
+      else if (!strcasecmp(MX_NEOPIXEL_ID_STR(FRAMELEN), buf[0]))
+      {
+        pt->frame_len = atoi(buf[1]);
+      }
+      else if (!strcasecmp(MX_NEOPIXEL_ID_STR(HZ), buf[0]))
+      {
+        pt->Hz = atoi(buf[1]);
+      }
+      else
+      {
+        log_w("not match key %s:%s", buf[0], buf[1]);
+      }
+      step = 0;
+      pos[0] = 0, pos[1] = 0;
+    }
+
+    if (isChara(buffer[i]) && flag == 1)
+    {
+      buf[step][pos[step]] = buffer[i];
+      pos[step] += 1;
+    }
+    else
+    {
+      continue;
+    }
+  }
 }

@@ -65,18 +65,26 @@ static LED_Message_t neo_trigger(LED_Message_t method)
     buffer = (uint8_t *)pvPortMalloc(sizeof(char) *
                                      spt->frame_len *
                                      3);
+    if (buffer == NULL)
+    {
+      log_w("no enough mem");
+      MX_File_NeoPixel_CloseFile((MX_NeoPixel_Structure_t *)spt);
+      return LED_NoTrigger;
+    }
     for (int i = 0; i < spt->frame_cnt; i++)
     {
       if (!MX_File_NeoPixel_GetLine(spt, i, buffer, 0))
       {
         log_w("get line error");
+        MX_File_NeoPixel_CloseFile((MX_NeoPixel_Structure_t *)spt);
+        spt = MX_File_NeoPixel_OpenFile(path);
         continue;
       }
       log_v("output");
       osDelay(1000 / spt->Hz);
     }
     vPortFree(buffer);
-    MX_File_NeoPixel_CloseFile((MX_NeoPixel_Structure_t*)spt);
+    MX_File_NeoPixel_CloseFile((MX_NeoPixel_Structure_t *)spt);
   }
   break;
   default:
