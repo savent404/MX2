@@ -8,24 +8,23 @@
 
 #define LOG_TAG "Main"
 
+#include "Audio.h"
+#include "DEBUG.h"
+#include "FreeRTOS.h"
+#include "cmsis_os.h"
 #include "mx-adc.h"
 #include "mx-audio.h"
 #include "mx-gpio.h"
-#include "FreeRTOS.h"
-#include "cmsis_os.h"
 #include "queue.h"
 #include "task.h"
-#include "Audio.h"
-#include "DEBUG.h"
 // #include "LED.h"
-#include "mx-led.h"
 #include "Lis3D.h"
 #include "MX_osID.h"
 #include "SimpleLED.h"
 #include "USR_CONFIG.h"
 #include "ff.h"
 #include "main.h"
-
+#include "mx-led.h"
 
 /* Variables -----------------------------------------------------------------*/
 ///NOTE: 由于各种触发为低概率事件， 循环中的定时器的定时间隔又软件延时产生，间隔时间为LOOP_DELAY
@@ -106,6 +105,10 @@ void StartDefaultTask(void const *argument)
 
     // 检测按键上升/下降沿
     uint8_t key_status = key_scan();
+
+#if USE_DEBUG
+    AFIO_RELEASE();
+#endif
 
 // 系统参数分析
 #if USE_DEBUG
@@ -252,7 +255,6 @@ void StartDefaultTask(void const *argument)
     else if (USR.sys_status == System_Charged || USR.sys_status == System_Charging)
     {
       H_Close();
-
     }
 
     ///当有按键动作时清空自动关机\待机定时器
@@ -584,7 +586,7 @@ static void H_Recharge(void)
   osDelay(2000);
   MX_GPIO_Enable(false);
   while (1)
-      ;
+    ;
 }
 static void H_Charged(void)
 {

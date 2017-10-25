@@ -16,7 +16,7 @@
 #endif
 
 #ifndef NP_DMA_MAX_BITS
-#define NP_DMA_MAX_BITS (100)
+#define NP_DMA_MAX_BITS (7)
 #endif
 
 #ifndef NP_LOGIC_1
@@ -45,14 +45,15 @@ typedef struct _neopixel_ctl_structure
   bool isInited;
   // private var
   uint8_t *dma_buffer;
-  uint8_t *source;
-  int transmitedNumber;
-  int transmitNumber;
+  const uint8_t *source;
+  // int transmitedNumber;
+  // int transmitNumber;
+  bool sync;
 } NP_Handle_t;
 
 bool NP_Init(NP_Handle_t *pt);
 bool NP_DeInit(NP_Handle_t *pt);
-bool NP_Update(NP_Handle_t *pt, uint8_t *GRB_24bit, int size);
+bool NP_Update(NP_Handle_t *pt, const uint8_t *GRB_24bit, int size);
 void NP_DMA_CallbackHandle(NP_Handle_t *pt);
 
 #endif

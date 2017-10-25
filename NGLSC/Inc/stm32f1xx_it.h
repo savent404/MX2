@@ -52,6 +52,7 @@ void BusFault_Handler(void);
 void UsageFault_Handler(void);
 void DebugMon_Handler(void);
 void SysTick_Handler(void);
+void DMA1_Channel3_IRQHandler(void);
 void TIM8_UP_IRQHandler(void);
 void DMA2_Channel3_IRQHandler(void);
 void DMA2_Channel4_5_IRQHandler(void);
