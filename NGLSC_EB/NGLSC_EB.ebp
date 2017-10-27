@@ -27,6 +27,7 @@
 					<Add symbol="ARM_MATH_CM3" />
 					<Add symbol="USE_DEBUG" />
 					<Add symbol="AUDIO_SOFTMIX=0" />
+					<Add symbol="USE_NEOPIXEL=1" />
 				</Compiler>
 				<Assembler>
 					<Add option="--gdwarf-2" />
@@ -58,6 +59,7 @@
 					<Add symbol="USE_HAL_DRIVER" />
 					<Add symbol="ARM_MATH_CM3" />
 					<Add symbol="AUDIO_SOFTMIX=0" />
+					<Add symbol="USE_NEOPIXEL=1" />
 				</Compiler>
 				<Linker>
 					<Add option="-eb_lib=s" />
@@ -90,11 +92,13 @@
 		<Unit filename="..\MX\Inc\mx-adc.h" />
 		<Unit filename="..\MX\Inc\mx-audio.h" />
 		<Unit filename="..\MX\Inc\mx-config.h" />
+		<Unit filename="..\MX\Inc\MX-file.h" />
 		<Unit filename="..\MX\Inc\mx-gpio.h" />
 		<Unit filename="..\MX\Inc\mx-led.h" />
 		<Unit filename="..\MX\Inc\mx-spi.h" />
 		<Unit filename="..\MX\Inc\mx-tim.h" />
 		<Unit filename="..\MX\Inc\MX_osID.h" />
+		<Unit filename="..\MX\Inc\NEO-LED.h" />
 		<Unit filename="..\MX\Inc\path.h" />
 		<Unit filename="..\MX\Inc\PWM-led.h" />
 		<Unit filename="..\MX\Inc\SimpleLED.h" />
@@ -111,7 +115,13 @@
 		<Unit filename="..\MX\Src\mx-audio.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="..\MX\Src\MX-file.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="..\MX\Src\mx-led.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\NEO-LED.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX\Src\PWM-led.c">
@@ -121,6 +131,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX\Src\USR_CONFIG.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\neopixel\Inc\neopixel-drive.h" />
+		<Unit filename="..\neopixel\Src\neopixel-drive.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\NGLSC\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xe.h" />
@@ -365,8 +379,8 @@
 		<Extensions>
 			<code_completion />
 			<debugger>
-				<target_debugging_settings target="Debug" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
+				<target_debugging_settings target="Release" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />
@@ -382,8 +396,8 @@
 						</family_options>
 					</debug_interface>
 				</target_debugging_settings>
-				<target_debugging_settings target="Release" active_interface="ST-link">
-					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description="STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="2" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
+				<target_debugging_settings target="Debug" active_interface="ST-link">
+					<debug_interface interface_id="ST-link" ip_address="localhost" ip_port="4242" path="${EMBITZ}\share\contrib" executable="STLinkGDB.exe" description=".\STM32F103xx.svd" dont_start_server="false" backoff_time="1000" options="0" reg_filter="15" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_VECTOR_START" opt_value="0x08000000" />

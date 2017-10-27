@@ -444,6 +444,7 @@ static uint8_t get_accent_para(uint8_t Bank, PARA_DYNAMIC_t *pt)
   __get_accent_para(Bank + 1, "On.txt", &((pt->accent + Bank)->On));
   __get_accent_para(Bank + 1, "Lockup.txt", &((pt->accent + Bank)->Lockup));
   __get_accent_para(Bank + 1, "Clash.txt", &((pt->accent + Bank)->Clash));
+  return 0;
 }
 
 char *upper(char *src)

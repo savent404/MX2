@@ -5,6 +5,7 @@
 #include "dac.h"
 #include "mx-config.h"
 #include <stdbool.h>
+#include <math.h>
 
 #ifndef AUDIO_SOFTMIX
 #define AUDIO_SOFTMIX 1

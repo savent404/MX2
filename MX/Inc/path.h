@@ -60,10 +60,47 @@
 #define Trigger_OUT_name "Out"
 #endif
 
+#ifndef NEO_PROTOCOL
+#define NEO_PROTOCOL ".neo"
+#endif
+
+#ifndef NEO_CHARGED
+#define NEO_CHARGED "0:/System/Charged"NEO_PROTOCOL
+#endif
+
+#ifndef NEO_CHARGING 
+#define NEO_CHARGING "0:/System/Charging"NEO_PROTOCOL
+#endif
+
+#ifndef NEO_Trigger_B_name
+#define NEO_Trigger_B_name "_Swing"
+#endif
+
+#ifndef NEO_Trigger_C_name
+#define NEO_Trigger_C_name "_Clash"
+#endif
+
+#ifndef NEO_Trigger_D_name
+#define NEO_Trigger_D_name "_Blaster"
+#endif
+
+#ifndef NEO_Trigger_E_name
+#define NEO_Trigger_E_name "_Lockup"
+#endif
+
+#ifndef NEO_Trigger_IN_name
+#define NEO_Trigger_IN_name "_In"
+#endif
+
+#ifndef NEO_Trigger_OUT_name
+#define NEO_Trigger_OUT_name "_Out"
+#endif
+
 #ifndef REPLACE_NAME
 #define REPLACE_NAME "effect.txt"
 #endif
 
 #define TRIGGER(x) Trigger_##x##_name
+#define NEO_TRIGGER(x) NEO_Trigger_##x##_name
 
 #endif

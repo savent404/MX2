@@ -248,7 +248,7 @@
 /  _NORTC_MDAY and _NORTC_YEAR have no effect. 
 /  These options have no effect at read-only configuration (_FS_READONLY == 1). */
 
-#define _FS_LOCK    2     /* 0:Disable or >=1:Enable */
+#define _FS_LOCK    4     /* 0:Disable or >=1:Enable */
 /* The _FS_LOCK option switches file lock feature to control duplicated file open
 /  and illegal operation to open objects. This option must be 0 when _FS_READONLY
 /  is 1.
@@ -278,7 +278,7 @@
 /  The _SYNC_t defines O/S dependent sync object type. e.g. HANDLE, ID, OS_EVENT*,
 /  SemaphoreHandle_t and etc.. */
 
-#define _WORD_ACCESS    0 /* 0 or 1 */
+#define _WORD_ACCESS    1 /* 0 or 1 */
 /* The _WORD_ACCESS option is an only platform dependent option. It defines
 /  which access method is used to the word data on the FAT volume.
 /

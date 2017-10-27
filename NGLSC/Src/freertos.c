@@ -120,7 +120,7 @@ void MX_FREERTOS_Init(void) {
   DACTaskHandle = osThreadCreate(osThread(DACTask), NULL);
 
   /* definition and creation of LEDTask */
-  osThreadDef(LEDTask, LEDOpra, osPriorityRealtime, 0, 128);
+  osThreadDef(LEDTask, LEDOpra, osPriorityRealtime, 0, 1024);
   LEDTaskHandle = osThreadCreate(osThread(LEDTask), NULL);
 
   /* definition and creation of WavTask */
