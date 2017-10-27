@@ -8,4 +8,10 @@
 #define AUDIO_SOFTMIX 1
 #endif
 
+#ifndef USE_NEOPIXEL
+#define USE_NEOPIXEL 0
+#error "Undefined configuration parameter: USE_NEOPIXEL"
+#endif
+
+
 #endif
