@@ -11,7 +11,7 @@ static NP_Handle_t neo_io_handle;
 const uint8_t reset_buffer[3 * NP_DMA_MAX_BITS] = {0};
 // static NP_Handle_t neo_io_handle;
 /** Static function ***************************/
-static LED_Message_t neo_playfile(const char *filepath);
+static LED_Message_t neo_playfile(const char *filepath, int startLine, int*nowLine);
 /** Public var ********************************/
 const LED_Opra_t NEO_LED_Opra = {
     .io_init = neo_io_init,
@@ -38,35 +38,62 @@ static void neo_io_init(void)
 
 static void neo_charged_loop(uint32_t step_ms, uint32_t period_ms)
 {
-  log_w("TODO::charged trigger rised");
+  log_v("neo charged trigger rise");
   while (1)
-    osDelay(100);
+  {
+    neo_playfile(NEO_CHARGED, 0, NULL);
+  }
 }
 static void neo_charging_loop(uint32_t step_ms, uint32_t period_ms)
 {
-  log_w("TODO::charging trigger rised");
+  log_v("neo charging trigger rise");
   while (1)
-    osDelay(100);
+  {
+    neo_playfile(NEO_CHARGING, 0, NULL);
+  }
 }
 static LED_Message_t neo_run_loop(uint32_t *step, uint32_t step_ms)
 {
-  log_w("TODO::run_loop trigger rised");
-  while (1)
-    osDelay(100);
-  return LED_NoTrigger;
+  char path[20];
+  sprintf(path, "0:Bank%d/hum%s", (USR.bank_now + USR.bank_color) % USR.nBank + 1, NEO_PROTOCOL);
+  return neo_playfile(path, *step, step);
 }
+
 static LED_Message_t neo_trigger(LED_Message_t method)
 {
+  char path[20];
+  char dir[20];
+  sprintf(dir, "0:/Bank%d/", (USR.bank_now + USR.bank_color) % USR.nBank + 1);
+
   switch (method)
   {
-  case LED_Trigger_Start:
-  {
-    neo_playfile("0:/demo.neo");
-  }
-  break;
+    case LED_Trigger_Start:
+      strcat(dir, NEO_TRIGGER(OUT));
+    break;
+    case LED_Trigger_Stop:
+      strcat(dir, NEO_TRIGGER(IN));
+    break;
+    case LED_TriggerB:
+      strcat(dir, NEO_TRIGGER(B));
+    break;
+    case LED_TriggerC:
+      strcat(dir, NEO_TRIGGER(C));
+    break;
+    case LED_TriggerD:
+      strcat(dir, NEO_TRIGGER(D));
+    break;
+    case LED_TriggerE:
+      strcat(dir, NEO_TRIGGER(E));
+    break;
+    case LED_TriggerE_END:
+      return LED_NoTrigger;
   default:
     log_w("TODO::unknow trigger id:%d", method);
+  return LED_NoTrigger;
   }
+
+  if (MX_File_GetRandFileName(dir, 0, path))
+    neo_playfile(path, 0, NULL);
   return LED_NoTrigger;
 }
 
@@ -79,7 +106,7 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
   }
 }
 
-static LED_Message_t neo_playfile(const char *filepath)
+static LED_Message_t neo_playfile(const char *filepath, int startLine, int *nowLine)
 {
   const MX_NeoPixel_Structure_t *spt = MX_File_NeoPixel_OpenFile(filepath);
   if (spt == NULL)
@@ -109,8 +136,10 @@ static LED_Message_t neo_playfile(const char *filepath)
     return LED_NoTrigger;
   }
 
-  for (int i = 0; i < spt->frame_cnt; i++)
+  for (int i = (startLine % spt->frame_cnt); i < spt->frame_cnt; i++)
   {
+    if (nowLine != NULL)
+      *nowLine = i;
     if (!MX_File_NeoPixel_GetLine(spt, i, buffer, 0))
     {
       log_w("get line error");

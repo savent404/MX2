@@ -8,6 +8,7 @@
 #include "DEBUG.h"
 #include "cmsis_os.h"
 #include "fatfs.h"
+#include "path.h"
 #include "mx-config.h"
 #include "mx-file.h"
 #include "mx-led.h"

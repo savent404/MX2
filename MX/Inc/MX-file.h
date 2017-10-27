@@ -51,6 +51,12 @@ typedef struct _MX_NeoPixel_Structure_t
 const MX_NeoPixel_Structure_t* MX_File_NeoPixel_OpenFile(const char *filepath);
 
 /**
+ * @brief  获取一个目录中前n个中的随机文件
+ * @param  @num 限制的文件数量，0即不限制
+ * @param  @filename 得到的文件路径
+ */
+bool MX_File_GetRandFileName(const char *dir, const int num, char *filename);
+/**
  * @brief  关闭Neopixel文件
  */
 bool MX_File_NeoPixel_CloseFile(MX_NeoPixel_Structure_t *pt);

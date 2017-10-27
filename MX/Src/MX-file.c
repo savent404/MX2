@@ -115,6 +115,61 @@ static bool isChara(int a)
   else
     return false;
 }
+
+bool MX_File_GetRandFileName(const char *dir, const int num, char *filename)
+{
+	static DIR d;
+	static FILINFO info;
+	FRESULT res;
+	int total_num = 0;
+
+	if ((res = f_opendir(&d, dir)) != FR_OK)
+	{
+		log_w("can't open dir(%s):%d", dir, (int)res);
+		return false;
+	}
+
+	while ((res = f_readdir(&d, &info)) == FR_OK)
+		if (info.fattrib & AM_DIR == 0)
+			total_num++;
+
+	if ((res = f_closedir(&d)) != FR_OK)
+	{
+		log_e("can't close dir(%s):%d", dir, (int)res);
+		return false;
+	}
+
+	if (num && total_num > num)
+		total_num = num;
+
+	total_num = rand() % total_num;
+
+	if ((res = f_opendir(&d, dir)) != FR_OK)
+	{
+		log_w("can't open dir(%s):%d", dir, (int)res);
+		return false;
+	}
+
+	for (int i = 0; i < total_num; )
+	{
+		f_readdir(&d, &info);
+		if (info.fattrib & AM_DIR == 0)
+			i++;
+	}
+
+	if ((res = f_closedir(&d)) != FR_OK)
+	{
+		log_e("can't close dir(%s):%d", dir, (int)res);
+		return false;
+	}
+
+	filename[0] = '\0';
+
+	strcpy(filename, info.fname);
+
+	return true;
+}
+
 static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t len)
 {
   uint8_t flag = 0;
