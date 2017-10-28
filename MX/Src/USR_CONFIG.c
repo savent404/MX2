@@ -30,9 +30,11 @@ static const char name_string[][10] = {
     /**< Position:24~29 */
     "CH2_Delay", "CH3_Delay", "CH4_Delay", "T_Breath", "Out_Delay", "LEDMASK",
     /**< Position:30~35 */
-    "Unknow", "MD", "MT", "CD", "CT", "CL",
-    /**< Position:36 */
-    "CW"};
+    "DriverMode", "MD", "MT", "CD", "CT", "CL",
+    /**< Position:36~39*/
+    "CW", "Direction", "ShakeOutG", "ShakeInG",
+    /**< Position:40~42*/
+    "LockupHold", "Lowpower", "PowerSavingPerrecnts"};
 
 /** \brief 获取循环音频有效负载量
  *
@@ -531,6 +533,13 @@ static void set_config(PARA_DYNAMIC_t *pt)
   pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
   pt->config->Out_Delay = 200; //Out 循环音延时200ms
   pt->config->SimpleLED_MASK = 0xFF;
+  pt->config->DriverMode = 0;
+  pt->config->Direction = 0;
+  pt->config->ShakeOutG = 0;
+  pt->config->ShakeInG = 0;
+  pt->config->LockupHold = 0;
+  pt->config->Lowpower = STATIC_USR.vol_warning;
+  pt->config->PowerSavingPerrecnts = 0;
 }
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
 {
@@ -670,7 +679,9 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
     case 29:
       sscanf(spt, "%*[^=]=%*[^xX]%*c%x", &(pt->config->SimpleLED_MASK));
       break;
-    /*case 30: sscanf(spt,"%*[^=]=%d", &(pt->config->Ch));break;*/
+    case 30:
+      sscanf(spt, "%*[^=]=%d", &(pt->config->DriverMode));
+      break;
     case 31:
       sscanf(spt, "%*[^=]=%hd", &(pt->config->MD));
       break;
@@ -688,6 +699,24 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       break;
     case 36:
       sscanf(spt, "%*[^=]=%hd", &(pt->config->CW));
+      break;
+    case 37:
+      sscanf(spt, "%*[^=]=%d", &(pt->config->Direction));
+      break;
+    case 38:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->ShakeOutG));
+      break;
+    case 39:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->ShakeInG));
+      break;
+    case 40:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->LockupHold));
+      break;
+    case 41:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->Lowpower));
+      break;
+    case 42:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->PowerSavingPerrecnts));
       break;
     }
   }

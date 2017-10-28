@@ -72,6 +72,21 @@ typedef struct _usr_config_structure
   uint16_t T_Breath; //LMode 呼吸延时
 
   uint16_t Out_Delay; // 触发Out时， 延时Hum播放时间
+
+  uint8_t DriverMode; // 确认是否使用PWM-LED(0) or NEO-LED(1), 原始版本固定为0
+
+  uint8_t Direction; // 方向识别模式下(1), 触发'in'以及'out'需判断加速度轴方向，后播放相应目录下的x,y,z
+
+  uint16_t ShakeOutG; // 值为0时不开启， 不为0时代表加速度阈值，超过阈值这触发'out'
+  uint16_t ShakeInG;  // 值为0时不开启， 不为0时代表加速度阈值，超过阈值这触发'in'
+
+  uint16_t LockupHold; //TriggerE的延时触发，单位毫秒。
+                       // 值为0则功能关闭， 当计数器小于LockupHold时松开Aux即恢复运行态
+                       // 大于LockupHold是，Aux松开仍保持TriggerE模式，直至下一次Aux被触发
+
+  uint16_t Lowpower;             //报警电压
+  uint16_t PowerSavingPerrecnts; //值为0，不开启
+                                 // 最大值为50， 触发电压报警后， LED亮度以及音量变为 “设定值x(100 - PowerSavingPerecnt)"
 } USR_CONFIG_t;
 
 // 小型LED动作
