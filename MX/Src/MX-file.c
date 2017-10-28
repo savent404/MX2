@@ -228,17 +228,23 @@ static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t le
   }
 }
 // fatfs LFN支持
+static int lfn_cnt = 0;
 void MX_File_InfoLFN_Init(FILINFO *info)
 {
 #if _USE_LFN
   info->lfname = (TCHAR *)pvPortMalloc(sizeof(TCHAR) * 120);
   if (info->lfname == NULL)
     log_e("no enough mem");
+  else
+    lfn_cnt += 1;
 #endif
 }
 void MX_File_InfoLFN_DeInit(FILINFO *info)
 {
 #if _USE_LFN
+  if (lfn_cnt == 0)
+    log_e("free a none malloc pt");
+  lfn_cnt -= 1;
   vPortFree(info->lfname);
 #endif
 }
