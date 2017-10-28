@@ -95,7 +95,7 @@ uint8_t usr_config_init(void)
     USR.nBank = STATIC_USR.filelimits.bank_max;
   }
   uint32_t req_mem = 0;
-  #define REQUES_MEM(sum, x) (sum += (x))
+#define REQUES_MEM(sum, x) (sum += (x))
 
   USR.humsize = (HumSize_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(HumSize_t) * USR.nBank));
   USR.config = (USR_CONFIG_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(USR_CONFIG_t)));
@@ -107,7 +107,13 @@ uint8_t usr_config_init(void)
   USR.triggerE = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
   USR.triggerF = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
   USR.triggerIn = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerIn_X = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerIn_Y = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerIn_Z = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
   USR.triggerOut = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerOut_X = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerOut_Y = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerOut_Z = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
   log_i("malloc for USR structure cost %d", req_mem);
   /**< 获取Hum 有效负载 */
   if (get_humsize(&USR))
@@ -247,9 +253,40 @@ get_trigger_again:
       pTriggerPath = pt->triggerIn;
       break;
     case 6:
+      sprintf(path, "0://Bank%d/" TRIGGER(IN) "/X", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(in_x);
+      pTriggerPath = pt->triggerIn_X;
+      break;
+    case 7:
+      sprintf(path, "0://Bank%d/" TRIGGER(IN) "/Y", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(in_y);
+      pTriggerPath = pt->triggerIn_Y;
+      break;
+    case 8:
+      sprintf(path, "0://Bank%d/" TRIGGER(IN) "/Z", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(in_z);
+      pTriggerPath = pt->triggerIn_Z;
+      break;
+
+    case 9:
       sprintf(path, "0://Bank%d/" TRIGGER(OUT), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(out);
       pTriggerPath = pt->triggerOut;
+      break;
+    case 10:
+      sprintf(path, "0://Bank%d/" TRIGGER(OUT) "/X", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(out_x);
+      pTriggerPath = pt->triggerOut_X;
+      break;
+    case 11:
+      sprintf(path, "0://Bank%d/" TRIGGER(OUT) "/Y", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(out_y);
+      pTriggerPath = pt->triggerOut_Y;
+      break;
+    case 12:
+      sprintf(path, "0://Bank%d/" TRIGGER(OUT) "/Z", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(out_z);
+      pTriggerPath = pt->triggerOut_Z;
       break;
     }
     vPortFree(pTriggerPath->path_arry);
@@ -505,7 +542,7 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
     int8_t res = GetName(spt, name);
     if (res > 0 && res % 3 == 0)
     {
-      res = res/3;
+      res = res / 3;
       uint16_t buf[4];
       if (res > USR.nBank)
         continue;
@@ -516,7 +553,7 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
     }
     else if (res > 0 && res % 3 == 1)
     {
-      res = (res-1)/3;
+      res = (res - 1) / 3;
       uint16_t buf[4];
       if (res > USR.nBank)
         continue;
@@ -527,7 +564,7 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
     }
     else if (res > 0 && res % 3 == 2)
     {
-      res = (res-2)/3;
+      res = (res - 2) / 3;
       uint16_t buf[4];
       if (res > USR.nBank)
         continue;

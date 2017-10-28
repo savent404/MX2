@@ -100,6 +100,12 @@ typedef struct _file_number_limits
   uint16_t trigger_D_max;
   uint16_t trigger_E_max;
   uint16_t trigger_F_max;
+  uint16_t trigger_in_x_max;
+  uint16_t trigger_in_y_max;
+  uint16_t trigger_in_z_max;
+  uint16_t trigger_out_x_max;
+  uint16_t trigger_out_y_max;
+  uint16_t trigger_out_z_max;
 } File_NumberLimits_t;
 
 typedef struct _usr_static_parameter
@@ -130,7 +136,13 @@ typedef struct _usr_dynamic_parameter
   TRIGGER_PATH_t *triggerE; /**< 定义当前Bank中TriggerE的信息 */
   TRIGGER_PATH_t *triggerF; /**< 定义当前Bank中TriggerF的信息 */
   TRIGGER_PATH_t *triggerIn;
+  TRIGGER_PATH_t *triggerIn_X;
+  TRIGGER_PATH_t *triggerIn_Y;
+  TRIGGER_PATH_t *triggerIn_Z;
   TRIGGER_PATH_t *triggerOut;
+  TRIGGER_PATH_t *triggerOut_X;
+  TRIGGER_PATH_t *triggerOut_Y;
+  TRIGGER_PATH_t *triggerOut_Z;
   Accent_t *accent;       /**< 简单LEDAccent配置信息 */
   USR_CONFIG_t *config;   /**< 用户config文本配置信息 */
   USR_CONFIG_t *_config;  /**< 各Bank的配置信息 */
