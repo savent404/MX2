@@ -227,6 +227,129 @@ static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t le
     }
   }
 }
+
+// fatfs 搜索补全
+/**
+ * @brief  搜索匹配文件数量
+ * @param  -dirpath 需搜索的文件夹路径
+ * @param  -prefix  匹配文件名前缀
+ * @param  -subfix  匹配文件名后缀
+ * @note   不会递归搜索子文件夹
+ * @retvl  匹配文件数量
+ */
+int MX_File_SearchFile(const char *dirpath, const char *prefix, const char *suffix)
+{
+  DIR dir;
+  FILINFO info;
+  FRESULT res;
+  uint8_t preLen = strlen(prefix);
+  uint8_t sufLen = strlen(suffix);
+  uint8_t cnt = 0;
+
+  char *sufBuf = suffix != 0 ? (char *)pvPortMalloc(sizeof(char) * (sufLen + 1)) : NULL;
+
+  MX_File_InfoLFN_Init(&info);
+
+  do
+  {
+    res = f_opendir(&dir, dirpath);
+    if (res != FR_OK)
+    {
+      log_w("can't open dir(%s):%d", dirpath, (int)res);
+      break;
+    }
+
+    while (f_readdir(&dir, &info) == FR_OK && info.lfname[0] != 0)
+    {
+      if ((info.fattrib & AM_DIR))
+        continue;
+
+      if (preLen && (strncasecmp(prefix, info.lfname, preLen)))
+      {
+        continue;
+      }
+      if (sufLen)
+      {
+        strncpy(sufBuf, info.lfname, sufLen);
+        if (strncasecmp(sufBuf, suffix, sufLen))
+          continue;
+      }
+      cnt += 1;
+    }
+
+    res = f_closedir(&dir);
+    if (res != FR_OK)
+    {
+      log_w("can't close dir(%s):%d", dirpath, (int)res);
+      break;
+    }
+  } while (0);
+
+  MX_File_InfoLFN_DeInit(&info);
+  vPortFree(sufBuf);
+  return cnt;
+}
+/**
+ * @brief  搜索匹配文件夹数量
+ * @param  -subdir 需搜索的文件夹路径
+ * @param  -prefix 匹配文件夹名前缀
+ * @param  -subfix 匹配文件夹名后缀
+ * @note   不会递归搜索子文件夹
+ * @retvl  匹配文件夹数量
+ */
+int MX_File_SearchDir(const char *subdir, const char *prefix, const char *suffix)
+{
+  DIR dir;
+  FILINFO info;
+  FRESULT res;
+  uint8_t preLen = strlen(prefix);
+  uint8_t sufLen = strlen(suffix);
+  uint8_t cnt = 0;
+
+  char *sufBuf = suffix != 0 ? (char *)pvPortMalloc(sizeof(char) * (sufLen + 1)) : NULL;
+
+  MX_File_InfoLFN_Init(&info);
+
+  do
+  {
+    res = f_opendir(&dir, subdir);
+    if (res != FR_OK)
+    {
+      log_w("can't open dir(%s):%d", subdir, (int)res);
+      break;
+    }
+
+    while (f_readdir(&dir, &info) == FR_OK && info.lfname[0] != 0)
+    {
+      if (!(info.fattrib & AM_DIR))
+        continue;
+
+      if (preLen && (strncasecmp(prefix, info.lfname, preLen)))
+      {
+        continue;
+      }
+      if (sufLen)
+      {
+        strncpy(sufBuf, info.lfname, sufLen);
+        if (strncasecmp(sufBuf, suffix, sufLen))
+          continue;
+      }
+      cnt += 1;
+    }
+
+    res = f_closedir(&dir);
+    if (res != FR_OK)
+    {
+      log_w("can't close dir(%s):%d", subdir, (int)res);
+      break;
+    }
+  } while (0);
+
+  MX_File_InfoLFN_DeInit(&info);
+  vPortFree(sufBuf);
+  return cnt;
+}
+
 // fatfs LFN支持
 static int lfn_cnt = 0;
 void MX_File_InfoLFN_Init(FILINFO *info)
@@ -279,6 +402,13 @@ int strcasecmp(const char *src1, const char *src2)
 
 int strncasecmp(const char *src1, const char *src2, size_t num)
 {
-  return strncmp(upper(src1), upper(src2), num);
+  char *pt1 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1),
+       *pt2 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1);
+  strncpy(pt1, src1, num);
+  strncpy(pt2, src2, num);
+  int res = strncmp(upper(pt1), upper(pt2), num);
+  vPortFree(pt1);
+  vPortFree(pt2);
+  return res;
 }
 #endif

@@ -67,6 +67,24 @@ bool MX_File_NeoPixel_CloseFile(MX_NeoPixel_Structure_t *pt);
  */
 bool MX_File_NeoPixel_GetLine(const MX_NeoPixel_Structure_t *pt, uint16_t line, void *buffer, size_t maxsize);
 
+/**
+ * @brief  搜索匹配文件数量
+ * @param  -dirpath 需搜索的文件夹路径
+ * @param  -prefix  匹配文件名前缀
+ * @param  -subfix  匹配文件名后缀
+ * @note   不会递归搜索子文件夹
+ * @retvl  匹配文件数量
+ */
+int MX_File_SearchFile(const char *dirpath, const char *prefix, const char *suffix);
+/**
+ * @brief  搜索匹配文件夹数量
+ * @param  -subdir 需搜索的文件夹路径
+ * @param  -prefix 匹配文件夹名前缀
+ * @param  -subfix 匹配文件夹名后缀
+ * @note   不会递归搜索子文件夹
+ * @retvl  匹配文件夹数量
+ */
+int MX_File_SearchDir(const char *subdir, const char *prefix, const char *suffix);
 // fatfs LFN 支持
 void MX_File_InfoLFN_Init(FILINFO *info);
 void MX_File_InfoLFN_DeInit(FILINFO *info);

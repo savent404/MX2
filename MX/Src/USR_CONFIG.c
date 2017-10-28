@@ -86,40 +86,12 @@ uint8_t usr_config_init(void)
 {
   FRESULT f_err;
   FIL *file = (FIL *)pvPortMalloc(sizeof(FIL));
-  /**< 获取Bank数量 */
+
+  // 获取bank数量
+  USR.nBank = MX_File_SearchDir("0:/", "Bank", NULL);
+  if (STATIC_USR.filelimits.bank_max < USR.nBank)
   {
-    DIR dir;
-    FILINFO info;
-
-    MX_File_InfoLFN_Init(&info);
-
-    /**< Open Dir:[0:/] */
-    if ((f_err = f_opendir(&dir, "0:/")) != FR_OK)
-    {
-      log_e("Can't Open Dir(0:/):%d", f_err);
-      return 1;
-    }
-    /**< Get Number of Banks */
-    USR.nBank = 0;
-    while ((f_readdir(&dir, &info) == FR_OK) && info.fname[0] != '\0')
-    {
-      if ((info.fattrib & AM_DIR) && (info.fname[0] == 'B' || info.fname[0] == 'b'))
-        USR.nBank += 1;
-    }
-    /**< Close Dir */
-    if ((f_err = f_closedir(&dir)) != FR_OK)
-    {
-      log_e("Can't Close Dir:%d", f_err);
-      MX_File_InfoLFN_DeInit(&info);
-      return 1;
-    }
-    MX_File_InfoLFN_DeInit(&info);
-
-    /**< Bank number limits */
-    if (STATIC_USR.filelimits.bank_max < USR.nBank)
-    {
-      USR.nBank = STATIC_USR.filelimits.bank_max;
-    }
+    USR.nBank = STATIC_USR.filelimits.bank_max;
   }
   USR.humsize = (HumSize_t *)pvPortMalloc(sizeof(HumSize_t) * USR.nBank);
   USR.config = (USR_CONFIG_t *)pvPortMalloc(sizeof(USR_CONFIG_t));
