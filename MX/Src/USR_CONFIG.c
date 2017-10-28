@@ -94,18 +94,21 @@ uint8_t usr_config_init(void)
   {
     USR.nBank = STATIC_USR.filelimits.bank_max;
   }
-  USR.humsize = (HumSize_t *)pvPortMalloc(sizeof(HumSize_t) * USR.nBank);
-  USR.config = (USR_CONFIG_t *)pvPortMalloc(sizeof(USR_CONFIG_t));
-  USR._config = (USR_CONFIG_t *)pvPortMalloc(sizeof(USR_CONFIG_t) * USR.nBank);
-  USR.BankColor = (uint32_t *)pvPortMalloc(sizeof(uint32_t) * 4 * USR.nBank);
-  USR.triggerB = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
-  USR.triggerC = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
-  USR.triggerD = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
-  USR.triggerE = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
-  USR.triggerF = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
-  USR.triggerIn = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
-  USR.triggerOut = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
-  log_i("malloc for USR structure cost %d", sizeof(HumSize_t) * USR.nBank + sizeof(USR_CONFIG_t) * USR.nBank + sizeof(TRIGGER_PATH_t) * 6 + sizeof(uint32_t) * 4 * USR.nBank);
+  uint32_t req_mem = 0;
+  #define REQUES_MEM(sum, x) (sum += (x))
+
+  USR.humsize = (HumSize_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(HumSize_t) * USR.nBank));
+  USR.config = (USR_CONFIG_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(USR_CONFIG_t)));
+  USR._config = (USR_CONFIG_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(USR_CONFIG_t) * USR.nBank));
+  USR.BankColor = (uint32_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(uint32_t) * 6 * USR.nBank));
+  USR.triggerB = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerC = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerD = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerE = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerF = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerIn = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerOut = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  log_i("malloc for USR structure cost %d", req_mem);
   /**< 获取Hum 有效负载 */
   if (get_humsize(&USR))
   {
