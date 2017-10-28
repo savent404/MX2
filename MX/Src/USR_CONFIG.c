@@ -429,12 +429,17 @@ static int GetName(char *line, char *name)
   if (!strncasecmp(line, "BANK", 4))
   {
     sscanf(line, "%*[ BANKbank]%d", &res);
-    return res;
+    return res * 3 + 0;
   }
   else if (!strncasecmp(line, "FBANK", 5))
   {
     sscanf(line, "%*[ FBANKfbank]%d", &res);
-    return -res;
+    return res * 3 + 1;
+  }
+  else if (!strncasecmp(line, "LBANK", 5))
+  {
+    sscanf(line, "%*[ LBANKlbank]%d", &res);
+    return res * 3 + 2;
   }
   while (*line != '=')
   {
@@ -495,24 +500,37 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
   while ((spt = f_gets(sbuffer, 50, file)) != 0)
   {
     int8_t res = GetName(spt, name);
-    if (res > 0)
+    if (res > 0 && res % 3 == 0)
     {
+      res = res/3;
       uint16_t buf[4];
       if (res > USR.nBank)
         continue;
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
-      pt->BankColor[res * 4 + 0 - 4] = *(uint32_t *)(buf + 0);
-      pt->BankColor[res * 4 + 1 - 4] = *(uint32_t *)(buf + 2);
+      pt->BankColor[res * 6 + 0 - 6] = *(uint32_t *)(buf + 0);
+      pt->BankColor[res * 6 + 1 - 6] = *(uint32_t *)(buf + 2);
       continue;
     }
-    else if (res < 0)
+    else if (res > 0 && res % 3 == 1)
     {
+      res = (res-1)/3;
       uint16_t buf[4];
-      if (-res > USR.nBank)
+      if (res > USR.nBank)
         continue;
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
-      pt->BankColor[-1 * res * 4 + 2 - 4] = *(uint32_t *)(buf + 0);
-      pt->BankColor[-1 * res * 4 + 3 - 4] = *(uint32_t *)(buf + 2);
+      pt->BankColor[res * 6 + 2 - 6] = *(uint32_t *)(buf + 0);
+      pt->BankColor[res * 6 + 3 - 6] = *(uint32_t *)(buf + 2);
+      continue;
+    }
+    else if (res > 0 && res % 3 == 2)
+    {
+      res = (res-2)/3;
+      uint16_t buf[4];
+      if (res > USR.nBank)
+        continue;
+      sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
+      pt->BankColor[res * 6 + 4 - 6] = *(uint32_t *)(buf + 0);
+      pt->BankColor[res * 6 + 5 - 6] = *(uint32_t *)(buf + 2);
       continue;
     }
     for (res = 0; res < sizeof(name_string) / 10; res++)
