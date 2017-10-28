@@ -148,7 +148,7 @@ uint8_t usr_config_init(void)
     f_close(file);
   }
 
-  /**< 获取各Bank下TriggerX的信息，包括总数以及各文件的文件名 */
+  /**< 获取当前Bank下TriggerX的信息，包括总数以及各文件的文件名 */
   for (int i = 0; i < 6; i++)
   {
     get_trigger_para(i, USR.bank_now + 1, &USR);

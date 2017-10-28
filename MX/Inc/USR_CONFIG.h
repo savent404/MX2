@@ -29,7 +29,7 @@ typedef enum {
 
 typedef struct _usr_config_structure
 {
-  uint8_t Vol; //音量设置(0无声，1小声，2中等，3大声)
+  uint8_t Vol; //音量设置(16级)
 
   uint16_t Tpon;      //关机转待机，Main按钮延时触发值，单位ms,
   uint16_t Tpoff;     //待机转关机，Main按钮延时触发值，单位ms,
