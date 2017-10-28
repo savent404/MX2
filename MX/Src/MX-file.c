@@ -259,18 +259,23 @@ int MX_File_SearchFile(const char *dirpath, const char *prefix, const char *suff
       break;
     }
 
-    while (f_readdir(&dir, &info) == FR_OK && info.lfname[0] != 0)
+    while (f_readdir(&dir, &info) == FR_OK && info.fname[0] != 0)
     {
+      char *pt = info.lfname[0] != 0 ? info.lfname : info.fname;
+
       if ((info.fattrib & AM_DIR))
         continue;
 
-      if (preLen && (strncasecmp(prefix, info.lfname, preLen)))
+      if (preLen && (strncasecmp(prefix, pt, preLen)))
       {
         continue;
       }
       if (sufLen)
       {
-        strncpy(sufBuf, info.lfname, sufLen);
+        int pos = strlen(pt);
+        if (pt < sufLen)
+          continue;
+        strncpy(sufBuf, pt + pos - sufLen - 1, sufLen);
         if (strncasecmp(sufBuf, suffix, sufLen))
           continue;
       }
@@ -319,18 +324,23 @@ int MX_File_SearchDir(const char *subdir, const char *prefix, const char *suffix
       break;
     }
 
-    while (f_readdir(&dir, &info) == FR_OK && info.lfname[0] != 0)
+    while (f_readdir(&dir, &info) == FR_OK && info.fname[0] != 0)
     {
+      char *pt = info.lfname[0] != 0 ? info.lfname : info.fname;
+
       if (!(info.fattrib & AM_DIR))
         continue;
 
-      if (preLen && (strncasecmp(prefix, info.lfname, preLen)))
+      if (preLen && (strncasecmp(prefix, pt, preLen)))
       {
         continue;
       }
       if (sufLen)
       {
-        strncpy(sufBuf, info.lfname, sufLen);
+        int pos = strlen(pt);
+        if (pt < sufLen)
+          continue;
+        strncpy(sufBuf, pt + pos - sufLen - 1, sufLen);
         if (strncasecmp(sufBuf, suffix, sufLen))
           continue;
       }
@@ -388,27 +398,47 @@ char *upper(char *src)
 }
 
 #ifdef __GNUC__
+static char strpt1[20];
+static char strpt2[20];
 int strcasecmp(const char *src1, const char *src2)
 {
-  char *pt1 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1),
-       *pt2 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1);
-  strcpy(pt1, src1);
-  strcpy(pt2, src2);
-  int res = strcmp(upper(pt1), upper(pt2));
-  vPortFree(pt1);
-  vPortFree(pt2);
+  __IO static bool flag = false;
+
+  while (flag)
+    ;
+  flag = true;
+
+  char *pt1, *pt2;
+
+  pt1 = strpt1;
+  pt2 = strpt2;
+
+  strcpy(strpt1, src1);
+  strcpy(strpt2, src2);
+  int res = strcmp(upper(strpt1), upper(strpt2));
+
+  flag = false;
   return res;
 }
 
 int strncasecmp(const char *src1, const char *src2, size_t num)
 {
-  char *pt1 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1),
-       *pt2 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1);
-  strncpy(pt1, src1, num);
-  strncpy(pt2, src2, num);
-  int res = strncmp(upper(pt1), upper(pt2), num);
-  vPortFree(pt1);
-  vPortFree(pt2);
+  __IO static bool flag = false;
+
+  while (flag)
+    ;
+  flag = true;
+
+  char *pt1, *pt2;
+
+  pt1 = strpt1;
+  pt2 = strpt2;
+
+  strcpy(strpt1, src1);
+  strcpy(strpt2, src2);
+  int res = strncmp(upper(strpt1), upper(strpt2), num);
+
+  flag = false;
   return res;
 }
 #endif
