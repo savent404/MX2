@@ -1,7 +1,7 @@
 #include "Audio.h"
 /* Variables -----------------------------------------------------------------*/
 static uint8_t SIMPLE_PLAY_READY = 1;
-static FIL  audio_file[2];
+static FIL audio_file[2];
 static UINT file_offset[2] = {0, 0};
 static char trigger_path[50];
 static char pri_now = PRI(NULL);
@@ -12,8 +12,8 @@ static uint16_t trigger_buffer[AUDIO_FIFO_SIZE];
 #endif
 /* Function prototypes -------------------------------------------------------*/
 static void Play_simple_wav(char *filepath);
-static void Play_IN_wav(void);
-static void Play_OUT_wav(void);
+static void Play_IN_wav(Audio_ID_t id);
+static void Play_OUT_wav(Audio_ID_t id);
 static void Play_Trigger_wav(uint8_t);
 static void Play_TriggerE(void);
 static void Play_TriggerE_END(void);
@@ -24,9 +24,9 @@ static FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer, UINT *se
 static void SoftMix(int16_t *, int16_t *);
 #define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
 #define convert_ms2filesize(ms) (ms * sizeof(uint16_t) * 22)
-#define RESET_FILE_Buffer() \
-  f_close(&audio_file[Track_0]);    \
-  f_close(&audio_file[Track_1]);    \
+#define RESET_FILE_Buffer()      \
+  f_close(&audio_file[Track_0]); \
+  f_close(&audio_file[Track_1]); \
   file_offset[Track_0] = 0;      \
   file_offset[Track_1] = 0;
 
@@ -64,14 +64,14 @@ void DACOutput(void const *argument)
     }
     osSemaphoreWait(DAC_Complete_FlagHandle, osWaitForever);
 
-    #if AUDIO_SOFTMIX
-    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
-    #else
-    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v],
-                   (uint16_t*)dac_buffer[Track_1][evt.value.v],
+#if AUDIO_SOFTMIX
+    MX_Audio_Start((uint16_t *)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
+#else
+    MX_Audio_Start((uint16_t *)dac_buffer[Track_0][evt.value.v],
+                   (uint16_t *)dac_buffer[Track_1][evt.value.v],
                    USR.config->Vol,
                    AUDIO_FIFO_SIZE);
-    #endif
+#endif
   }
 }
 
@@ -120,10 +120,13 @@ void Wav_Task(void const *argument)
       case Audio_LowPower:
         Play_simple_wav(WAV_LOWPOWER);
         break;
+      case Audio_intoReady_X:
+      case Audio_intoReady_Y:
+      case Audio_intoReady_Z:
       case Audio_intoReady:
         pri_now = PRI(NULL);
         RESET_FILE_Buffer();
-        Play_IN_wav();
+        Play_IN_wav(evt.value.v);
         break;
       case Audio_BankSwitch:
       {
@@ -168,10 +171,13 @@ void Wav_Task(void const *argument)
       case Audio_ColorSwitch:
         Play_Trigger_wav(3);
         break;
+      case Audio_intoRunning_X:
+      case Audio_intoRunning_Y:
+      case Audio_intoRunning_Z:
       case Audio_intoRunning:
         pri_now = PRI(NULL);
         RESET_FILE_Buffer();
-        Play_OUT_wav();
+        Play_OUT_wav(evt.value.v);
         break;
       }
     }
@@ -314,21 +320,42 @@ static void Play_TriggerE_END(void)
   file_offset[Track_1] = 0;
   pri_now = PRI(NULL);
 }
-static void Play_IN_wav(void)
+static void Play_IN_wav(Audio_ID_t id)
 {
-  uint8_t cnt = (USR.triggerIn + USR.bank_now)->number;
-  uint8_t num = HAL_GetTick() % cnt;
+  uint8_t num;
   char path[50];
 
-  sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/", USR.bank_now + 1);
-  strcat(path, (USR.triggerIn + USR.bank_now)->path_ptr[num]);
+  switch (id)
+  {
+  case Audio_intoReady:
+    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/", USR.bank_now + 1);
+    num = HAL_GetTick() % USR.triggerIn->number;
+    strcat(path, (USR.triggerIn->path_ptr[num]));
+    break;
 
+  case Audio_intoReady_X:
+    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/X/", USR.bank_now + 1);
+    num = HAL_GetTick() % USR.triggerIn_X->number;
+    strcat(path, (USR.triggerIn_X->path_ptr[num]));
+    break;
+
+  case Audio_intoReady_Y:
+    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Y/", USR.bank_now + 1);
+    num = HAL_GetTick() % USR.triggerIn_Y->number;
+    strcat(path, (USR.triggerIn_Y->path_ptr[num]));
+    break;
+
+  case Audio_intoReady_Z:
+    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Z/", USR.bank_now + 1);
+    num = HAL_GetTick() % USR.triggerIn_Z->number;
+    strcat(path, (USR.triggerIn_Z->path_ptr[num]));
+    break;
+  }
   Play_simple_wav(path);
 }
-static void Play_OUT_wav(void)
+static void Play_OUT_wav(Audio_ID_t id)
 {
-  uint8_t cnt = (USR.triggerOut + USR.bank_now)->number;
-  uint8_t num = HAL_GetTick() % cnt;
+  uint8_t num;
   char path[50];
   char hum_path[50];
 #if AUDIO_SOFTMIX
@@ -339,8 +366,31 @@ static void Play_OUT_wav(void)
 
   UINT point = convert_ms2filesize(USR.config->Out_Delay);
   sprintf(hum_path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
-  sprintf(path, "0:/Bank%d/" TRIGGER(OUT) "/", USR.bank_now + 1);
-  strcat(path, (USR.triggerOut + USR.bank_now)->path_ptr[num]);
+  // sprintf(path, "0:/Bank%d/" TRIGGER(OUT) "/", USR.bank_now + 1);
+  // strcat(path, (USR.triggerOut + USR.bank_now)->path_ptr[num]);
+  switch (id)
+  {
+    case Audio_intoRunning:
+      num = HAL_GetTick() % USR.triggerOut->number;
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/", USR.bank_now + 1);
+      strcat(path, USR.triggerOut->path_ptr[num]);
+      break;
+      case Audio_intoRunning_X:
+      num = HAL_GetTick() % USR.triggerOut_X->number;
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/X", USR.bank_now + 1);
+      strcat(path, USR.triggerOut_X->path_ptr[num]);
+      break;
+      case Audio_intoRunning_Y:
+      num = HAL_GetTick() % USR.triggerOut_Y->number;
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Y", USR.bank_now + 1);
+      strcat(path, USR.triggerOut_Y->path_ptr[num]);
+      break;
+      case Audio_intoRunning_Z:
+      num = HAL_GetTick() % USR.triggerOut_Z->number;
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Z", USR.bank_now + 1);
+      strcat(path, USR.triggerOut_Z->path_ptr[num]);
+      break;
+  }
 
   while (1)
   {
@@ -436,16 +486,16 @@ static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri)
 
 __STATIC_INLINE void SoftMix(int16_t *pt1, int16_t *pt2)
 {
-  #if AUDIO_SOFTMIX
+#if AUDIO_SOFTMIX
   int16_t *p1 = (int16_t *)pt1, *p2 = (int16_t *)pt2;
 
   for (uint32_t i = 0; i < AUDIO_FIFO_SIZE; i++)
   {
-    *p1= *p1 + *p2;
+    *p1 = *p1 + *p2;
     p1 += 1, p2 += 1;
   }
-  #else
-  #endif
+#else
+#endif
 }
 
 /**
@@ -516,17 +566,16 @@ void MX_Audio_Callback(void)
   }
   else
   {
-    #if AUDIO_SOFTMIX
-    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
-    #else
-    MX_Audio_Start((uint16_t*)dac_buffer[Track_0][evt.value.v],
-                   (uint16_t*)dac_buffer[Track_1][evt.value.v],
+#if AUDIO_SOFTMIX
+    MX_Audio_Start((uint16_t *)dac_buffer[Track_0][evt.value.v], USR.config->Vol, AUDIO_FIFO_SIZE);
+#else
+    MX_Audio_Start((uint16_t *)dac_buffer[Track_0][evt.value.v],
+                   (uint16_t *)dac_buffer[Track_1][evt.value.v],
                    USR.config->Vol,
                    AUDIO_FIFO_SIZE);
-    #endif
+#endif
   }
 }
-
 
 uint8_t Audio_IsSimplePlayIsReady(void)
 {

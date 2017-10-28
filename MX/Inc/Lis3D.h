@@ -33,6 +33,7 @@ typedef struct _Lis3dConfig
 
 void Lis3d_Init(void);
 void Lis3d_Set(Lis3dConfig *para);
+uint8_t Lis3d_GetData(Lis3dData *pt);
 uint8_t Lis3d_isClick(void);
 uint8_t Lis3d_isMove(void);
 

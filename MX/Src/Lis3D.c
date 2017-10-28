@@ -191,6 +191,11 @@ uint8_t Lis3d_isMove(void)
   return LIS3DH_SPI_RD(0x31);
 }
 
+uint8_t Lis3d_GetData(Lis3dData *pt)
+{
+  
+}
+
 static unsigned char LIS3DH_SPI_RD(unsigned char addr)
 {
   unsigned char temp;

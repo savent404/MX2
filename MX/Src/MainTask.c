@@ -522,7 +522,35 @@ static void H_IN(void)
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
   USR.sys_status = System_Ready;
   LED_Start_Trigger(LED_Trigger_Stop);
-  Audio_Play_Start(Audio_intoReady);
+  if (USR.config->Direction == 0)
+  {
+    Audio_Play_Start(Audio_intoReady);
+  }
+  else
+  {
+    Lis3dData data;
+    Lis3d_GetData(&data);
+    if (data.Dx < 0)
+      data.Dx = -data.Dx;
+    if (data.Dy < 0)
+      data.Dy = -data.Dy;
+    if (data.Dz < 0)
+      data.Dz = -data.Dz;
+    Audio_ID_t id = Audio_intoRunning_X;
+    int16_t max = data.Dx;
+    if (max < data.Dy)
+    {
+      max = data.Dy;
+      id = Audio_intoRunning_Y;
+    }
+    if (max < data.Dz)
+    {
+      max = data.Dz;
+      id = Audio_intoRunning_Z;
+    }
+    Audio_Play_Start(id);
+  }
+
   USR.bank_color = 0;
   // LED_Bank_Update(&USR);
 }
@@ -533,7 +561,35 @@ static void H_OUT(void)
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
   USR.sys_status = System_Running;
   // LED_Bank_Update(&USR);
-  Audio_Play_Start(Audio_intoRunning);
+  // Audio_Play_Start(Audio_intoRunning);
+  if (USR.config->Direction == 0)
+  {
+    Audio_Play_Start(Audio_intoReady);
+  }
+  else
+  {
+    Lis3dData data;
+    Lis3d_GetData(&data);
+    if (data.Dx < 0)
+      data.Dx = -data.Dx;
+    if (data.Dy < 0)
+      data.Dy = -data.Dy;
+    if (data.Dz < 0)
+      data.Dz = -data.Dz;
+    int16_t max = data.Dx;
+    Audio_ID_t id = Audio_intoRunning_X;
+    if (max < data.Dy)
+    {
+      max = data.Dy;
+      id = Audio_intoRunning_Y;
+    }
+    if (max < data.Dz)
+    {
+      max = data.Dy;
+      id = Audio_intoRunning_Z;
+    }
+    Audio_Play_Start(id);
+  }
   LED_Start_Trigger(LED_Trigger_Start);
 }
 static void H_TriggerB(void)
