@@ -34,6 +34,8 @@
 					<Add option="--gdwarf-2" />
 				</Assembler>
 				<Linker>
+					<Add option="-u _scanf_float" />
+					<Add option="-u _printf_float" />
 					<Add option="-eb_lib=s" />
 					<Add option="-eb_start_files" />
 					<Add option="-eb_use_mon" />

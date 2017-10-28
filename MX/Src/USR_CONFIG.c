@@ -97,13 +97,13 @@ uint8_t usr_config_init(void)
   USR.config = (USR_CONFIG_t *)pvPortMalloc(sizeof(USR_CONFIG_t));
   USR._config = (USR_CONFIG_t *)pvPortMalloc(sizeof(USR_CONFIG_t) * USR.nBank);
   USR.BankColor = (uint32_t *)pvPortMalloc(sizeof(uint32_t) * 4 * USR.nBank);
-  USR.triggerB = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerC = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerD = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerE = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerIn = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerOut = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-
+  USR.triggerB = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
+  USR.triggerC = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
+  USR.triggerD = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
+  USR.triggerE = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
+  USR.triggerIn = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
+  USR.triggerOut = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
+  log_i("malloc for USR structure cost %d", sizeof(HumSize_t) * USR.nBank + sizeof(USR_CONFIG_t) * USR.nBank + sizeof(TRIGGER_PATH_t) * 6 + sizeof(uint32_t) * 4 * USR.nBank);
   /**< 获取Hum 有效负载 */
   if (get_humsize(&USR))
   {
@@ -126,13 +126,12 @@ uint8_t usr_config_init(void)
     return 1;
   }
 
-  int i;
-  for (i = 0; i < USR.nBank; i++)
+  for (int i = 0; i < USR.nBank; i++)
   {
     memcpy(USR._config + i, USR.config, sizeof(USR_CONFIG_t));
   }
   vPortFree(USR.config);
-  for (i = 0; i < USR.nBank; i++)
+  for (int i = 0; i < USR.nBank; i++)
   {
     char path[20];
     sprintf(path, "0:/Bank%d/" REPLACE_NAME, i + 1);
@@ -145,26 +144,9 @@ uint8_t usr_config_init(void)
   }
 
   /**< 获取各Bank下TriggerX的信息，包括总数以及各文件的文件名 */
-  for (uint8_t nBank = 0; nBank < USR.nBank; nBank++)
+  for (int i = 0; i < 5; i++)
   {
-    f_err = get_trigger_para(0, nBank + 1, &USR); //Trigger B
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(1, nBank + 1, &USR); //Trigger C
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(2, nBank + 1, &USR); //Trigger D
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(3, nBank + 1, &USR); //Trigger E
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(4, nBank + 1, &USR); //Trigger In
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(5, nBank + 1, &USR); //Trigger Out
-    if (f_err)
-      return f_err;
+    get_trigger_para(i, USR.bank_now + 1, &USR);
   }
 
   /**< 获取每个bank中的Accent.txt, 包括动作延时时间以及动作信息 */
@@ -233,42 +215,45 @@ get_trigger_again:
     case 0:
       sprintf(path, "0://Bank%d/" TRIGGER(B), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(B);
-      pTriggerPath = pt->triggerB + Bank - 1;
+      pTriggerPath = pt->triggerB;
       break;
     case 1:
       sprintf(path, "0://Bank%d/" TRIGGER(C), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(C);
-      pTriggerPath = pt->triggerC + Bank - 1;
+      pTriggerPath = pt->triggerC;
       break;
     case 2:
       sprintf(path, "0://Bank%d/" TRIGGER(D), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(D);
-      pTriggerPath = pt->triggerD + Bank - 1;
+      pTriggerPath = pt->triggerD;
       break;
     case 3:
       sprintf(path, "0://Bank%d/" TRIGGER(E), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(E);
-      pTriggerPath = pt->triggerE + Bank - 1;
+      pTriggerPath = pt->triggerE;
       break;
     case 4:
       sprintf(path, "0://Bank%d/" TRIGGER(IN), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(in);
-      pTriggerPath = pt->triggerIn + Bank - 1;
+      pTriggerPath = pt->triggerIn;
       break;
     case 5:
       sprintf(path, "0://Bank%d/" TRIGGER(OUT), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(out);
-      pTriggerPath = pt->triggerOut + Bank - 1;
+      pTriggerPath = pt->triggerOut;
       break;
     }
+    vPortFree(pTriggerPath->path_arry);
+    vPortFree(pTriggerPath->path_ptr);
   }
   else
   {
     pTriggerPath->number = trigger_cnt;
     pTriggerPath->path_arry = (char *)pvPortMalloc(sizeof(char) * mem_req);
     pTriggerPath->path_ptr = (char **)pvPortMalloc(sizeof(char *) * trigger_cnt);
-  }
 
+    log_i("malloc for %s cost %d", path, mem_req + sizeof(char *) * trigger_cnt);
+  }
   trigger_cnt = 0;
   mem_req = 0;
 
@@ -280,6 +265,18 @@ get_trigger_again:
   }
   while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0')
   {
+    char *pt = info.lfname[0] != 0 ? info.lfname : info.fname;
+
+    if (info.fattrib & AM_DIR)
+      continue;
+
+    char buf[5];
+    int pos = strlen(pt);
+    if (pos < 4)
+      continue;
+    strncpy(buf, pt + pos - 4, 4);
+    if (strncasecmp(buf, ".wav", 4))
+      continue;
     // Trigger number limits
     if (trigger_cnt >= max_trigger_cnt)
       break;
