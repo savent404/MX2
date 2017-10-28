@@ -103,8 +103,11 @@ void StartDefaultTask(void const *argument)
   for (;;)
   {
 
+    Lis3dData lisData;
+
     // 检测按键上升/下降沿
     uint8_t key_status = key_scan();
+    Lis3d_GetData(&lisData);
 
 #if USE_DEBUG
     AFIO_RELEASE();
@@ -165,6 +168,11 @@ void StartDefaultTask(void const *argument)
         if (timeout >= max)
           H_BankSwitch();
       }
+
+      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy*lisData.Dy + lisData.Dz*lisData.Dz) > USR.config->ShakeOutG)
+      {
+        H_OUT();
+      }
     }
 
     else if (USR.sys_status == System_Running)
@@ -216,6 +224,10 @@ void StartDefaultTask(void const *argument)
         {
           H_TriggerD();
         }
+      }
+      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy*lisData.Dy + lisData.Dz*lisData.Dz) > USR.config->ShakeInG)
+      {
+        H_IN();
       }
       move_detected();
     }
