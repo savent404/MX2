@@ -118,56 +118,56 @@ static bool isChara(int a)
 
 bool MX_File_GetRandFileName(const char *dir, const int num, char *filename)
 {
-	static DIR d;
-	static FILINFO info;
-	FRESULT res;
-	int total_num = 0;
+  static DIR d;
+  static FILINFO info;
+  FRESULT res;
+  int total_num = 0;
 
-	if ((res = f_opendir(&d, dir)) != FR_OK)
-	{
-		log_w("can't open dir(%s):%d", dir, (int)res);
-		return false;
-	}
+  if ((res = f_opendir(&d, dir)) != FR_OK)
+  {
+    log_w("can't open dir(%s):%d", dir, (int)res);
+    return false;
+  }
 
-	while ((res = f_readdir(&d, &info)) == FR_OK)
-		if (info.fattrib & AM_DIR == 0)
-			total_num++;
+  while ((res = f_readdir(&d, &info)) == FR_OK)
+    if (info.fattrib & AM_DIR == 0)
+      total_num++;
 
-	if ((res = f_closedir(&d)) != FR_OK)
-	{
-		log_e("can't close dir(%s):%d", dir, (int)res);
-		return false;
-	}
+  if ((res = f_closedir(&d)) != FR_OK)
+  {
+    log_e("can't close dir(%s):%d", dir, (int)res);
+    return false;
+  }
 
-	if (num && total_num > num)
-		total_num = num;
+  if (num && total_num > num)
+    total_num = num;
 
-	total_num = rand() % total_num;
+  total_num = rand() % total_num;
 
-	if ((res = f_opendir(&d, dir)) != FR_OK)
-	{
-		log_w("can't open dir(%s):%d", dir, (int)res);
-		return false;
-	}
+  if ((res = f_opendir(&d, dir)) != FR_OK)
+  {
+    log_w("can't open dir(%s):%d", dir, (int)res);
+    return false;
+  }
 
-	for (int i = 0; i < total_num; )
-	{
-		f_readdir(&d, &info);
-		if (info.fattrib & AM_DIR == 0)
-			i++;
-	}
+  for (int i = 0; i < total_num;)
+  {
+    f_readdir(&d, &info);
+    if (info.fattrib & AM_DIR == 0)
+      i++;
+  }
 
-	if ((res = f_closedir(&d)) != FR_OK)
-	{
-		log_e("can't close dir(%s):%d", dir, (int)res);
-		return false;
-	}
+  if ((res = f_closedir(&d)) != FR_OK)
+  {
+    log_e("can't close dir(%s):%d", dir, (int)res);
+    return false;
+  }
 
-	filename[0] = '\0';
+  filename[0] = '\0';
 
-	strcpy(filename, info.fname);
+  strcpy(filename, info.fname);
 
-	return true;
+  return true;
 }
 
 static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t len)
@@ -227,7 +227,23 @@ static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t le
     }
   }
 }
+// fatfs LFN支持
+void MX_File_InfoLFN_Init(FILINFO *info)
+{
+#if _USE_LFN
+  info->lfname = (TCHAR *)pvPortMalloc(sizeof(TCHAR) * 120);
+  if (info->lfname == NULL)
+    log_e("no enough mem");
+#endif
+}
+void MX_File_InfoLFN_DeInit(FILINFO *info)
+{
+#if _USE_LFN
+  vPortFree(info->lfname);
+#endif
+}
 
+// String.h 补全
 char *upper(char *src)
 {
   char *pt = src;
@@ -255,7 +271,7 @@ int strcasecmp(const char *src1, const char *src2)
   return res;
 }
 
-int strncasecmp(const char *src1,const char *src2, size_t num)
+int strncasecmp(const char *src1, const char *src2, size_t num)
 {
   return strncmp(upper(src1), upper(src2), num);
 }

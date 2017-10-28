@@ -67,6 +67,9 @@ bool MX_File_NeoPixel_CloseFile(MX_NeoPixel_Structure_t *pt);
  */
 bool MX_File_NeoPixel_GetLine(const MX_NeoPixel_Structure_t *pt, uint16_t line, void *buffer, size_t maxsize);
 
+// fatfs LFN 支持
+void MX_File_InfoLFN_Init(FILINFO *info);
+void MX_File_InfoLFN_DeInit(FILINFO *info);
 
 // String.h 补全
 char *upper(char *src);

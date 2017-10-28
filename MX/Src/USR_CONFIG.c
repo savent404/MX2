@@ -17,10 +17,6 @@ const PARA_STATIC_t STATIC_USR = {
         .trigger_E_max = 10,
     }};
 
-#if _USE_LFN //使用Heap模式， 为Fatfs长文件名模式提供一个缓存
-static TCHAR LFN_BUF[120];
-#endif
-
 static const char name_string[][10] = {
     /**< Position:0~5  */
     "Vol", "Tpon", "Tpoff", "Tout", "Tin", "Ts_switch",
@@ -94,9 +90,9 @@ uint8_t usr_config_init(void)
   {
     DIR dir;
     FILINFO info;
-#if _USE_LFN
-    info.lfname = LFN_BUF;
-#endif
+
+    MX_File_InfoLFN_Init(&info);
+
     /**< Open Dir:[0:/] */
     if ((f_err = f_opendir(&dir, "0:/")) != FR_OK)
     {
@@ -114,8 +110,11 @@ uint8_t usr_config_init(void)
     if ((f_err = f_closedir(&dir)) != FR_OK)
     {
       log_e("Can't Close Dir:%d", f_err);
+      MX_File_InfoLFN_DeInit(&info);
       return 1;
     }
+    MX_File_InfoLFN_DeInit(&info);
+
     /**< Bank number limits */
     if (STATIC_USR.filelimits.bank_max < USR.nBank)
     {
@@ -236,6 +235,9 @@ static uint8_t get_humsize(PARA_DYNAMIC_t *pt)
   return 0;
 }
 
+/**
+ * @note  分配将先释放之前分配的内存
+ */
 static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t *pt)
 {
   uint32_t mem_req = 0;
@@ -247,9 +249,8 @@ static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t 
   FILINFO info;
   char path[25];
   FRESULT f_err;
-#if _USE_LFN
-  info.lfname = LFN_BUF;
-#endif
+
+  MX_File_InfoLFN_Init(&info);
 
 get_trigger_again:
 
@@ -302,6 +303,7 @@ get_trigger_again:
   if ((f_err = f_opendir(&dir, path)) != FR_OK)
   {
     log_e("Open Bank%d Trigger%c Error:%d", Bank, triggerid + 'B', f_err);
+    MX_File_InfoLFN_DeInit(&info);
     return 1;
   }
   while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0')
@@ -331,6 +333,7 @@ get_trigger_again:
     goto get_trigger_again;
   }
 
+  MX_File_InfoLFN_DeInit(&info);
   return 0;
 }
 
