@@ -164,9 +164,10 @@ void StartDefaultTask(void const *argument)
         {
           osDelay(10);
           timeout += 10;
+
+          if (timeout >= max && Audio_IsPlayBankSwitch() == false)
+            H_BankSwitch();
         }
-        if (timeout >= max)
-          H_BankSwitch();
       }
 
       else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) > USR.config->ShakeOutG)

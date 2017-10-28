@@ -72,6 +72,7 @@ typedef enum _play_audio_id {
 int8_t Audio_Play_Start(Audio_ID_t id);
 int8_t Audio_Play_Stop(Audio_ID_t id);
 uint8_t Audio_IsSimplePlayIsReady(void);
+bool Audio_IsPlayBankSwitch(void);
 void Audio_Play_LOOP(void);
 
 #endif
