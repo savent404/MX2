@@ -52,6 +52,10 @@
 #define Trigger_E_name "Lockup"
 #endif
 
+#ifndef Trigger_F_name
+#define Trigger_F_name "Force"
+#endif
+
 #ifndef Trigger_IN_name
 #define Trigger_IN_name "In"
 #endif

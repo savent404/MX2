@@ -99,6 +99,7 @@ typedef struct _file_number_limits
   uint16_t trigger_C_max;
   uint16_t trigger_D_max;
   uint16_t trigger_E_max;
+  uint16_t trigger_F_max;
 } File_NumberLimits_t;
 
 typedef struct _usr_static_parameter
@@ -123,10 +124,11 @@ typedef struct _usr_dynamic_parameter
   uint8_t nBank;            /**< 定义SD卡中存在的Bank数 */
   HumSize_t *humsize;       /**< 定义每个循环音频文件有效数据量 */
   uint32_t *BankColor;      /**< 定义每个Bank的颜色，Bank色(2*uint32_t)+FBank色(2*uint32_t) */
-  TRIGGER_PATH_t *triggerB; /**< 定义每个Bank中TriggerB的信息 */
-  TRIGGER_PATH_t *triggerC; /**< 定义每个Bank中TriggerC的信息 */
-  TRIGGER_PATH_t *triggerD; /**< 定义每个Bank中TriggerD的信息 */
-  TRIGGER_PATH_t *triggerE; /**< 定义每个Bank中TriggerE的信息 */
+  TRIGGER_PATH_t *triggerB; /**< 定义当前Bank中TriggerB的信息 */
+  TRIGGER_PATH_t *triggerC; /**< 定义当前Bank中TriggerC的信息 */
+  TRIGGER_PATH_t *triggerD; /**< 定义当前Bank中TriggerD的信息 */
+  TRIGGER_PATH_t *triggerE; /**< 定义当前Bank中TriggerE的信息 */
+  TRIGGER_PATH_t *triggerF; /**< 定义当前Bank中TriggerF的信息 */
   TRIGGER_PATH_t *triggerIn;
   TRIGGER_PATH_t *triggerOut;
   Accent_t *accent;       /**< 简单LEDAccent配置信息 */

@@ -15,6 +15,7 @@ const PARA_STATIC_t STATIC_USR = {
         .trigger_C_max = 10,
         .trigger_D_max = 10,
         .trigger_E_max = 10,
+        .trigger_F_max = 10,
     }};
 
 static const char name_string[][10] = {
@@ -101,6 +102,7 @@ uint8_t usr_config_init(void)
   USR.triggerC = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
   USR.triggerD = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
   USR.triggerE = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
+  USR.triggerF = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
   USR.triggerIn = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
   USR.triggerOut = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t));
   log_i("malloc for USR structure cost %d", sizeof(HumSize_t) * USR.nBank + sizeof(USR_CONFIG_t) * USR.nBank + sizeof(TRIGGER_PATH_t) * 6 + sizeof(uint32_t) * 4 * USR.nBank);
@@ -144,7 +146,7 @@ uint8_t usr_config_init(void)
   }
 
   /**< 获取各Bank下TriggerX的信息，包括总数以及各文件的文件名 */
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 6; i++)
   {
     get_trigger_para(i, USR.bank_now + 1, &USR);
   }
@@ -233,11 +235,15 @@ get_trigger_again:
       pTriggerPath = pt->triggerE;
       break;
     case 4:
+      sprintf(path, "0://Bank%d/" TRIGGER(F), Bank);
+      pTriggerPath = pt->triggerF;
+      break;
+    case 5:
       sprintf(path, "0://Bank%d/" TRIGGER(IN), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(in);
       pTriggerPath = pt->triggerIn;
       break;
-    case 5:
+    case 6:
       sprintf(path, "0://Bank%d/" TRIGGER(OUT), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(out);
       pTriggerPath = pt->triggerOut;
