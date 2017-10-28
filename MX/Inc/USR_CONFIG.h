@@ -10,6 +10,7 @@
 #include "ff.h"
 #include "freeRTOS.h"
 #include "mx-config.h"
+#include "mx-file.h"
 #include "path.h"
 #include <stdbool.h>
 #include <stdint.h>

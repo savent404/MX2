@@ -67,4 +67,12 @@ bool MX_File_NeoPixel_CloseFile(MX_NeoPixel_Structure_t *pt);
  */
 bool MX_File_NeoPixel_GetLine(const MX_NeoPixel_Structure_t *pt, uint16_t line, void *buffer, size_t maxsize);
 
+
+// String.h 补全
+char *upper(char *src);
+#ifdef __GNUC__
+int strcasecmp(const char *src1, const char *src2);
+int strncasecmp(const char *src1, const char *src2, size_t num);
+#endif
+
 #endif

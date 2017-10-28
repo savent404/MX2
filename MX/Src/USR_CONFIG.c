@@ -21,14 +21,6 @@ const PARA_STATIC_t STATIC_USR = {
 static TCHAR LFN_BUF[120];
 #endif
 
-// 字符串函数 补全gcc未提供的一些字符串处理函数
-char *upper(char *src);
-#ifdef __GNUC__
-int strcasecmp(const char *src1, const char *src2);
-int strncasecmp(const char *src1,const char *src2, size_t num);
-
-#endif
-
 static const char name_string[][10] = {
     /**< Position:0~5  */
     "Vol", "Tpon", "Tpoff", "Tout", "Tin", "Ts_switch",
@@ -342,20 +334,6 @@ get_trigger_again:
   return 0;
 }
 
-#ifdef __GUNC__
-int strcasecmp(const char *src1, const char *src2)
-{
-  char *pt1 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1),
-       *pt2 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1);
-  strcpy(pt1, src1);
-  strcpy(pt2, src2);
-  int res = strcmp(upper(pt1), upper(pt2));
-  vPortFree(pt1);
-  vPortFree(pt2);
-  return res;
-}
-#endif
-
 static uint8_t __get_accent_para(char Bank, char *filepath, SimpleLED_Acction_t **pt)
 {
   FIL file;
@@ -447,25 +425,25 @@ static uint8_t get_accent_para(uint8_t Bank, PARA_DYNAMIC_t *pt)
   return 0;
 }
 
-char *upper(char *src)
-{
-  char *pt = src;
-  while (*pt)
-  {
-    if (*pt <= 'z' && *pt >= 'a')
-    {
-      *pt -= 'z' - 'Z';
-    }
-    pt += 1;
-  }
-  return src;
-}
-#ifdef __GNUC__
-int strncasecmp(const char *src1,const char *src2, size_t num)
-{
-  return strncmp(upper(src1), upper(src2), num);
-}
-#endif
+// char *upper(char *src)
+// {
+//   char *pt = src;
+//   while (*pt)
+//   {
+//     if (*pt <= 'z' && *pt >= 'a')
+//     {
+//       *pt -= 'z' - 'Z';
+//     }
+//     pt += 1;
+//   }
+//   return src;
+// }
+// #ifdef __GNUC__
+// int strncasecmp(const char *src1,const char *src2, size_t num)
+// {
+//   return strncmp(upper(src1), upper(src2), num);
+// }
+// #endif
 
 static int GetName(char *line, char *name)
 {

@@ -227,3 +227,36 @@ static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t le
     }
   }
 }
+
+char *upper(char *src)
+{
+  char *pt = src;
+  while (*pt)
+  {
+    if (*pt <= 'z' && *pt >= 'a')
+    {
+      *pt -= 'z' - 'Z';
+    }
+    pt += 1;
+  }
+  return src;
+}
+
+#ifdef __GNUC__
+int strcasecmp(const char *src1, const char *src2)
+{
+  char *pt1 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1),
+       *pt2 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1);
+  strcpy(pt1, src1);
+  strcpy(pt2, src2);
+  int res = strcmp(upper(pt1), upper(pt2));
+  vPortFree(pt1);
+  vPortFree(pt2);
+  return res;
+}
+
+int strncasecmp(const char *src1,const char *src2, size_t num)
+{
+  return strncmp(upper(src1), upper(src2), num);
+}
+#endif
