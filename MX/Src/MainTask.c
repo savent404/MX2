@@ -169,7 +169,7 @@ void StartDefaultTask(void const *argument)
           H_BankSwitch();
       }
 
-      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy*lisData.Dy + lisData.Dz*lisData.Dz) > USR.config->ShakeOutG)
+      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) > USR.config->ShakeOutG)
       {
         H_OUT();
       }
@@ -203,6 +203,17 @@ void StartDefaultTask(void const *argument)
       // User Key
       else if (key_status & 0x08)
       {
+        static bool triggerE_HoldFlag = false;
+
+        if (triggerE_HoldFlag)
+        {
+          triggerE_HoldFlag = false;
+          H_TriggerEOff();
+          while (!(key_scan() & 0x02))
+            osDelay(10);
+          break;
+        }
+
         uint16_t timeout = 0;
         while (!(key_scan() & 0x02))
         {
@@ -211,12 +222,20 @@ void StartDefaultTask(void const *argument)
 
           if (timeout >= USR.config->TEtrigger)
           {
+            uint16_t hold = 0;
             H_TriggerE();
             while (!(key_scan() & 0x02))
             {
               osDelay(10);
+              hold += 10;
             }
-            H_TriggerEOff();
+
+            if (hold < USR.config->LockupHold)
+              H_TriggerEOff();
+            else
+            {
+              triggerE_HoldFlag = true;
+            }
             break;
           }
         }
@@ -225,7 +244,7 @@ void StartDefaultTask(void const *argument)
           H_TriggerD();
         }
       }
-      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy*lisData.Dy + lisData.Dz*lisData.Dz) > USR.config->ShakeInG)
+      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) > USR.config->ShakeInG)
       {
         H_IN();
       }
