@@ -15,19 +15,8 @@ const PARA_STATIC_t STATIC_USR = {
         .trigger_C_max = 10,
         .trigger_D_max = 10,
         .trigger_E_max = 10,
+        .trigger_F_max = 10,
     }};
-
-#if _USE_LFN //使用Heap模式， 为Fatfs长文件名模式提供一个缓存
-static TCHAR LFN_BUF[120];
-#endif
-
-// 字符串函数 补全gcc未提供的一些字符串处理函数
-char *upper(char *src);
-#ifdef __GNUC__
-int strcasecmp(const char *src1, const char *src2);
-int strncasecmp(const char *src1,const char *src2, size_t num);
-
-#endif
 
 static const char name_string[][10] = {
     /**< Position:0~5  */
@@ -41,9 +30,11 @@ static const char name_string[][10] = {
     /**< Position:24~29 */
     "CH2_Delay", "CH3_Delay", "CH4_Delay", "T_Breath", "Out_Delay", "LEDMASK",
     /**< Position:30~35 */
-    "Unknow", "MD", "MT", "CD", "CT", "CL",
-    /**< Position:36 */
-    "CW"};
+    "DriverMode", "MD", "MT", "CD", "CT", "CL",
+    /**< Position:36~39*/
+    "CW", "Direction", "ShakeOutG", "ShakeInG",
+    /**< Position:40~42*/
+    "LockupHold", "Lowpower", "PowerSavingPerrecnts"};
 
 /** \brief 获取循环音频有效负载量
  *
@@ -98,49 +89,34 @@ uint8_t usr_config_init(void)
 {
   FRESULT f_err;
   FIL *file = (FIL *)pvPortMalloc(sizeof(FIL));
-  /**< 获取Bank数量 */
-  {
-    DIR dir;
-    FILINFO info;
-#if _USE_LFN
-    info.lfname = LFN_BUF;
-#endif
-    /**< Open Dir:[0:/] */
-    if ((f_err = f_opendir(&dir, "0:/")) != FR_OK)
-    {
-      log_e("Can't Open Dir(0:/):%d", f_err);
-      return 1;
-    }
-    /**< Get Number of Banks */
-    USR.nBank = 0;
-    while ((f_readdir(&dir, &info) == FR_OK) && info.fname[0] != '\0')
-    {
-      if ((info.fattrib & AM_DIR) && (info.fname[0] == 'B' || info.fname[0] == 'b'))
-        USR.nBank += 1;
-    }
-    /**< Close Dir */
-    if ((f_err = f_closedir(&dir)) != FR_OK)
-    {
-      log_e("Can't Close Dir:%d", f_err);
-      return 1;
-    }
-    /**< Bank number limits */
-    if (STATIC_USR.filelimits.bank_max < USR.nBank)
-    {
-      USR.nBank = STATIC_USR.filelimits.bank_max;
-    }
-  }
-  USR.humsize = (HumSize_t *)pvPortMalloc(sizeof(HumSize_t) * USR.nBank);
-  USR.config = (USR_CONFIG_t *)pvPortMalloc(sizeof(USR_CONFIG_t));
-  USR._config = (USR_CONFIG_t *)pvPortMalloc(sizeof(USR_CONFIG_t) * USR.nBank);
-  USR.BankColor = (uint32_t *)pvPortMalloc(sizeof(uint32_t) * 4 * USR.nBank);
-  USR.triggerB = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerC = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerD = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerE = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerIn = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
-  USR.triggerOut = (TRIGGER_PATH_t *)pvPortMalloc(sizeof(TRIGGER_PATH_t) * USR.nBank);
 
+  // 获取bank数量
+  USR.nBank = MX_File_SearchDir("0:/", "Bank", NULL);
+  if (STATIC_USR.filelimits.bank_max < USR.nBank)
+  {
+    USR.nBank = STATIC_USR.filelimits.bank_max;
+  }
+  uint32_t req_mem = 0;
+#define REQUES_MEM(sum, x) (sum += (x))
+
+  USR.humsize = (HumSize_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(HumSize_t) * USR.nBank));
+  USR.config = (USR_CONFIG_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(USR_CONFIG_t)));
+  USR._config = (USR_CONFIG_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(USR_CONFIG_t) * USR.nBank));
+  USR.BankColor = (uint32_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(uint32_t) * 6 * USR.nBank));
+  USR.triggerB = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerC = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerD = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerE = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerF = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerIn = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerIn_X = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerIn_Y = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerIn_Z = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerOut = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerOut_X = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerOut_Y = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.triggerOut_Z = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  log_i("malloc for USR structure cost %d", req_mem);
   /**< 获取Hum 有效负载 */
   if (get_humsize(&USR))
   {
@@ -163,13 +139,12 @@ uint8_t usr_config_init(void)
     return 1;
   }
 
-  int i;
-  for (i = 0; i < USR.nBank; i++)
+  for (int i = 0; i < USR.nBank; i++)
   {
     memcpy(USR._config + i, USR.config, sizeof(USR_CONFIG_t));
   }
   vPortFree(USR.config);
-  for (i = 0; i < USR.nBank; i++)
+  for (int i = 0; i < USR.nBank; i++)
   {
     char path[20];
     sprintf(path, "0:/Bank%d/" REPLACE_NAME, i + 1);
@@ -181,27 +156,10 @@ uint8_t usr_config_init(void)
     f_close(file);
   }
 
-  /**< 获取各Bank下TriggerX的信息，包括总数以及各文件的文件名 */
-  for (uint8_t nBank = 0; nBank < USR.nBank; nBank++)
+  /**< 获取当前Bank下TriggerX的信息，包括总数以及各文件的文件名 */
+  for (int i = 0; i < 12; i++)
   {
-    f_err = get_trigger_para(0, nBank + 1, &USR); //Trigger B
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(1, nBank + 1, &USR); //Trigger C
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(2, nBank + 1, &USR); //Trigger D
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(3, nBank + 1, &USR); //Trigger E
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(4, nBank + 1, &USR); //Trigger In
-    if (f_err)
-      return f_err;
-    f_err = get_trigger_para(5, nBank + 1, &USR); //Trigger Out
-    if (f_err)
-      return f_err;
+    get_trigger_para(i, USR.bank_now + 1, &USR);
   }
 
   /**< 获取每个bank中的Accent.txt, 包括动作延时时间以及动作信息 */
@@ -244,6 +202,9 @@ static uint8_t get_humsize(PARA_DYNAMIC_t *pt)
   return 0;
 }
 
+/**
+ * @note  分配将先释放之前分配的内存
+ */
 static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t *pt)
 {
   uint32_t mem_req = 0;
@@ -255,9 +216,8 @@ static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t 
   FILINFO info;
   char path[25];
   FRESULT f_err;
-#if _USE_LFN
-  info.lfname = LFN_BUF;
-#endif
+
+  MX_File_InfoLFN_Init(&info);
 
 get_trigger_again:
 
@@ -268,52 +228,103 @@ get_trigger_again:
     case 0:
       sprintf(path, "0://Bank%d/" TRIGGER(B), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(B);
-      pTriggerPath = pt->triggerB + Bank - 1;
+      pTriggerPath = pt->triggerB;
       break;
     case 1:
       sprintf(path, "0://Bank%d/" TRIGGER(C), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(C);
-      pTriggerPath = pt->triggerC + Bank - 1;
+      pTriggerPath = pt->triggerC;
       break;
     case 2:
       sprintf(path, "0://Bank%d/" TRIGGER(D), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(D);
-      pTriggerPath = pt->triggerD + Bank - 1;
+      pTriggerPath = pt->triggerD;
       break;
     case 3:
       sprintf(path, "0://Bank%d/" TRIGGER(E), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(E);
-      pTriggerPath = pt->triggerE + Bank - 1;
+      pTriggerPath = pt->triggerE;
       break;
     case 4:
-      sprintf(path, "0://Bank%d/" TRIGGER(IN), Bank);
-      max_trigger_cnt = TRIGGER_MAX_NUM(in);
-      pTriggerPath = pt->triggerIn + Bank - 1;
+      sprintf(path, "0://Bank%d/" TRIGGER(F), Bank);
+      pTriggerPath = pt->triggerF;
       break;
     case 5:
+      sprintf(path, "0://Bank%d/" TRIGGER(IN), Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(in);
+      pTriggerPath = pt->triggerIn;
+      break;
+    case 6:
+      sprintf(path, "0://Bank%d/" TRIGGER(IN) "/X", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(in_x);
+      pTriggerPath = pt->triggerIn_X;
+      break;
+    case 7:
+      sprintf(path, "0://Bank%d/" TRIGGER(IN) "/Y", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(in_y);
+      pTriggerPath = pt->triggerIn_Y;
+      break;
+    case 8:
+      sprintf(path, "0://Bank%d/" TRIGGER(IN) "/Z", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(in_z);
+      pTriggerPath = pt->triggerIn_Z;
+      break;
+
+    case 9:
       sprintf(path, "0://Bank%d/" TRIGGER(OUT), Bank);
       max_trigger_cnt = TRIGGER_MAX_NUM(out);
-      pTriggerPath = pt->triggerOut + Bank - 1;
+      pTriggerPath = pt->triggerOut;
+      break;
+    case 10:
+      sprintf(path, "0://Bank%d/" TRIGGER(OUT) "/X", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(out_x);
+      pTriggerPath = pt->triggerOut_X;
+      break;
+    case 11:
+      sprintf(path, "0://Bank%d/" TRIGGER(OUT) "/Y", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(out_y);
+      pTriggerPath = pt->triggerOut_Y;
+      break;
+    case 12:
+      sprintf(path, "0://Bank%d/" TRIGGER(OUT) "/Z", Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(out_z);
+      pTriggerPath = pt->triggerOut_Z;
       break;
     }
+    vPortFree(pTriggerPath->path_arry);
+    vPortFree(pTriggerPath->path_ptr);
   }
   else
   {
     pTriggerPath->number = trigger_cnt;
     pTriggerPath->path_arry = (char *)pvPortMalloc(sizeof(char) * mem_req);
     pTriggerPath->path_ptr = (char **)pvPortMalloc(sizeof(char *) * trigger_cnt);
-  }
 
+    log_i("malloc for %s cost %d", path, mem_req + sizeof(char *) * trigger_cnt);
+  }
   trigger_cnt = 0;
   mem_req = 0;
 
   if ((f_err = f_opendir(&dir, path)) != FR_OK)
   {
     log_e("Open Bank%d Trigger%c Error:%d", Bank, triggerid + 'B', f_err);
+    MX_File_InfoLFN_DeInit(&info);
     return 1;
   }
   while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0')
   {
+    char *pt = info.lfname[0] != 0 ? info.lfname : info.fname;
+
+    if (info.fattrib & AM_DIR)
+      continue;
+
+    char buf[5];
+    int pos = strlen(pt);
+    if (pos < 4)
+      continue;
+    strncpy(buf, pt + pos - 4, 4);
+    if (strncasecmp(buf, ".wav", 4))
+      continue;
     // Trigger number limits
     if (trigger_cnt >= max_trigger_cnt)
       break;
@@ -339,22 +350,9 @@ get_trigger_again:
     goto get_trigger_again;
   }
 
+  MX_File_InfoLFN_DeInit(&info);
   return 0;
 }
-
-#ifdef __GUNC__
-int strcasecmp(const char *src1, const char *src2)
-{
-  char *pt1 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1),
-       *pt2 = (char *)pvPortMalloc(strlen(src1) * sizeof(char) + 1);
-  strcpy(pt1, src1);
-  strcpy(pt2, src2);
-  int res = strcmp(upper(pt1), upper(pt2));
-  vPortFree(pt1);
-  vPortFree(pt2);
-  return res;
-}
-#endif
 
 static uint8_t __get_accent_para(char Bank, char *filepath, SimpleLED_Acction_t **pt)
 {
@@ -447,25 +445,25 @@ static uint8_t get_accent_para(uint8_t Bank, PARA_DYNAMIC_t *pt)
   return 0;
 }
 
-char *upper(char *src)
-{
-  char *pt = src;
-  while (*pt)
-  {
-    if (*pt <= 'z' && *pt >= 'a')
-    {
-      *pt -= 'z' - 'Z';
-    }
-    pt += 1;
-  }
-  return src;
-}
-#ifdef __GNUC__
-int strncasecmp(const char *src1,const char *src2, size_t num)
-{
-  return strncmp(upper(src1), upper(src2), num);
-}
-#endif
+// char *upper(char *src)
+// {
+//   char *pt = src;
+//   while (*pt)
+//   {
+//     if (*pt <= 'z' && *pt >= 'a')
+//     {
+//       *pt -= 'z' - 'Z';
+//     }
+//     pt += 1;
+//   }
+//   return src;
+// }
+// #ifdef __GNUC__
+// int strncasecmp(const char *src1,const char *src2, size_t num)
+// {
+//   return strncmp(upper(src1), upper(src2), num);
+// }
+// #endif
 
 static int GetName(char *line, char *name)
 {
@@ -473,12 +471,17 @@ static int GetName(char *line, char *name)
   if (!strncasecmp(line, "BANK", 4))
   {
     sscanf(line, "%*[ BANKbank]%d", &res);
-    return res;
+    return res * 3 + 0;
   }
   else if (!strncasecmp(line, "FBANK", 5))
   {
     sscanf(line, "%*[ FBANKfbank]%d", &res);
-    return -res;
+    return res * 3 + 1;
+  }
+  else if (!strncasecmp(line, "LBANK", 5))
+  {
+    sscanf(line, "%*[ LBANKlbank]%d", &res);
+    return res * 3 + 2;
   }
   while (*line != '=')
   {
@@ -530,6 +533,13 @@ static void set_config(PARA_DYNAMIC_t *pt)
   pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
   pt->config->Out_Delay = 200; //Out 循环音延时200ms
   pt->config->SimpleLED_MASK = 0xFF;
+  pt->config->DriverMode = 0;
+  pt->config->Direction = 0;
+  pt->config->ShakeOutG = 0;
+  pt->config->ShakeInG = 0;
+  pt->config->LockupHold = 0;
+  pt->config->Lowpower = STATIC_USR.vol_warning;
+  pt->config->PowerSavingPerrecnts = 0;
 }
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
 {
@@ -539,24 +549,37 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
   while ((spt = f_gets(sbuffer, 50, file)) != 0)
   {
     int8_t res = GetName(spt, name);
-    if (res > 0)
+    if (res > 0 && res % 3 == 0)
     {
+      res = res / 3;
       uint16_t buf[4];
       if (res > USR.nBank)
         continue;
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
-      pt->BankColor[res * 4 + 0 - 4] = *(uint32_t *)(buf + 0);
-      pt->BankColor[res * 4 + 1 - 4] = *(uint32_t *)(buf + 2);
+      pt->BankColor[res * 6 + 0 - 6] = *(uint32_t *)(buf + 0);
+      pt->BankColor[res * 6 + 1 - 6] = *(uint32_t *)(buf + 2);
       continue;
     }
-    else if (res < 0)
+    else if (res > 0 && res % 3 == 1)
     {
+      res = (res - 1) / 3;
       uint16_t buf[4];
-      if (-res > USR.nBank)
+      if (res > USR.nBank)
         continue;
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
-      pt->BankColor[-1 * res * 4 + 2 - 4] = *(uint32_t *)(buf + 0);
-      pt->BankColor[-1 * res * 4 + 3 - 4] = *(uint32_t *)(buf + 2);
+      pt->BankColor[res * 6 + 2 - 6] = *(uint32_t *)(buf + 0);
+      pt->BankColor[res * 6 + 3 - 6] = *(uint32_t *)(buf + 2);
+      continue;
+    }
+    else if (res > 0 && res % 3 == 2)
+    {
+      res = (res - 2) / 3;
+      uint16_t buf[4];
+      if (res > USR.nBank)
+        continue;
+      sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
+      pt->BankColor[res * 6 + 4 - 6] = *(uint32_t *)(buf + 0);
+      pt->BankColor[res * 6 + 5 - 6] = *(uint32_t *)(buf + 2);
       continue;
     }
     for (res = 0; res < sizeof(name_string) / 10; res++)
@@ -656,7 +679,9 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
     case 29:
       sscanf(spt, "%*[^=]=%*[^xX]%*c%x", &(pt->config->SimpleLED_MASK));
       break;
-    /*case 30: sscanf(spt,"%*[^=]=%d", &(pt->config->Ch));break;*/
+    case 30:
+      sscanf(spt, "%*[^=]=%d", &(pt->config->DriverMode));
+      break;
     case 31:
       sscanf(spt, "%*[^=]=%hd", &(pt->config->MD));
       break;
@@ -674,6 +699,24 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       break;
     case 36:
       sscanf(spt, "%*[^=]=%hd", &(pt->config->CW));
+      break;
+    case 37:
+      sscanf(spt, "%*[^=]=%d", &(pt->config->Direction));
+      break;
+    case 38:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->ShakeOutG));
+      break;
+    case 39:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->ShakeInG));
+      break;
+    case 40:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->LockupHold));
+      break;
+    case 41:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->Lowpower));
+      break;
+    case 42:
+      sscanf(spt, "%*[^=]=%hd", &(pt->config->PowerSavingPerrecnts));
       break;
     }
   }

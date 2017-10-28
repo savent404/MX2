@@ -10,6 +10,7 @@
 #include "ff.h"
 #include "freeRTOS.h"
 #include "mx-config.h"
+#include "mx-file.h"
 #include "path.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -28,7 +29,7 @@ typedef enum {
 
 typedef struct _usr_config_structure
 {
-  uint8_t Vol; //音量设置(0无声，1小声，2中等，3大声)
+  uint8_t Vol; //音量设置(16级)
 
   uint16_t Tpon;      //关机转待机，Main按钮延时触发值，单位ms,
   uint16_t Tpoff;     //待机转关机，Main按钮延时触发值，单位ms,
@@ -71,6 +72,21 @@ typedef struct _usr_config_structure
   uint16_t T_Breath; //LMode 呼吸延时
 
   uint16_t Out_Delay; // 触发Out时， 延时Hum播放时间
+
+  uint8_t DriverMode; // 确认是否使用PWM-LED(0) or NEO-LED(1), 原始版本固定为0
+
+  uint8_t Direction; // 方向识别模式下(1), 触发'in'以及'out'需判断加速度轴方向，后播放相应目录下的x,y,z
+
+  uint16_t ShakeOutG; // 值为0时不开启， 不为0时代表加速度阈值，超过阈值这触发'out'
+  uint16_t ShakeInG;  // 值为0时不开启， 不为0时代表加速度阈值，超过阈值这触发'in'
+
+  uint16_t LockupHold; //TriggerE的延时触发，单位毫秒。
+                       // 值为0则功能关闭， 当计数器小于LockupHold时松开Aux即恢复运行态
+                       // 大于LockupHold是，Aux松开仍保持TriggerE模式，直至下一次Aux被触发
+
+  uint16_t Lowpower;             //报警电压
+  uint16_t PowerSavingPerrecnts; //值为0，不开启
+                                 // 最大值为50， 触发电压报警后， LED亮度以及音量变为 “设定值x(100 - PowerSavingPerecnt)"
 } USR_CONFIG_t;
 
 // 小型LED动作
@@ -98,6 +114,13 @@ typedef struct _file_number_limits
   uint16_t trigger_C_max;
   uint16_t trigger_D_max;
   uint16_t trigger_E_max;
+  uint16_t trigger_F_max;
+  uint16_t trigger_in_x_max;
+  uint16_t trigger_in_y_max;
+  uint16_t trigger_in_z_max;
+  uint16_t trigger_out_x_max;
+  uint16_t trigger_out_y_max;
+  uint16_t trigger_out_z_max;
 } File_NumberLimits_t;
 
 typedef struct _usr_static_parameter
@@ -122,12 +145,19 @@ typedef struct _usr_dynamic_parameter
   uint8_t nBank;            /**< 定义SD卡中存在的Bank数 */
   HumSize_t *humsize;       /**< 定义每个循环音频文件有效数据量 */
   uint32_t *BankColor;      /**< 定义每个Bank的颜色，Bank色(2*uint32_t)+FBank色(2*uint32_t) */
-  TRIGGER_PATH_t *triggerB; /**< 定义每个Bank中TriggerB的信息 */
-  TRIGGER_PATH_t *triggerC; /**< 定义每个Bank中TriggerC的信息 */
-  TRIGGER_PATH_t *triggerD; /**< 定义每个Bank中TriggerD的信息 */
-  TRIGGER_PATH_t *triggerE; /**< 定义每个Bank中TriggerE的信息 */
+  TRIGGER_PATH_t *triggerB; /**< 定义当前Bank中TriggerB的信息 */
+  TRIGGER_PATH_t *triggerC; /**< 定义当前Bank中TriggerC的信息 */
+  TRIGGER_PATH_t *triggerD; /**< 定义当前Bank中TriggerD的信息 */
+  TRIGGER_PATH_t *triggerE; /**< 定义当前Bank中TriggerE的信息 */
+  TRIGGER_PATH_t *triggerF; /**< 定义当前Bank中TriggerF的信息 */
   TRIGGER_PATH_t *triggerIn;
+  TRIGGER_PATH_t *triggerIn_X;
+  TRIGGER_PATH_t *triggerIn_Y;
+  TRIGGER_PATH_t *triggerIn_Z;
   TRIGGER_PATH_t *triggerOut;
+  TRIGGER_PATH_t *triggerOut_X;
+  TRIGGER_PATH_t *triggerOut_Y;
+  TRIGGER_PATH_t *triggerOut_Z;
   Accent_t *accent;       /**< 简单LEDAccent配置信息 */
   USR_CONFIG_t *config;   /**< 用户config文本配置信息 */
   USR_CONFIG_t *_config;  /**< 各Bank的配置信息 */

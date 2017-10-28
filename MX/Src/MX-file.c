@@ -118,56 +118,56 @@ static bool isChara(int a)
 
 bool MX_File_GetRandFileName(const char *dir, const int num, char *filename)
 {
-	static DIR d;
-	static FILINFO info;
-	FRESULT res;
-	int total_num = 0;
+  static DIR d;
+  static FILINFO info;
+  FRESULT res;
+  int total_num = 0;
 
-	if ((res = f_opendir(&d, dir)) != FR_OK)
-	{
-		log_w("can't open dir(%s):%d", dir, (int)res);
-		return false;
-	}
+  if ((res = f_opendir(&d, dir)) != FR_OK)
+  {
+    log_w("can't open dir(%s):%d", dir, (int)res);
+    return false;
+  }
 
-	while ((res = f_readdir(&d, &info)) == FR_OK)
-		if (info.fattrib & AM_DIR == 0)
-			total_num++;
+  while ((res = f_readdir(&d, &info)) == FR_OK)
+    if (info.fattrib & AM_DIR == 0)
+      total_num++;
 
-	if ((res = f_closedir(&d)) != FR_OK)
-	{
-		log_e("can't close dir(%s):%d", dir, (int)res);
-		return false;
-	}
+  if ((res = f_closedir(&d)) != FR_OK)
+  {
+    log_e("can't close dir(%s):%d", dir, (int)res);
+    return false;
+  }
 
-	if (num && total_num > num)
-		total_num = num;
+  if (num && total_num > num)
+    total_num = num;
 
-	total_num = rand() % total_num;
+  total_num = rand() % total_num;
 
-	if ((res = f_opendir(&d, dir)) != FR_OK)
-	{
-		log_w("can't open dir(%s):%d", dir, (int)res);
-		return false;
-	}
+  if ((res = f_opendir(&d, dir)) != FR_OK)
+  {
+    log_w("can't open dir(%s):%d", dir, (int)res);
+    return false;
+  }
 
-	for (int i = 0; i < total_num; )
-	{
-		f_readdir(&d, &info);
-		if (info.fattrib & AM_DIR == 0)
-			i++;
-	}
+  for (int i = 0; i < total_num;)
+  {
+    f_readdir(&d, &info);
+    if (info.fattrib & AM_DIR == 0)
+      i++;
+  }
 
-	if ((res = f_closedir(&d)) != FR_OK)
-	{
-		log_e("can't close dir(%s):%d", dir, (int)res);
-		return false;
-	}
+  if ((res = f_closedir(&d)) != FR_OK)
+  {
+    log_e("can't close dir(%s):%d", dir, (int)res);
+    return false;
+  }
 
-	filename[0] = '\0';
+  filename[0] = '\0';
 
-	strcpy(filename, info.fname);
+  strcpy(filename, info.fname);
 
-	return true;
+  return true;
 }
 
 static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t len)
@@ -227,3 +227,218 @@ static void keycatch(MX_NeoPixel_Structure_t *pt, const char *buffer, uint8_t le
     }
   }
 }
+
+// fatfs 搜索补全
+/**
+ * @brief  搜索匹配文件数量
+ * @param  -dirpath 需搜索的文件夹路径
+ * @param  -prefix  匹配文件名前缀
+ * @param  -subfix  匹配文件名后缀
+ * @note   不会递归搜索子文件夹
+ * @retvl  匹配文件数量
+ */
+int MX_File_SearchFile(const char *dirpath, const char *prefix, const char *suffix)
+{
+  DIR dir;
+  FILINFO info;
+  FRESULT res;
+  uint8_t preLen = strlen(prefix);
+  uint8_t sufLen = strlen(suffix);
+  uint8_t cnt = 0;
+
+  char *sufBuf = suffix != 0 ? (char *)pvPortMalloc(sizeof(char) * (sufLen + 1)) : NULL;
+
+  MX_File_InfoLFN_Init(&info);
+
+  do
+  {
+    res = f_opendir(&dir, dirpath);
+    if (res != FR_OK)
+    {
+      log_w("can't open dir(%s):%d", dirpath, (int)res);
+      break;
+    }
+
+    while (f_readdir(&dir, &info) == FR_OK && info.fname[0] != 0)
+    {
+      char *pt = info.lfname[0] != 0 ? info.lfname : info.fname;
+
+      if ((info.fattrib & AM_DIR))
+        continue;
+
+      if (preLen && (strncasecmp(prefix, pt, preLen)))
+      {
+        continue;
+      }
+      if (sufLen)
+      {
+        int pos = strlen(pt);
+        if (pt < sufLen)
+          continue;
+        strncpy(sufBuf, pt + pos - sufLen - 1, sufLen);
+        if (strncasecmp(sufBuf, suffix, sufLen))
+          continue;
+      }
+      cnt += 1;
+    }
+
+    res = f_closedir(&dir);
+    if (res != FR_OK)
+    {
+      log_w("can't close dir(%s):%d", dirpath, (int)res);
+      break;
+    }
+  } while (0);
+
+  MX_File_InfoLFN_DeInit(&info);
+  vPortFree(sufBuf);
+  return cnt;
+}
+/**
+ * @brief  搜索匹配文件夹数量
+ * @param  -subdir 需搜索的文件夹路径
+ * @param  -prefix 匹配文件夹名前缀
+ * @param  -subfix 匹配文件夹名后缀
+ * @note   不会递归搜索子文件夹
+ * @retvl  匹配文件夹数量
+ */
+int MX_File_SearchDir(const char *subdir, const char *prefix, const char *suffix)
+{
+  DIR dir;
+  FILINFO info;
+  FRESULT res;
+  uint8_t preLen = strlen(prefix);
+  uint8_t sufLen = strlen(suffix);
+  uint8_t cnt = 0;
+
+  char *sufBuf = suffix != 0 ? (char *)pvPortMalloc(sizeof(char) * (sufLen + 1)) : NULL;
+
+  MX_File_InfoLFN_Init(&info);
+
+  do
+  {
+    res = f_opendir(&dir, subdir);
+    if (res != FR_OK)
+    {
+      log_w("can't open dir(%s):%d", subdir, (int)res);
+      break;
+    }
+
+    while (f_readdir(&dir, &info) == FR_OK && info.fname[0] != 0)
+    {
+      char *pt = info.lfname[0] != 0 ? info.lfname : info.fname;
+
+      if (!(info.fattrib & AM_DIR))
+        continue;
+
+      if (preLen && (strncasecmp(prefix, pt, preLen)))
+      {
+        continue;
+      }
+      if (sufLen)
+      {
+        int pos = strlen(pt);
+        if (pt < sufLen)
+          continue;
+        strncpy(sufBuf, pt + pos - sufLen - 1, sufLen);
+        if (strncasecmp(sufBuf, suffix, sufLen))
+          continue;
+      }
+      cnt += 1;
+    }
+
+    res = f_closedir(&dir);
+    if (res != FR_OK)
+    {
+      log_w("can't close dir(%s):%d", subdir, (int)res);
+      break;
+    }
+  } while (0);
+
+  MX_File_InfoLFN_DeInit(&info);
+  vPortFree(sufBuf);
+  return cnt;
+}
+
+// fatfs LFN支持
+static int lfn_cnt = 0;
+void MX_File_InfoLFN_Init(FILINFO *info)
+{
+#if _USE_LFN
+  info->lfname = (TCHAR *)pvPortMalloc(sizeof(TCHAR) * 120);
+  if (info->lfname == NULL)
+    log_e("no enough mem");
+  else
+    lfn_cnt += 1;
+#endif
+}
+void MX_File_InfoLFN_DeInit(FILINFO *info)
+{
+#if _USE_LFN
+  if (lfn_cnt == 0)
+    log_e("free a none malloc pt");
+  lfn_cnt -= 1;
+  vPortFree(info->lfname);
+#endif
+}
+
+// String.h 补全
+char *upper(char *src)
+{
+  char *pt = src;
+  while (*pt)
+  {
+    if (*pt <= 'z' && *pt >= 'a')
+    {
+      *pt -= 'z' - 'Z';
+    }
+    pt += 1;
+  }
+  return src;
+}
+
+#ifdef __GNUC__
+static char strpt1[20];
+static char strpt2[20];
+int strcasecmp(const char *src1, const char *src2)
+{
+  __IO static bool flag = false;
+
+  while (flag)
+    ;
+  flag = true;
+
+  char *pt1, *pt2;
+
+  pt1 = strpt1;
+  pt2 = strpt2;
+
+  strcpy(strpt1, src1);
+  strcpy(strpt2, src2);
+  int res = strcmp(upper(strpt1), upper(strpt2));
+
+  flag = false;
+  return res;
+}
+
+int strncasecmp(const char *src1, const char *src2, size_t num)
+{
+  __IO static bool flag = false;
+
+  while (flag)
+    ;
+  flag = true;
+
+  char *pt1, *pt2;
+
+  pt1 = strpt1;
+  pt2 = strpt2;
+
+  strcpy(strpt1, src1);
+  strcpy(strpt2, src2);
+  int res = strncmp(upper(strpt1), upper(strpt2), num);
+
+  flag = false;
+  return res;
+}
+#endif
