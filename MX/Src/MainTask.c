@@ -56,6 +56,11 @@ static void H_LowPower(void);
 static void H_Recharge(void);
 static void H_Charged(void);
 static void H_Charging(void);
+static void H_PlayerEnter(void);
+static void H_PlayerExit(void);
+static void H_PlayerStart(void);
+static void H_PlayerStop(void);
+static void H_PlayerSwitch(void);
 
 static void filesystem_init(void);
 static uint8_t key_scan(void);
@@ -131,6 +136,14 @@ void StartDefaultTask(void const *argument)
         uint16_t timeout = 0;
         uint16_t max = USR.config->Tpoff > USR.config->Tout ? USR.config->Tpoff : USR.config->Tout;
         uint16_t min = USR.config->Tpoff > USR.config->Tout ? USR.config->Tout : USR.config->Tpoff;
+        static uint8_t click_cnt = 0;
+        static uint32_t tick_stick = 0;
+
+        if (click_cnt == 0)
+        {
+          tick_stick = osKernelSysTick();
+        }
+
         //Wait for POWER Key rising
         while (!(key_scan() & 0x01) && (timeout < max))
         {
@@ -153,6 +166,17 @@ void StartDefaultTask(void const *argument)
             }
             H_OUT();
           }
+        }
+        else
+        {
+          tick_stick += 1;
+        }
+
+        // into Player mode
+        if (tick_stick == 3 && (osKernelSysTick() - tick_stick < osKernelSysTickFrequency * 1))
+        {
+          tick_stick = 0;
+          H_PlayerEnter();
         }
       }
       /**< User Key down */
@@ -252,6 +276,39 @@ void StartDefaultTask(void const *argument)
       move_detected();
     }
 
+    else if (USR.sys_status == System_Player)
+    {
+      /**< Power Key down*/
+      if (key_status & 0x04)
+      {
+        static uint32_t tick_cnt[3] = {0, 0, 0};
+
+        tick_cnt[0] = tick_cnt[1];
+        tick_cnt[1] = tick_cnt[2];
+        tick_cnt[2] = osKernelSysTick();
+
+        if (tick_cnt[0] != 0 && (tick_cnt[2] - tick_cnt[0] < osKernelSysTickFrequency))
+        {
+          H_PlayerExit();
+        }
+        else
+        {
+          if (Audio_IsSimplePlayIsReady())
+          {
+            H_PlayerStart();
+          }
+          else
+          {
+            H_PlayerStop();
+          }
+        }
+      }
+      /**< User Key down */
+      else if (key_status & 0x08)
+      {
+        H_PlayerSwitch();
+      }
+    }
     else if (USR.sys_status == System_Charged)
     {
     }
@@ -321,11 +378,13 @@ void StartDefaultTask(void const *argument)
  * @Brief 自动关机/待机功能
  * @Para  ready_cnt 运行态转待机的计时器
  * @Para  poweroff_cnt 待机态转关机的计时器
+ * @Para  player_cnt 播放器模式的计时器
  * @Retvl 0-No trigger | 1-转待机 | 2-转关机
  */
 static uint8_t auto_off(uint32_t *ready_cnt, uint32_t *poweroff_cnt)
 {
-  if (USR.sys_status == System_Ready)
+  if (USR.sys_status == System_Ready ||
+      (USR.sys_status == System_Player && Audio_IsSimplePlayIsReady()))
   {
     *poweroff_cnt += LOOP_DELAY;
     if (*poweroff_cnt >= USR.config->Tautooff && USR.config->Tautooff != 0)
@@ -702,4 +761,31 @@ static void H_ColorSwitch(void)
   USR.bank_color += 1;
   // LED_Bank_Update(&USR);
   Audio_Play_Start(Audio_ColorSwitch);
+}
+static void H_PlayerEnter(void)
+{
+  log_v("player enter");
+  Audio_Play_Start(Audio_Player_Enter);
+  USR.sys_status = System_Player;
+}
+static void H_PlayerExit(void)
+{
+  log_v("player exit");
+  Audio_Play_Start(Audio_Player_Exit);
+  USR.sys_status = System_Ready;
+}
+static void H_PlayerStart(void)
+{
+  log_v("player start");
+  Audio_Play_Start(Audio_Player_Start);
+}
+static void H_PlayerStop(void)
+{
+  log_v("player stop");
+  Audio_Play_Start(Audio_Player_Stop);
+}
+static void H_PlayerSwitch(void)
+{
+  log_v("player switch");
+  Audio_Play_Start(Audio_Player_Switch);
 }

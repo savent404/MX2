@@ -15,6 +15,7 @@
 #include "main.h"
 #include "mx-audio.h"
 #include "mx-config.h"
+#include "mx-file.h"
 #include "path.h"
 
 #if AUDIO_SOFTMIX
@@ -59,6 +60,12 @@ typedef enum _play_audio_id {
   Audio_Humi = 0x13,
   Audio_TriggerE = 0x14,
   Audio_BankSwitch = 0x15,
+  Audio_Player_Start = 0x16,
+  Audio_Player_Stop = 0x17,
+  Audio_Player_Enter = 0x18,
+  Audio_Player_Exit = 0x19,
+  Audio_Player_Switch = 0x1a,
+  Audio_ID_NULL
 } Audio_ID_t;
 
 #define PRI_TRIGGER_B 3

@@ -76,6 +76,18 @@ bool MX_File_NeoPixel_GetLine(const MX_NeoPixel_Structure_t *pt, uint16_t line, 
  * @retvl  匹配文件数量
  */
 int MX_File_SearchFile(const char *dirpath, const char *prefix, const char *suffix);
+
+/**
+ * @brief  获取第'rank'个匹配文件的文件名
+ * @param  -dirpath 需搜索的文件夹路径
+ * @param  -prefix  匹配文件名前缀
+ * @param  -subfix  匹配文件名后缀
+ * @param  -rank    匹配第rank个文件(0 开始)
+ * @param  -name    获取的文件名
+ * @param  -maxStrlen 最大文件名长度
+ * @note   不会递归搜索子文件夹
+ */
+bool MX_File_SearchFileName(const char *dirpath, const char *prefix, const char *suffix, uint16_t rank, char *name, uint8_t maxStrLen);
 /**
  * @brief  搜索匹配文件夹数量
  * @param  -subdir 需搜索的文件夹路径

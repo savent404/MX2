@@ -20,6 +20,7 @@ static void Play_TriggerE(void);
 static void Play_TriggerE_END(void);
 static void Play_RunningLOOP(void);
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri);
+static osEvent Play_PlayerWave(const char *path);
 static void play_a_buffer(uint16_t buffer_pos);
 static FRESULT read_a_buffer(FIL *fpt, const TCHAR *path, void *buffer, UINT *seek);
 static void SoftMix(int16_t *, int16_t *);
@@ -88,7 +89,8 @@ void Wav_Task(void const *argument)
   {
     osEvent evt;
     /**< 当不在运行态时音频的播放使用简单模式 */
-    if (USR.sys_status != System_Running)
+    if (USR.sys_status != System_Running &&
+        USR.sys_status != System_Player)
     {
 
       evt = osMessageGet(DAC_CMDHandle, osWaitForever);
@@ -98,6 +100,14 @@ void Wav_Task(void const *argument)
 
       /**< 由于运行态会产生两段音频同时播放的情况，特殊处理 */
     }
+
+    /**< 播放器模式 */
+    else if (USR.sys_status == System_Player)
+    {
+      log_w("TODO, unknow opration");
+    }
+
+    /**< 运行模式 */
     else
     {
 
@@ -112,6 +122,7 @@ void Wav_Task(void const *argument)
         continue;
       }
     }
+  INTER_MESSAGE:
 
     if (USR.sys_status == System_Restart || USR.sys_status == System_Ready)
     {
@@ -136,13 +147,59 @@ void Wav_Task(void const *argument)
         break;
       case Audio_BankSwitch:
       {
+
         char path[25];
         sprintf(path, "0:/Bank%d/BankSwitch.wav", USR.bank_now + 1);
         isPlaySwitch = true;
         Play_simple_wav(path);
         isPlaySwitch = false;
+        break;
       }
-      break;
+      }
+    }
+    else if (USR.sys_status == System_Player)
+    {
+      static uint16_t audio_player_pos = 0;
+      static uint16_t audio_player_num = 0;
+
+      switch (evt.value.v)
+      {
+      case Audio_Player_Enter:
+      {
+        char path[] = "0:/Player.wav";
+        audio_player_num = MX_File_SearchFile("0:/", "Multimedia", ".wav");
+        audio_player_pos = 0;
+        Play_simple_wav(path);
+        break;
+      }
+      case Audio_Player_Exit:
+        break;
+      case Audio_Player_Start:
+      {
+        char path[50];
+        if (MX_File_SearchFileName("0:/",
+                                   "Multimedia",
+                                   ".wav",
+                                   audio_player_pos,
+                                   path,
+                                   50))
+        {
+          evt = Play_PlayerWave(path);
+          audio_player_pos += 1;
+          audio_player_pos %= audio_player_num;
+          if (evt.status == osEventMessage)
+            goto INTER_MESSAGE;
+        }
+        break;
+      }
+      case Audio_Player_Stop:
+      case Audio_Player_Switch:
+        log_w("TODO, unknow opration");
+        break;
+
+      default:
+        log_e("unknow audio message:%d", (int)evt.value.v);
+        break;
       }
     }
     else if (USR.sys_status == System_Charged)
@@ -588,7 +645,80 @@ void MX_Audio_Callback(void)
 #endif
   }
 }
+/**
+ * @brief  播放器模式下播放音频，支持audio消息响应
+ * @para   path 播放文件路径
+ * @note   只响应播放器终止(Audio_Player_Exit),
+ *         以及播放器停止(Aduio_Player_Stop)、
+ *         切换(Audio_Player_Switch)
+ * @retvl  停止标志， Audio_ID_NULL-播放完毕退出, 或者是退出消息
+ */
+static osEvent Play_PlayerWave(const char *filepath)
+{
+  FIL file;
+  FRESULT f_err;
+  UINT f_cnt;
+  struct _AF_DATA data;
+  osEvent res = {.status = osOK, .value.v = Audio_ID_NULL};
 
+  taskENTER_CRITICAL();
+  SIMPLE_PLAY_READY = 0;
+  if ((f_err = f_open(&file, filepath, FA_READ)) != FR_OK)
+  {
+    log_w("Open wave file:%s:%d", filepath, f_err);
+    SIMPLE_PLAY_READY = 1;
+    taskEXIT_CRITICAL();
+    return;
+  }
+
+  // Ignore about pcm structure
+  f_lseek(&file, sizeof(struct _AF_PCM));
+  // Read about this file's length
+  if ((f_err = f_read(&file, &data, sizeof(struct _AF_DATA), &f_cnt)) != FR_OK)
+  {
+    log_w("Read wave file:%s Error:%d", filepath, f_err);
+    f_close(&file);
+    SIMPLE_PLAY_READY = 1;
+    taskEXIT_CRITICAL();
+    return;
+  }
+  taskEXIT_CRITICAL();
+
+  while (data.size >= AUDIO_FIFO_SIZE * sizeof(uint16_t))
+  {
+    taskENTER_CRITICAL();
+    /**< Read a Block */
+    if ((f_err = f_read(&file, dac_buffer[Track_0][dac_buffer_pos], sizeof(uint16_t) * AUDIO_FIFO_SIZE, &f_cnt)) != FR_OK && f_cnt != 0)
+    {
+      log_w("Read wave file:%s Error:%d", filepath, f_err);
+      f_close(&file);
+      SIMPLE_PLAY_READY = 1;
+      return;
+    }
+    taskEXIT_CRITICAL();
+
+    play_a_buffer(dac_buffer_pos);
+
+    dac_buffer_pos += 1;
+    dac_buffer_pos %= AUDIO_FIFO_NUM;
+    data.size -= f_cnt;
+
+    osEvent evt = osMessageGet(DAC_CMDHandle, 1);
+    if (evt.status != osEventMessage)
+    {
+      if (evt.value.v == Audio_Player_Exit ||
+          evt.value.v == Audio_Player_Stop ||
+          evt.value.v == Audio_Player_Switch)
+      {
+        res = evt;
+        break;
+      }
+    }
+  }
+  f_close(&file);
+  SIMPLE_PLAY_READY = 1;
+  return res;
+}
 uint8_t Audio_IsSimplePlayIsReady(void)
 {
   return SIMPLE_PLAY_READY;

@@ -24,7 +24,8 @@ typedef enum {
   System_Ready,
   System_Charging,
   System_Charged,
-  System_Close
+  System_Close,
+  System_Player,
 } System_t;
 
 typedef struct _usr_config_structure

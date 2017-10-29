@@ -294,6 +294,88 @@ int MX_File_SearchFile(const char *dirpath, const char *prefix, const char *suff
   vPortFree(sufBuf);
   return cnt;
 }
+
+/**
+ * @brief  获取第'rank'个匹配文件的文件名
+ * @param  -dirpath 需搜索的文件夹路径
+ * @param  -prefix  匹配文件名前缀
+ * @param  -subfix  匹配文件名后缀
+ * @param  -rank    匹配第rank个文件(0 开始)
+ * @param  -name    获取的文件名
+ * @param  -maxStrlen 最大文件名长度
+ * @note   不会递归搜索子文件夹
+ */
+bool MX_File_SearchFileName(const char *dirpath, const char *prefix, const char *suffix, uint16_t rank, char *name, uint8_t maxStrLen)
+{
+  DIR dir;
+  FILINFO info;
+  FRESULT res;
+  uint8_t preLen = strlen(prefix);
+  uint8_t sufLen = strlen(suffix);
+  uint8_t cnt = 0;
+  bool ret = false;
+
+  char *sufBuf = suffix != 0 ? (char *)pvPortMalloc(sizeof(char) * (sufLen + 1)) : NULL;
+
+  MX_File_InfoLFN_Init(&info);
+
+  do
+  {
+    res = f_opendir(&dir, dirpath);
+    if (res != FR_OK)
+    {
+      log_w("can't open dir(%s):%d", dirpath, (int)res);
+      break;
+    }
+
+    while (f_readdir(&dir, &info) == FR_OK && info.fname[0] != 0)
+    {
+      char *pt = info.lfname[0] != 0 ? info.lfname : info.fname;
+
+      if ((info.fattrib & AM_DIR))
+        continue;
+
+      if (preLen && (strncasecmp(prefix, pt, preLen)))
+      {
+        continue;
+      }
+      if (sufLen)
+      {
+        int pos = strlen(pt);
+        if (pt < sufLen)
+          continue;
+        strncpy(sufBuf, pt + pos - sufLen - 1, sufLen);
+        if (strncasecmp(sufBuf, suffix, sufLen))
+          continue;
+      }
+      cnt += 1;
+      if (rank + 1 >= cnt)
+        break;
+    }
+
+    if (rank + 1 == cnt)
+    {
+      char *pt = info.lfname[0] != 0 ? info.lfname : info.fname;
+      if (strlen(pt) < maxStrLen)
+      {
+        strcpy(name, pt);
+        ret = true;
+      }
+    }
+
+    res = f_closedir(&dir);
+    if (res != FR_OK)
+    {
+      log_w("can't close dir(%s):%d", dirpath, (int)res);
+      break;
+    }
+
+  } while (0);
+
+  MX_File_InfoLFN_DeInit(&info);
+  vPortFree(sufBuf);
+  return ret;
+}
 /**
  * @brief  搜索匹配文件夹数量
  * @param  -subdir 需搜索的文件夹路径
