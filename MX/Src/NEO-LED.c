@@ -11,7 +11,7 @@ static NP_Handle_t neo_io_handle;
 const uint8_t reset_buffer[3 * NP_DMA_MAX_BITS] = {0};
 // static NP_Handle_t neo_io_handle;
 /** Static function ***************************/
-static LED_Message_t neo_playfile(const char *filepath, int startLine, int*nowLine);
+static LED_Message_t neo_playfile(const char *filepath, int startLine, int *nowLine);
 /** Public var ********************************/
 const LED_Opra_t NEO_LED_Opra = {
     .io_init = neo_io_init,
@@ -61,39 +61,48 @@ static LED_Message_t neo_run_loop(uint32_t *step, uint32_t step_ms)
 
 static LED_Message_t neo_trigger(LED_Message_t method)
 {
-  char path[20];
-  char dir[20];
+  char name[20];
+  char dir[50];
   sprintf(dir, "0:/Bank%d/", (USR.bank_now + USR.bank_color) % USR.nBank + 1);
 
   switch (method)
   {
-    case LED_Trigger_Start:
-      strcat(dir, NEO_TRIGGER(OUT));
+  case LED_Trigger_Start:
+    strcat(dir, TRIGGER(OUT));
     break;
-    case LED_Trigger_Stop:
-      strcat(dir, NEO_TRIGGER(IN));
+  case LED_Trigger_Stop:
+    strcat(dir, TRIGGER(IN));
     break;
-    case LED_TriggerB:
-      strcat(dir, NEO_TRIGGER(B));
+  case LED_TriggerB:
+    strcat(dir, TRIGGER(B));
     break;
-    case LED_TriggerC:
-      strcat(dir, NEO_TRIGGER(C));
+  case LED_TriggerC:
+    strcat(dir, TRIGGER(C));
     break;
-    case LED_TriggerD:
-      strcat(dir, NEO_TRIGGER(D));
+  case LED_TriggerD:
+    strcat(dir, TRIGGER(D));
     break;
-    case LED_TriggerE:
-      strcat(dir, NEO_TRIGGER(E));
+  case LED_TriggerE:
+    strcat(dir, TRIGGER(E));
     break;
-    case LED_TriggerE_END:
-      return LED_NoTrigger;
+  case LED_TriggerE_END:
+    return LED_NoTrigger;
   default:
     log_w("TODO::unknow trigger id:%d", method);
-  return LED_NoTrigger;
+    return LED_NoTrigger;
   }
 
-  if (MX_File_GetRandFileName(dir, 0, path))
-    neo_playfile(path, 0, NULL);
+  // if (MX_File_GetRandFileName(dir, 0, path))
+  //   neo_playfile(path, 0, NULL);
+  int num = MX_File_SearchFile(dir, NULL, NEO_PROTOCOL);
+  int pos = rand() % num;
+  if (MX_File_SearchFileName(dir, NULL, NEO_PROTOCOL,
+                             pos, name, 20))
+  {
+    strcat(dir, "/");
+    strcat(dir, name);
+    return neo_playfile(dir, 0, NULL);
+  }
   return LED_NoTrigger;
 }
 
@@ -158,7 +167,7 @@ static LED_Message_t neo_playfile(const char *filepath, int startLine, int *nowL
       while (!NP_DeInit(&neo_io_handle))
         osDelay(10);
       return evt.value.v;
-  }
+    }
   }
   NP_Update(&neo_io_handle, reset_buffer, NP_DMA_MAX_BITS);
   vPortFree(buffer);
