@@ -193,7 +193,9 @@ uint8_t Lis3d_isMove(void)
 
 uint8_t Lis3d_GetData(Lis3dData *pt)
 {
-  
+  pt->Dx = 0;
+  pt->Dy = 0;
+  pt->Dz = 0;
 }
 
 static unsigned char LIS3DH_SPI_RD(unsigned char addr)

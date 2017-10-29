@@ -16,9 +16,15 @@ const PARA_STATIC_t STATIC_USR = {
         .trigger_D_max = 10,
         .trigger_E_max = 10,
         .trigger_F_max = 10,
+        .trigger_in_x_max = 10,
+        .trigger_in_y_max = 10,
+        .trigger_in_z_max = 10,
+        .trigger_out_x_max = 10,
+        .trigger_out_y_max = 10,
+        .trigger_out_z_max = 10,
     }};
-
-static const char name_string[][10] = {
+#define CONST_KEY_LEN 25
+static const char name_string[][CONST_KEY_LEN] = {
     /**< Position:0~5  */
     "Vol", "Tpon", "Tpoff", "Tout", "Tin", "Ts_switch",
     /**< Position:6~11 */
@@ -34,7 +40,7 @@ static const char name_string[][10] = {
     /**< Position:36~39*/
     "CW", "Direction", "ShakeOutG", "ShakeInG",
     /**< Position:40~42*/
-    "LockupHold", "Lowpower", "PowerSavingPerrecnts"};
+    "LockupHold", "Lowpower", "PowerSavingPerecnts"};
 
 /** \brief 获取循环音频有效负载量
  *
@@ -116,7 +122,9 @@ uint8_t usr_config_init(void)
   USR.triggerOut_X = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
   USR.triggerOut_Y = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
   USR.triggerOut_Z = (TRIGGER_PATH_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(TRIGGER_PATH_t)));
+  USR.accent = (Accent_t *)pvPortMalloc(REQUES_MEM(req_mem, sizeof(Accent_t) * USR.nBank));
   log_i("malloc for USR structure cost %d", req_mem);
+  set_config(&USR);
   /**< 获取Hum 有效负载 */
   if (get_humsize(&USR))
   {
@@ -129,7 +137,7 @@ uint8_t usr_config_init(void)
     log_e("Can't find %s:%d", PATH_CONFIG, f_err);
     return 1;
   }
-  set_config(&USR);
+
   f_err = get_config(&USR, file);
   if (f_err)
     return f_err;
@@ -163,7 +171,6 @@ uint8_t usr_config_init(void)
   }
 
   /**< 获取每个bank中的Accent.txt, 包括动作延时时间以及动作信息 */
-  USR.accent = (Accent_t *)pvPortMalloc(sizeof(Accent_t) * USR.nBank);
   for (uint8_t nBank = 0; nBank < USR.nBank; nBank++)
   {
     f_err = get_accent_para(nBank, &USR);
@@ -175,6 +182,19 @@ uint8_t usr_config_init(void)
   ///以上任意一个错误都是致命的
   ///所以不再对动态分配的内存进行回收，只有在正确返回的情况下考虑回收内存
   vPortFree(file);
+  return 0;
+}
+
+/**
+ * @brief  更新Bank动态数据
+ */
+uint8_t usr_config_update(void)
+{
+  /**< 获取当前Bank下TriggerX的信息，包括总数以及各文件的文件名 */
+  for (int i = 0; i < 12; i++)
+  {
+    get_trigger_para(i, USR.bank_now + 1, &USR);
+  }
   return 0;
 }
 
@@ -247,6 +267,7 @@ get_trigger_again:
       break;
     case 4:
       sprintf(path, "0://Bank%d/" TRIGGER(F), Bank);
+      max_trigger_cnt = TRIGGER_MAX_NUM(F);
       pTriggerPath = pt->triggerF;
       break;
     case 5:
@@ -293,6 +314,9 @@ get_trigger_again:
     }
     vPortFree(pTriggerPath->path_arry);
     vPortFree(pTriggerPath->path_ptr);
+    pTriggerPath->number = 0;
+    pTriggerPath->path_arry = NULL;
+    pTriggerPath->path_ptr = NULL;
   }
   else
   {
@@ -307,7 +331,7 @@ get_trigger_again:
 
   if ((f_err = f_opendir(&dir, path)) != FR_OK)
   {
-    log_e("Open Bank%d Trigger%c Error:%d", Bank, triggerid + 'B', f_err);
+    log_e("Open Bank%d Trigger:%d Error:%d", Bank, triggerid, f_err);
     MX_File_InfoLFN_DeInit(&info);
     return 1;
   }
@@ -330,14 +354,14 @@ get_trigger_again:
       break;
 
     // 防止长文件名导致内存溢出，限制文件名长度为30
-    int num = strlen(info.fname);
+    int num = strlen(pt);
     if (num >= 30)
       continue;
 
     if (goto_flag == true)
     {
       pTriggerPath->path_ptr[trigger_cnt] = pTriggerPath->path_arry + mem_req;
-      strcpy(pTriggerPath->path_ptr[trigger_cnt], info.fname);
+      strcpy(pTriggerPath->path_ptr[trigger_cnt], pt);
     }
     trigger_cnt += 1;
     mem_req += num + 1;
@@ -530,6 +554,8 @@ static int GetMultiPara(char *line)
 }
 static void set_config(PARA_DYNAMIC_t *pt)
 {
+  memset(pt->config, 0, sizeof(USR_CONFIG_t));
+  memset(pt->accent, 0, sizeof(Accent_t)*pt->nBank);
   pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
   pt->config->Out_Delay = 200; //Out 循环音延时200ms
   pt->config->SimpleLED_MASK = 0xFF;
@@ -543,8 +569,8 @@ static void set_config(PARA_DYNAMIC_t *pt)
 }
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
 {
-  char sbuffer[50];
-  char name[20];
+  char sbuffer[CONST_KEY_LEN + 30];
+  char name[CONST_KEY_LEN];
   char *spt;
   while ((spt = f_gets(sbuffer, 50, file)) != 0)
   {
@@ -582,7 +608,7 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       pt->BankColor[res * 6 + 5 - 6] = *(uint32_t *)(buf + 2);
       continue;
     }
-    for (res = 0; res < sizeof(name_string) / 10; res++)
+    for (res = 0; res < sizeof(name_string) / CONST_KEY_LEN; res++)
     {
       if (!strcasecmp(name, name_string[res]))
         break;

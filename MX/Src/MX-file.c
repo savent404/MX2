@@ -480,8 +480,8 @@ char *upper(char *src)
 }
 
 #ifdef __GNUC__
-static char strpt1[20];
-static char strpt2[20];
+static char strpt1[100];
+static char strpt2[100];
 int strcasecmp(const char *src1, const char *src2)
 {
   __IO static bool flag = false;
