@@ -176,14 +176,16 @@ void Wav_Task(void const *argument)
         break;
       case Audio_Player_Start:
       {
-        char path[50];
+        char name[20];
+        char path[30] = "0:/";
         if (MX_File_SearchFileName("0:/",
                                    "Multimedia",
                                    ".wav",
                                    audio_player_pos,
-                                   path,
-                                   50))
+                                   name,
+                                   20))
         {
+          strcat(path, name);
           evt = Play_PlayerWave(path);
           audio_player_pos += 1;
           audio_player_pos %= audio_player_num;
