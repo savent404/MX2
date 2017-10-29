@@ -174,6 +174,8 @@ void Wav_Task(void const *argument)
       }
       case Audio_Player_Exit:
         break;
+      // switch 执行与start相同操作
+      case Audio_Player_Switch:
       case Audio_Player_Start:
       {
         char name[20];
@@ -195,7 +197,7 @@ void Wav_Task(void const *argument)
         break;
       }
       case Audio_Player_Stop:
-      case Audio_Player_Switch:
+
         log_w("TODO, unknow opration");
         break;
 
