@@ -177,6 +177,7 @@ typedef struct _usr_dynamic_parameter
 extern PARA_DYNAMIC_t USR;
 extern const PARA_STATIC_t STATIC_USR;
 uint8_t usr_config_init(void);
+uint8_t usr_config_update(void);
 
 #define TRIGGER_MAX_NUM(x) (STATIC_USR.filelimits.trigger_##x##_max)
 
