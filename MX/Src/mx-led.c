@@ -7,7 +7,23 @@ void LED_Start_Trigger(LED_Message_t message)
 }
 __weak const LED_Opra_t *MX_LED_GetType()
 {
+// return &PWM_LED_Opra;
+#if USE_NEOPIXEL
+  while (USR.config->DriverMode > 1)
+  {
+    osDelay(50);
+  }
+  if (USR.config->DriverMode == 0)
+  {
+    return &PWM_LED_Opra;
+  }
+  else
+  {
+    return &NEO_LED_Opra;
+  }
+#else
   return &PWM_LED_Opra;
+#endif
 }
 
 void LEDOpra(void const *argument)
@@ -49,7 +65,7 @@ void LEDOpra(void const *argument)
     if (USR.sys_status == System_Running)
     {
       while ((message = opra->run_loop(&loop_step, 30)) == LED_NoTrigger)
-        ;
+        osDelay(100);
       goto GETMESSAGE;
     }
     else if (USR.sys_status == System_Charging)

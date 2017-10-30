@@ -559,7 +559,7 @@ static void set_config(PARA_DYNAMIC_t *pt)
   pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
   pt->config->Out_Delay = 200; //Out 循环音延时200ms
   pt->config->SimpleLED_MASK = 0xFF;
-  pt->config->DriverMode = 0;
+  pt->config->DriverMode = 255;
   pt->config->Direction = 0;
   pt->config->ShakeOutG = 0;
   pt->config->ShakeInG = 0;
