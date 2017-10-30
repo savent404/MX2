@@ -129,13 +129,14 @@ void StartDefaultTask(void const *argument)
     ///Button check ant its function
     if (USR.sys_status == System_Ready)
     {
-
+      int acc_ans;
       /**< Power Key down*/
       if (key_status & 0x04)
       {
         uint16_t timeout = 0;
         uint16_t max = USR.config->Tpoff > USR.config->Tout ? USR.config->Tpoff : USR.config->Tout;
         uint16_t min = USR.config->Tpoff > USR.config->Tout ? USR.config->Tout : USR.config->Tpoff;
+
         static uint8_t click_cnt = 0;
         static uint32_t tick_stick = 0;
 
@@ -169,11 +170,11 @@ void StartDefaultTask(void const *argument)
         }
         else
         {
-          tick_stick += 1;
+          click_cnt += 1;
         }
 
         // into Player mode
-        if (tick_stick == 3 && (osKernelSysTick() - tick_stick < osKernelSysTickFrequency * 1))
+        if (click_cnt == 3 && (osKernelSysTick() - tick_stick < osKernelSysTickFrequency * 1))
         {
           tick_stick = 0;
           H_PlayerEnter();
@@ -184,7 +185,7 @@ void StartDefaultTask(void const *argument)
       {
         uint16_t timeout = 0;
         uint16_t max = USR.config->Ts_switch;
-        while ((!(key_scan() & 0x02)) && timeout < max)
+        while (!(key_scan() & 0x02))
         {
           osDelay(10);
           timeout += 10;
