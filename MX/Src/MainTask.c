@@ -195,14 +195,16 @@ void StartDefaultTask(void const *argument)
         }
       }
 
-      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) > USR.config->ShakeOutG)
+      else if ((acc_ans = (int)sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) * 8000 / 0x8000) > USR.config->ShakeOutG * 1000)
       {
+        log_i("acc:%dmg", acc_ans);
         H_OUT();
       }
     }
 
     else if (USR.sys_status == System_Running)
     {
+      int acc_ans;
       // PowerKey
       if (key_status & 0x04)
       {
