@@ -270,8 +270,10 @@ void StartDefaultTask(void const *argument)
           H_TriggerD();
         }
       }
-      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) > USR.config->ShakeInG)
+      // else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) > USR.config->ShakeInG)
+      else if ((acc_ans = (int)sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) * 8000 / 0x8000) > USR.config->ShakeInG * 1000)
       {
+        log_i("acc:%dmg", acc_ans);
         H_IN();
       }
       move_detected();
@@ -767,8 +769,8 @@ static void H_ColorSwitch(void)
 static void H_PlayerEnter(void)
 {
   log_v("player enter");
-  Audio_Play_Start(Audio_Player_Enter);
   USR.sys_status = System_Player;
+  Audio_Play_Start(Audio_Player_Enter);
 }
 static void H_PlayerExit(void)
 {
