@@ -757,6 +757,7 @@ static void H_BankSwitch(void)
   MX_File_SetBank(USR.bank_now);
   usr_config_update();
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+  LED_Start_Trigger(LED_Trigger_BankSwitch);
   Audio_Play_Start(Audio_BankSwitch);
 }
 static void H_ColorSwitch(void)
