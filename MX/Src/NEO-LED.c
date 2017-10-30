@@ -56,7 +56,7 @@ static LED_Message_t neo_run_loop(uint32_t *step, uint32_t step_ms)
 {
   char path[20];
   sprintf(path, "0:Bank%d/hum%s", (USR.bank_now + USR.bank_color) % USR.nBank + 1, NEO_PROTOCOL);
-  LED_Message_t res =  neo_playfile(path, *step, step);
+  LED_Message_t res = neo_playfile(path, *step, step);
   return res;
 }
 
@@ -87,6 +87,10 @@ static LED_Message_t neo_trigger(LED_Message_t method)
     strcat(dir, TRIGGER(E));
     break;
   case LED_TriggerE_END:
+    return LED_NoTrigger;
+  case LED_Trigger_BankSwitch:
+    sprintf(dir, "0:/Bank%d/BankSwitch" NEO_PROTOCOL, (USR.bank_now + USR.bank_color) % USR.nBank + 1);
+    neo_playfile(dir, 0, NULL);
     return LED_NoTrigger;
   default:
     log_w("TODO::unknow trigger id:%d", method);
@@ -171,7 +175,8 @@ static LED_Message_t neo_playfile(const char *filepath, int startLine, int *nowL
       return evt.value.v;
     }
   }
-  *nowLine = 0;
+  if (nowLine != NULL)
+    *nowLine = 0;
   NP_Update(&neo_io_handle, reset_buffer, NP_DMA_MAX_BITS);
   vPortFree(buffer);
   MX_File_NeoPixel_CloseFile((MX_NeoPixel_Structure_t *)spt);

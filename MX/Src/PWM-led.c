@@ -294,7 +294,8 @@ static LED_Message_t pwm_trigger(LED_Message_t method)
 
   case LED_TriggerE_END:
     break;
-
+  case LED_Trigger_BankSwitch:
+    break;
   default:
   {
     log_w("Unkonw Message ID:%d", (int)method);
