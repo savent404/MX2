@@ -1,7 +1,7 @@
 #include "Audio.h"
 /* Variables -----------------------------------------------------------------*/
 static uint8_t SIMPLE_PLAY_READY = 1;
-static bool isPlaySwitch = false;
+static __IO bool isPlaySwitch = false;
 static FIL audio_file[2];
 static UINT file_offset[2] = {0, 0};
 static char trigger_path[50];
