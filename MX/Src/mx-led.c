@@ -54,6 +54,7 @@ void LEDOpra(void const *argument)
     case LED_TriggerD:
     case LED_TriggerE:
     case LED_TriggerE_END:
+    case LED_Trigger_BankSwitch:
       if ((message = opra->trigger(message) != LED_NoTrigger))
         goto GETMESSAGE;
       break;

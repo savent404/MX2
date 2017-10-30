@@ -27,6 +27,7 @@ uint16_t T_BREATH;                //LMode呼吸灯周期
 /** Private var ***************************************/
 static uint16_t BankColor[4];
 static uint16_t FBankColor[4];
+static uint16_t LBankColor[4];
 static uint16_t LBright = 0;
 static uint16_t LDeep = 0;
 static uint16_t LMode = 0;
@@ -47,7 +48,7 @@ __STATIC_INLINE void LED_Sync_Color(void)
   if (bank_pos != bank)
   {
     bank_pos = bank;
-    uint32_t *point = USR.BankColor + (bank * 4);
+    uint32_t *point = USR.BankColor + (bank * 6);
 
     BankColor[0] = (uint16_t)*point & 0xFFFF;
     BankColor[1] = (uint16_t)(*point >> 16);
@@ -60,6 +61,12 @@ __STATIC_INLINE void LED_Sync_Color(void)
     point += 1;
     FBankColor[2] = (uint16_t)*point & 0xFFFF;
     FBankColor[3] = (uint16_t)(*point >> 16);
+    point += 1;
+    LBankColor[0] = (uint16_t)*point & 0xFFFF;
+    LBankColor[1] = (uint16_t)(*point >> 16);
+    point += 1;
+    LBankColor[2] = (uint16_t)*point & 0xFFFF;
+    LBankColor[3] = (uint16_t)(*point >> 16);
 
     LBright = USR.config->Lbright;
     LDeep = USR.config->Ldeep;
@@ -113,11 +120,13 @@ __STATIC_INLINE void LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms,
     break;
   }
 }
-__STATIC_INLINE LED_Message_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
+__STATIC_INLINE LED_Message_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms, LED_Message_t trigger)
 {
   step %= 2;
-  if (!step)
+  if (!step && trigger != LED_TriggerE)
     LED_RGB_Limited(FBankColor[0], FBankColor[1], FBankColor[2], FBankColor[3]);
+  else if (!step && trigger == LED_TriggerE)
+    LED_RGB_Limited(LBankColor[0], LBankColor[1], LBankColor[2], LBankColor[3]);
   else
     LED_RGB_Limited(BankColor[0], BankColor[1], BankColor[2], BankColor[3]);
   osEvent evt = osMessageGet(LED_CMDHandle, step_ms);
@@ -314,7 +323,7 @@ static LED_Message_t pwm_trigger(LED_Message_t method)
       break;
     case LED_Trigger_Method_Spark:
     {
-      message = LED_RGB_Toggle(0, T_Spark);
+      message = LED_RGB_Toggle(0, T_Spark, method);
       if (message > method)
         return message;
     }
@@ -324,14 +333,14 @@ static LED_Message_t pwm_trigger(LED_Message_t method)
       uint8_t cnt = nSparkCount;
       while (--cnt)
       {
-        message = LED_RGB_Toggle(0, T_nSpark);
+        message = LED_RGB_Toggle(0, T_nSpark, method);
         if (message > method)
           return message;
-        message = LED_RGB_Toggle(1, T_nSparkGap);
+        message = LED_RGB_Toggle(1, T_nSparkGap, method);
         if (message > method)
           return message;
       }
-      message = LED_RGB_Toggle(0, T_nSpark);
+      message = LED_RGB_Toggle(0, T_nSpark, method);
       if (message > method)
         return message;
     }
@@ -341,7 +350,7 @@ static LED_Message_t pwm_trigger(LED_Message_t method)
       uint32_t cnt = 0;
       while (1)
       {
-        message = LED_RGB_Toggle(cnt++, T_Electricl);
+        message = LED_RGB_Toggle(cnt++, T_Electricl, method);
         if (message > method)
           return message;
       }
