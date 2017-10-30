@@ -566,10 +566,10 @@
 
 1507090906 source:e:\github_clone\mx2\ngslc\startup_stm32f103xe.s
 
-1507793384 source:e:\github_clone\mx2\mx\src\audio.c
+1509337543 source:e:\github_clone\mx2\mx\src\audio.c
 	"Audio.h"
 
-1507793384 e:\github_clone\mx2\mx\inc\audio.h
+1509261312 e:\github_clone\mx2\mx\inc\audio.h
 	"AF.h"
 	"DEBUG.h"
 	"FreeRTOS.h"
@@ -580,6 +580,7 @@
 	"main.h"
 	"mx-audio.h"
 	"mx-config.h"
+	"mx-file.h"
 	"path.h"
 
 1507793384 e:\github_clone\mx2\mx\inc\af.h
@@ -597,7 +598,7 @@
 	"cmsis_os.h"
 	"mx-config.h"
 
-1509158992 e:\github_clone\mx2\mx\inc\usr_config.h
+1509276951 e:\github_clone\mx2\mx\inc\usr_config.h
 	"AF.h"
 	"DEBUG.h"
 	"ff.h"
@@ -611,7 +612,7 @@
 	<stdlib.h>
 	<string.h>
 
-1509103222 e:\github_clone\mx2\mx\inc\path.h
+1509264013 e:\github_clone\mx2\mx\inc\path.h
 	"main.h"
 	"mx-config.h"
 
@@ -640,10 +641,10 @@
 	"mx-config.h"
 	"tim.h"
 
-1507793384 source:e:\github_clone\mx2\mx\src\lis3d.c
+1509277573 source:e:\github_clone\mx2\mx\src\lis3d.c
 	"lis3d.h"
 
-1507793384 e:\github_clone\mx2\mx\inc\lis3d.h
+1509181772 e:\github_clone\mx2\mx\inc\lis3d.h
 	"mx-config.h"
 	"mx-gpio.h"
 	"mx-spi.h"
@@ -658,7 +659,7 @@
 	"mx-config.h"
 	"spi.h"
 
-1509170299 source:e:\github_clone\mx2\mx\src\maintask.c
+1509338798 source:e:\github_clone\mx2\mx\src\maintask.c
 	<math.h>
 	<stdint.h>
 	<stdio.h>
@@ -698,7 +699,7 @@
 1507793384 source:e:\github_clone\mx2\mx\src\simpleled.c
 	"SimpleLED.h"
 
-1509169531 source:e:\github_clone\mx2\mx\src\usr_config.c
+1509338981 source:e:\github_clone\mx2\mx\src\usr_config.c
 	"USR_CONFIG.h"
 
 1509103222 e:\github_clone\mx2\mx\inc\mx-config.h
@@ -714,7 +715,7 @@
 	"portable.h"
 	<reent.h>
 
-1509166500 e:\github_clone\mx2\nglsc\inc\freertosconfig.h
+1509177034 e:\github_clone\mx2\nglsc\inc\freertosconfig.h
 	<stdint.h>
 	"main.h"
 
@@ -823,7 +824,7 @@
 	<windows.h>
 	<tchar.h>
 
-1509166499 e:\github_clone\mx2\nglsc\inc\ffconf.h
+1509177034 e:\github_clone\mx2\nglsc\inc\ffconf.h
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
 	"bsp_driver_sd.h"
@@ -1216,7 +1217,7 @@
 
 1500434831 e:\github_clone\mx2\nglsc\middlewares\third_party\fatfs\src\drivers\sd_diskio.h
 
-1509167486 source:e:\github_clone\mx2\nglsc\src\freertos.c
+1509177034 source:e:\github_clone\mx2\nglsc\src\freertos.c
 	"FreeRTOS.h"
 	"task.h"
 	"cmsis_os.h"
@@ -1227,7 +1228,7 @@
 	"mx-gpio.h"
 	"SimpleLED.h"
 
-1509166502 source:e:\github_clone\mx2\nglsc\src\main.c
+1509333494 source:e:\github_clone\mx2\nglsc\src\main.c
 	"main.h"
 	"stm32f1xx_hal.h"
 	"cmsis_os.h"
@@ -1336,7 +1337,7 @@
 	<math.h>
 	<stdint.h>
 
-1509102745 source:e:\github_clone\mx2\mx\src\mx-led.c
+1509333261 source:e:\github_clone\mx2\mx\src\mx-led.c
 	"mx-led.h"
 
 1509103222 source:e:\github_clone\mx2\mx\src\pwm-led.c
@@ -1353,12 +1354,11 @@
 	"mx-spi.h"
 	"neopixel-drive.h"
 
-1509169258 e:\github_clone\mx2\mx\inc\mx-file.h
+1509338005 e:\github_clone\mx2\mx\inc\mx-file.h
 	"DEBUG.h"
 	"fatfs.h"
 	"mx-config.h"
 	<stdbool.h>
-	<math.h>
 
 1509103222 e:\github_clone\mx2\neopixel\inc\neopixel-drive.h
 	<stdint.h>
@@ -1367,13 +1367,13 @@
 	"spi.h"
 	"freeRTOS.h"
 
-1509103222 source:e:\github_clone\mx2\mx\src\neo-led.c
+1509340018 source:e:\github_clone\mx2\mx\src\neo-led.c
 	"NEO-LED.h"
 
 1509103222 source:e:\github_clone\mx2\neopixel\src\neopixel-drive.c
 	"neopixel-drive.h"
 
-1509169876 source:e:\github_clone\mx2\mx\src\mx-file.c
+1509338541 source:e:\github_clone\mx2\mx\src\mx-file.c
 	"mx-file.h"
 	<stdio.h>
 	<stdlib.h>
@@ -2172,6 +2172,6 @@
 
 1509067060 source:d:\git_clone\mx2\nglsc\startup_stm32f103xe.s
 
-1500434831 source:e:\github_clone\mx2\nglsc\middlewares\third_party\fatfs\src\option\cc932.c
+1509177034 source:e:\github_clone\mx2\nglsc\middlewares\third_party\fatfs\src\option\cc932.c
 	"../ff.h"
 

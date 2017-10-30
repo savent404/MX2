@@ -56,7 +56,8 @@ static LED_Message_t neo_run_loop(uint32_t *step, uint32_t step_ms)
 {
   char path[20];
   sprintf(path, "0:Bank%d/hum%s", (USR.bank_now + USR.bank_color) % USR.nBank + 1, NEO_PROTOCOL);
-  return neo_playfile(path, *step, step);
+  LED_Message_t res =  neo_playfile(path, *step, step);
+  return res;
 }
 
 static LED_Message_t neo_trigger(LED_Message_t method)
@@ -120,6 +121,7 @@ static LED_Message_t neo_playfile(const char *filepath, int startLine, int *nowL
   const MX_NeoPixel_Structure_t *spt = MX_File_NeoPixel_OpenFile(filepath);
   if (spt == NULL)
   {
+    log_w("can't open file(%s)", filepath);
     return LED_NoTrigger;
   }
 
@@ -169,6 +171,7 @@ static LED_Message_t neo_playfile(const char *filepath, int startLine, int *nowL
       return evt.value.v;
     }
   }
+  *nowLine = 0;
   NP_Update(&neo_io_handle, reset_buffer, NP_DMA_MAX_BITS);
   vPortFree(buffer);
   MX_File_NeoPixel_CloseFile((MX_NeoPixel_Structure_t *)spt);
