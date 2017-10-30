@@ -104,7 +104,6 @@ void Wav_Task(void const *argument)
     /**< 播放器模式 */
     else if (USR.sys_status == System_Player)
     {
-      log_w("TODO, unknow opration");
       evt = osMessageGet(DAC_CMDHandle, osWaitForever);
       if (evt.status != osEventMessage)
         ;
