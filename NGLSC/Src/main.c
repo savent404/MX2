@@ -205,10 +205,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-const LED_Opra_t *MX_LED_GetType()
-{
-  return &NEO_LED_Opra;
-}
+
 /* USER CODE END 4 */
 
 /**
