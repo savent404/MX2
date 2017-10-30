@@ -96,12 +96,19 @@ uint8_t usr_config_init(void)
   FRESULT f_err;
   FIL *file = (FIL *)pvPortMalloc(sizeof(FIL));
 
+  USR.bank_now = MX_File_GetBank();
+
   // 获取bank数量
   USR.nBank = MX_File_SearchDir("0:/", "Bank", NULL);
   if (STATIC_USR.filelimits.bank_max < USR.nBank)
   {
     USR.nBank = STATIC_USR.filelimits.bank_max;
   }
+
+  USR.bank_now %= USR.nBank;
+
+  log_v("Bank now:%d", USR.bank_now);
+
   uint32_t req_mem = 0;
 #define REQUES_MEM(sum, x) (sum += (x))
 

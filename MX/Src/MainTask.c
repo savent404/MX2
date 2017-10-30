@@ -754,7 +754,7 @@ static void H_BankSwitch(void)
   USR.bank_now += 1;
   USR.bank_now %= USR.nBank;
   USR.config = USR._config + USR.bank_now;
-  // LED_Bank_Update(&USR);
+  MX_File_SetBank(USR.bank_now);
   usr_config_update();
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
   Audio_Play_Start(Audio_BankSwitch);
