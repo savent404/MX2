@@ -231,17 +231,6 @@ void StartDefaultTask(void const *argument)
       // User Key
       else if (key_status & 0x08)
       {
-        static bool triggerE_HoldFlag = false;
-
-        if (triggerE_HoldFlag)
-        {
-          triggerE_HoldFlag = false;
-          H_TriggerEOff();
-          while (!(key_scan() & 0x02))
-            osDelay(10);
-          break;
-        }
-
         uint16_t timeout = 0;
         while (!(key_scan() & 0x02))
         {
@@ -258,11 +247,20 @@ void StartDefaultTask(void const *argument)
               hold += 10;
             }
 
-            if (hold < USR.config->LockupHold)
+            if (USR.config->LockupHold > 0 && hold < USR.config->LockupHold)
               H_TriggerEOff();
             else
             {
-              triggerE_HoldFlag = true;
+              // triggerE_HoldFlag = true;
+              while (!(key_scan() & 0x08))
+              {
+                osDelay(10);
+              }
+              H_TriggerEOff();
+              while (!(key_scan() & 0x02))
+              {
+                osDelay(10);
+              }
             }
             break;
           }
