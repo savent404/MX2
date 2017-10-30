@@ -105,6 +105,10 @@ void Wav_Task(void const *argument)
     else if (USR.sys_status == System_Player)
     {
       log_w("TODO, unknow opration");
+      evt = osMessageGet(DAC_CMDHandle, osWaitForever);
+      if (evt.status != osEventMessage)
+        ;
+      continue;
     }
 
     /**< 运行模式 */
@@ -161,6 +165,7 @@ void Wav_Task(void const *argument)
     {
       static uint16_t audio_player_pos = 0;
       static uint16_t audio_player_num = 0;
+      static bool inter_flag = false;
 
       switch (evt.value.v)
       {
@@ -173,9 +178,22 @@ void Wav_Task(void const *argument)
         break;
       }
       case Audio_Player_Exit:
+        inter_flag = false;
         break;
       // switch 执行与start相同操作
       case Audio_Player_Switch:
+        if (inter_flag)
+        {
+          inter_flag = false;
+          evt.value.v = Audio_Player_Start;
+          goto INTER_MESSAGE;
+        }
+        else
+        {
+          audio_player_pos += 1;
+          audio_player_pos %= audio_player_num;
+        }
+        break;
       case Audio_Player_Start:
       {
         char name[20];
@@ -192,13 +210,16 @@ void Wav_Task(void const *argument)
           audio_player_pos += 1;
           audio_player_pos %= audio_player_num;
           if (evt.status == osEventMessage)
+          {
+            inter_flag = true;
             goto INTER_MESSAGE;
+        }
         }
         break;
       }
       case Audio_Player_Stop:
-
-        log_w("TODO, unknow opration");
+        inter_flag = false;
+        // log_w("TODO, unknow opration");
         break;
 
       default:
