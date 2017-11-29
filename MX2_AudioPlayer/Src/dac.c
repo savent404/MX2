@@ -152,12 +152,19 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
 } 
 
 /* USER CODE BEGIN 1 */
-__STATIC_INLINE void pcm_convert(int16_t *_pt, uint8_t offset, uint32_t cnt)
+/**
+ * brief  将有符号音频信号转为DAC输出所需信号
+ * pt     数据指针
+ * vol    当前音量(0~16)
+ * cnt    数据量
+ */
+__STATIC_INLINE void pcm_convert(int16_t *_pt, uint8_t vol, uint32_t cnt)
 {
   int16_t *pt = _pt;
   while (cnt--)
   {
-    *pt = (*pt >> offset) + 0x1000 / 2;
+    int ans = (int)*pt * vol >> (4 + 4) + 0x1000 / 2;
+    *pt = (int16_t)ans;
     pt += 1;
   }
 }
@@ -171,7 +178,7 @@ void MX_Audio_Start(uint16_t* pt, uint8_t vol, uint32_t cnt)
 {
   if (vol >= 0)
   {
-    pcm_convert((int16_t*)pt, 4 + 3 - vol, cnt);
+    pcm_convert((int16_t*)pt, vol, cnt);
     HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)pt, cnt, DAC_ALIGN_12B_R);
   }
   

@@ -191,11 +191,25 @@ uint8_t Lis3d_isMove(void)
   return LIS3DH_SPI_RD(0x31);
 }
 
-uint8_t Lis3d_GetData(Lis3dData *pt)
+uint8_t Lis3d_GetData(Lis3dData *p)
 {
-  pt->Dx = 0;
-  pt->Dy = 0;
-  pt->Dz = 0;
+  Lis3dData Data3D;
+  Lis3dSourceData SourceData;
+
+  SourceData.Dx_L = LIS3DH_SPI_RD(0x28);
+  SourceData.Dy_L = LIS3DH_SPI_RD(0x2A);
+  SourceData.Dz_L = LIS3DH_SPI_RD(0x2C);
+
+  SourceData.Dx_H = LIS3DH_SPI_RD(0x29);
+  SourceData.Dy_H = LIS3DH_SPI_RD(0x2B);
+  SourceData.Dz_H = LIS3DH_SPI_RD(0x2D);
+
+  Data3D.Dx = (int16_t)((((int16_t)SourceData.Dx_L << 8)) | (int16_t)SourceData.Dx_H);
+  Data3D.Dy = (int16_t)((((int16_t)SourceData.Dy_L << 8)) | (int16_t)SourceData.Dy_H);
+  Data3D.Dz = (int16_t)((((int16_t)SourceData.Dz_L << 8)) | (int16_t)SourceData.Dz_H);
+  (*p).Dx = Data3D.Dx;
+  (*p).Dy = Data3D.Dy;
+  (*p).Dz = Data3D.Dz;
 }
 
 static unsigned char LIS3DH_SPI_RD(unsigned char addr)
@@ -222,6 +236,6 @@ static void LIS3DH_SPI_WR(unsigned char addr, unsigned char wrdata)
 static uint8_t SPI_LIS3DH_SendByte(uint8_t byte)
 {
   uint8_t buf[1];
-  MX_SPI_Lis3dh_TxRx((uint8_t*)&byte, buf, 1);
+  MX_SPI_Lis3dh_TxRx((uint8_t *)&byte, buf, 1);
   return *buf;
 }

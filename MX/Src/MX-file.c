@@ -463,6 +463,61 @@ void MX_File_InfoLFN_DeInit(FILINFO *info)
   vPortFree(info->lfname);
 #endif
 }
+// 系统设置支持
+int MX_File_GetBank(void)
+{
+  FIL file;
+  FRESULT res;
+  int ret = 0;
+
+  taskENTER_CRITICAL();
+  do
+  {
+    res = f_open(&file, "0:/System/.ini", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+    if (res == FR_EXIST)
+    {
+      f_puts("0", &file);
+      break;
+    }
+    else if (res == FR_OK)
+    {
+      char buffer[20];
+      f_gets(buffer, 20, &file);
+      ret = atoi(buffer);
+      break;
+    }
+    else
+    {
+      log_e("Can't open file(%s):%d", "0:/System/.ini", (int)res);
+      ret = 0;
+      break;
+    }
+  } while (0);
+  f_close(&file);
+  taskEXIT_CRITICAL();
+  return ret;
+}
+
+void MX_File_SetBank(int bank)
+{
+  FIL file;
+  FRESULT res;
+  taskENTER_CRITICAL();
+  do
+  {
+    res = f_open(&file, "0:/System/.ini", FA_CREATE_ALWAYS | FA_WRITE);
+    if (res != FR_OK)
+    {
+      log_e("write file error(%s):%d", "0:/System/.ini", (int)res);
+      break;
+    }
+    char buffer[20];
+    sprintf(buffer, "%d", bank);
+    f_puts(buffer, &file);
+  } while (0);
+  f_close(&file);
+  taskEXIT_CRITICAL();
+}
 
 // String.h 补全
 char *upper(char *src)

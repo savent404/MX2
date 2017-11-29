@@ -96,12 +96,19 @@ uint8_t usr_config_init(void)
   FRESULT f_err;
   FIL *file = (FIL *)pvPortMalloc(sizeof(FIL));
 
+  USR.bank_now = MX_File_GetBank();
+
   // 获取bank数量
   USR.nBank = MX_File_SearchDir("0:/", "Bank", NULL);
   if (STATIC_USR.filelimits.bank_max < USR.nBank)
   {
     USR.nBank = STATIC_USR.filelimits.bank_max;
   }
+
+  USR.bank_now %= USR.nBank;
+
+  log_v("Bank now:%d", USR.bank_now);
+
   uint32_t req_mem = 0;
 #define REQUES_MEM(sum, x) (sum += (x))
 
@@ -559,7 +566,7 @@ static void set_config(PARA_DYNAMIC_t *pt)
   pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
   pt->config->Out_Delay = 200; //Out 循环音延时200ms
   pt->config->SimpleLED_MASK = 0xFF;
-  pt->config->DriverMode = 0;
+  pt->config->DriverMode = 255;
   pt->config->Direction = 0;
   pt->config->ShakeOutG = 0;
   pt->config->ShakeInG = 0;

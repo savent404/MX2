@@ -1,7 +1,7 @@
 #include "Audio.h"
 /* Variables -----------------------------------------------------------------*/
 static uint8_t SIMPLE_PLAY_READY = 1;
-static bool isPlaySwitch = false;
+static __IO bool isPlaySwitch = false;
 static FIL audio_file[2];
 static UINT file_offset[2] = {0, 0};
 static char trigger_path[50];
@@ -104,7 +104,10 @@ void Wav_Task(void const *argument)
     /**< 播放器模式 */
     else if (USR.sys_status == System_Player)
     {
-      log_w("TODO, unknow opration");
+      evt = osMessageGet(DAC_CMDHandle, osWaitForever);
+      if (evt.status != osEventMessage)
+        ;
+      continue;
     }
 
     /**< 运行模式 */
@@ -161,6 +164,7 @@ void Wav_Task(void const *argument)
     {
       static uint16_t audio_player_pos = 0;
       static uint16_t audio_player_num = 0;
+      static bool inter_flag = false;
 
       switch (evt.value.v)
       {
@@ -173,9 +177,22 @@ void Wav_Task(void const *argument)
         break;
       }
       case Audio_Player_Exit:
+        inter_flag = false;
         break;
       // switch 执行与start相同操作
       case Audio_Player_Switch:
+        if (inter_flag)
+        {
+          inter_flag = false;
+          evt.value.v = Audio_Player_Start;
+          goto INTER_MESSAGE;
+        }
+        else
+        {
+          audio_player_pos += 1;
+          audio_player_pos %= audio_player_num;
+        }
+        break;
       case Audio_Player_Start:
       {
         char name[20];
@@ -192,13 +209,16 @@ void Wav_Task(void const *argument)
           audio_player_pos += 1;
           audio_player_pos %= audio_player_num;
           if (evt.status == osEventMessage)
+          {
+            inter_flag = true;
             goto INTER_MESSAGE;
+          }
         }
         break;
       }
       case Audio_Player_Stop:
-
-        log_w("TODO, unknow opration");
+        inter_flag = false;
+        // log_w("TODO, unknow opration");
         break;
 
       default:
@@ -397,27 +417,43 @@ static void Play_IN_wav(Audio_ID_t id)
   switch (id)
   {
   case Audio_intoReady:
+  TRIGGER_IN_REOPEN:
     sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/", USR.bank_now + 1);
     num = HAL_GetTick() % USR.triggerIn->number;
     strcat(path, (USR.triggerIn->path_ptr[num]));
     break;
 
   case Audio_intoReady_X:
-    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/X/", USR.bank_now + 1);
-    num = HAL_GetTick() % USR.triggerIn_X->number;
-    strcat(path, (USR.triggerIn_X->path_ptr[num]));
+    if (USR.triggerIn_X->number > 0)
+    {
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/X/", USR.bank_now + 1);
+      num = HAL_GetTick() % USR.triggerIn_X->number;
+      strcat(path, (USR.triggerIn_X->path_ptr[num]));
+    }
+    else
+      goto TRIGGER_IN_REOPEN;
     break;
 
   case Audio_intoReady_Y:
-    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Y/", USR.bank_now + 1);
-    num = HAL_GetTick() % USR.triggerIn_Y->number;
-    strcat(path, (USR.triggerIn_Y->path_ptr[num]));
+    if (USR.triggerIn_Y->number > 0)
+    {
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Y/", USR.bank_now + 1);
+      num = HAL_GetTick() % USR.triggerIn_Y->number;
+      strcat(path, (USR.triggerIn_Y->path_ptr[num]));
+    }
+    else
+      goto TRIGGER_IN_REOPEN;
     break;
 
   case Audio_intoReady_Z:
-    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Z/", USR.bank_now + 1);
-    num = HAL_GetTick() % USR.triggerIn_Z->number;
-    strcat(path, (USR.triggerIn_Z->path_ptr[num]));
+    if (USR.triggerIn_Z->number > 0)
+    {
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Z/", USR.bank_now + 1);
+      num = HAL_GetTick() % USR.triggerIn_Z->number;
+      strcat(path, (USR.triggerIn_Z->path_ptr[num]));
+    }
+    else
+      goto TRIGGER_IN_REOPEN;
     break;
   default:
     return;
@@ -442,24 +478,40 @@ static void Play_OUT_wav(Audio_ID_t id)
   switch (id)
   {
   case Audio_intoRunning:
+  TRIGGER_OUT_REOPEN:
     num = HAL_GetTick() % USR.triggerOut->number;
     sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/", USR.bank_now + 1);
     strcat(path, USR.triggerOut->path_ptr[num]);
     break;
   case Audio_intoRunning_X:
-    num = HAL_GetTick() % USR.triggerOut_X->number;
-    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/X", USR.bank_now + 1);
-    strcat(path, USR.triggerOut_X->path_ptr[num]);
+    if (USR.triggerOut_X->number > 0)
+    {
+      num = HAL_GetTick() % USR.triggerOut_X->number;
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/X", USR.bank_now + 1);
+      strcat(path, USR.triggerOut_X->path_ptr[num]);
+    }
+    else
+      goto TRIGGER_OUT_REOPEN;
     break;
   case Audio_intoRunning_Y:
-    num = HAL_GetTick() % USR.triggerOut_Y->number;
-    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Y", USR.bank_now + 1);
-    strcat(path, USR.triggerOut_Y->path_ptr[num]);
+    if (USR.triggerOut_Y->number > 0)
+    {
+      num = HAL_GetTick() % USR.triggerOut_Y->number;
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Y", USR.bank_now + 1);
+      strcat(path, USR.triggerOut_Y->path_ptr[num]);
+    }
+    else
+      goto TRIGGER_OUT_REOPEN;
     break;
   case Audio_intoRunning_Z:
-    num = HAL_GetTick() % USR.triggerOut_Z->number;
-    sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Z", USR.bank_now + 1);
-    strcat(path, USR.triggerOut_Z->path_ptr[num]);
+    if (USR.triggerOut_Z->number > 0)
+    {
+      num = HAL_GetTick() % USR.triggerOut_Z->number;
+      sprintf(path, "0:/Bank%d/" TRIGGER(IN) "/Z", USR.bank_now + 1);
+      strcat(path, USR.triggerOut_Z->path_ptr[num]);
+    }
+    else
+      goto TRIGGER_OUT_REOPEN;
     break;
   default:
     return;

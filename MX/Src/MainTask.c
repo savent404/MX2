@@ -129,13 +129,14 @@ void StartDefaultTask(void const *argument)
     ///Button check ant its function
     if (USR.sys_status == System_Ready)
     {
-
+      int acc_ans;
       /**< Power Key down*/
       if (key_status & 0x04)
       {
         uint16_t timeout = 0;
         uint16_t max = USR.config->Tpoff > USR.config->Tout ? USR.config->Tpoff : USR.config->Tout;
         uint16_t min = USR.config->Tpoff > USR.config->Tout ? USR.config->Tout : USR.config->Tpoff;
+
         static uint8_t click_cnt = 0;
         static uint32_t tick_stick = 0;
 
@@ -169,11 +170,11 @@ void StartDefaultTask(void const *argument)
         }
         else
         {
-          tick_stick += 1;
+          click_cnt += 1;
         }
 
         // into Player mode
-        if (tick_stick == 3 && (osKernelSysTick() - tick_stick < osKernelSysTickFrequency * 1))
+        if (click_cnt == 3 && (osKernelSysTick() - tick_stick < osKernelSysTickFrequency * 1))
         {
           tick_stick = 0;
           H_PlayerEnter();
@@ -184,7 +185,7 @@ void StartDefaultTask(void const *argument)
       {
         uint16_t timeout = 0;
         uint16_t max = USR.config->Ts_switch;
-        while ((!(key_scan() & 0x02)) && timeout < max)
+        while (!(key_scan() & 0x02))
         {
           osDelay(10);
           timeout += 10;
@@ -194,14 +195,16 @@ void StartDefaultTask(void const *argument)
         }
       }
 
-      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) > USR.config->ShakeOutG)
+      else if ((acc_ans = (int)sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) * 8000 / 0x8000) > USR.config->ShakeOutG * 1000)
       {
+        log_i("acc:%dmg", acc_ans);
         H_OUT();
       }
     }
 
     else if (USR.sys_status == System_Running)
     {
+      int acc_ans;
       // PowerKey
       if (key_status & 0x04)
       {
@@ -228,17 +231,6 @@ void StartDefaultTask(void const *argument)
       // User Key
       else if (key_status & 0x08)
       {
-        static bool triggerE_HoldFlag = false;
-
-        if (triggerE_HoldFlag)
-        {
-          triggerE_HoldFlag = false;
-          H_TriggerEOff();
-          while (!(key_scan() & 0x02))
-            osDelay(10);
-          break;
-        }
-
         uint16_t timeout = 0;
         while (!(key_scan() & 0x02))
         {
@@ -255,11 +247,20 @@ void StartDefaultTask(void const *argument)
               hold += 10;
             }
 
-            if (hold < USR.config->LockupHold)
+            if (USR.config->LockupHold > 0 && hold < USR.config->LockupHold)
               H_TriggerEOff();
             else
             {
-              triggerE_HoldFlag = true;
+              // triggerE_HoldFlag = true;
+              while (!(key_scan() & 0x08))
+              {
+                osDelay(10);
+              }
+              H_TriggerEOff();
+              while (!(key_scan() & 0x02))
+              {
+                osDelay(10);
+              }
             }
             break;
           }
@@ -269,8 +270,10 @@ void StartDefaultTask(void const *argument)
           H_TriggerD();
         }
       }
-      else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) > USR.config->ShakeInG)
+      // else if (sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) > USR.config->ShakeInG)
+      else if ((acc_ans = (int)sqrt(lisData.Dx * lisData.Dx + lisData.Dy * lisData.Dy + lisData.Dz * lisData.Dz) * 8000 / 0x8000) > USR.config->ShakeInG * 1000)
       {
+        log_i("acc:%dmg", acc_ans);
         H_IN();
       }
       move_detected();
@@ -751,9 +754,10 @@ static void H_BankSwitch(void)
   USR.bank_now += 1;
   USR.bank_now %= USR.nBank;
   USR.config = USR._config + USR.bank_now;
-  // LED_Bank_Update(&USR);
+  MX_File_SetBank(USR.bank_now);
   usr_config_update();
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+  LED_Start_Trigger(LED_Trigger_BankSwitch);
   Audio_Play_Start(Audio_BankSwitch);
 }
 static void H_ColorSwitch(void)
@@ -766,8 +770,8 @@ static void H_ColorSwitch(void)
 static void H_PlayerEnter(void)
 {
   log_v("player enter");
-  Audio_Play_Start(Audio_Player_Enter);
   USR.sys_status = System_Player;
+  Audio_Play_Start(Audio_Player_Enter);
 }
 static void H_PlayerExit(void)
 {

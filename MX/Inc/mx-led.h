@@ -20,6 +20,7 @@ typedef enum _led_message {
   LED_Trigger_ColorSwitch = 0x07,
   LED_Trigger_Start = 0x08,
   LED_Trigger_Stop = 0x09,
+  LED_Trigger_BankSwitch = 0x10,
 } LED_Message_t;
 
 typedef struct _LED_Opra_Method

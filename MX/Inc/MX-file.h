@@ -101,6 +101,10 @@ int MX_File_SearchDir(const char *subdir, const char *prefix, const char *suffix
 void MX_File_InfoLFN_Init(FILINFO *info);
 void MX_File_InfoLFN_DeInit(FILINFO *info);
 
+// 系统设置支持
+int MX_File_GetBank(void);
+void MX_File_SetBank(int bank);
+
 // String.h 补全
 char *upper(char *src);
 #ifdef __GNUC__
