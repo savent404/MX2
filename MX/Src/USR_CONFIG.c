@@ -1,4 +1,5 @@
 #include "USR_CONFIG.h"
+#include <stdbool.h>
 
 PARA_DYNAMIC_t USR;
 
@@ -584,6 +585,17 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
   char sbuffer[CONST_KEY_LEN + 30];
   char name[CONST_KEY_LEN];
   char *spt;
+  bool *bank_color_bool = (bool *)malloc(sizeof(bool) * USR.nBank);
+  bool *fbank_color_bool = (bool *)malloc(sizeof(bool) * USR.nBank);
+  bool *lbank_color_bool = (bool *)malloc(sizeof(bool) * USR.nBank);
+
+  for (int i = 0; i < USR.nBank; i++)
+  {
+    bank_color_bool[i] = false;
+    fbank_color_bool[i] = false;
+    lbank_color_bool[i] = false;
+  }
+
   while ((spt = f_gets(sbuffer, 50, file)) != 0)
   {
     int8_t res = GetName(spt, name);
@@ -596,6 +608,7 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
       pt->BankColor[res * 6 + 0 - 6] = *(uint32_t *)(buf + 0);
       pt->BankColor[res * 6 + 1 - 6] = *(uint32_t *)(buf + 2);
+      bank_color_bool[res] = true;
       continue;
     }
     else if (res > 0 && res % 3 == 1)
@@ -607,6 +620,7 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
       pt->BankColor[res * 6 + 2 - 6] = *(uint32_t *)(buf + 0);
       pt->BankColor[res * 6 + 3 - 6] = *(uint32_t *)(buf + 2);
+      fbank_color_bool[res] = true;
       continue;
     }
     else if (res > 0 && res % 3 == 2)
@@ -618,6 +632,7 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
       pt->BankColor[res * 6 + 4 - 6] = *(uint32_t *)(buf + 0);
       pt->BankColor[res * 6 + 5 - 6] = *(uint32_t *)(buf + 2);
+      lbank_color_bool[res] = true;
       continue;
     }
     for (res = 0; res < sizeof(name_string) / CONST_KEY_LEN; res++)
@@ -761,5 +776,29 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       break;
     }
   }
+
+  for (int i = 1; i < USR.nBank; i++)
+  {
+    if (bank_color_bool[i] == false)
+    {
+      pt->BankColor[i * 6 + 0 - 6] = (pt->BankColor[0]);
+      pt->BankColor[i * 6 + 1 - 6] = (pt->BankColor[1]);
+    }
+    if (fbank_color_bool[i] == false)
+    {
+      pt->BankColor[i * 6 + 2 - 6] = (pt->BankColor[2]);
+      pt->BankColor[i * 6 + 3 - 6] = (pt->BankColor[3]);
+    }
+    if (lbank_color_bool[i] == false)
+    {
+      pt->BankColor[i * 6 + 4 - 6] = (pt->BankColor[4]);
+      pt->BankColor[i * 6 + 5 - 6] = (pt->BankColor[5]);
+    }
+  }
+
+  free(bank_color_bool);
+  free(fbank_color_bool);
+  free(lbank_color_bool);
+
   return 0;
 }
