@@ -579,6 +579,46 @@ static void set_config(PARA_DYNAMIC_t *pt)
   pt->config->LockupHold = 0;
   pt->config->Lowpower = STATIC_USR.vol_warning;
   pt->config->PowerSavingPerrecnts = 0;
+
+  pt->config->Vol = 3;
+  pt->config->Tpon = 800;
+  pt->config->Tpoff = 800;
+  pt->config->Tout = 200;
+  pt->config->Tin = 500;
+  pt->config->Ts_switch = 500;
+  pt->config->Tautoin = 60000;
+  pt->config->Tautooff = 120000;
+  pt->config->Tmute = 500;
+  pt->config->TLcolor = 200;
+  pt->config->TBfreeze = 200;
+  pt->config->TBMode = 1;
+  pt->config->TCfreeze = 150;
+  pt->config->TCMode = 0x06;
+  pt->config->TDfreeze = 150;
+  pt->config->TDMode = 0x06;
+  pt->config->TEtrigger = 600;
+  pt->config->TEMode = 0x08;
+  pt->config->TLon = 2000;
+  pt->config->TLoff = 700;
+  pt->config->Lbright = 1023;
+  pt->config->Ldeep = 768;
+  pt->config->LMode = 2;
+  pt->config->T_Breath = 1000;
+  pt->config->MD = 30;
+  pt->config->MT = 2;
+  pt->config->CD = 4;
+  pt->config->CT = 30;
+  pt->config->CL = 30;
+  pt->config->CW = 0;
+
+  if (USR.nBank > 0)
+  {
+    pt->BankColor[0] = (1023) << 16 + 1023;
+    pt->BankColor[1] = 0;
+
+    pt->BankColor[2] = 0;
+    pt->BankColor[3] = (1023) << 16 + 1023;
+  }
 }
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
 {
