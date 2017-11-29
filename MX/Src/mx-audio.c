@@ -30,16 +30,14 @@ __weak void pcm_convert(int16_t *_pt, uint8_t vol, uint32_t cnt)
 /**
  * brief  Audio.c DACHandle调用的底层函数
  */
-__weak void MX_Audio_Start(uint16_t* pt1, uint16_t *pt2, uint8_t vol, uint32_t cnt)
+__weak void MX_Audio_Start(uint16_t* pt, uint8_t vol, uint32_t cnt)
 {
-  if (vol == 0) return;
-  // pcm_convert((int16_t*)pt1, 4 + 3 - vol, cnt);
-  // pcm_convert((int16_t*)pt2, 4 + 3 - vol, cnt);
-  pcm_convert((int16_t*)pt1, vol, cnt);
-  pcm_convert((int16_t*)pt2, vol, cnt);
-  MX_Audio_Mute(false);
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)pt1, cnt, DAC_ALIGN_12B_R);
-  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)pt2, cnt, DAC_ALIGN_12B_R);
+  if (vol >= 0)
+  {
+    pcm_convert((int16_t*)pt, vol, cnt);
+    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t *)pt, cnt, DAC_ALIGN_12B_R);
+  }
+
 }
 
 /**
@@ -84,7 +82,7 @@ __weak void MX_Audio_HWBeep(void)
  */
 __weak void MX_Audio_Mute(bool en)
 {
-  HAL_GPIO_WritePin(AUDIO_EN_GPIO_Port,
-                    AUDIO_EN_Pin,
-                    en ? GPIO_PIN_RESET : GPIO_PIN_SET);
+  // HAL_GPIO_WritePin(AUDIO_EN_GPIO_Port,
+  //                   AUDIO_EN_Pin,
+  //                   en ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }

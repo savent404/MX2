@@ -13,7 +13,11 @@
 #include "mx-file.h"
 #include "mx-led.h"
 #include "mx-spi.h"
+
+#if USE_NEOPIXEL == 1
 #include "neopixel-drive.h"
+#endif
+
 
 extern const LED_Opra_t NEO_LED_Opra;
 extern SPI_HandleTypeDef* NEO_LED_LL_Init(void);
