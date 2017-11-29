@@ -1185,7 +1185,7 @@
 	"bsp_driver_sd.h"
 	"bsp_driver_sd.h"
 
-1505290703 source:e:\github_clone\mx2\mx2_audioplayer\src\dac.c
+1511966888 source:e:\github_clone\mx2\mx2_audioplayer\src\dac.c
 	"dac.h"
 	"gpio.h"
 	"dma.h"
@@ -1408,7 +1408,7 @@
 	"cmsis_os.h"
 	"mx-config.h"
 
-1509276951 e:\github_clone\mx2\mx\inc\usr_config.h
+1511967432 e:\github_clone\mx2\mx\inc\usr_config.h
 	"AF.h"
 	"DEBUG.h"
 	"ff.h"
@@ -2319,4 +2319,17 @@
 
 1511964308 source:e:\github_clone\mx2\mx\src\pwm-led.c
 	"PWM-led.h"
+
+1511965010 source:e:\github_clone\mx2\mx\src\mx-audio.c
+	"mx-audio.h"
+	"tim.h"
+
+1511964308 source:e:\github_clone\mx2\mx\src\mx-file.c
+	"mx-file.h"
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1511966888 source:e:\github_clone\mx2\mx\src\mx-led.c
+	"mx-led.h"
 

@@ -28,6 +28,24 @@ typedef enum {
   System_Player,
 } System_t;
 
+typedef struct _file_number_limits
+{
+  uint16_t bank_max;
+  uint16_t trigger_in_max;
+  uint16_t trigger_out_max;
+  uint16_t trigger_B_max;
+  uint16_t trigger_C_max;
+  uint16_t trigger_D_max;
+  uint16_t trigger_E_max;
+  uint16_t trigger_F_max;
+  uint16_t trigger_in_x_max;
+  uint16_t trigger_in_y_max;
+  uint16_t trigger_in_z_max;
+  uint16_t trigger_out_x_max;
+  uint16_t trigger_out_y_max;
+  uint16_t trigger_out_z_max;
+} File_NumberLimits_t;
+
 typedef struct _usr_config_structure
 {
   uint8_t Vol; //音量设置(16级)
@@ -106,30 +124,11 @@ typedef struct _accent_structure
   SimpleLED_Acction_t *Clash;
 } Accent_t;
 
-typedef struct _file_number_limits
-{
-  uint16_t bank_max;
-  uint16_t trigger_in_max;
-  uint16_t trigger_out_max;
-  uint16_t trigger_B_max;
-  uint16_t trigger_C_max;
-  uint16_t trigger_D_max;
-  uint16_t trigger_E_max;
-  uint16_t trigger_F_max;
-  uint16_t trigger_in_x_max;
-  uint16_t trigger_in_y_max;
-  uint16_t trigger_in_z_max;
-  uint16_t trigger_out_x_max;
-  uint16_t trigger_out_y_max;
-  uint16_t trigger_out_z_max;
-} File_NumberLimits_t;
-
 typedef struct _usr_static_parameter
 {
   uint16_t vol_warning;
   uint16_t vol_poweroff;
   uint16_t vol_chargecomplete;
-  File_NumberLimits_t filelimits;
 } PARA_STATIC_t;
 
 typedef struct _usr_trigger_path
@@ -167,7 +166,7 @@ typedef struct _usr_dynamic_parameter
   uint8_t bank_color;     /**< 当前LED使用的Bank(相对位移,需与Bank_now一起使用) */
   uint8_t mute_flag : 1;  /**< 静音标志位(1Bit) */
   uint8_t audio_busy : 1; /**< 音频输出标志 */
-
+  File_NumberLimits_t filelimits;
 #ifdef USE_DEBUG
   /// Analyze Paramter
   uint16_t Stack_Free[4];
@@ -179,6 +178,6 @@ extern const PARA_STATIC_t STATIC_USR;
 uint8_t usr_config_init(void);
 uint8_t usr_config_update(void);
 
-#define TRIGGER_MAX_NUM(x) (STATIC_USR.filelimits.trigger_##x##_max)
+#define TRIGGER_MAX_NUM(x) (USR.filelimits.trigger_##x##_max)
 
 #endif

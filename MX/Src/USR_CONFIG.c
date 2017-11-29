@@ -7,7 +7,9 @@ const PARA_STATIC_t STATIC_USR = {
     .vol_warning = 2240,        //3.28v / 2 = 1.64v
     .vol_poweroff = 2116,       //3.1v / 2 = 1.55v
     .vol_chargecomplete = 2853, //4.18v / 2 = 2.09v
-    .filelimits = {
+};
+
+File_NumberLimits_t LIMITS_USR = {
         .bank_max = 3,
         .trigger_in_max = 10,
         .trigger_out_max = 10,
@@ -22,7 +24,7 @@ const PARA_STATIC_t STATIC_USR = {
         .trigger_out_x_max = 10,
         .trigger_out_y_max = 10,
         .trigger_out_z_max = 10,
-    }};
+};
 #define CONST_KEY_LEN 25
 static const char name_string[][CONST_KEY_LEN] = {
     /**< Position:0~5  */
@@ -39,8 +41,8 @@ static const char name_string[][CONST_KEY_LEN] = {
     "DriverMode", "MD", "MT", "CD", "CT", "CL",
     /**< Position:36~39*/
     "CW", "Direction", "ShakeOutG", "ShakeInG",
-    /**< Position:40~42*/
-    "LockupHold", "Lowpower", "PowerSavingPerecnts"};
+    /**< Position:40~43*/
+    "LockupHold", "Lowpower", "PowerSavingPerecnts", "Bank_max"};
 
 /** \brief 获取循环音频有效负载量
  *
@@ -93,6 +95,9 @@ static uint8_t get_accent_para(uint8_t Bank, PARA_DYNAMIC_t *pt);
  */
 uint8_t usr_config_init(void)
 {
+
+  USR.filelimits = LIMITS_USR;
+
   FRESULT f_err;
   FIL *file = (FIL *)pvPortMalloc(sizeof(FIL));
 
@@ -100,9 +105,9 @@ uint8_t usr_config_init(void)
 
   // 获取bank数量
   USR.nBank = MX_File_SearchDir("0:/", "Bank", NULL);
-  if (STATIC_USR.filelimits.bank_max < USR.nBank)
+  if (USR.filelimits.bank_max < USR.nBank && USR.filelimits.bank_max != 0)
   {
-    USR.nBank = STATIC_USR.filelimits.bank_max;
+    USR.nBank = USR.filelimits.bank_max;
   }
 
   USR.bank_now %= USR.nBank;
@@ -750,6 +755,9 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       break;
     case 42:
       sscanf(spt, "%*[^=]=%hd", &(pt->config->PowerSavingPerrecnts));
+      break;
+    case 43:
+      sscanf(spt, "%*[^=]=%hd", &(pt->filelimits.bank_max));
       break;
     }
   }
