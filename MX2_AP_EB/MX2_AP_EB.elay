@@ -11,6 +11,11 @@
 			<Cursor1 position="0" topLine="30" />
 		</Cursor>
 	</File>
+	<File name="..\MX2_AudioPlayer\Inc\dac.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
+		</Cursor>
+	</File>
 	<File name="..\MX2_AudioPlayer\Middlewares\Third_Party\FatFs\src\ff.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="41506" topLine="832" />
@@ -34,6 +39,11 @@
 	<File name="..\MX2_AudioPlayer\Middlewares\Third_Party\FreeRTOS\Source\tasks.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="92155" topLine="2663" />
+		</Cursor>
+	</File>
+	<File name="..\MX2_AudioPlayer\Src\dac.c" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6679" topLine="171" />
 		</Cursor>
 	</File>
 	<File name="..\MX2_AudioPlayer\Src\main.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -66,9 +76,9 @@
 			<Cursor1 position="138" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="..\MX\Inc\mx-audio.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\MX\Inc\mx-audio.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="147" topLine="0" />
+			<Cursor1 position="79" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="..\MX\Inc\mx-led.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -76,9 +86,14 @@
 			<Cursor1 position="907" topLine="14" />
 		</Cursor>
 	</File>
+	<File name="..\MX\Inc\NEO-LED.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="270" topLine="0" />
+		</Cursor>
+	</File>
 	<File name="..\MX\Src\Audio.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7170" topLine="232" />
+			<Cursor1 position="4787" topLine="151" />
 		</Cursor>
 	</File>
 	<File name="..\MX\Src\MainTask.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -86,9 +101,19 @@
 			<Cursor1 position="2838" topLine="100" />
 		</Cursor>
 	</File>
-	<File name="..\MX\Src\mx-led.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="..\MX\Src\mx-audio.c" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="245" topLine="0" />
+			<Cursor1 position="1943" topLine="41" />
+		</Cursor>
+	</File>
+	<File name="..\MX\Src\mx-led.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="510" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="..\MX\Src\PWM-led.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7497" topLine="239" />
 		</Cursor>
 	</File>
 	<File name="..\MX\Src\SimpleLED.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">

@@ -326,9 +326,12 @@
 		<Unit filename="..\MX\Inc\AF.h" />
 		<Unit filename="..\MX\Inc\Audio.h" />
 		<Unit filename="..\MX\Inc\DEBUG.h" />
+		<Unit filename="..\MX\Inc\LED.h" />
 		<Unit filename="..\MX\Inc\Lis3D.h" />
 		<Unit filename="..\MX\Inc\mx-adc.h" />
 		<Unit filename="..\MX\Inc\mx-audio.h" />
+		<Unit filename="..\MX\Inc\mx-config.h" />
+		<Unit filename="..\MX\Inc\MX-file.h" />
 		<Unit filename="..\MX\Inc\mx-gpio.h" />
 		<Unit filename="..\MX\Inc\mx-led.h" />
 		<Unit filename="..\MX\Inc\mx-spi.h" />
@@ -345,6 +348,12 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX\Src\MainTask.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\mx-audio.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX\Src\MX-file.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="..\MX\Src\mx-led.c">
