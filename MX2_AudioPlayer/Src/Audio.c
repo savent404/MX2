@@ -27,6 +27,7 @@ extern osMessageQId DAC_CMDHandle;
 extern osMessageQId LED_CMDHandle;
 extern osSemaphoreId DAC_Complete_FlagHandle;
 
+static osSemaphoreId Sem_newTriggerHandle;
 
 #define PRI_TRIGGER_B           3
 #define PRI_TRIGGER_C           2
@@ -41,6 +42,7 @@ static uint8_t SIMPLE_PLAY_READY = 1;
 static UINT hum_offset = 0;
 static UINT trigger_offset = 0;
 static char trigger_path[50];
+static uint32_t TRIGGER_SIZE;
 __IO static char pri_now = PRI(NULL);
 
 __IO static float audio_convert_f = 1;
@@ -63,7 +65,7 @@ static void play_a_buffer(uint16_t*);
 __STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek);
 __STATIC_INLINE void pcm_convert(int16_t*);
 __STATIC_INLINE void pcm_convert2(int16_t*, int16_t*);
-#define convert_filesize2MS(size) (size / 22 / sizeof(uint16_t))
+#define convert_filesize2MS(size) ((size) / 22 / sizeof(uint16_t))
 #define convert_ms2filesize(ms)   (ms * sizeof(uint16_t) * 22)
 #define RESET_Buffer()            f_close(&file_1); \
 				                          f_close(&file_2); \
@@ -101,6 +103,9 @@ void DACOutput(void const * argument)
 
 void Wav_Task(void const * argument)
 {
+
+  osSemaphoreDef(Sem_newTrigger);
+  Sem_newTriggerHandle = osSemaphoreCreate(osSemaphore(Sem_newTrigger), 1);
 
   while (1)
   {
@@ -495,6 +500,11 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer,
     taskEXIT_CRITICAL();
     return FR_OK;
   }
+  /** Read Trigger file's duration */
+  if (*seek == 0 && FR_OK == f_lseek(fpt, sizeof(struct  _AF_PCM) + 4)) {
+    f_read(fpt, &TRIGGER_SIZE, 4, &f_cnt);
+    osSemaphoreRelease(Sem_newTriggerHandle);
+  }
 
   if ((f_err = f_lseek(fpt, *seek + sizeof(struct _AF_PCM) + sizeof(struct _AF_DATA))) != FR_OK)
   {
@@ -537,4 +547,13 @@ void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 uint8_t Audio_IsSimplePlayIsReady(void)
 {
   return SIMPLE_PLAY_READY;
+}
+
+uint32_t Audio_getCurrentTriggerT()
+{
+  osSemaphoreWait(Sem_newTriggerHandle, osWaitForever);
+  while (trigger_offset == 0 && *trigger_path == 0) {
+    osSemaphoreWait(Sem_newTriggerHandle, osWaitForever);
+  }
+  return convert_filesize2MS(TRIGGER_SIZE - trigger_offset);
 }

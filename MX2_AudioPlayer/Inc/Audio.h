@@ -29,6 +29,12 @@ typedef enum _play_audio_id {
 int8_t Audio_Play_Start(Audio_ID_t id);
 int8_t Audio_Play_Stop(Audio_ID_t id);
 uint8_t Audio_IsSimplePlayIsReady(void);
+
+/**
+ * @brief 获取音频文件的持续时间
+ * @return 时间(ms)
+ */
+uint32_t Audio_getCurrentTriggerT();
 void Audio_Play_LOOP(void);
 
 #endif

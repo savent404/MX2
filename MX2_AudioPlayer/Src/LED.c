@@ -1,4 +1,5 @@
 #include "LED.h"
+#include "Audio.h"
 #include "USR_CONFIG.h"
 #include "DEBUG.h"
 #include "tim.h"
@@ -202,8 +203,9 @@ static LED_Trigger_Method_t LED_Trigger_Method(LED_Message_t trigger_bcd)
             // if (message > trigger_bcd) return message;
         } break;
         case LED_Trigger_Method_nSpark: {
-            uint8_t cnt = nSparkCount;
-            while (--cnt)
+            uint32_t totalTime = Audio_getCurrentTriggerT();
+            uint8_t cnt = totalTime / (T_nSpark + T_nSparkGap);
+            while (cnt--)
             {
                 message = LED_RGB_Toggle(0, T_nSpark);
                 if (message > trigger_bcd) return message;
