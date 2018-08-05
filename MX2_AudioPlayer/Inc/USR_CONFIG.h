@@ -109,6 +109,7 @@ typedef struct _usr_dynamic_parameter {
   TRIGGER_PATH_t *triggerIn;
   TRIGGER_PATH_t *triggerOut;
   Accent_t *accent;         /**< 简单LEDAccent配置信息 */
+  USR_CONFIG_t backUpConfig;
   USR_CONFIG_t *config;     /**< 用户config文本配置信息 */
   USR_CONFIG_t *_config;    /**< 各Bank的配置信息 */
   System_t sys_status;      /**< 系统状态 */
@@ -126,7 +127,9 @@ typedef struct _usr_dynamic_parameter {
 extern PARA_DYNAMIC_t USR;
 extern const PARA_STATIC_t STATIC_USR;
 uint8_t usr_config_init(void);
-
+uint8_t usr_switch_bank(int dest, int freshFlag);
+uint8_t usr_init_bank(int bankPos, int storagePos);
+uint8_t usr_update_triggerPah(int bankPos);
 #define TRIGGER_MAX_NUM(x) (STATIC_USR.filelimits.trigger_##x##_max)
 
 #endif

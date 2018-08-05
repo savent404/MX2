@@ -102,7 +102,7 @@ void StartDefaultTask(void const * argument)
 
   // 初始化结构体中的参数
   USR.sys_status = System_Restart;
-  USR.bank_now = 0;
+  usr_switch_bank(0, 1);
   USR.bank_color = 0;
 
   // 更新LED用到的变量
@@ -148,7 +148,7 @@ void StartDefaultTask(void const * argument)
   SimpleLED_Init();
   SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
   osTimerStart(SimpleLEDHandle, 10);
-  
+
 
   USR.sys_status = System_Ready;
 
@@ -218,10 +218,8 @@ void StartDefaultTask(void const * argument)
         }
         if (timeout >= USR.config->Ts_switch)
         {
-          USR.bank_now += 1;
-          USR.bank_now %= USR.nBank;
           DEBUG(5, "System Bank Switch");
-          USR.config = USR._config + USR.bank_now;
+          usr_switch_bank((USR.bank_now + 1) % USR.nBank, 0);
           LED_Bank_Update(&USR);
           SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
           Audio_Play_Start(Audio_BankSwitch);

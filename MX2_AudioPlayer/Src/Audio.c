@@ -291,11 +291,10 @@ static void Play_Trigger_wav(uint8_t triggerid)
     uint8_t pri;
     switch (triggerid)
     {
-      case 0: cnt = (USR.triggerB + USR.bank_now)->number; pri = PRI(B);break;
-      case 1: cnt = (USR.triggerC + USR.bank_now)->number; pri = PRI(C);break;
-      case 2: cnt = (USR.triggerD + USR.bank_now)->number; pri = PRI(D);break;
+      case 0: cnt = (USR.triggerB + 1)->number; pri = PRI(B);break;
+      case 1: cnt = (USR.triggerC + 1)->number; pri = PRI(C);break;
+      case 2: cnt = (USR.triggerD + 1)->number; pri = PRI(D);break;
     } num = HAL_GetTick() % cnt;
-    //sprintf(path, "0:/Bank%d/Trigger_%c/", USR.bank_now + 1, triggerid + 'B');
     switch (triggerid) {
       case 0: sprintf(path, "0:/Bank%d/"TRIGGER(B)"/", USR.bank_now + 1); break;
       case 1: sprintf(path, "0:/Bank%d/"TRIGGER(C)"/", USR.bank_now + 1); break;
@@ -303,9 +302,9 @@ static void Play_Trigger_wav(uint8_t triggerid)
     }
     switch (triggerid)
     {
-      case 0: strcat(path, (USR.triggerB + USR.bank_now)->path_arry + 30*num); break;
-      case 1: strcat(path, (USR.triggerC + USR.bank_now)->path_arry + 30*num); break;
-      case 2: strcat(path, (USR.triggerD + USR.bank_now)->path_arry + 30*num); break;
+      case 0: strcat(path, (USR.triggerB + 1)->path_arry + 30*num); break;
+      case 1: strcat(path, (USR.triggerC + 1)->path_arry + 30*num); break;
+      case 2: strcat(path, (USR.triggerD + 1)->path_arry + 30*num); break;
     }
     Play_RunningLOOPwithTrigger(path, pri);
   }
@@ -319,11 +318,11 @@ static void Play_Trigger_wav(uint8_t triggerid)
 static void Play_TriggerE(void)
 {
   char path[50];
-  uint8_t cnt = (USR.triggerE + USR.bank_now)->number;
+  uint8_t cnt = (USR.triggerE + 1)->number;
   uint8_t pri = PRI(E);
   uint8_t num = HAL_GetTick() % cnt;
   sprintf(path, "0:/Bank%d/"TRIGGER(E)"/", USR.bank_now + 1);
-  strcat(path, (USR.triggerE + USR.bank_now)->path_arry + 30*num);
+  strcat(path, (USR.triggerE + 1)->path_arry + 30*num);
   Play_RunningLOOPwithTrigger(path, pri);
 
 }
@@ -336,18 +335,18 @@ static void Play_TriggerE_END(void)
 }
 static void Play_IN_wav(void)
 {
-  uint8_t cnt = (USR.triggerIn + USR.bank_now)->number;
+  uint8_t cnt = (USR.triggerIn + 1)->number;
   uint8_t num = HAL_GetTick() % cnt;
   char path[50];
 
   sprintf(path, "0:/Bank%d/"TRIGGER(IN)"/", USR.bank_now+1);
-  strcat(path, (USR.triggerIn + USR.bank_now)->path_arry + 30*num);
+  strcat(path, (USR.triggerIn + 1)->path_arry + 30*num);
 
   Play_simple_wav(path);
 }
 static void Play_OUT_wav(void)
 {
-  uint8_t cnt = (USR.triggerOut + USR.bank_now)->number;
+  uint8_t cnt = (USR.triggerOut + 1)->number;
   uint8_t num = HAL_GetTick() % cnt;
   char path[50];
   char hum_path[50];
@@ -355,7 +354,7 @@ static void Play_OUT_wav(void)
   UINT point = convert_ms2filesize(USR.config->Out_Delay);
   sprintf(hum_path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
   sprintf(path, "0:/Bank%d/"TRIGGER(OUT)"/", USR.bank_now+1);
-  strcat(path, (USR.triggerOut + USR.bank_now)->path_arry + 30*num);
+  strcat(path, (USR.triggerOut + 1)->path_arry + 30*num);
 
   // Play_simple_wav(path);
   while (1) {

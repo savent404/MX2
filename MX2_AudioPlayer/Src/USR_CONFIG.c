@@ -15,13 +15,13 @@ const PARA_STATIC_t STATIC_USR = {
   .vol_poweroff = 2116, //3.1v / 2 = 1.55v
   .vol_chargecomplete = 2853, //4.18v / 2 = 2.09v
   .filelimits = {
-    .bank_max = 3,
-    .trigger_in_max = 10,
-    .trigger_out_max = 10,
-    .trigger_B_max = 10,
-    .trigger_C_max = 10,
-    .trigger_D_max = 10,
-    .trigger_E_max = 10,
+    .bank_max = 99,
+    .trigger_in_max = 16,
+    .trigger_out_max = 16,
+    .trigger_B_max = 16,
+    .trigger_C_max = 16,
+    .trigger_D_max = 16,
+    .trigger_E_max = 16,
   }
 };
 
@@ -86,7 +86,7 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file);
  * \return Error Code
  *
  */
-static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t *pt);
+static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, uint8_t storagePos, PARA_DYNAMIC_t *pt);
 
 /** \brief 得到Accent.txt中的信息
  *
@@ -132,20 +132,36 @@ uint8_t usr_config_init(void)
       return 1;
     }
     /**< Bank number limits */
-    if (STATIC_USR.filelimits.bank_max < USR.nBank) {
+    if (STATIC_USR.filelimits.bank_max < USR.nBank && STATIC_USR.filelimits.bank_max) {
       USR.nBank = STATIC_USR.filelimits.bank_max;
     }
   }
   USR.humsize = (HumSize_t*)pvPortMalloc(sizeof(HumSize_t)*USR.nBank);
-  USR.config = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t));
-  USR._config = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t)*USR.nBank);
+  USR._config = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t)*3);
   USR.BankColor = (uint32_t*)pvPortMalloc(sizeof(uint32_t)*4*USR.nBank);
-  USR.triggerB = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
-  USR.triggerC = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
-  USR.triggerD = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
-  USR.triggerE = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
-  USR.triggerIn = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
-  USR.triggerOut = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*USR.nBank);
+  USR.triggerB = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
+  USR.triggerC = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
+  USR.triggerD = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
+  USR.triggerE = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
+  USR.triggerIn = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
+  USR.triggerOut = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
+
+
+  /**
+   * Trigger needs to be memset to 0 for first init
+   */
+  memset(USR.triggerB, 0, sizeof(TRIGGER_PATH_t)*3);
+  memset(USR.triggerC, 0, sizeof(TRIGGER_PATH_t)*3);
+  memset(USR.triggerD, 0, sizeof(TRIGGER_PATH_t)*3);
+  memset(USR.triggerE, 0, sizeof(TRIGGER_PATH_t)*3);
+  memset(USR.triggerIn, 0, sizeof(TRIGGER_PATH_t)*3);
+  memset(USR.triggerOut, 0, sizeof(TRIGGER_PATH_t)*3);
+
+  /**
+   * We need storage CONFIG.txt data now,
+   * USE USR.config Init this
+   */
+  USR.config = &(USR.backUpConfig);
 
   /**< 获取Hum 有效负载 */
   if (get_humsize(&USR))
@@ -162,45 +178,7 @@ uint8_t usr_config_init(void)
   set_config(&USR);
   f_err = get_config(&USR, file);
   if (f_err) return f_err;
-  if ((f_err = f_close(file)) != FR_OK)
-  {
-    DEBUG(0, "Can't close %s:%d", PATH_CONFIG, f_err);
-    return 1;
-  }
-
-  int i;
-  for (i = 0; i < USR.nBank; i++)
-  {
-    memcpy(USR._config + i, USR.config, sizeof(USR_CONFIG_t));
-  }
-  vPortFree(USR.config);
-  for (i = 0; i < USR.nBank; i++)
-  {
-    char path[20];
-    sprintf(path, "0:/Bank%d/"REPLACE_NAME, i+1);
-    if (f_open(file, path, FA_READ) != FR_OK) continue;
-    USR.config = USR._config + i;
-    get_config(&USR, file);
-    f_close(file);
-  }
-
-  /**< 获取各Bank下TriggerX的信息，包括总数以及各文件的文件名 */
-  for (uint8_t nBank = 0; nBank < USR.nBank; nBank++)
-  {
-    f_err = get_trigger_para(0, nBank + 1, &USR); //Trigger B
-    if (f_err) return f_err;
-    f_err = get_trigger_para(1, nBank + 1, &USR); //Trigger C
-    if (f_err) return f_err;
-    f_err = get_trigger_para(2, nBank + 1, &USR); //Trigger D
-    if (f_err) return f_err;
-    f_err = get_trigger_para(3, nBank + 1, &USR); //Trigger E
-    if (f_err) return f_err;
-    f_err = get_trigger_para(4, nBank + 1, &USR); //Trigger In
-    if (f_err) return f_err;
-    f_err = get_trigger_para(5, nBank + 1, &USR); //Trigger Out
-    if (f_err) return f_err;
-  }
-
+  f_close(file);
   /**< 获取每个bank中的Accent.txt, 包括动作延时时间以及动作信息 */
   USR.accent = (Accent_t*)pvPortMalloc(sizeof(Accent_t)*USR.nBank);
   for (uint8_t nBank = 0; nBank < USR.nBank; nBank++)
@@ -208,6 +186,13 @@ uint8_t usr_config_init(void)
     f_err = get_accent_para(nBank, &USR);
     if (f_err) return f_err;
   } USR.config = USR._config;
+
+  /**< 检查所有bank是否可能出现错误 */
+  for (int i = 0; i < USR.nBank; i++) {
+    /*if (usr_init_bank(i, -1)) {
+      return 1;
+    }*/
+  }
 
   ///以上任意一个错误都是致命的
   ///所以不再对动态分配的内存进行回收，只有在正确返回的情况下考虑回收内存
@@ -238,7 +223,7 @@ static uint8_t get_humsize(PARA_DYNAMIC_t* pt)
   return 0;
 }
 
-static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t *pt)
+static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, uint8_t storagePos, PARA_DYNAMIC_t *pt)
 {
   DIR dir; FILINFO info; char path[25]; FRESULT f_err;
   #if _USE_LFN
@@ -298,26 +283,61 @@ static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t 
   }
 
   switch (triggerid) {
-    case 0: (pt->triggerB + Bank - 1)->number = trigger_cnt;
-            (pt->triggerB + Bank - 1)->path_arry = (char*)pvPortMalloc(sizeof(char)*30*trigger_cnt);
-            break;
-    case 1: (pt->triggerC + Bank - 1)->number = trigger_cnt;
-            (pt->triggerC + Bank - 1)->path_arry = (char*)pvPortMalloc(sizeof(char)*30*trigger_cnt);
-            break;
-    case 2: (pt->triggerD + Bank - 1)->number = trigger_cnt;
-            (pt->triggerD + Bank - 1)->path_arry = (char*)pvPortMalloc(sizeof(char)*30*trigger_cnt);
-            break;
-    case 3: (pt->triggerE + Bank - 1)->number = trigger_cnt;
-            (pt->triggerE + Bank - 1)->path_arry = (char*)pvPortMalloc(sizeof(char)*30*trigger_cnt);
-            break;
-    case 4: (pt->triggerIn + Bank - 1)->number = trigger_cnt;
-            (pt->triggerIn + Bank - 1)->path_arry  = (char*)pvPortMalloc((sizeof(char)*30*trigger_cnt));
-            break;
-    case 5: (pt->triggerOut + Bank - 1)->number = trigger_cnt;
-            (pt->triggerOut + Bank - 1)->path_arry = (char*)pvPortMalloc((sizeof(char)*30*trigger_cnt));
-            break;
+  case 0:
+      if ((pt->triggerB + storagePos)->path_arry != NULL) {
+          if ((pt->triggerB + storagePos)->number == trigger_cnt)
+              break;
+          vPortFree((pt->triggerB + storagePos)->path_arry);
+      }
+      (pt->triggerB + storagePos)->number = trigger_cnt;
+      (pt->triggerB + storagePos)->path_arry = (char*)pvPortMalloc(sizeof(char) * 30 * trigger_cnt);
+      break;
+  case 1:
+        if ((pt->triggerC + storagePos)->path_arry != NULL) {
+          if ((pt->triggerC + storagePos)->number == trigger_cnt)
+              break;
+          vPortFree((pt->triggerC + storagePos)->path_arry);
+      }
+      (pt->triggerC + storagePos)->number = trigger_cnt;
+      (pt->triggerC + storagePos)->path_arry = (char*)pvPortMalloc(sizeof(char) * 30 * trigger_cnt);
+      break;
+  case 2:
+        if ((pt->triggerD + storagePos)->path_arry != NULL) {
+          if ((pt->triggerD + storagePos)->number == trigger_cnt)
+              break;
+          vPortFree((pt->triggerD + storagePos)->path_arry);
+      }
+      (pt->triggerD + storagePos)->number = trigger_cnt;
+      (pt->triggerD + storagePos)->path_arry = (char*)pvPortMalloc(sizeof(char) * 30 * trigger_cnt);
+      break;
+  case 3:
+        if ((pt->triggerE + storagePos)->path_arry != NULL) {
+          if ((pt->triggerE + storagePos)->number == trigger_cnt)
+              break;
+          vPortFree((pt->triggerE + storagePos)->path_arry);
+      }
+      (pt->triggerE + storagePos)->number = trigger_cnt;
+      (pt->triggerE + storagePos)->path_arry = (char*)pvPortMalloc(sizeof(char) * 30 * trigger_cnt);
+      break;
+  case 4:
+        if ((pt->triggerIn + storagePos)->path_arry != NULL) {
+          if ((pt->triggerIn + storagePos)->number == trigger_cnt)
+              break;
+          vPortFree((pt->triggerIn + storagePos)->path_arry);
+      }
+      (pt->triggerIn + storagePos)->number = trigger_cnt;
+      (pt->triggerIn + storagePos)->path_arry = (char*)pvPortMalloc((sizeof(char) * 30 * trigger_cnt));
+      break;
+  case 5:
+        if ((pt->triggerOut + storagePos)->path_arry != NULL) {
+          if ((pt->triggerOut + storagePos)->number == trigger_cnt)
+              break;
+          vPortFree((pt->triggerOut + storagePos)->path_arry);
+      }
+      (pt->triggerOut + storagePos)->number = trigger_cnt;
+      (pt->triggerOut + storagePos)->path_arry = (char*)pvPortMalloc((sizeof(char) * 30 * trigger_cnt));
+      break;
   }
-
 
   if ((f_err = f_opendir(&dir, path)) != FR_OK) {
     DEBUG(0, "Open Bank%d Trigger%c Error:%d", Bank, triggerid+'B', f_err);
@@ -326,12 +346,12 @@ static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, PARA_DYNAMIC_t 
   uint16_t i = 0;
   while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0' && ++i <= trigger_cnt) {
     switch (triggerid) {
-      case 0: strcpy((pt->triggerB + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
-      case 1: strcpy((pt->triggerC + Bank - 1)->path_arry+ (30)*(i - 1), info.fname); break;
-      case 2: strcpy((pt->triggerD + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
-      case 3: strcpy((pt->triggerE + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
-      case 4: strcpy((pt->triggerIn + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
-      case 5: strcpy((pt->triggerOut + Bank - 1)->path_arry + (30)*(i - 1), info.fname); break;
+      case 0: strcpy((pt->triggerB + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
+      case 1: strcpy((pt->triggerC + storagePos)->path_arry+ (30)*(i - 1), info.fname); break;
+      case 2: strcpy((pt->triggerD + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
+      case 3: strcpy((pt->triggerE + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
+      case 4: strcpy((pt->triggerIn + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
+      case 5: strcpy((pt->triggerOut + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
     }
   } f_closedir(&dir);
   return 0;
@@ -425,6 +445,7 @@ static uint8_t get_accent_para(uint8_t Bank, PARA_DYNAMIC_t *pt)
   __get_accent_para(Bank + 1, "On.txt", &((pt->accent + Bank)->On));
   __get_accent_para(Bank + 1, "Lockup.txt", &((pt->accent + Bank)->Lockup));
   __get_accent_para(Bank + 1, "Clash.txt", &((pt->accent + Bank)->Clash));
+  return 0;
 }
 
 char* upper(char *src)
@@ -556,4 +577,112 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       case 36: sscanf(spt,"%*[^=]=%hd", &(pt->config->CW));break;
     }
   } return 0;
+}
+
+
+/**
+ * @brief  切换bank时更新各项usr参数
+ * @note   包括第一次参数的初始化，所以需要注意某些指针的默认值应当为NULL
+ * @param  dest 目的bank
+ * @param  freshFlag != 0 强制初始化前后两个bank,否则采取尽可能复制的方法
+ */
+uint8_t usr_switch_bank(int dest, int freshFlag)
+{
+  int bankNow = USR.bank_now;
+  int bankNum = USR.nBank;
+  int bankPos[3] = {bankNow-1, bankNow, bankNow+1};
+  int destBankPos[3] = {dest-1, dest, dest+1};
+  // init bankPos
+  for (int i = 0; i < 3; i++) {
+    while (bankPos[i] >= bankNum)
+      bankPos[i] -= bankNum;
+    while (bankPos[i] < 0)
+      bankPos[i] += bankNum;
+    while (destBankPos[i] >= bankNum)
+      destBankPos[i] -= bankNum;
+    while (destBankPos[i] < 0)
+      destBankPos[i] += bankNum;
+  }
+
+  // choose copy as possible as we can instead of re-init bank parameter.
+  for (int i = 0; i < 3; i++) {
+    int canCopy = -1;
+    // search bank can use copy method
+    for (int j = 0; j < 3; j++) {
+      if (bankPos[j] == destBankPos[i])
+        canCopy = j;
+    }
+
+    // copy | re-init
+    if (freshFlag || canCopy == -1) {
+      if (usr_init_bank(destBankPos[i], i))
+        return 1;
+    } else {
+      memcpy(USR._config + i, USR._config + canCopy, sizeof(USR_CONFIG_t));
+    }
+  }
+
+  USR.config = USR._config + 1;
+  USR.bank_now = dest;
+
+  usr_update_triggerPah(destBankPos[1]);
+
+  return 0;
+}
+
+/**
+ * @brief 初始化某个bank的特定参数
+ * @warning 某些初始化函数使用了USR.config,需注意线程安全
+ * @param bankPos 读取的Bank Pos
+ * @param storagePos 保持位置[0..2] 代表 前-现在-后
+ * @return !0 即有错
+ */
+uint8_t usr_init_bank(int bankPos, int storagePos)
+{
+  // fatfs stuff
+  FIL file;
+  FRESULT f_err;
+
+  // string buffer, used in file path almostly
+  char strBuffer[128];
+
+  // storagePos < 0, storagePos would be set as 1
+  if (storagePos < 0)
+    storagePos = 1;
+
+  // Range check, storagePos should be [0, 2]
+  if (storagePos > 2)
+    return 1;
+
+  // set BANK config ptr
+  USR.config = USR._config + storagePos;
+
+  // Load Parameter default and setted in CONFIG.txt
+  // Then read from EFFECT.txt in specific dir
+  sprintf(strBuffer, "0:/Bank%d/"REPLACE_NAME, bankPos + 1);
+  memcpy(USR.config, &(USR.backUpConfig), sizeof(USR_CONFIG_t));
+  f_err = f_open(&file, strBuffer, FA_READ);
+  if (f_err)
+      return f_err;
+  f_err = get_config(&USR, &file);
+  if (f_err) {
+    f_close(&file);
+    return f_err;
+  }
+  f_close(&file);
+
+}
+uint8_t usr_update_triggerPah(int bankPos)
+{
+    FRESULT f_err;
+  // Read All trigger's path in bank
+  // TODO: Check get_trigger_para's free function
+  for (int i = 0; i <= 5; i++) {
+    f_err = get_trigger_para(i, bankPos + 1, 1, &USR);
+    osDelay(10);
+    if (f_err)
+      return f_err;
+  }
+
+  return 0;
 }
