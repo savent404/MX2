@@ -554,5 +554,8 @@ uint32_t Audio_getCurrentTriggerT()
   while (trigger_offset == 0 && *trigger_path == 0) {
     osSemaphoreWait(Sem_newTriggerHandle, osWaitForever);
   }
-  return convert_filesize2MS(TRIGGER_SIZE - trigger_offset);
+  int res = TRIGGER_SIZE - trigger_offset;
+  if (res < 0)
+      res = 0;
+  return convert_filesize2MS(res);
 }
