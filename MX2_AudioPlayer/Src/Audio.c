@@ -550,9 +550,11 @@ uint8_t Audio_IsSimplePlayIsReady(void)
 
 uint32_t Audio_getCurrentTriggerT()
 {
-  osSemaphoreWait(Sem_newTriggerHandle, osWaitForever);
-  while (trigger_offset == 0 && *trigger_path == 0) {
-    osSemaphoreWait(Sem_newTriggerHandle, osWaitForever);
+  const uint32_t timeout = 20;
+
+  if (osSemaphoreWait(Sem_newTriggerHandle, timeout) == osErrorOS)
+  {
+    return 100;
   }
   int res = TRIGGER_SIZE - trigger_offset;
   if (res < 0)

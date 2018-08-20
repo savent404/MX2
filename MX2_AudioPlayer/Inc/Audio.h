@@ -32,6 +32,7 @@ uint8_t Audio_IsSimplePlayIsReady(void);
 
 /**
  * @brief 获取音频文件的持续时间
+ * @note  若获取失败则返回固定长度
  * @return 时间(ms)
  */
 uint32_t Audio_getCurrentTriggerT();
