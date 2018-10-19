@@ -185,14 +185,9 @@ uint8_t usr_config_init(void)
   {
     f_err = get_accent_para(nBank, &USR);
     if (f_err) return f_err;
-  } USR.config = USR._config;
-
-  /**< 检查所有bank是否可能出现错误 */
-  for (int i = 0; i < USR.nBank; i++) {
-    /*if (usr_init_bank(i, -1)) {
-      return 1;
-    }*/
   }
+
+  usr_config_init(0, 1);
 
   ///以上任意一个错误都是致命的
   ///所以不再对动态分配的内存进行回收，只有在正确返回的情况下考虑回收内存
