@@ -62,7 +62,7 @@ static void Play_TriggerE_END(void);
 static void Play_RunningLOOP(void);
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri);
 static void play_a_buffer(uint16_t*);
-__STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek);
+__STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek, uint8_t updateWavSize);
 __STATIC_INLINE void pcm_convert(int16_t*);
 __STATIC_INLINE void pcm_convert2(int16_t*, int16_t*);
 #define convert_filesize2MS(size) ((size) / 22 / sizeof(uint16_t))
@@ -359,11 +359,11 @@ static void Play_OUT_wav(void)
   // Play_simple_wav(path);
   while (1) {
     // 读取Out
-    if (read_a_buffer(&file_2, path, dac_buffer[dac_buffer_pos], &trigger_offset) != FR_OK) continue;
+    if (read_a_buffer(&file_2, path, dac_buffer[dac_buffer_pos], &trigger_offset, 1) != FR_OK) continue;
     // 达到Out_Delay延时读取hum.wav
     if (trigger_offset >= point) {
       read_hum_again_1:
-      if (read_a_buffer(&file_1, hum_path, trigger_buffer, &hum_offset) != FR_OK) continue;
+      if (read_a_buffer(&file_1, hum_path, trigger_buffer, &hum_offset, 0) != FR_OK) continue;
       if (!hum_offset) goto read_hum_again_1;
     }
     // 播放一个缓冲块
@@ -388,12 +388,12 @@ static void Play_RunningLOOP(void)
   sprintf(path, "0:/Bank%d/hum.wav", USR.bank_now + 1);
 
   read_hum_again:
-  if (read_a_buffer(&file_1, path, dac_buffer[dac_buffer_pos], &hum_offset) != FR_OK) return;
+  if (read_a_buffer(&file_1, path, dac_buffer[dac_buffer_pos], &hum_offset, 0) != FR_OK) return;
   if (!hum_offset) goto read_hum_again;
   if (pri_now < PRI(NULL))
   {
     read_trigger_again:
-    if (read_a_buffer(&file_2, trigger_path, trigger_buffer, &trigger_offset) != FR_OK) return;
+    if (read_a_buffer(&file_2, trigger_path, trigger_buffer, &trigger_offset, 1) != FR_OK) return;
     if (!trigger_offset)
     {
       if (pri_now == PRI(E)) goto read_trigger_again;
@@ -478,7 +478,7 @@ __STATIC_INLINE void pcm_convert2(int16_t* pt1, int16_t* pt2)
  * @brief  读取一个缓存块
  * @NOTE   当读取到文件结尾处不能填满一个缓存块，将seek指向变量置0，不做读取操作退出
  */
-__STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek)
+__STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek, uint8_t updateWavSize)
 {
   FRESULT f_err;
   UINT f_cnt;
@@ -502,7 +502,8 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer,
   /** Read Trigger file's duration */
   if (*seek == 0 && FR_OK == f_lseek(fpt, sizeof(struct  _AF_PCM) + 4)) {
     f_read(fpt, &TRIGGER_SIZE, 4, &f_cnt);
-    osSemaphoreRelease(Sem_newTriggerHandle);
+    if (updateWavSize)
+      osSemaphoreRelease(Sem_newTriggerHandle);
   }
 
   if ((f_err = f_lseek(fpt, *seek + sizeof(struct _AF_PCM) + sizeof(struct _AF_DATA))) != FR_OK)
