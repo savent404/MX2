@@ -359,7 +359,7 @@ static void Play_OUT_wav(void)
   // Play_simple_wav(path);
   while (1) {
     // 读取Out
-    if (read_a_buffer(&file_2, path, dac_buffer[dac_buffer_pos], &trigger_offset, 1) != FR_OK) continue;
+    if (read_a_buffer(&file_2, path, dac_buffer[dac_buffer_pos], &trigger_offset, 0) != FR_OK) continue;
     // 达到Out_Delay延时读取hum.wav
     if (trigger_offset >= point) {
       read_hum_again_1:
@@ -501,9 +501,11 @@ __STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer,
   }
   /** Read Trigger file's duration */
   if (*seek == 0 && FR_OK == f_lseek(fpt, sizeof(struct  _AF_PCM) + 4)) {
-    f_read(fpt, &TRIGGER_SIZE, 4, &f_cnt);
     if (updateWavSize)
+    {
+      f_read(fpt, &TRIGGER_SIZE, 4, &f_cnt);
       osSemaphoreRelease(Sem_newTriggerHandle);
+    }
   }
 
   if ((f_err = f_lseek(fpt, *seek + sizeof(struct _AF_PCM) + sizeof(struct _AF_DATA))) != FR_OK)
