@@ -62,6 +62,7 @@ static void Play_TriggerE_END(void);
 static void Play_RunningLOOP(void);
 static void Play_RunningLOOPwithTrigger(char *triggerpath, uint8_t pri);
 static void play_a_buffer(uint16_t*);
+static void Audio_clearCurrentTriggerSem(void);
 __STATIC_INLINE FRESULT read_a_buffer(FIL* fpt, const TCHAR* path, void* buffer, UINT *seek, uint8_t updateWavSize);
 __STATIC_INLINE void pcm_convert(int16_t*);
 __STATIC_INLINE void pcm_convert2(int16_t*, int16_t*);
@@ -195,6 +196,7 @@ void Wav_Task(void const * argument)
 				  pri_now = PRI(NULL);
           // 详见 #001 [4]
 				  RESET_Buffer();
+          Audio_clearCurrentTriggerSem();
 					Play_OUT_wav();
 					break;
 
@@ -561,4 +563,8 @@ uint32_t Audio_getCurrentTriggerT()
   if (res < 0)
       res = 0;
   return convert_filesize2MS(res);
+}
+static void Audio_clearCurrentTriggerSem()
+{
+  osSemaphoreWait(Sem_newTriggerHandle, 0);
 }
