@@ -76,22 +76,27 @@ static void NpDataBuffer_Init(_pNpParaConfig pNpParaConfig)
                           (unsigned int)pNpParaConfig->NpV0_Value<<8  | (unsigned int)pNpParaConfig->NpV0_Value;
     unsigned char NpPerido = pNpParaConfig->NpPeriod_Value;
     
+    unsigned char *ptr;
+    
+    ptr = pNpParaConfig->DmaDataBuffer;
+    
     //fill all buffer with NP date R 0x00, G 0x00, B 0x00;
     loopnum = pNpParaConfig->NpNumber * 3 * 8 / 4;
     for(i=0;i<loopnum;i++) {
-        (pNpParaConfig->DmaDataBuffer)[i]=Value0;
+        *(unsigned int *)(ptr) = Value0;
+        ptr+=4;
         //(pNpParaConfig->DataBuffer)[i+pNpParaConfig->DataBufferSize]=pNpParaConfig->NpV0_Value;
     }
     //fill high data before reset symbol
     loopnum += pNpParaConfig->NpRstHighPulse_PeriodNum;
     for(;i<loopnum;i++) {
-        (pNpParaConfig->DmaDataBuffer)[i]=NpPerido;
+        *ptr++=NpPerido;
         //(pNpParaConfig->DataBuffer)[i+pNpParaConfig->DataBufferSize]=pNpParaConfig->NpPeriod_Value;
     }
     //fill low data for reset symbol
     loopnum += pNpParaConfig->NpRstLowPulse_PeriodNum;
     for(;i<loopnum;i++) {
-        (pNpParaConfig->DmaDataBuffer)[i]=0x00;
+        *ptr++=0x00;
         //(pNpParaConfig->DataBuffer)[i+pNpParaConfig->DataBufferSize]=0x00;
     }    
 }
