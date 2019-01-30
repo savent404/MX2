@@ -13,8 +13,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "USR_CONFIG.h"
+
+#ifndef USE_NP
+#define USE_NP 0
+#endif
 
 typedef enum _led_message {
     LED_Trigger_EXIT = 0x00,
@@ -53,7 +58,22 @@ typedef enum _led_trigger_method {
     LED_Trigger_Method_Electricl = 0x04,// 持续闪烁 单次保持时长为T_Electricl
 } LED_Trigger_Method_t;
 
+typedef struct _interface_led {
+    bool (*init)(void* arg);
+    void (*handle)(PARA_DYNAMIC_t* ptr);
+    bool (*updateParam)(PARA_DYNAMIC_t* param);
+} LED_IF_t;
 
+
+#if USE_NP == 1
+#include "LED_NP.h"
+#else
+#include "LED_PWM.h"
+#endif
+
+extern LED_IF_t ledIf;
+
+osEvent LED_GetMessage(uint32_t timeout);
 void LED_Start_Trigger(LED_Message_t message);
 void LED_Bank_Update(PARA_DYNAMIC_t *);
 #endif
