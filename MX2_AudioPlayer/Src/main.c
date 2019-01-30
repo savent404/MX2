@@ -55,7 +55,7 @@
 
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
-#include "lis3d.h"
+#include "Lis3D.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/

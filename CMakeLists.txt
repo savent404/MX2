@@ -1,56 +1,35 @@
-set (PROJECT_NAME MX2)
-set (PROJECT_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/MX2_AudioPlayer")
-set (MCU_FAMILY STM32F1xx)
-set (MCU_LINE   STM32F103xE)
-set (MCU_LINKER_SCRIPT  ${PROJECT_DIR}/STM32F103RDTx_FLASH.ld)
+cmake_minimum_required(VERSION 3.0)
 
-# compiler things
-include(CMakeForceCompiler)
+project(MX2 C CXX ASM)
 
-set(MCU_ARCH cortex-m3)
-set(MCU_FLOAT_ABI soft)
-set(MCU_FPU fpv4-sp-d16)
+enable_language(ASM)
 
-set(CMAKE_C_COMPILER "arm-none-eabi-gcc")
-set(CMAKE_CXX_COMPILER "arm-none-eabi-g++")
+include_directories(${DIR}/Drivers/CMSIS/Device/ST/STM32F1xx/Include)
+include_directories(${DIR}/Drivers/CMSIS/Include)
+include_directories(${DIR}/Drivers/STM32F1xx_HAL_Driver/Inc)
+include_directories(${DIR}/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy)
+include_directories(${DIR}/Inc)
+include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/include/)
+include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/)
+include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS)
+include_directories(${DIR}/Middlewares/Third_Party/FatFs/src/drivers/)
+include_directories(${DIR}/Middlewares/Third_Party/FatFs/src/)
 
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR arm)
-set(CMAKE_SYSTEM_VERSION 1)
-set(CMAKE_EXE_LINKER_FLAGS "-Wl,-gc-sections -T ${MCU_LINKER_SCRIPT} --specs=nosys.specs")
-set(COMMON_FLAGS "-mcpu=${MCU_ARCH} -mthumb -mthumb-interwork -mfloat-abi=${MCU_FLOAT_ABI} -ffunction-sections -fdata-sections -g -fno-common -fmessage-length=0")
+file(GLOB_RECURSE OS_SOURCE     ${DIR}/Middlewares/Third_Party/*.c)
+file(GLOB_RECURSE FAT_SOURCE    ${DIR}/Middlewares/Third_Party/FatFs/*.c)
+file(GLOB_RECURSE DR_SOURCE     ${DIR}/Drivers/CMSIS/*.c ${DIR}/Drivers/STM32F1xx_HAL_Driver/*.c)
+file(GLOB_RECURSE USR_SOURCE    ${DIR}/Src/*.c)
+file(GLOB_RECURSE ASM_SOURCE    ${DIR}/*.s)
 
-if (MCU_FLOAT_ABI STREQUAL hard)
-    set(COMMON_FLAGS "${COMMON_FLAGS} -mfpu=${MCU_FPU}")
-endif ()
+#message(STATUS ${OS_SOURCE})
+#message(STATUS ${FAT_SOURCE})
+#message(STATUS ${DR_SOURCE})
+#message(STATUS ${USR_SOURCE})
 
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++11")
-set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99")
-# endof compiler things
-
-
-cmake_minimum_required(VERSION 3.6)
-
-project(MX2)
-# add option for asm
-
-add_definitions(-D${MCU_LINE})
-add_definitions(-D${USE_HAL_LIBRARY})
-add_definitions(-DARM_MATH_CM3)
-
-file(GLOB_RECURSE CMSIS_ASM    ${PROJECT_DIR}/startup/*.s)
-file(GLOB_RECURSE HAL_SOURCE   ${PROJECT_DIR}/Drivers/STM32F1xx_HAL_Driver/Src/*.c ${PROJECT_DIR}/system_stm32f1xx.c)
-file(GLOB_RECURSE USR_SOURCE   ${PROJECT_DIR}/Src/*.c)
-file(GLOB_RECURSE FREERTOS_SOURCE ${PROJECT_DIR}/Middlewares/Third_Party/FreeRTOS/Source/*.c)
-
-include_directories(${PROJECT_DIR}/Inc)
-include_directories(${PROJECT_DIR}/Drivers/STM32F1xx_HAL_Driver/Inc)
-include_directories(${PROJECT_DIR}/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy)
-include_directories(${PROJECT_DIR}/Drivers/CMSIS/Device/ST/${MCU_FAMILY}/Inc)
-include_directories(${PROJECT_DIR}/Drivers/CMSIS/Include)
-include_directories(${PROJECT_DIR}/Drivers/Middlewares/)
-
-add_library(FreeRTOS STATIC ${FREERTOS_SOURCE})
-
-
+set(ELF MX2.elf)
+add_executable(${ELF} ${USR_SOURCE} ${FAT_SOURCE} ${DR_SOURCE} ${USR_SOURCE} ${ASM_SOURCE})
+set_target_properties(${ELF} PROPERTIES LINKER_LANGUAGE C)
+#target_link_libraries(${ELF} ${FreeRTOS})
+#target_link_libraries(${ELF} ${Fatfs})
+#target_link_libraries(${ELF} ${Driver})
 
