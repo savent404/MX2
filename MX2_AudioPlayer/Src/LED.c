@@ -14,7 +14,17 @@ extern osMessageQId DAC_CMDHandle;
 extern osMessageQId LED_CMDHandle;
 extern osSemaphoreId DAC_Complete_FlagHandle;
 
-LED_IF_t ledIf;
+LED_IF_t ledIf = {
+#if USE_NP == 1
+    .init = NULL,
+    .updateParam = NULL,
+    .handle = NULL,
+#else
+    .init = LED_PWM_Init,
+    .updateParam = LED_PWM_Update,
+    .handle = LED_PWM_Handle,
+#endif
+};
 
 /******************************************************/
 /**
