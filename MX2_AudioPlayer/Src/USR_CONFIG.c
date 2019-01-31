@@ -1,6 +1,6 @@
 #include "USR_CONFIG.h"
 #include "ff.h"
-#include "freeRTOS.h"
+#include "FreeRTOS.h"
 #include "DEBUG.h"
 #include "stdio.h"
 #include "stdlib.h"
@@ -31,10 +31,9 @@ static TCHAR LFN_BUF[120];
 
 // 字符串函数 补全gcc未提供的一些字符串处理函数
 char* upper(char *src);
-#ifdef __GNUC__
+#ifndef __GNU_VISIBLE
 int strcasecmp(const char *src1, const char *src2);
 int strncasecmp(char *src1, char *src2, int num);
-
 #endif
 
 static const char name_string[][10] = {
@@ -187,7 +186,8 @@ uint8_t usr_config_init(void)
     if (f_err) return f_err;
   }
 
-  usr_config_init(0, 1);
+  // usr_config_init(0, 1);
+  usr_config_init();
 
   ///以上任意一个错误都是致命的
   ///所以不再对动态分配的内存进行回收，只有在正确返回的情况下考虑回收内存
@@ -351,7 +351,7 @@ static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, uint8_t storage
   } f_closedir(&dir);
   return 0;
 }
-#ifdef __GUNC__
+#ifdef __STRICT_ANSI__
 int strcasecmp(const char *src1, const char *src2)
 {
   char *pt1 = (char*)pvPortMalloc(strlen(src1)*sizeof(char) + 1),
@@ -454,7 +454,7 @@ char* upper(char *src)
     } pt += 1;
   } return src;
 }
-#ifdef __GNUC__
+#ifndef __GNU_VISIBLE
 int strncasecmp(char *src1, char *src2, int num)
 {
   return strncmp(upper(src1), upper(src2), num);
