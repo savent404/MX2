@@ -22,7 +22,7 @@
 // User Lib
 #include "main.h"
 #include "ff.h"
-#include "debug.h"
+#include "DEBUG.h"
 #include "USR_CONFIG.h"
 #include "dac.h"
 #include "Audio.h"

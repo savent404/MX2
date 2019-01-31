@@ -1,0 +1,8 @@
+build:
+    script:
+        - mkdir build
+        - cd build
+        - export PATH=$PATH:/opt/gcc-arm-none-eabi/bin
+        - cmake .. -DCMAKE_TOOLCHAIN_FILE=../ToolChain.cmake || if [$? -eq 64]; then echo "rebuild cmake"; fi
+        - cmake .. -DCMAKE_TOOLCHAIN_FILE=../ToolChain.cmake
+        - make

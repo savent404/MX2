@@ -1,4 +1,4 @@
-#include "lis3d.h"
+#include "Lis3D.h"
 #include "stm32f1xx_hal.h"
 #include "spi.h"
 #include "main.h"
