@@ -1,11 +1,8 @@
-#include "lednp_hal.h"
-#include "drv.h"
+#include "LED_NP.h"
 
 extern unsigned char DmaCpltFlag;
 
-
 static void NpDataBuffer_Init(_pNpParaConfig pNpParaConfig);
-
 
 _eNPStatus NP_DataIF_Init(_pNpHwConfig pNpHwConfig, _pNpParaConfig pNpParaConfig, _pNpDrv pNpDrv)
 {

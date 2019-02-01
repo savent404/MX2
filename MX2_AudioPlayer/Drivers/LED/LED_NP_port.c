@@ -1,14 +1,13 @@
+#include "LED_NP.h"
 #include "stm32f1xx_hal.h"
 #include "tim.h"
-#include "drv.h"
-
 
 extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_tim4_ch2;
 extern unsigned char DmaCpltFlag;
 
 
-void Np_Tim_Init(unsigned short period) 
+__weak void Np_Tim_Init(unsigned short period) 
 {
     //Timer Initial
   TIM_MasterConfigTypeDef sMasterConfig;
@@ -50,22 +49,17 @@ void Np_Tim_Init(unsigned short period)
 }
 
 
-void Np_Tim_Start(unsigned char * pDataBuffer, unsigned int BufferSize) 
+__weak void Np_Tim_Start(unsigned char * pDataBuffer, unsigned int BufferSize) 
 {
     HAL_TIM_PWM_Start_DMA(&htim4, TIM_CHANNEL_2, (uint32_t *)(pDataBuffer), BufferSize);
 }
 
-void Np_Tim_Stop(void) 
+__weak void Np_Tim_Stop(void) 
 {
     HAL_TIM_PWM_Stop_DMA(&htim4, TIM_CHANNEL_2);
 }
 
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+__weak void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
     DmaCpltFlag=1;
 }
-
-
-
-
-
