@@ -1,6 +1,7 @@
 #include "LED_NP.h"
 #include "stm32f1xx_hal.h"
 #include "tim.h"
+#include "DEBUG.h"
 
 extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_tim4_ch2;
