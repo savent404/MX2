@@ -10,4 +10,5 @@
 #define DEBUG(level, format, ...) ;
 #endif
 
+#define _Error_Handler(fileName, Line) DEBUG(0, "Error occur File:%s\tLine:%d", fileName, Line)
 #endif

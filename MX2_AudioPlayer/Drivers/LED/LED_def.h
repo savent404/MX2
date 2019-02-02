@@ -1,20 +1,11 @@
-#ifndef _LED_H_
-#define _LED_H_
-
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-#include "stm32f1xx_hal.h"
-
-#include "cmsis_os.h"
-#include "FreeRTOS.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "USR_CONFIG.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 typedef enum _led_message {
     LED_Trigger_EXIT = 0x00,
@@ -53,7 +44,12 @@ typedef enum _led_trigger_method {
     LED_Trigger_Method_Electricl = 0x04,// 持续闪烁 单次保持时长为T_Electricl
 } LED_Trigger_Method_t;
 
+typedef struct _interface_led {
+    bool (*init)(void* arg);
+    void (*handle)(PARA_DYNAMIC_t* ptr);
+    bool (*updateParam)(PARA_DYNAMIC_t* param);
+} LED_IF_t;
 
-void LED_Start_Trigger(LED_Message_t message);
-void LED_Bank_Update(PARA_DYNAMIC_t *);
+#ifdef __cplusplus
+}
 #endif

@@ -4,6 +4,8 @@
 #define SPI_DATAMODE 0
 #define PWM_DATAMODE 1
 
+#include "tim.h"
+
 typedef enum {
     NP_OpSuccess = 0,
     NP_ParaError,
@@ -65,6 +67,10 @@ typedef struct {
     
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 _eNPStatus NP_DataIF_Init(_pNpHwConfig pNpHwConfig, _pNpParaConfig pNpParaConfig, _pNpDrv pNpDrv);
 _eNPStatus NP_DataIF_EmgStop();
 _eNPStatus NP_DataIF_Refresh(_pNpParaConfig NpParaConfig);
@@ -72,5 +78,14 @@ _eNPStatus NP_DataIF_GetStatus();
 _eNPStatus NP_DataIF_DMAHalfIntHandler();
 _eNPStatus NP_DataIF_DMAFullIntHandler();
 
+
+/** Portable function */
+void Np_Tim_Init(unsigned short period);
+void Np_Tim_Start(unsigned char *, unsigned int);
+void Np_Tim_Stop(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

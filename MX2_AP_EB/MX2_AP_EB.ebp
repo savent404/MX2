@@ -91,6 +91,10 @@
 		<Unit filename="..\MX2_AudioPlayer\Drivers\CMSIS\Include\core_sc000.h" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\CMSIS\Include\core_sc300.h" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\CMSIS\Lib\GCC\libarm_cortexM3l_math.a" />
+		<Unit filename="..\MX2_AudioPlayer\Drivers\LED_PWM\LED_PWM.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\MX2_AudioPlayer\Drivers\LED_PWM\LED_PWM.h" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal.h" />
 		<Unit filename="..\MX2_AudioPlayer\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_adc.h" />

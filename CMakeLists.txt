@@ -1,13 +1,22 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(MX2 C ASM)
+project(MX2 C CXX ASM)
 
 enable_language(ASM)
+
+option(USE_NP "Choose use PWM or NP LED" off)
+
+if (USE_NP)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_NP=1")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DUSE_NP=1")
+endif(USE_NP)
 
 include_directories(${DIR}/Drivers/CMSIS/Device/ST/STM32F1xx/Include)
 include_directories(${DIR}/Drivers/CMSIS/Include)
 include_directories(${DIR}/Drivers/STM32F1xx_HAL_Driver/Inc)
 include_directories(${DIR}/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy)
+include_directories(${DIR}/Drivers/LED)
+include_directories(${DIR}/Drivers/LED/CXXPort)
 include_directories(${DIR}/Inc)
 include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/include/)
 include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/)
@@ -20,6 +29,7 @@ file(GLOB_RECURSE FAT_SOURCE    ${DIR}/Middlewares/Third_Party/FatFs/*.c)
 file(GLOB_RECURSE DR_SOURCE     ${DIR}/Drivers/CMSIS/*.c ${DIR}/Drivers/STM32F1xx_HAL_Driver/*.c)
 file(GLOB_RECURSE USR_SOURCE    ${DIR}/Src/*.c)
 file(GLOB_RECURSE ASM_SOURCE    ${DIR}/*.s)
+file(GLOB_RECURSE LED_SOURCE    ${DIR}/Drivers/LED/*.c ${DIR}/Drivers/LED/*.cpp)
 
 #message(STATUS ${OS_SOURCE})
 #message(STATUS ${FAT_SOURCE})
@@ -30,9 +40,10 @@ set(ELF MX2.elf)
 add_library(FreeRTOS ${OS_SOURCE})
 add_library(FatFs    ${FAT_SOURCE})
 add_library(HAL_Driv ${DR_SOURCE})
+add_library(LED_Driv ${LED_SOURCE})
 add_executable(${ELF} ${USR_SOURCE} ${ASM_SOURCE})
 set_target_properties(${ELF} PROPERTIES LINKER_LANGUAGE C)
 target_link_libraries(${ELF} FreeRTOS)
 target_link_libraries(${ELF} FatFs)
 target_link_libraries(${ELF} HAL_Driv)
-
+target_link_libraries(${ELF} LED_Driv)
