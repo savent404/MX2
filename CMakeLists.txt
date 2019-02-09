@@ -1,17 +1,38 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(MX2 C CXX ASM)
+project(MX2 C ASM)
 
 enable_language(ASM)
 
-# build MXCore static library
-include(MX/CMakeLists.txt)
+include_directories(${DIR}/Drivers/CMSIS/Device/ST/STM32F1xx/Include)
+include_directories(${DIR}/Drivers/CMSIS/Include)
+include_directories(${DIR}/Drivers/STM32F1xx_HAL_Driver/Inc)
+include_directories(${DIR}/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy)
+include_directories(${DIR}/Inc)
+include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/include/)
+include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/)
+include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS)
+include_directories(${DIR}/Middlewares/Third_Party/FatFs/src/drivers/)
+include_directories(${DIR}/Middlewares/Third_Party/FatFs/src/)
 
-# build BSP static library
-include(defaultBSP/CMakeLists.txt)
+file(GLOB_RECURSE OS_SOURCE     ${DIR}/Middlewares/Third_Party/FreeRTOS/Source/*.c)
+file(GLOB_RECURSE FAT_SOURCE    ${DIR}/Middlewares/Third_Party/FatFs/*.c)
+file(GLOB_RECURSE DR_SOURCE     ${DIR}/Drivers/CMSIS/*.c ${DIR}/Drivers/STM32F1xx_HAL_Driver/*.c)
+file(GLOB_RECURSE USR_SOURCE    ${DIR}/Src/*.c)
+file(GLOB_RECURSE ASM_SOURCE    ${DIR}/*.s)
+
+#message(STATUS ${OS_SOURCE})
+#message(STATUS ${FAT_SOURCE})
+#message(STATUS ${DR_SOURCE})
+#message(STATUS ${USR_SOURCE})
 
 set(ELF MX2.elf)
-add_executable(${ELF} ${USR_SOURCE} ${ASM_SOURCE} ${FAT_SOURCE})
-target_link_libraries(${ELF} BSP)
-set_target_properties(${ELF} PROPERTIES LINKER_LANGUAGE CXX)
-target_link_libraries(${ELF} MXCore)
+add_library(FreeRTOS ${OS_SOURCE})
+add_library(FatFs    ${FAT_SOURCE})
+add_library(HAL_Driv ${DR_SOURCE})
+add_executable(${ELF} ${USR_SOURCE} ${ASM_SOURCE})
+set_target_properties(${ELF} PROPERTIES LINKER_LANGUAGE C)
+target_link_libraries(${ELF} FreeRTOS)
+target_link_libraries(${ELF} FatFs)
+target_link_libraries(${ELF} HAL_Driv)
+

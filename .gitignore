@@ -43,7 +43,6 @@
 *.pdb
 
 # Kernel Module Compile Results
-*build*
 *.mod*
 *.cmd
 .tmp_versions/
