@@ -1,5 +1,6 @@
 #include "mux.h"
 #include "param.h"
+#include <stdbool.h>
 
 #include "ff.h"
 
@@ -29,7 +30,7 @@ void MX_MUX_Init(void)
         info[i].leftSize = 0;
         info[i].fileObj = NULL;
     }
-    dmaPos = dmaPos_1;
+    dmaPos = dmaPos_2;
 
     osSemaphoreDef(mux);
     dma_sem = osSemaphoreCreate(osSemaphore(mux), 1);
@@ -119,11 +120,15 @@ void MX_MUX_SetUp(MUX_TrackId_t id,
                   MUX_Mode_t mode,
                   const char* file)
 {
+    if (mode == MUX_Mode_Idle)
+    {
+        return;
+    }
     /** Alloc file obj first */
     FIL* pFile = (FIL*)osPoolAlloc(mux_file_poolId);
     FRESULT res = f_open(pFile, file, FA_READ);
 
-    if (res == FR_OK)
+    if (res != FR_OK)
     {
         return;
     }
@@ -146,69 +151,74 @@ void MX_MUX_SetUp(MUX_TrackId_t id,
 
 void MX_MUX_Handle(void const* arg)
 {
-    static float f = 1.0f;
-    static float factor = 16.0f * MX_MUX_MAXIUM_TRACKID;
-    static const int bitOffset = 0x1000/2; // 12-bit dac's offset
-    static int16_t  readBuffer[MX_MUX_BUFFSIZE];
+    float f = 1.0f;
+    float factor = 16.0f * MX_MUX_MAXIUM_TRACKID;
+    const int bitOffset = 0x1000/2; // 12-bit dac's offset
+    int16_t  readBuffer[MX_MUX_BUFFSIZE];
 
-    osSemaphoreWait(dma_sem, osWaitForever);
+    MUX_Info_t *ptr;
+    uint16_t *pDma;
+    int offset;
 
-    MUX_Info_t *ptr = info;
-    int16_t* pDma;
-    int offset = 4 + 3 - USR.config->Vol;
+    for (;;) {
 
-    if (USR.config->Vol == 0)
-    {
-        offset = 15;
-    }
+        // wait for dma callback
+        osSemaphoreWait(dma_sem, osWaitForever);
 
-    memset(pDma, 0, sizeof(uint16_t) * MX_MUX_BUFFSIZE);
-    
-    for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++)
-    {
-        size_t canRead = 0;
+        // track info pointer
+        ptr = info;
+
+        // set vol
+        offset = 4 + 3 - USR.config->Vol;
+        if (USR.config->Vol == 0) {
+            offset = 15;
+        }
+
+        // reset dma buffer (pos1 or pos2)
         pDma = (int16_t*)(dmaBuffer + MX_MUX_BUFFSIZE * (int)dmaPos);
-        // read file buffer
-        if (ptr->fileObj)
-        {
-            FIL* pFile = (FIL*)(ptr->fileObj);
-            size_t canRead = ptr->leftSize > sizeof(readBuffer) ?
-                sizeof(readBuffer) :
-                ptr->leftSize;
-            UINT b;
-            if (canRead)
-            {
-                memset(readBuffer, 0, sizeof(readBuffer));
-                isCritical = inCritical;
-                f_read(pFile, readBuffer, sizeof(readBuffer), &b);
-                isCritical = outCritical;
-                ptr->leftSize -= canRead;
-            }
-        }
+        memset(pDma, 0, sizeof(*pDma) * MX_MUX_BUFFSIZE);
 
-        // if readed data, merge this track to dma buffer
-        if (canRead)
-        {
-            int16_t* pRead = readBuffer;
-            for (int j = 0; j < MX_MUX_BUFFSIZE; j++)
-            {
-                int buf = *pDma + (*pRead++ / MX_MUX_MAXIUM_TRACKID);
+        for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++) {
+            pDma = (int16_t *) (dmaBuffer + MX_MUX_BUFFSIZE * (int) dmaPos);
+            // read file buffer
+            if (ptr->fileObj) {
+                FIL *pFile = (FIL *) (ptr->fileObj);
+                bool canRead = !f_eof(pFile);
+                if (canRead) {
+                    UINT b;
+                    memset(readBuffer, 0, sizeof(readBuffer));
+                    isCritical = inCritical;
+                    /* 若剩余比特小于sizeof(readBuffer),fatfs读到EOF后就会结束读取操作
+                     * 不会影响执行的结果
+                     */
+                    f_read(pFile, readBuffer, sizeof(readBuffer), &b);
+                    isCritical = outCritical;
+                    ptr->leftSize -= b;
 
-                buf *= f;
-                if (buf > INT16_MAX / 2)
-                {
-                    f = (float)INT16_MAX / 2 / (float)buf;
-                    buf = INT16_MAX;
+                    // after read data, merge this track into dma buffer
+                    int16_t *pRead = readBuffer;
+                    for (int j = 0; j < MX_MUX_BUFFSIZE; j++)
+                    {
+                        int buf = *pDma + (*pRead++ / MX_MUX_MAXIUM_TRACKID);
+
+                        if (buf > INT16_MAX / 2) {
+                            f = (float) INT16_MAX / 2 / (float) buf;
+                            buf = INT16_MAX / 2;
+                        }
+                        buf *= f;
+                        if (buf < INT16_MIN / 2) {
+                            f = (float) INT16_MIN / 2 / (float) buf;
+                            buf = INT16_MIN / 2;
+                        }
+                        if (f < 1.0f) {
+                            f += (1.0f - f) / factor;
+                        }
+                        *pDma++ = (buf >> offset) + bitOffset;
+                    }
                 }
-                if (buf < INT16_MIN / 2)
-                {
-                    f = (float)INT16_MIN / 2 / (float)buf;
-                    buf = INT16_MIN;
-                }
-                *pDma++ = (buf >> offset) + bitOffset;
             }
+            ptr++;
         }
-        ptr++;
     }
 }
 void MX_MUX_HalfCallback(void)
