@@ -4,7 +4,8 @@
 #include "debug.h"
 #include "stdio.h"
 #include "stdlib.h"
-#include "string.h"
+#include <string.h>
+#include <strings.h>
 #include "AF.h"
 #include "path.h"
 PARA_DYNAMIC_t USR;
@@ -31,10 +32,6 @@ static TCHAR LFN_BUF[120];
 
 // 字符串函数 补全gcc未提供的一些字符串处理函数
 char* upper(char *src);
-#ifndef __GNU_VISIBLE
-int strcasecmp(const char *src1, const char *src2);
-int strncasecmp(char *src1, char *src2, int num);
-#endif
 
 static const char name_string[][10] = {
     /**< Position:0~5  */
@@ -454,12 +451,6 @@ char* upper(char *src)
     } pt += 1;
   } return src;
 }
-#ifndef __GNU_VISIBLE
-int strncasecmp(char *src1, char *src2, int num)
-{
-  return strncmp(upper(src1), upper(src2), num);
-}
-#endif
 
 static int GetName(char *line, char *name) {
   int res = 0, cnt = 0;
