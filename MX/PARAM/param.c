@@ -1,7 +1,7 @@
 #include "param.h"
 #include "debug.h"
 #include "ff.h"
-#include "fatfs.h"
+
 FATFS fatfs;
 
 __MX_WEAK bool MX_PARAM_Init(void)

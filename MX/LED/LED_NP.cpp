@@ -33,7 +33,7 @@ void LED_NP_Handle(PARA_DYNAMIC_t* ptr)
 
 bool LED_NP_Update(PARA_DYNAMIC_t *ptr)
 {
-    return blade->parameterUpdate(ptr);
+    blade->parameterUpdate(ptr);
 }
 bool iBlade::parameterUpdate(void* arg)
 {
