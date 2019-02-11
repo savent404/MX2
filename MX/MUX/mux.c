@@ -154,10 +154,12 @@ void MX_MUX_Handle(void const* arg)
     float f = 1.0f;
     float factor = 16.0f * MX_MUX_MAXIUM_TRACKID;
     const int bitOffset = 0x1000/2; // 12-bit dac's offset
-    int16_t  readBuffer[MX_MUX_BUFFSIZE];
+    int16_t readBuffer[MX_MUX_BUFFSIZE];
+    int16_t storageBuffer[MX_MUX_BUFFSIZE];
 
     MUX_Info_t *ptr;
     uint16_t *pDma;
+    int16_t *pStorage;
     int offset;
 
     for (;;) {
@@ -174,12 +176,10 @@ void MX_MUX_Handle(void const* arg)
             offset = 15;
         }
 
-        // reset dma buffer (pos1 or pos2)
-        pDma = (int16_t*)(dmaBuffer + MX_MUX_BUFFSIZE * (int)dmaPos);
-        memset(pDma, 0, sizeof(*pDma) * MX_MUX_BUFFSIZE);
+        // reset storage buffer
+        memset(storageBuffer, 0, sizeof(storageBuffer));
 
         for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++) {
-            pDma = (int16_t *) (dmaBuffer + MX_MUX_BUFFSIZE * (int) dmaPos);
             // read file buffer
             if (ptr->fileObj) {
                 FIL *pFile = (FIL *) (ptr->fileObj);
@@ -197,9 +197,11 @@ void MX_MUX_Handle(void const* arg)
 
                     // after read data, merge this track into dma buffer
                     int16_t *pRead = readBuffer;
+                    pStorage = storageBuffer;
+                    int buf;
                     for (int j = 0; j < MX_MUX_BUFFSIZE; j++)
                     {
-                        int buf = *pDma + (*pRead++ / MX_MUX_MAXIUM_TRACKID);
+                        buf = *pStorage + (*pRead++ / MX_MUX_MAXIUM_TRACKID);
 
                         if (buf > INT16_MAX / 2) {
                             f = (float) INT16_MAX / 2 / (float) buf;
@@ -213,11 +215,18 @@ void MX_MUX_Handle(void const* arg)
                         if (f < 1.0f) {
                             f += (1.0f - f) / factor;
                         }
-                        *pDma++ = (buf >> offset) + bitOffset;
+                        *pStorage++ = (int16_t)buf;
                     }
                 }
             }
             ptr++;
+        }
+
+        pDma = (uint16_t*)(dmaBuffer + MX_MUX_BUFFSIZE * (int)dmaPos);
+        pStorage = storageBuffer;
+        for (int i = 0; i < MX_MUX_BUFFSIZE; i++)
+        {
+            *pDma++ = (uint16_t)((*pStorage++ >> offset) + bitOffset);
         }
     }
 }
