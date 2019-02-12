@@ -6,6 +6,12 @@
 #   else
 #       define MX_C_API
 #   endif
+#elif __ICCARM__
+#   ifdef __cplusplus
+#       define MX_C_API extern "C"
+#   else
+#       define MX_C_API
+#   endif
 #endif
 
 #define MX_INTERNAL_API MX_C_API
