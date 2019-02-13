@@ -120,8 +120,3 @@ uint32_t MX_Audio_getTriggerLastTime(void)
     MX_MUX_GetStatus(MUX_Track_Trigger, &info);
     return 0;
 }
-
-__MX_WEAK void MX_Audio_PlayBeep(void)
-{
-    MX_Audio_Play_Start(Audio_Erro);
-}
