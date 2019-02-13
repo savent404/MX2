@@ -6,4 +6,4 @@
 
 MX_C_API bool MX_PARAM_Init(void);
 
-MX_C_API const char* MX_PARAM_GetPrefix(void);
+MX_PORT_API const char* MX_PARAM_GetPrefix(void);

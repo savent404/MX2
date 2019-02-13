@@ -1,8 +1,6 @@
 #ifndef _PATH_H_
 #define _PATH_H_
 
-#include "main.h"
-
 #ifndef PATH_CONFIG
 #define PATH_CONFIG "SETTING.txt"
 #endif

@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "ff.h"
 #include "fatfs.h"
+
 FATFS fatfs;
 
 __MX_WEAK bool MX_PARAM_Init(void)
@@ -22,7 +23,7 @@ __MX_WEAK bool MX_PARAM_Init(void)
   return true;
 }
 
-const char* MX_PARAM_GetPrefix(void)
+__MX_WEAK const char* MX_PARAM_GetPrefix(void)
 {
     return "0:";
 }

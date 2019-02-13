@@ -118,11 +118,6 @@ typedef struct _usr_dynamic_parameter {
   uint8_t bank_color;       /**< 当前LED使用的Bank(相对位移,需与Bank_now一起使用) */
   uint8_t mute_flag:1;      /**< 静音标志位(1Bit) */
   uint8_t audio_busy:1;     /**< 音频输出标志 */
-  
-  #ifdef USE_DEBUG
-  /// Analyze Paramter
-  uint16_t Stack_Free[4];
-  #endif
 } PARA_DYNAMIC_t;
 
 extern PARA_DYNAMIC_t USR;

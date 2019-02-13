@@ -2,16 +2,16 @@
 #include "ff.h"
 #include "FreeRTOS.h"
 #include "debug.h"
-#include "stdio.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include "AF.h"
 #include "path.h"
+
 PARA_DYNAMIC_t USR;
 
 const PARA_STATIC_t STATIC_USR = {
-
   .vol_warning = 2240,   //3.28v / 2 = 1.64v
   .vol_poweroff = 2116, //3.1v / 2 = 1.55v
   .vol_chargecomplete = 2853, //4.18v / 2 = 2.09v
@@ -29,9 +29,6 @@ const PARA_STATIC_t STATIC_USR = {
 #if _USE_LFN //使用Heap模式， 为Fatfs长文件名模式提供一个缓存
 static TCHAR LFN_BUF[120];
 #endif
-
-// 字符串函数 补全gcc未提供的一些字符串处理函数
-char* upper(char *src);
 
 static const char name_string[][10] = {
     /**< Position:0~5  */
@@ -141,7 +138,6 @@ uint8_t usr_config_init(void)
   USR.triggerE = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
   USR.triggerIn = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
   USR.triggerOut = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
-
 
   /**
    * Trigger needs to be memset to 0 for first init
@@ -355,7 +351,7 @@ int strcasecmp(const char *src1, const char *src2)
        *pt2 = (char*)pvPortMalloc(strlen(src1)*sizeof(char) + 1);
   strcpy(pt1, src1);
   strcpy(pt2, src2);
-  int res = strcmp(upper(pt1), upper(pt2));
+  int res = strcasecmp(pt1, pt2);
   vPortFree(pt1);
   vPortFree(pt2);
   return res;
@@ -438,18 +434,6 @@ static uint8_t get_accent_para(uint8_t Bank, PARA_DYNAMIC_t *pt)
   __get_accent_para(Bank + 1, "Lockup.txt", &((pt->accent + Bank)->Lockup));
   __get_accent_para(Bank + 1, "Clash.txt", &((pt->accent + Bank)->Clash));
   return 0;
-}
-
-char* upper(char *src)
-{
-  char *pt = src;
-  while (*pt)
-  {
-    if (*pt <= 'z' && *pt >= 'a')
-    {
-      *pt -= 'z' - 'Z';
-    } pt += 1;
-  } return src;
 }
 
 static int GetName(char *line, char *name) {
