@@ -30,6 +30,12 @@ void MX_MUX_Init(void)
         info[i].leftSize = 0;
         info[i].fileObj = NULL;
     }
+
+    for (int i = 0; i < MX_MUX_BUFFSIZE*2; i++)
+    {
+        dmaBuffer[i] = 0x1000/2;
+    }
+
     dmaPos = dmaPos_2;
 
     osSemaphoreDef(mux);
