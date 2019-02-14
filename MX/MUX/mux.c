@@ -56,7 +56,7 @@ void MX_MUX_Init(void)
     if (mux_file_poolId == NULL)
         mux_file_poolId = osPoolCreate(&os_pool_def_mux);
 
-    osThreadDef(mux, MX_MUX_Handle, threadDefaultPriority, 0, 1024);
+    osThreadDef(mux, MX_MUX_Handle, threadDefaultPriority, 0, 4096);
     muxThreadId = osThreadCreate(osThread(mux), NULL);
 
     /** Start the hardware driver */

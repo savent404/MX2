@@ -19,7 +19,7 @@ file(GLOB_RECURSE OS_SOURCE     ${DIR}/Middlewares/Third_Party/FreeRTOS/Source/*
 file(GLOB_RECURSE FAT_SOURCE    ${DIR}/Middlewares/Third_Party/FatFs/src/*.c)
 file(GLOB_RECURSE DR_SOURCE     ${DIR}/Drivers/CMSIS/*.c ${DIR}/Drivers/STM32F1xx_HAL_Driver/*.c)
 file(GLOB_RECURSE USR_SOURCE    ${DIR}/Src/*.c ${DIR}/Port/*.c ${DIR}/Port/*.cpp ${DIR}/Src/*.cpp)
-file(GLOB_RECURSE ASM_SOURCE    ${DIR}/*.s)
+file(GLOB_RECURSE ASM_SOURCE    ${DIR}/startup/startup_stm32f103xe_gcc.s)
 
 add_library(BSP ${OS_SOURCE} ${DR_SOURCE})
 

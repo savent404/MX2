@@ -24,7 +24,7 @@
 #endif
 
 #ifndef MX_MUX_BUFFSIZE
-#define MX_MUX_BUFFSIZE (512)
+#define MX_MUX_BUFFSIZE (1024)
 #endif
 
 #ifndef MX_LOOP_INTERVAL

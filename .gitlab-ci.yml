@@ -14,3 +14,19 @@ build-np:
         - cmake .. -DCMAKE_TOOLCHAIN_FILE=../defaultBSP/ToolChain.cmake -DUSE_NP=on || if [$? -eq 64]; then echo "rebuild cmake"; fi
         - cmake .. -DCMAKE_TOOLCHAIN_FILE=../defaultBSP/ToolChain.cmake -DUSE_NP=on
         - make
+H1-build-pwm:
+    script:
+        - mkdir build
+        - cd build
+        - export PATH=$PATH:/opt/gcc-arm-none-eabi/bin
+        - cmake .. -DCMAKE_TOOLCHAIN_FILE=../BspH1/ToolChain.cmake -DBSPH1=on || if [$? -eq 64]; then echo "rebuild cmake"; fi
+        - cmake .. -DCMAKE_TOOLCHAIN_FILE=../BspH1/ToolChain.cmake -DBSPH1=on
+        - make
+H1-build-np:
+    script:
+        - mkdir build
+        - cd build
+        - export PATH=$PATH:/opt/gcc-arm-none-eabi/bin
+        - cmake .. -DCMAKE_TOOLCHAIN_FILE=../BspH1/ToolChain.cmake -DBSPH1=on -DUSE_NP=on || if [$? -eq 64]; then echo "rebuild cmake"; fi
+        - cmake .. -DCMAKE_TOOLCHAIN_FILE=../BspH1/ToolChain.cmake -DBSPH1=on -DUSE_NP=on
+        - make
