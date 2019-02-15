@@ -6,6 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void getTriggerFullPath(char* out, TRIGGER_PATH_t* ptr)
+{
+    int pos = rand() % MX_TriggerPath_getNum(ptr);
+    sprintf(out, "%s%s", MX_TriggerPath_GetPrefix(ptr),
+                         MX_TriggerPath_GetName(ptr, pos));
+}
 bool MX_Audio_Play_Start(Audio_ID_t id)
 {
     static char path[64];
@@ -54,29 +60,16 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
             sprintf(path, "%s/"WAV_RECHARGE, prefix);
             break;
         case Audio_TriggerB:
-            pos = rand() % (USR.triggerB + 1)->number;
-            sprintf(path, "%s/Bank%d/"TRIGGER(B)"/%s",
-                    prefix,
-                    USR.bank_now + 1,
-                    (USR.triggerB + 1)->path_arry + 30*pos);
+            getTriggerFullPath(path, USR.triggerB);
+            break;
         case Audio_TriggerC:
-            pos = rand() % (USR.triggerB + 1)->number;
-            sprintf(path, "%s/Bank%d/"TRIGGER(C)"/%s",
-                    prefix,
-                    USR.bank_now + 1,
-                    (USR.triggerB + 1)->path_arry + 30*pos);
+            getTriggerFullPath(path, USR.triggerC);
+            break;
         case Audio_TriggerD:
-            pos = rand() % (USR.triggerB + 1)->number;
-            sprintf(path, "%s/Bank%d/"TRIGGER(D)"/%s",
-                    prefix,
-                    USR.bank_now + 1,
-                    (USR.triggerB + 1)->path_arry + 30*pos);
+            getTriggerFullPath(path, USR.triggerD);
+            break;
         case Audio_TriggerE:
-            pos = rand() % (USR.triggerB + 1)->number;
-            sprintf(path, "%s/Bank%d/"TRIGGER(E)"/%s",
-                    prefix,
-                    USR.bank_now + 1,
-                    (USR.triggerB + 1)->path_arry + 30*pos);
+            getTriggerFullPath(path, USR.triggerE);
             mode = MUX_Mode_Loop;
         case Audio_TriggerE|0x80:
             MX_Audio_Play_Stop(id);
@@ -85,18 +78,10 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
             sprintf(path, "%s/"WAV_COLORSWITCH, prefix);
             break;
         case Audio_intoReady:
-            pos = rand() % (USR.triggerB + 1)->number;
-            sprintf(path, "%s/Bank%d/"TRIGGER(IN)"/%s",
-                    prefix,
-                    USR.bank_now + 1,
-                    (USR.triggerB + 1)->path_arry + 30*pos);
+            getTriggerFullPath(path, USR.triggerIN);
             break;
         case Audio_intoRunning:
-            pos = rand() % (USR.triggerB + 1)->number;
-            sprintf(path, "%s/Bank%d/"TRIGGER(OUT)"/%s",
-                    prefix,
-                    USR.bank_now + 1,
-                    (USR.triggerB + 1)->path_arry + 30*pos);
+            getTriggerFullPath(path, USR.triggerOUT);
             break;
     }
     MX_MUX_Start(MUX_Track_Trigger, mode, path);
