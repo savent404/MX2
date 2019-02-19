@@ -219,6 +219,7 @@
                     <state>STM32F103xE</state>
                     <state>GD32F30X_XD</state>
                     <state>ARM_MATH_CM4</state>
+                    <state>USE_NP</state>
                     <state>GD32F303xG</state>
                 </option>
                 <option>
@@ -365,6 +366,7 @@
                     <state>$PROJ_DIR$/../../MX/PM</state>
                     <state>$PROJ_DIR$/../../MX/SimpleLED</state>
                     <state>$PROJ_DIR$/../../MX</state>
+                    <state>$PROJ_DIR$/../../MX/LED/CXXPort</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1050,10 +1052,22 @@
         <group>
             <name>Port</name>
             <file>
+                <name>$PROJ_DIR$\..\Port\mx_key_port.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Port\mx_led_anag_port.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Port\mx_led_digi_port.cpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Port\mx_mux_port.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Port\mx_pm_port.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Port\mx_tf_port.c</name>
             </file>
         </group>
         <group>
@@ -1243,16 +1257,55 @@
     <group>
         <name>TestCase</name>
         <file>
+            <name>$PROJ_DIR$\..\TestCase\test_looper.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\TestCase\test_mux.c</name>
+            <excluded>
+                <configuration>BspH1</configuration>
+            </excluded>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\TestCase\test_np.c</name>
+            <excluded>
+                <configuration>BspH1</configuration>
+            </excluded>
         </file>
     </group>
     <group>
         <name>UserApp</name>
         <file>
+            <name>$PROJ_DIR$\..\..\MX\AUDIO\audio.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\AUDIO\audio_defaultPort.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\Hand\hand.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\LED\CXXPort\iBlade.cpp</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\KEY\key.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\LED\LED.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\LED\LED_NP.cpp</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\LOOP\LOOP.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\MX\MUX\mux.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\PARAM\param.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\SimpleLED\SimpleLED.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\PARAM\USR_CONFIG.c</name>

@@ -30,3 +30,20 @@
 #ifndef MX_LOOP_INTERVAL
 #define MX_LOOP_INTERVAL (20)
 #endif
+
+#ifndef USE_NP
+#define USE_NP 0
+#endif
+
+#ifndef MX_LED_INTERVAL
+#define MX_LED_INTERVAL  (20)
+#endif
+
+#ifndef MX_WTDG_FEED
+#   ifdef USE_DEBUG
+#       define MX_WTDG_FEED() NULL
+#   else
+void MX_WTDG_HW_Feed(void);
+#       define MX_WTDG_FEED() MX_WTDG_HW_Feed()
+#   endif
+#endif

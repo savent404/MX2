@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/**
+ * @brief Init Power manger system
+ * @note  enable battery supply when inited
+ */
 MX_PORT_API bool MX_PM_Init(void);
 MX_PORT_API bool MX_PM_DeInit(void);
 

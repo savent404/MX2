@@ -56,6 +56,8 @@ dkms.conf
 /MX2_AP_EB/bin/
 /MX2_AP_EB/obj/
 
+# ignore CLion project
+./idea
 
 /MX2_AudioPlayer/*.cproject
 /MX2_AudioPlayer/*.mxproject

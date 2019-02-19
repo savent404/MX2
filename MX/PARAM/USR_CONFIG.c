@@ -12,9 +12,9 @@
 PARA_DYNAMIC_t USR;
 
 const PARA_STATIC_t STATIC_USR = {
-  .vol_warning = 2240,   //3.28v / 2 = 1.64v
-  .vol_poweroff = 2116, //3.1v / 2 = 1.55v
-  .vol_chargecomplete = 2853, //4.18v / 2 = 2.09v
+  .vol_warning = 3300,
+  .vol_poweroff = 3000,
+  .vol_chargecomplete = 4150,
   .filelimits = {
     .bank_max = 99,
     .trigger_in_max = 16,
@@ -179,8 +179,9 @@ uint8_t usr_config_init(void)
     if (f_err) return f_err;
   }
 
-  // usr_config_init(0, 1);
-  usr_config_init();
+  //usr_config_init(0, 1);
+  //usr_config_init();
+  usr_init_bank(0, 1);
 
   ///以上任意一个错误都是致命的
   ///所以不再对动态分配的内存进行回收，只有在正确返回的情况下考虑回收内存

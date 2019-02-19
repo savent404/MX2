@@ -16,8 +16,13 @@ set(CMAKE_SYSTEM_VERSION 1)
 set(COMMON_FLAGS "-mcpu=${MCU_ARCH} -mthumb -mfloat-abi=${MCU_FLOAT_ABI} -D${MCU_LINE}-g -DUSE_HAL_DRIVER -DARM_MATH_CM4 -lm -lc --specs=nosys.specs")
 set(COMMON_FLAGS "${COMMON_FLAGS} -DGD32F30X_XD")
 set(COMMON_FLAGS "${COMMON_FLAGS} -DGD32F303xG")
-#set(COMMON_FLAGS "${COMMON_FLAGS} -ffunction-sections")
+
+# remove unsed function & data
+set(COMMON_FLAGS "${COMMON_FLAGS} -ffunction-sections")
+set(COMMON_FLAGS "${COMMON_FLAGS} -fdata-sections")
+set(COMMON_FLAGS "${COMMON_FLAGS} -Wl,--gc-sections")
 set(COMMON_FLAGS "${COMMON_FLAGS} -Os")
+
 if (MCU_FLOAT_ABI STREQUAL hard)
     set(COMMON_FLAGS "${COMMON_FLAGS} -mfpu=${MCU_FPU}")
 endif ()

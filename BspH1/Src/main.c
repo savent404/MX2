@@ -66,6 +66,7 @@
 #include "gd32f30x_ctc.h"
 #include "Sensor.h"
 #include "HW_CONFIG.h"
+#include "LOOP.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -141,13 +142,12 @@ int main(void)
   MX_TIM2_Init();
   MX_ADC1_Init();
   MX_ADC3_Init();
-  MX_TIM1_Init();
-  MX_TIM4_Init();
+  MX_TIM1_Init();  
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   Sensor_Init();
-  
   HAL_Delay(100);
+  MX_LOOP_Init();
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -244,14 +244,6 @@ int fputc(int ch, FILE* f)
 }
 #endif
 
-void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc)
-{
-    if(hadc->Instance==ADC3)
-    {
-        osSemaphoreRelease(VBAT_LOW_FLAGHandle);
-    }
-}
-
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == SD_DETn_Pin)
@@ -293,7 +285,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE END Callback 1 */
 }
 
-#if USE_NP
+#if 0
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef * htim)
 {
    if (htim->Instance == TIM4) {

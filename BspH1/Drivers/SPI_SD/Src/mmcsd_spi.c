@@ -131,7 +131,7 @@ static int      mmcsd_recvblock(struct mmcsd_slot_s *slot,
 static int      mmcsd_xmitblock(struct mmcsd_slot_s *slot,
                  uint8_t *buffer, int nbytes, uint8_t token);
 
-static void Mmcsd_CS(bool status);
+void Mmcsd_CS(bool status);
 bool Mmcsd_Present(void);
 
 
@@ -150,7 +150,6 @@ bool Mmcsd_Present(void);
 /* A slot structure allocated for each configured slot */
 
 struct mmcsd_slot_s g_mmcsdslot;
-extern SPI_HandleTypeDef hspi1;
 
 /* Timing *******************************************************************/
 
@@ -251,6 +250,11 @@ static const struct mmcsd_cmdinfo_s g_acmd41 = {ACMD41, MMCSD_CMDRESP_R1, 0xff};
 static const uint8_t g_spi_ff = 0xFF;
 static const uint8_t g_spi_stop = MMCSD_SPIDT_STOPTRANS;
 
+__weak void Mmcsd_SlowClock_Switch(bool status);
+__weak HAL_StatusTypeDef Mmcsd_Spi_Send(uint8_t *txbuf, uint16_t datanum);
+__weak HAL_StatusTypeDef Mmcsd_Spi_Exchange(uint8_t *txbuf, uint8_t *rxbuf, uint16_t datanum);
+__weak HAL_StatusTypeDef Mmcsd_Spi_Receive(uint8_t *rxbuf, uint16_t datanum);
+
 /****************************************************************************
  * Private Functions
  ****************************************************************************/
@@ -277,7 +281,7 @@ static int mmcsd_waitready(struct mmcsd_slot_s *slot)
   start = START_TIME;
   do
     {
-      HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)(&g_spi_ff), &response, 1, 10);
+      Mmcsd_Spi_Exchange((uint8_t *)(&g_spi_ff), &response, 1);
       if (response == 0xff)
         {
           return HAL_OK;
@@ -332,7 +336,7 @@ static uint32_t mmcsd_sendcmd(struct mmcsd_slot_s *slot,
   txbuffer[4] = (uint8_t)((arg)&0x000000FF);
   txbuffer[5] = cmd->chksum;
 
-  if(HAL_OK != HAL_SPI_Transmit(&hspi1, txbuffer, 6, 10)) {
+  if(HAL_OK != Mmcsd_Spi_Send(txbuffer, 6)) {
     return HAL_ERROR;
   }
 
@@ -340,7 +344,7 @@ static uint32_t mmcsd_sendcmd(struct mmcsd_slot_s *slot,
 
   if (cmd->cmd == CMD12)
     {
-      HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
+      Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
     }
 
   /* Get the response to the command.  A valid response will have bit7=0.
@@ -349,7 +353,7 @@ static uint32_t mmcsd_sendcmd(struct mmcsd_slot_s *slot,
 
   for (i = 0; i < 9 && (response & 0x80) != 0; i++)
     {
-      HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)(&g_spi_ff), &response, 1, 10);
+      Mmcsd_Spi_Exchange((uint8_t *)(&g_spi_ff), &response, 1);
     }
 
   if ((response & 0x80) != 0)
@@ -373,7 +377,7 @@ static uint32_t mmcsd_sendcmd(struct mmcsd_slot_s *slot,
         start = START_TIME;
         do
           {
-            HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)(&g_spi_ff), &busy, 1, 10);
+            Mmcsd_Spi_Exchange((uint8_t *)(&g_spi_ff), &busy, 1);
             elapsed = ELAPSED_TIME(start);
           }
         while (elapsed < slot->twrite && busy != 0xff);
@@ -397,7 +401,7 @@ static uint32_t mmcsd_sendcmd(struct mmcsd_slot_s *slot,
     case MMCSD_CMDRESP_R2:
       {
         result  = ((uint32_t)(response & 0xff) << 8);
-        HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)(&g_spi_ff), &response, 1, 10);
+        Mmcsd_Spi_Exchange((uint8_t *)(&g_spi_ff), &response, 1);
         result |= response;
       }
       break;
@@ -411,7 +415,7 @@ static uint32_t mmcsd_sendcmd(struct mmcsd_slot_s *slot,
         txbuffer[2] = g_spi_ff;
         txbuffer[3] = g_spi_ff;
 
-        HAL_SPI_TransmitReceive(&hspi1, txbuffer, rxbuffer, 4, 10);
+        Mmcsd_Spi_Exchange(txbuffer, rxbuffer, 4);
         
         slot->ocr  = (((uint32_t)rxbuffer[0] & 0xff) << 24);
         slot->ocr |= (((uint32_t)rxbuffer[1] & 0xff) << 16);
@@ -430,7 +434,7 @@ static uint32_t mmcsd_sendcmd(struct mmcsd_slot_s *slot,
         txbuffer[2] = g_spi_ff;
         txbuffer[3] = g_spi_ff;
 
-        HAL_SPI_TransmitReceive(&hspi1, txbuffer, rxbuffer, 4, 10);
+        Mmcsd_Spi_Exchange(txbuffer, rxbuffer, 4);
       
         slot->r7  = (((uint32_t)rxbuffer[0] & 0xff) << 24);
         slot->r7 |= (((uint32_t)rxbuffer[1] & 0xff) << 16);
@@ -547,8 +551,7 @@ static void mmcsd_decodecsd(struct mmcsd_slot_s *slot, uint8_t *csd)
 
   /* Set the actual SPI frequency as close as possible to the max frequency */
   //frequency = SPI_SETFREQUENCY(spi, frequency);
-  hspi1.Instance->CR1 &= ~(SPI_CR1_BR_Msk); 
-  hspi1.Instance->CR1 |= SPI_BAUDRATEPRESCALER_2;
+  Mmcsd_SlowClock_Switch(false);
   /*
   if(maxfrequency>=30000000) {
     hspi1.Instance->CR1 |= SPI_BAUDRATEPRESCALER_2;
@@ -710,7 +713,7 @@ static int mmcsd_getcardinfo(struct mmcsd_slot_s *slot, uint8_t *buffer,
   uint8_t response;
   int i;
 
-  HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
+  Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
 
   /* Send the CMD9 or CMD10 */
 
@@ -724,7 +727,7 @@ static int mmcsd_getcardinfo(struct mmcsd_slot_s *slot, uint8_t *buffer,
 
   for (i = 0; i < 8; i++)
     {
-      HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)(&g_spi_ff), &response, 1, 10);
+      Mmcsd_Spi_Exchange((uint8_t *)(&g_spi_ff), &response, 1);
 
       /* If a read operation fails and the card cannot provide the requested
        * data, it will send a data error token instead.  The 4 least
@@ -739,13 +742,13 @@ static int mmcsd_getcardinfo(struct mmcsd_slot_s *slot, uint8_t *buffer,
         {
           for (i = 0; i < 16; ++i)
             {
-              HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)(&g_spi_ff), buffer, 1, 10);
+              Mmcsd_Spi_Exchange((uint8_t *)(&g_spi_ff), buffer, 1);
               buffer++;
             }
 
           /* CRC receive */
-          HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
-          HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
+          Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
+          Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
           return HAL_OK;
         }
     }
@@ -774,33 +777,19 @@ static int mmcsd_recvblock(struct mmcsd_slot_s *slot, uint8_t *buffer,
   start = START_TIME;
   do
     {
-      HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)(&g_spi_ff), &token, 1, 100);
+      Mmcsd_Spi_Exchange((uint8_t *)(&g_spi_ff), &token, 1);
       elapsed = ELAPSED_TIME(start);
     }
   while (token == 0xff && elapsed < slot->taccess);
 
   if (token == MMCSD_SPIDT_STARTBLKSNGL)
     {
-      GPIO_InitTypeDef GPIO_InitStruct;
-
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
-      
-      GPIO_InitStruct.Pin = GPIO_PIN_5;
-      GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;    
-      GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-      
-      /* Receive the block */
-      //HAL_SPI_Receive(&hspi1, buffer, nbytes, 100);      
-      HAL_SPI_Receive_DMA(&hspi1, buffer, nbytes);
-      while(hspi1.State==HAL_SPI_STATE_BUSY_RX);
-
-      GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;    
-      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+      /* Receive the block */    
+      Mmcsd_Spi_Receive(buffer, nbytes);
 
       /* Discard the CRC */
-      HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
-      HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
+      Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
+      Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
       return HAL_OK;
     }
 
@@ -826,22 +815,22 @@ static int mmcsd_xmitblock(struct mmcsd_slot_s *slot,
    * 3. Followed by the block of data and 2 byte CRC
    */
 
-  HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
-  HAL_SPI_Transmit(&hspi1, &token, 1, 10);
+  Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
+  Mmcsd_Spi_Send(&token, 1);
 
   /* Transmit the block to the MMC/SD card */
-  HAL_SPI_Transmit(&hspi1, buffer, nbytes, 100);
+  Mmcsd_Spi_Send(buffer, nbytes);
 
   /* Add the bogus CRC.  By default, the SPI interface is initialized in
    * non-protected mode.  However, we still have to send bogus CRC values
    */
 
-  HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
-  HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
+  Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
+  Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
 
   /* Now get the data response */
 
-  HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)(&g_spi_ff), &response, 1, 10);
+  Mmcsd_Spi_Exchange((uint8_t *)(&g_spi_ff), &response, 1);
   if ((response & MMCSD_SPIDR_MASK) != MMCSD_SPIDR_ACCEPTED)
     {
       return HAL_ERROR;
@@ -952,7 +941,7 @@ ssize_t mmcsd_read(struct mmcsd_slot_s *slot, uint8_t *buffer,
   /* On success, return the number of sectors transfer */
 
   Mmcsd_CS(false);
-  HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
+  Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
 
   return nsectors;
 
@@ -1080,14 +1069,14 @@ ssize_t mmcsd_write(struct mmcsd_slot_s *slot, uint8_t *buffer,
         }
 
       /* Send the stop transmission token */   
-      HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_stop), 1, 10);
+      Mmcsd_Spi_Send((uint8_t *)(&g_spi_stop), 1);
     }
 
   /* Wait until the card is no longer busy */
 
   (void)mmcsd_waitready(slot);
   Mmcsd_CS(false);
-  HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
+  Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
 
   /* The success return value is the number of sectors written */
 
@@ -1140,8 +1129,7 @@ static int mmcsd_mediainitialize(struct mmcsd_slot_s *slot)
     }
 
   /* Clock Freq. Identification Mode < 400kHz */
-    hspi1.Instance->CR1 &= ~(SPI_CR1_BR_Msk); 
-    hspi1.Instance->CR1 |= SPI_BAUDRATEPRESCALER_256;
+  Mmcsd_SlowClock_Switch(true);
 
   /* Set the maximum access time out */
 
@@ -1160,7 +1148,7 @@ static int mmcsd_mediainitialize(struct mmcsd_slot_s *slot)
 
       for (j = 10; j; j--)
         {
-          HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
+          Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
         }
 
       /* Send CMD0 (GO_TO_IDLE) with CS asserted to put MMC/SD in
@@ -1229,7 +1217,7 @@ static int mmcsd_mediainitialize(struct mmcsd_slot_s *slot)
           if (elapsed < MMCSD_DELAY_1SEC)
            {
 
-             HAL_SPI_Transmit(&hspi1, (uint8_t *)(&g_spi_ff), 1, 10);
+             Mmcsd_Spi_Send((uint8_t *)(&g_spi_ff), 1);
              result = mmcsd_sendcmd(slot, &g_cmd58, 0);
              if (result == MMCSD_SPIR1_OK)
                {
@@ -1404,22 +1392,31 @@ int mmcsd_spislotinitialize(struct mmcsd_slot_s *slot)
   return HAL_OK;
 }
 
-static void Mmcsd_CS(bool status)
+__weak void Mmcsd_CS(bool status)
 {
-  if(true==status) {
-    HAL_GPIO_WritePin(TF_CSN_GPIO_Port, TF_CSN_Pin, GPIO_PIN_RESET);
-  }
-  else {
-    HAL_GPIO_WritePin(TF_CSN_GPIO_Port, TF_CSN_Pin, GPIO_PIN_SET);
-  }
+
 }
 
-bool Mmcsd_Present(void)
+__weak bool Mmcsd_Present(void)
 {
-  if(GPIO_PIN_RESET==HAL_GPIO_ReadPin(SD_DETn_GPIO_Port, SD_DETn_Pin)) {
-    return true;
-  }
-  else {
     return false;
-  }
+}
+
+__weak void Mmcsd_SlowClock_Switch(bool status)
+{
+}
+
+__weak HAL_StatusTypeDef Mmcsd_Spi_Send(uint8_t *txbuf, uint16_t datanum)
+{
+    return HAL_ERROR;
+}
+
+__weak HAL_StatusTypeDef Mmcsd_Spi_Exchange(uint8_t *txbuf, uint8_t *rxbuf, uint16_t datanum)
+{
+    return HAL_ERROR;
+}
+
+__weak HAL_StatusTypeDef Mmcsd_Spi_Receive(uint8_t *rxbuf, uint16_t datanum)
+{
+    return HAL_ERROR;
 }

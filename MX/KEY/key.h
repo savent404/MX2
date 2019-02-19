@@ -9,8 +9,8 @@ typedef enum _mx_key_status {
 } keyStatus_t;
 
 typedef enum _mx_key_id {
-    KEY_1,
-    KEY_2
+    KEY_PWR,
+    KEY_SUB
 } keyId_t;
 
 MX_PORT_API bool MX_KEY_Init(void);

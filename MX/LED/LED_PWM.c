@@ -58,7 +58,7 @@ void LED_PWM_Handle(PARA_DYNAMIC_t* ptr)
 {
     enum _led_message message;
 
-    osEvent evt = LED_GetMessage(20);
+    osEvent evt = MX_LED_GetMessage(20);
 
     message = evt.value.v;
 // 当在LED执行函数中收到了额外的动作命令，将忽略上方代码并跳转到此处
@@ -248,7 +248,7 @@ static LED_Message_t LED_RGB_Charging(uint32_t step, uint32_t step_ms, uint32_t 
     uint16_t b = 0;
     uint16_t l = 0;
     LED_RGB_Output(r, g, b, l);
-    osEvent evt = LED_GetMessage(step_ms);
+    osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
@@ -265,7 +265,7 @@ static LED_Message_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t p
     uint16_t b = 1024 * 0.15 * d;
     uint16_t l = 0;
     LED_RGB_Output(r, g, b, l);
-    osEvent evt = LED_GetMessage(step_ms);
+    osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
@@ -280,7 +280,7 @@ static LED_Message_t LED_RGB_Breath(uint32_t step, uint32_t step_ms, uint32_t pe
     float d = cos(pi_2 * (float)step / (float)period_step) * A / 2 + 0.5 * A + LDeep / 1024.0;
 
     LED_RGB_Output_Light(BankColor, d);
-    osEvent evt = LED_GetMessage(step_ms);
+    osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
@@ -293,7 +293,7 @@ static LED_Message_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
         LED_RGB_Limited(FBankColor[0], FBankColor[1], FBankColor[2], FBankColor[3]);
     else
         LED_RGB_Limited(BankColor[0], BankColor[1], BankColor[2], BankColor[3]);
-    osEvent evt = LED_GetMessage(step_ms);
+    osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
@@ -304,7 +304,7 @@ static LED_Message_t LED_RGB_Pulse(uint32_t step_ms)
     uint16_t buf = rand() % (LBright - LDeep) + LDeep;
     float light = (float)buf / 1024;
     LED_RGB_Output_Light(BankColor, light);
-    osEvent evt = LED_GetMessage(step_ms);
+    osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
@@ -317,7 +317,7 @@ static LED_Message_t LED_RGB_SoftRise(uint32_t step, uint32_t step_ms, uint32_t 
     // Get a function like y = 1 - cos(x)
     float d = 1 - cos(pi_div2 * (float)step / (float)step_num);
     LED_RGB_Limited(BankColor[0] * d, BankColor[1] * d, BankColor[2] * d, BankColor[3] * d);
-    osEvent evt = LED_GetMessage(step_ms);
+    osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
@@ -360,7 +360,7 @@ static LED_Message_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms,
         break;
     }
     //LED_RGB_Limited(BankColor[0]*d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4));
-    // osEvent evt = LED_GetMessage(step_ms);
+    // osEvent evt = MX_LED_GetMessage(step_ms);
     // if (evt.status != osEventMessage) return LED_NoTrigger;
     // else return evt.value.v;
     return LED_NoTrigger;
@@ -376,7 +376,7 @@ static LED_Message_t LED_RGB_SoftDown(uint32_t step, uint32_t step_ms, uint32_t 
     if (step == 0)
         r = CHx_VAL(1), g = CHx_VAL(2), b = CHx_VAL(3), l = CHx_VAL(4);
     LED_RGB_Limited(r * d, g * d, b * d, l * d);
-    osEvent evt = LED_GetMessage(step_ms);
+    osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else

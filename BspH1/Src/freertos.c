@@ -53,21 +53,14 @@
 
 /* USER CODE BEGIN Includes */     
 #include "stm32f1xx_hal.h"
+#include "LOOP.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
-osThreadId DACTaskHandle;
-osThreadId LEDTaskHandle;
-osThreadId WavTaskHandle;
-osMessageQId DAC_BufferHandle;
-osMessageQId DAC_CMDHandle;
-osMessageQId LED_CMDHandle;
-osSemaphoreId DAC_Complete_FlagHandle;
 osSemaphoreId VBAT_LOW_FLAGHandle;
 osSemaphoreId SdOperate_Cplt_FlagHandle;
 osSemaphoreId NpOperate_Cplt_FlagHandle;
-osSemaphoreId LedOut_Cplt_FlagHandle;
 
 
 
@@ -77,9 +70,9 @@ osThreadId SimpleLEDHandle;
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
-void DACOutput(void const * argument);
-void LEDOpra(void const * argument);
-void Wav_Task(void const * argument);
+//void DACOutput(void const * argument);
+//void LEDOpra(void const * argument);
+//void Wav_Task(void const * argument);
 void Test_Task(void const * argument);
 
 extern void MX_FATFS_Init(void);
@@ -133,15 +126,6 @@ void MX_FREERTOS_Init(void) {
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
-  /* Create the semaphores(s) */
-  /* definition and creation of DAC_Complete_Flag */
-  osSemaphoreDef(DAC_Complete_Flag);
-  DAC_Complete_FlagHandle = osSemaphoreCreate(osSemaphore(DAC_Complete_Flag), 1);
-
-  /* definition and creation of VBAT_LOW_FLAG */
-  osSemaphoreDef(VBAT_LOW_FLAG);
-  VBAT_LOW_FLAGHandle = osSemaphoreCreate(osSemaphore(VBAT_LOW_FLAG), 1);
-
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   osSemaphoreDef(SdOperate_Cplt_Flag);
   SdOperate_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(SdOperate_Cplt_Flag), 1);
@@ -149,12 +133,13 @@ void MX_FREERTOS_Init(void) {
   osSemaphoreDef(NpOperate_Cplt_Flag);
   NpOperate_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(NpOperate_Cplt_Flag), 1);
 
-  osSemaphoreDef(LedOut_Cplt_Flag);
-  LedOut_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(LedOut_Cplt_Flag), 1);
+  //osSemaphoreDef(LedOut_Cplt_Flag);
+  //LedOut_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(LedOut_Cplt_Flag), 1);
 
   osSemaphoreWait(SdOperate_Cplt_FlagHandle, 0);
   osSemaphoreWait(NpOperate_Cplt_FlagHandle, 0);
-  osSemaphoreWait(LedOut_Cplt_FlagHandle, 0);
+  osSemaphoreWait(VBAT_LOW_FLAGHandle, 0);
+  //osSemaphoreWait(LedOut_Cplt_FlagHandle, 0);
   
   /* USER CODE END RTOS_SEMAPHORES */
 
@@ -167,36 +152,11 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(defaultTask, StartDefaultTask, osPriorityHigh, 0, 1024);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
-  /* definition and creation of DACTask */
-  osThreadDef(DACTask, DACOutput, osPriorityNormal, 0, 128);
-  DACTaskHandle = osThreadCreate(osThread(DACTask), NULL);
-
-  /* definition and creation of LEDTask */
-  osThreadDef(LEDTask, LEDOpra, osPriorityRealtime, 0, 128);
-  LEDTaskHandle = osThreadCreate(osThread(LEDTask), NULL);
-
-  /* definition and creation of WavTask */
-  osThreadDef(WavTask, Wav_Task, osPriorityAboveNormal, 0, 1024);
-  WavTaskHandle = osThreadCreate(osThread(WavTask), NULL);
-
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  osThreadDef(TestTask, Test_Task, osPriorityLow, 0, 1024);
+  osThreadDef(TestTask, Test_Task, osPriorityAboveNormal, 0, 1024);
   SimpleLEDHandle = osThreadCreate(osThread(TestTask), NULL);
   /* USER CODE END RTOS_THREADS */
-
-  /* Create the queue(s) */
-  /* definition and creation of DAC_Buffer */
-  osMessageQDef(DAC_Buffer, 3, uint32_t);
-  DAC_BufferHandle = osMessageCreate(osMessageQ(DAC_Buffer), NULL);
-
-  /* definition and creation of DAC_CMD */
-  osMessageQDef(DAC_CMD, 16, uint32_t);
-  DAC_CMDHandle = osMessageCreate(osMessageQ(DAC_CMD), NULL);
-
-  /* definition and creation of LED_CMD */
-  osMessageQDef(LED_CMD, 16, uint32_t);
-  LED_CMDHandle = osMessageCreate(osMessageQ(LED_CMD), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -218,49 +178,13 @@ __weak void StartDefaultTask(void const * argument)
   /* USER CODE END StartDefaultTask */
 }
 
-/* DACOutput function */
-__weak void DACOutput(void const * argument)
-{
-  /* USER CODE BEGIN DACOutput */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END DACOutput */
-}
-
-/* LEDOpra function */
-__weak void LEDOpra(void const * argument)
-{
-  /* USER CODE BEGIN LEDOpra */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1000);
-  }
-  /* USER CODE END LEDOpra */
-}
-
-/* Wav_Task function */
-__weak void Wav_Task(void const * argument)
-{
-  /* USER CODE BEGIN Wav_Task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1000);
-  }
-  /* USER CODE END Wav_Task */
-}
-
 /* USER CODE BEGIN Application */
 __weak void Test_Task(void const * argument)
 {
   /* USER CODE BEGIN Wav_Task */
   /* Infinite loop */
   for(;;)
-  {
+  { 
     osDelay(1000);
   }
   /* USER CODE END Wav_Task */

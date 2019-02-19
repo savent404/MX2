@@ -1,7 +1,7 @@
 #include "SimpleLED.h"
 #include "cmsis_os.h"
 
-static osThreadId self;
+static osThreadId selfThreadId;
 static SimpleLED_Acction_t* pacction;
 static int32_t timer = 0;
 static int32_t cnt = 0;
@@ -13,15 +13,15 @@ void SimpleLED_Init(void)
 {
     SimpleLED_HW_Init();
     pacction = SimpleLED_GetAction(SIMPLELED_STATUS_SLEEP);
-    osThreadDef(self, SimpleLED_Callback, osPriorityLow, 0, 512);
-    self = osThreadCreate(osThread(self), NULL);
+    osThreadDef(SimpleLED, SimpleLED_Callback, osPriorityLow, 0, 512);
+    selfThreadId = osThreadCreate(osThread(SimpleLED), NULL);
 }
 
 void SimpleLED_DeInit(void)
 {
-    osThreadSuspend(self);
+    osThreadSuspend(selfThreadId);
     SimpleLED_HW_DeInit();
-    osThreadTerminate(self);
+    osThreadTerminate(selfThreadId);
 }
 
 void SimpleLED_ChangeStatus(SimpleLED_Status_t status)

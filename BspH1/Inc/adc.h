@@ -74,7 +74,7 @@ void MX_ADC1_Init(void);
 void MX_ADC3_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-uint16_t AdcCalibration(void);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
