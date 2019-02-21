@@ -56,6 +56,6 @@ mux_resetDmaBuffer(void* in, int size)
     uint16_t* ptr = (uint16_t*)in;
     for (int i = 0; i < size; i++)
     {
-        *ptr = 0x1000/2;
+        *ptr++ = 0x1000/2;
     }
 }
