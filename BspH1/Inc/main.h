@@ -88,18 +88,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define PATH_CONFIG "0://SETTING.txt"
-#define WAV_BOOT "0:/System/Boot.wav"
-#define WAV_CHARGING "0:/System/charging.wav"
-#define WAV_COLORSWITCH "0:/System/ColorSwitch.wav"
-#define WAV_LOWPOWER "0:/System/lowpower.wav"
-#define WAV_POWEROFF "0:/System/Poweroff.wav"
-#define WAV_RECHARGE "0:/System/Recharge.wav"
-#define WAV_ERROR "0:/System/alarm.wav"
-#define Trigger_B_name "Swing"
-#define Trigger_C_name "Clash"
-#define Trigger_D_name "Blaster"
-#define Trigger_E_name "Lockup"
 #define SIMPLELED3_Pin GPIO_PIN_13
 #define SIMPLELED3_GPIO_Port GPIOC
 #define CHG_VALID_Pin GPIO_PIN_14

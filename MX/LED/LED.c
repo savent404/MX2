@@ -49,21 +49,21 @@ void MX_LED_bankUpdate(PARA_DYNAMIC_t* pt)
  */
 void LEDOpra(void const* argument)
 {
-    if (ledIf.init != NULL && ledIf.init(NULL) == false) {
-        DEBUG(0, "LED Driver Inited error");
-        while (1)
-            ;
-    }
     if (ledIf.handle != NULL) {
         ledIf.handle(NULL);
     }
     DEBUG(2, "LED not working");
     while (1)
-        ;
+        DEBUG_BKPT();
 }
 
 void MX_LED_Init(void)
 {
+    if (ledIf.init != NULL && ledIf.init(NULL) == false) {
+        DEBUG(0, "LED Driver Inited error");
+        while (1)
+            DEBUG_BKPT();
+    }
     osThreadDef(LED, LEDOpra, osPriorityLow, 0, 1024);
     selfThreadId = osThreadCreate(osThread(LED), NULL);
 

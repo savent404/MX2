@@ -1,265 +1,235 @@
 #include "mux.h"
+#include "FreeRTOS.h"
 #include "param.h"
-#include <stdbool.h>
+#include "cmsis_os.h"
+#include <stdlib.h>
 
-#include "ff.h"
+static MUX_Track_t tracks[MX_MUX_MAXIUM_TRACKID];
 
-osThreadId muxThreadId;
-static osSemaphoreId dma_sem;
-static osPoolId mux_file_poolId = NULL;
+static osThreadId selfThreadId[MX_MUX_MAXIUM_TRACKID];
+static osSemaphoreId selfSemId[MX_MUX_MAXIUM_TRACKID];
+// static osMutexId selfMutexId[MX_MUX_MAXIUM_TRACKID];
+static osSemaphoreId selfMutexId[MX_MUX_MAXIUM_TRACKID];
+static int dmaPos[MX_MUX_MAXIUM_TRACKID];
 
-static const osPriority threadDefaultPriority = osPriorityLow;
-static const osPriority threadHighPriority = osPriorityRealtime;
+static inline void initMutex(void) {
+    osSemaphoreDef(mux);
+    for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++)
+        selfMutexId[i] = osSemaphoreCreate(osSemaphore(mux), 1);
+}
+static inline void waitMutex(MUX_Track_Id_t tid) {
+  osSemaphoreWait(selfMutexId[tid], osWaitForever);
+}
+static inline void releaseMutex(MUX_Track_Id_t tid) {
+  osSemaphoreRelease(selfMutexId[tid]);
+}
 
-static MUX_Info_t info[MX_MUX_MAXIUM_TRACKID];
-static uint16_t dmaBuffer[MX_MUX_BUFFSIZE * 2];
-static enum {dmaPos_1 = 0, dmaPos_2 = 1} dmaPos;
-
-__IO static enum { inCritical, outCritical } isCritical = outCritical;
-
-static void suspendMuxThread(void);
-static void resumeMuxThread(void);
+static inline void callCallbackFunc(MUX_Slot_Callback_t func)
+{
+    if (func)
+        func();
+}
+static inline void clearAllCallback(MUX_Slot_t* pSlot)
+{
+    for (int i = 0; i < SlotCallback_Max; i++)
+        pSlot->callback[i] = NULL;
+}
 
 void MX_MUX_Init(void)
 {
-    for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++)
-    {
-        info[i].id = i;
-        info[i].mode = MUX_Mode_Idle;
-        info[i].path = NULL;
-        info[i].leftSize = 0;
-        info[i].fileObj = NULL;
+    for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++) {
+        dmaPos[i] = 1;
+        tracks[i].id = i;
+        tracks[i].mode = TrackState_Idle;
+        if (i == TrackId_MainLoop)
+            tracks[i].maxium_slot = 1;
+        else
+            tracks[i].maxium_slot = 2;
+        tracks[i].slots = (MUX_Slot_t*)pvPortMalloc(sizeof(MUX_Track_t) * tracks[i].maxium_slot);
+        tracks[i].buffer = (muxBuffer_t*)pvPortMalloc(sizeof(muxBuffer_t) * MX_MUX_BUFFSIZE * 2);
+        tracks[i].bufferSize = MX_MUX_BUFFSIZE * 2;
+        tracks[i].pos = pos1;
+        for (int j = 0; j < tracks[i].maxium_slot; j++) {
+            tracks[i].slots[j].pObj = (MUX_FileObj_t*)pvPortMalloc(sizeof(MUX_FileObj_t));
+            tracks[i].slots[j].mode = SlotMode_Idle;
+            tracks[i].slots[j].id = j;
+            clearAllCallback(&tracks[i].slots[j]);
+        }
+        MX_MUX_HW_Init(i);
+        mux_resetDmaBuffer(tracks[i].buffer, MX_MUX_BUFFSIZE*2);
     }
-
-    for (int i = 0; i < MX_MUX_BUFFSIZE*2; i++)
-    {
-        dmaBuffer[i] = 0x1000/2;
-    }
-
-    dmaPos = dmaPos_2;
-
+    initMutex();
+    /** Init semaphore */
     osSemaphoreDef(mux);
-    dma_sem = osSemaphoreCreate(osSemaphore(mux), 1);
+    for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++) {
+        selfSemId[i] = osSemaphoreCreate(osSemaphore(mux), 1);
+        osSemaphoreWait(selfSemId[i], 1);
+    }
+    
+    /** Start thread */
+    osThreadDef(mux1, MX_MUX_Handle, osPriorityNormal, 0, MX_MUX_THREAD_STACK_SIZE);
+    selfThreadId[0] = osThreadCreate(osThread(mux1), &tracks[0]);
 
-    osSemaphoreWait(dma_sem, 0);
-
-#if defined (osBojectsExternal)
-#   error "extern const osPoolDef_t"
-#else
-    const osPoolDef_t os_pool_def_mux = {
-        MX_MUX_MAXIUM_TRACKID,
-        MX_MUX_BUFFSIZE * sizeof(uint16_t),
-        NULL,
-    };
+#if MX_MUX_DUAL_TRACK == 1
+    osThreadDef(mux2, MX_MUX_Handle, osPriorityNormal, 0, MX_MUX_THREAD_STACK_SIZE);
+    selfThreadId[1] = osThreadCreate(osThread(mux2), &tracks[1]);
 #endif
-
-    if (mux_file_poolId == NULL)
-        mux_file_poolId = osPoolCreate(&os_pool_def_mux);
-
-    osThreadDef(mux, MX_MUX_Handle, threadDefaultPriority, 0, 4096);
-    muxThreadId = osThreadCreate(osThread(mux), NULL);
-
-    /** Start the hardware driver */
-    MX_MUX_HW_Init(dmaBuffer, MX_MUX_BUFFSIZE * 2);
 }
 
 void MX_MUX_DeInit(void)
 {
-    suspendMuxThread();
-    /** stop harddware first*/
-    MX_MUX_HW_DeInit();
-    osThreadTerminate(muxThreadId);
-    osSemaphoreDelete(dma_sem);
-    
-    for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++)
-    {
-        if (!MX_MUX_isIdle((MUX_TrackId_t)(i)))
-            MX_MUX_CleanUp(i);
+    for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++) {
+        osMutexWait(selfMutexId[i], 0);
+        osThreadSuspend(selfThreadId[i]);
+        osThreadTerminate(selfThreadId[i]);
+        osSemaphoreDelete(selfSemId[i]);
+        MX_MUX_HW_Stop(i);
+        tracks[i].mode = TrackState_Idle;
+        MX_MUX_HW_DeInit(i);
+
+        for (int j = 0; j < tracks[i].maxium_slot; j++) {
+            vPortFree(tracks[i].slots[j].pObj);
+        }
+        vPortFree(tracks[i].slots);
+        vPortFree(tracks[i].buffer);
+
+        osMutexRelease(selfMutexId[i]);
+        osMutexDelete(selfMutexId[i]);
     }
 }
 
-void MX_MUX_Start(MUX_TrackId_t id,
-                            MUX_Mode_t    mode,
-                            const char*   path)
+MUX_Slot_Id_t
+MX_MUX_Start(MUX_Track_Id_t tid, MUX_Slot_Mode_t mode, const char* path)
 {
-    suspendMuxThread();
-    if (!MX_MUX_isIdle(id))
-    {
-        MX_MUX_CleanUp(id);
+    MUX_Track_t* pTrack = tracks + tid;
+    for (int i = 0; i < pTrack->maxium_slot; i++) {
+        if (pTrack->slots[i].mode != SlotMode_Idle)
+            continue;
+
+        MUX_FileObj_t* pObj = pTrack->slots[i].pObj;
+
+        waitMutex(tid);
+        if (mux_fileObj_open(pObj, path) == false)
+            goto failed;
+
+        if (mux_fileObj_seek(pObj, MX_MUX_WAV_FIX_OFFSET) == false) {
+            mux_fileObj_close(pObj);
+            goto failed;
+        }
+        pTrack->slots[i].mode = mode;
+        clearAllCallback(&pTrack->slots[i]);
+        releaseMutex(tid);
+        return i;
     }
-    MX_MUX_SetUp(id, mode, path);
-    resumeMuxThread();
+    return -1;
+failed:
+    releaseMutex(tid);
+    return -1;
 }
 
-bool MX_MUX_isIdle(MUX_TrackId_t id)
+void MX_MUX_Stop(MUX_Track_Id_t tid, MUX_Slot_Id_t sid)
 {
-    return info[id].mode == MUX_Mode_Idle;
+    if (tracks[tid].slots[sid].mode != SlotMode_Idle) {
+        waitMutex(tid);
+        tracks[tid].slots[sid].mode = SlotMode_Idle;
+        mux_fileObj_close(tracks[tid].slots[sid].pObj);
+        tracks[tid].slots[sid].callback[SlotCallback_Destory] = NULL;
+        tracks[tid].slots[sid].callback[SlotCallback_Done] = NULL;
+        clearAllCallback(&tracks[tid].slots[sid]);
+        releaseMutex(tid);
+    }
 }
 
-void MX_MUX_GetStatus(MUX_TrackId_t id,
-                                MUX_Info_t *ptr)
+void MX_MUX_RegisterCallback(MUX_Track_Id_t tid, MUX_Slot_Id_t sid, MUX_Slot_CallbackWay_t way, MUX_Slot_Callback_t func)
 {
-    memcpy(ptr, &info[id], sizeof(*info));
+    waitMutex(tid);
+    tracks[tid].slots[sid].callback[way] = func;
+    releaseMutex(tid);
 }
 
-void MX_MUX_CleanUp(MUX_TrackId_t id)
+void MX_MUX_UnregisterCallback(MUX_Track_Id_t tid, MUX_Slot_Id_t sid, MUX_Slot_CallbackWay_t way)
 {
-    /** Close file first */
-    if (info[id].fileObj != NULL)
-    {
-        FIL* pFile = (FIL*)(info[id].fileObj);
-        f_close(pFile);
-        osPoolFree(mux_file_poolId, pFile);
-        info[id].fileObj = NULL;
-    }
-    /** Free file path */
-    if (info[id].path != NULL)
-    {
-        free(info[id].path);
-        info[id].path = NULL;
-    }
-    info[id].mode = MUX_Mode_Idle;
-    info[id].leftSize = 0;
-}
-
-void MX_MUX_SetUp(MUX_TrackId_t id,
-                  MUX_Mode_t mode,
-                  const char* file)
-{
-    if (mode == MUX_Mode_Idle)
-    {
-        return;
-    }
-    /** Alloc file obj first */
-    FIL* pFile = (FIL*)osPoolAlloc(mux_file_poolId);
-    FRESULT res = f_open(pFile, file, FA_READ);
-
-    if (res != FR_OK)
-    {
-        return;
-    }
-    info[id].fileObj = pFile;
-    
-    /** File Path alloc */
-    info[id].path = (char*)malloc(strlen(file) + 1);
-    strcpy(info[id].path, file);
-
-    info[id].mode = mode;
-    
-    /** Read wav format */
-    /** Wav format is 44 Bytes */
-    info[id].leftSize = pFile->fsize - 44;
-
-    /** reading wav format */
-    f_lseek(pFile, 44);
-    /** end of wav format reading */
+    waitMutex(tid);
+    tracks[tid].slots[sid].callback[way] = NULL;
+    releaseMutex(tid);
 }
 
 void MX_MUX_Handle(void const* arg)
 {
-    float f = 1.0f;
-    float factor = 16.0f * MX_MUX_MAXIUM_TRACKID;
-    const int bitOffset = 0x1000/2; // 12-bit dac's offset
-    int16_t readBuffer[MX_MUX_BUFFSIZE];
-    int16_t storageBuffer[MX_MUX_BUFFSIZE];
+    MUX_Track_t* pTrack = (MUX_Track_t*)arg;
+    MUX_Slot_t* pSlot = NULL;
 
-    MUX_Info_t *ptr;
-    uint16_t *pDma;
-    int16_t *pStorage;
-    int offset;
+    int bufferSize = pTrack->bufferSize / 2;
+    int bufferByteSize = bufferSize * sizeof(muxBuffer_t);
+
+    int* storageBuffer = (int*)pvPortMalloc(sizeof(int) * bufferSize);
+    muxBuffer_t* readBuffer = (muxBuffer_t*)pvPortMalloc(bufferByteSize);
+    muxBuffer_t* destBuffer;
+    float f;
+    MX_MUX_HW_Start(pTrack->id, pTrack->buffer, pTrack->bufferSize);
+    pTrack->mode = TrackState_Running;
 
     for (;;) {
+        // wait for semaphore
+        osSemaphoreWait(selfSemId[pTrack->id], 0);
 
-        // wait for dma callback
-        osSemaphoreWait(dma_sem, osWaitForever);
+        memset(storageBuffer, 0, sizeof(int) * bufferSize);
 
-        // track info pointer
-        ptr = info;
+        waitMutex(pTrack->id);
+        for (int i = 0; i < pTrack->maxium_slot; i++) {
+            pSlot = &pTrack->slots[i];
 
-        // set vol
-        offset = 4 + 3 - USR.config->Vol;
-        if (USR.config->Vol == 0) {
-            offset = 15;
-        }
+            if (pSlot->mode == SlotMode_Idle)
+                continue;
+            /** pSlot->mode != SlotMode_Idel ***/
 
-        // reset storage buffer
-        memset(storageBuffer, 0, sizeof(storageBuffer));
+            int readedSize = mux_fileObj_read(pSlot->pObj, readBuffer, bufferByteSize);
+            mux_convert_addToInt(readBuffer, storageBuffer, readedSize / sizeof(muxBuffer_t), &f);
 
-        for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++) {
-            // read file buffer
-            if (ptr->fileObj) {
-                FIL *pFile = (FIL *) (ptr->fileObj);
-                bool canRead = !f_eof(pFile);
-                if (canRead) {
-                    UINT b;
-                    memset(readBuffer, 0, sizeof(readBuffer));
-                    isCritical = inCritical;
-                    /* 若剩余比特小于sizeof(readBuffer),fatfs读到EOF后就会结束读取操作
-                     * 不会影响执行的结果
-                     */
-                    f_read(pFile, readBuffer, sizeof(readBuffer), &b);
-                    isCritical = outCritical;
-                    ptr->leftSize -= b;
-
-                    // after read data, merge this track into dma buffer
-                    int16_t *pRead = readBuffer;
-                    pStorage = storageBuffer;
-                    int buf;
-                    for (int j = 0; j < MX_MUX_BUFFSIZE; j++)
-                    {
-                        buf = *pStorage + (*pRead++ / MX_MUX_MAXIUM_TRACKID);
-
-                        if (buf > INT16_MAX / 2) {
-                            f = (float) INT16_MAX / 2 / (float) buf;
-                            buf = INT16_MAX / 2;
-                        }
-                        buf *= f;
-                        if (buf < INT16_MIN / 2) {
-                            f = (float) INT16_MIN / 2 / (float) buf;
-                            buf = INT16_MIN / 2;
-                        }
-                        if (f < 1.0f) {
-                            f += (1.0f - f) / factor;
-                        }
-                        *pStorage++ = (int16_t)buf;
-                    }
-                }
+            if (readedSize == bufferByteSize)
+                continue;
+            /** readSize < bufferByteSize ******/
+            switch (pSlot->mode) {
+            case SlotMode_Once:
+                if (mux_fileObj_close(pSlot->pObj) == false)
+                    break;
+                pSlot->mode = SlotMode_Idle;
+                callCallbackFunc(pSlot->callback[SlotCallback_Destory]);
+                clearAllCallback(pSlot);
+                break;
+            case SlotMode_Loop:
+                mux_fileObj_seek(pSlot->pObj, MX_MUX_WAV_FIX_OFFSET);
+                callCallbackFunc(pSlot->callback[SlotCallback_Done]);
+                break;
             }
-            ptr++;
         }
-
-        pDma = (uint16_t*)(dmaBuffer + MX_MUX_BUFFSIZE * (int)dmaPos);
-        pStorage = storageBuffer;
-        for (int i = 0; i < MX_MUX_BUFFSIZE; i++)
-        {
-            *pDma++ = (uint16_t)((*pStorage++ >> offset) + bitOffset);
-        }
+        destBuffer = pTrack->buffer + dmaPos[pTrack->id] * bufferSize;
+        mux_convert_mergeToBuffer(storageBuffer, destBuffer, bufferSize, USR.config->Vol);
+        releaseMutex(pTrack->id);
     }
 }
-void MX_MUX_HalfCallback(void)
-{
-    // first block is ready to reload.
-    dmaPos = dmaPos_1;
-    osSemaphoreRelease(dma_sem);
-}
 
-void MX_MUX_Callback(void)
+bool MX_MUX_hasSlotsIdle(MUX_Track_Id_t tid)
 {
-    dmaPos = dmaPos_2;
-    osSemaphoreRelease(dma_sem);
-}
-
-void suspendMuxThread(void)
-{
-    while (isCritical == inCritical)
+    MUX_Track_t* pTrack = &tracks[tid];
+    MUX_Slot_t* pSlot;
+    for (int i = 0; i < pTrack->maxium_slot; i++)
     {
-        osThreadSetPriority(muxThreadId, threadHighPriority);
-        osDelay(1);
+        pSlot = &pTrack->slots[i];
+        if (pSlot->mode == SlotMode_Idle)
+            return true;
     }
-    osThreadSuspend(muxThreadId);
-    osThreadSetPriority(muxThreadId, threadHighPriority);
+    return false;
 }
-void resumeMuxThread(void)
+
+void MX_MUX_HW_DMA_Callback(MUX_Track_Id_t tid)
 {
-    osThreadResume(muxThreadId);
+    tracks[tid].pos = pos2;
+    osSemaphoreRelease(selfSemId[tid]);
+}
+
+void MX_MUX_HW_DMA_HalfCallback(MUX_Track_Id_t tid)
+{
+    tracks[tid].pos = pos1;
+    osSemaphoreRelease(selfSemId[tid]);
 }

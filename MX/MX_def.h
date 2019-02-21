@@ -19,13 +19,26 @@
 
 #define __MX_WEAK __attribute__((weak))
 
-#ifndef MX_MUX_MAXIUM_TRACKID
+#ifndef MX_MUX_BUFFSIZE
+#define MX_MUX_BUFFSIZE (512)
+#endif
+
+// MUX thread stack
+#ifndef MX_MUX_THREAD_STACK_SIZE
+#define MX_MUX_THREAD_STACK_SIZE (1024)
+#endif
+
+#ifndef MX_MUX_DUAL_TRACK
+#define MX_MUX_DUAL_TRACK (0)
+#endif
+
+#undef MX_MUX_MAXIUM_TRACKID
+#if MX_MUX_DUAL_TRACK == 0
+#define MX_MUX_MAXIUM_TRACKID (1)
+#else
 #define MX_MUX_MAXIUM_TRACKID (2)
 #endif
 
-#ifndef MX_MUX_BUFFSIZE
-#define MX_MUX_BUFFSIZE (1024)
-#endif
 
 #ifndef MX_LOOP_INTERVAL
 #define MX_LOOP_INTERVAL (20)
@@ -46,4 +59,8 @@
 void MX_WTDG_HW_Feed(void);
 #       define MX_WTDG_FEED() MX_WTDG_HW_Feed()
 #   endif
+#endif
+
+#ifndef MX_MUX_WAV_FIX_OFFSET
+#define MX_MUX_WAV_FIX_OFFSET (44)
 #endif

@@ -54,7 +54,8 @@ void MX_LOOP_Handle(void const * arg)
     {
         MX_Audio_PlayBeep();
         MX_PM_Shutdown();
-        while (1);
+        while (1)
+          DEBUG_BKPT();
     }
     MX_MUX_Init();
     MX_LED_Init();
@@ -80,6 +81,7 @@ void MX_LOOP_Handle(void const * arg)
 
     MX_LED_bankUpdate(&USR);
 
+#if 0
     if (MX_PM_needWarning())
     {
         uint8_t buf = USR.mute_flag;
@@ -88,6 +90,7 @@ void MX_LOOP_Handle(void const * arg)
         MX_Audio_Play_Start(Audio_LowPower);
         USR.mute_flag = buf;
     }
+#endif
 
     MX_Audio_Play_Start(Audio_Boot);
 

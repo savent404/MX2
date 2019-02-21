@@ -3,35 +3,70 @@
 #include "dac.h"
 #include "main.h"
 
-void Audio_Enable(bool status)
+void Audio_Enable(bool status, MUX_Track_Id_t tid)
 {
-    if(true==status) {
+    static bool enable[2] = {false, false};
+    enable[tid] = status;
+
+    /** If any track enabled, pull up gpio */
+    bool res = false;
+    for (int i = 0; i < 2; i++)
+    {
+        if (enable[i])
+            res = true;
+    }
+    if (res == status)
         HAL_GPIO_WritePin(AUDIO_ENABLE_GPIO_Port, AUDIO_ENABLE_Pin, GPIO_PIN_SET);
-    }
-    else {
+    else
         HAL_GPIO_WritePin(AUDIO_ENABLE_GPIO_Port, AUDIO_ENABLE_Pin, GPIO_PIN_RESET);
+}
+
+
+void MX_MUX_HW_Init(MUX_Track_Id_t tid)
+{
+    switch(tid)
+    {
+    case 0:
+        MX_TIM7_Init();
+        MX_DAC_Init();
+        HAL_TIM_Base_Start(&htim7);
+        break;
+    case 1:
+        break;
     }
 }
 
-
-void MX_MUX_HW_Init(void* source, size_t size)
+void MX_MUX_HW_DeInit(MUX_Track_Id_t tid)
 {
-    Audio_Enable(true);
-    MX_TIM7_Init();
-    MX_DAC_Init();
-    HAL_TIM_Base_Start(&htim7);
-    HAL_DAC_Start_DMA(&hdac,
-                      DAC_CHANNEL_1,
-                      (uint32_t*)source,
-                      (uint32_t)size,
-                      DAC_ALIGN_12B_R);
+    Audio_Enable(false, tid);
+    switch(tid)
+    {
+    case 0:
+        HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_1);
+        HAL_TIM_Base_Stop(&htim7);
+        break;
+    case 1:
+        //....
+        break;
+    }
 }
 
-void MX_MUX_HW_DeInit(void)
+void MX_MUX_HW_Start(MUX_Track_Id_t tid, void* source, int size)
 {
-    Audio_Enable(false);
-    HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_1);
-    HAL_TIM_Base_Stop(&htim7);
+    switch (tid)
+    {
+    case 0:
+        HAL_DAC_Start_DMA(&hdac,
+                    DAC_CHANNEL_1,
+                    (uint32_t*)source,
+                    (uint32_t)size,
+                    DAC_ALIGN_12B_R);
+        break;
+    case 1:
+        //....
+        break;
+    }
+    Audio_Enable(true, tid);
 }
 
 
@@ -41,7 +76,7 @@ void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
     // 处理一般事物
     
     // 调用 MUX提供的callback
-    MX_MUX_Callback();
+    MX_MUX_HW_DMA_Callback(TrackId_MainLoop);
 }
 
 void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
@@ -49,6 +84,6 @@ void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
     // 处理一般事物
     
     // 调用 MUX提供的callback
-    MX_MUX_HalfCallback();
+    MX_MUX_HW_DMA_HalfCallback(TrackId_MainLoop);
 }
 

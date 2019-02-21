@@ -6,11 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+static MUX_Slot_Id_t sid_hum;
+static MUX_Slot_Id_t sid_lockup;
+
 bool MX_Audio_Play_Start(Audio_ID_t id)
 {
     static char path[64];
-
-    MUX_Mode_t mode = MUX_Mode_Once;
+    MUX_Slot_Mode_t mode = SlotMode_Once;
 
     const char* prefix = MX_PARAM_GetPrefix();
 
@@ -19,13 +21,13 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
     if (id == Audio_intoRunning)
     {
         sprintf(path, "%s/Bank%d/hum.wav", MX_PARAM_GetPrefix(), USR.bank_now + 1);
-        MX_MUX_Start(MUX_Track_MainLoop,
-                     MUX_Mode_Loop,
-                     path);
+        sid_hum = MX_MUX_Start(TrackId_MainLoop,
+                              SlotMode_Loop,
+                              path);
     }
     else if (id == Audio_intoReady)
     {
-        MX_MUX_Start(MUX_Track_MainLoop, MUX_Mode_Idle, NULL);
+        MX_MUX_Start(TrackId_MainLoop, sid_hum, NULL);
     }
 
     switch(id)
@@ -77,7 +79,7 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
                     prefix,
                     USR.bank_now + 1,
                     (USR.triggerB + 1)->path_arry + 30*pos);
-            mode = MUX_Mode_Loop;
+            mode = SlotMode_Loop;
         case Audio_TriggerE|0x80:
             MX_Audio_Play_Stop(id);
             break;
@@ -99,24 +101,26 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
                     (USR.triggerB + 1)->path_arry + 30*pos);
             break;
     }
-    MX_MUX_Start(MUX_Track_Trigger, mode, path);
+    if (id == Audio_TriggerE)
+        sid_lockup = MX_MUX_Start(TrackId_Trigger, mode, path);
+    else
+        MX_MUX_Start(TrackId_Trigger, mode, path);
     return true;
 }
 
 bool MX_Audio_Play_Stop(Audio_ID_t id)
 {
-    MX_MUX_Start(MUX_Track_Trigger, MUX_Mode_Idle, NULL);
+    if (id == Audio_TriggerE)
+        MX_MUX_Stop(TrackId_Trigger, sid_lockup);
     return true;
 }
 
 bool MX_Audio_isReady(void)
 {
-    return MX_MUX_isIdle(MUX_Track_Trigger);
+    return MX_MUX_hasSlotsIdle(TrackId_Trigger);
 }
 
 uint32_t MX_Audio_getTriggerLastTime(void)
 {
-    MUX_Info_t info;
-    MX_MUX_GetStatus(MUX_Track_Trigger, &info);
     return 0;
 }
