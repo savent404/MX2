@@ -24,7 +24,7 @@ mux_fileObj_close(MUX_FileObj_t* pFile)
     FRESULT res = f_close(pFile);
     if (res != FR_OK)
     {
-        DEBUG(5, "mux close file:%s error:%d", filePath, (int)res);
+        DEBUG(5, "mux close file error:%d", (int)res);
         return false;
     }
     return true;

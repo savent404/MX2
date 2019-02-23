@@ -1400,6 +1400,9 @@
             <name>$PROJ_DIR$\..\..\MX\AUDIO\audio_defaultPort.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\MX\Console\console.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\MX\Hand\hand.c</name>
         </file>
         <file>

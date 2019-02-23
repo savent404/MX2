@@ -222,6 +222,7 @@
                     <state>USE_NP</state>
                     <state>GD32F303xG</state>
                     <state>MX_MUX_DUAL_TRACK</state>
+                    <state>USE_DEBUG</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -368,6 +369,7 @@
                     <state>$PROJ_DIR$/../../MX/SimpleLED</state>
                     <state>$PROJ_DIR$/../../MX</state>
                     <state>$PROJ_DIR$/../../MX/LED/CXXPort</state>
+                    <state>$PROJ_DIR$/../../MX/Console</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1292,6 +1294,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\AUDIO\audio_defaultPort.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\Console\console.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\Hand\hand.c</name>
