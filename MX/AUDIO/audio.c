@@ -73,6 +73,7 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
         case Audio_TriggerE:
             getTriggerFullPath(path, USR.triggerE);
             mode = SlotMode_Loop;
+            break;
         case Audio_TriggerE|0x80:
             MX_Audio_Play_Stop(id);
             break;
