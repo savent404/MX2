@@ -221,6 +221,7 @@
                     <state>ARM_MATH_CM4</state>
                     <state>USE_NP</state>
                     <state>GD32F303xG</state>
+                    <state>MX_MUX_DUAL_TRACK</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -1052,6 +1053,12 @@
         <group>
             <name>Port</name>
             <file>
+                <name>$PROJ_DIR$\..\Port\mx_audio_port.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Port\mx_console_port.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Port\mx_key_port.c</name>
             </file>
             <file>
@@ -1198,6 +1205,9 @@
             <file>
                 <name>$PROJ_DIR$\..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_tim_ex.c</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_uart.c</name>
+            </file>
         </group>
     </group>
     <group>
@@ -1258,6 +1268,9 @@
         <name>TestCase</name>
         <file>
             <name>$PROJ_DIR$\..\TestCase\test_looper.c</name>
+            <excluded>
+                <configuration>BspH1</configuration>
+            </excluded>
         </file>
         <file>
             <name>$PROJ_DIR$\..\TestCase\test_mux.c</name>

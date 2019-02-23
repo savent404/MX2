@@ -171,7 +171,7 @@ void MX_MUX_Handle(void const* arg)
 
     for (;;) {
         // wait for semaphore
-        osSemaphoreWait(selfSemId[pTrack->id], 0);
+        osSemaphoreWait(selfSemId[pTrack->id], osWaitForever);
 
         memset(storageBuffer, 0, sizeof(int) * bufferSize);
 

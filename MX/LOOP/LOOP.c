@@ -28,7 +28,7 @@ static bool canBoot(void);
 
 bool MX_LOOP_Init(void)
 {
-    osThreadDef(loop, MX_LOOP_Handle, osPriorityNormal, 0, 4096);
+    osThreadDef(loop, MX_LOOP_Handle, osPriorityNormal, 0, 1024);
     loopThreadId = osThreadCreate(osThread(loop), NULL);
     return true;
 }
@@ -76,7 +76,9 @@ void MX_LOOP_Handle(void const * arg)
     DEBUG_BKPT();
 
     USR.sys_status = System_Restart;
+    //vTaskPrioritySet(loopThreadId, osPriorityRealtime);
     usr_switch_bank(0, 1);
+    //vTaskPrioritySet(loopThreadId, osPriorityNormal);
     USR.bank_color = 0;
 
     MX_LED_bankUpdate(&USR);
@@ -156,11 +158,11 @@ uint8_t scanKey(void)
 
     if (buf & KEY_PWR_PRESS)
     {
-        res |= pre_buf & KEY_PWR_PRESS ? KEY_PWR_RELEASE : KEY_PWR_PRESS;
+        res |= pre_buf & KEY_PWR_PRESS ? KEY_PWR_PRESS : KEY_PWR_RELEASE;
     }
     if (buf & KEY_SUB_PRESS)
     {
-        res |= pre_buf & KEY_SUB_PRESS ? KEY_SUB_RELEASE : KEY_SUB_PRESS;
+        res |= pre_buf & KEY_SUB_PRESS ? KEY_SUB_PRESS : KEY_SUB_RELEASE;
     }
 
     MX_WTDG_FEED();
@@ -191,9 +193,17 @@ void handleReady(void)
             timeout += MX_LOOP_INTERVAL;
         }
 
+        // power off
+        if(timeout >= maxTimeout || USR.config->Tpoff <= USR.config->Tout)
+        {
+            DEBUG(5, "System going to close");
+            USR.sys_status = System_Close;
+            MX_Audio_Play_Start(Audio_PowerOff);
+            osDelay(3000); //3s
+            MX_PM_Shutdown();
+        }
         // trigger 'out'
-        if ((timeout >= maxTimeout && USR.config->Tpoff <= USR.config->Tout) ||
-            (timeout < maxTimeout && USR.config->Tpoff >  USR.config->Tout))
+        else
         {
             DEBUG(5, "System going to running");
             USR.sys_status = System_Running;
@@ -203,16 +213,6 @@ void handleReady(void)
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
             autoTimeout[0] = 0;
         }
-        // power off
-        else 
-        {
-            DEBUG(5, "System going to close");
-            USR.sys_status = System_Close;
-            MX_Audio_Play_Start(Audio_PowerOff);
-            osDelay(3000); //3s
-            MX_PM_Shutdown();
-        }
-        
     }
     else if (keyRes & KEY_SUB_PRESS)
     {
@@ -225,7 +225,9 @@ void handleReady(void)
         if (timeout >= maxTimeout)
         {
             DEBUG(5, "System Bank switch");
+            //vTaskPrioritySet(loopThreadId, osPriorityRealtime);
             usr_switch_bank((USR.bank_now + 1) % USR.nBank, 0);
+            //vTaskPrioritySet(loopThreadId, osPriorityNormal);
             MX_LED_bankUpdate(&USR);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             MX_Audio_Play_Start(Audio_BankSwitch);
@@ -261,7 +263,7 @@ void handleRunning(void)
     {
         uint16_t maxTimeout = USR.config->Tin;
         while ((!((keyRes = scanKey()) & KEY_PWR_RELEASE)) && // Waiting for PowerKey release
-               (!keyRes & KEY_SUB_PRESS) &&                   // Waiting for UserKey press
+               (!(keyRes & KEY_SUB_PRESS)) &&                 // Waiting for UserKey press
                timeout < maxTimeout)                          // Waiting for timeout
         {
             timeout += MX_LOOP_INTERVAL;
@@ -331,7 +333,7 @@ void handleRunning(void)
             DEBUG(5, "System going to charging")
             USR.sys_status = System_Ready;
             MX_LED_startTrigger(LED_Trigger_Stop);
-            MX_Audio_Play_Start(Audio_intoReady);
+            MX_Audio_Play_Start(Audio_Charging);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             USR.bank_color = 0;
             MX_LED_bankUpdate(&USR);
@@ -383,8 +385,10 @@ void handleCharged(void)
 
 void handleCharging(void)
 {
-    // any trigger, play 'charging'
-    if (scanKey() != 0)
+    // any key press, play 'charging'
+    uint8_t res = scanKey();
+    if ( (res & KEY_PWR_PRESS) ||
+         (res & KEY_SUB_PRESS) )
     {
         MX_Audio_Play_Start(Audio_Charging);
     }

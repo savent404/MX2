@@ -180,7 +180,7 @@ DRESULT USER_write (
 { 
   /* USER CODE BEGIN WRITE */
   /* USER CODE HERE */
-    mmcsd_write(slot, buff, sector, count);
+    mmcsd_write(slot, (uint8_t *)buff, sector, count);
     return RES_OK;
   /* USER CODE END WRITE */
 }

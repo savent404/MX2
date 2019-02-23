@@ -4,7 +4,9 @@
 #include "cmsis_os.h"
 
 extern SPI_HandleTypeDef hspi1;
-extern osSemaphoreId SdOperate_Cplt_FlagHandle;
+extern osSemaphoreId SdRxOperate_Cplt_FlagHandle;
+extern osSemaphoreId SdTxOperate_Cplt_FlagHandle;
+
 
 void Mmcsd_CS(bool status)
 {
@@ -42,7 +44,19 @@ void Mmcsd_SlowClock_Switch(bool status)
 
 HAL_StatusTypeDef Mmcsd_Spi_Send(uint8_t *txbuf, uint16_t datanum)
 {
-    return HAL_SPI_Transmit(&hspi1, txbuf, datanum, 100);
+    HAL_StatusTypeDef status;
+    
+    if(1==datanum) {
+        status = HAL_SPI_Transmit(&hspi1, txbuf, datanum, 100);
+    }
+    else {
+        status = HAL_SPI_Transmit_DMA(&hspi1, txbuf, datanum);
+        if(HAL_OK==status) {
+            osSemaphoreWait(SdTxOperate_Cplt_FlagHandle, osWaitForever);
+        }
+    }
+
+    return status;
 }
 
 HAL_StatusTypeDef Mmcsd_Spi_Exchange(uint8_t *txbuf, uint8_t *rxbuf, uint16_t datanum)
@@ -69,7 +83,7 @@ HAL_StatusTypeDef Mmcsd_Spi_Receive(uint8_t *rxbuf, uint16_t datanum)
     else {
         status = HAL_SPI_Receive_DMA(&hspi1, rxbuf, datanum);
         if(HAL_OK==status) {
-            osSemaphoreWait(SdOperate_Cplt_FlagHandle, osWaitForever);
+            osSemaphoreWait(SdRxOperate_Cplt_FlagHandle, osWaitForever);
         }
     }
 
@@ -81,6 +95,12 @@ HAL_StatusTypeDef Mmcsd_Spi_Receive(uint8_t *rxbuf, uint16_t datanum)
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    osSemaphoreRelease(SdOperate_Cplt_FlagHandle);
+    osSemaphoreRelease(SdRxOperate_Cplt_FlagHandle);
 }
+
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    osSemaphoreRelease(SdTxOperate_Cplt_FlagHandle);
+}
+
 

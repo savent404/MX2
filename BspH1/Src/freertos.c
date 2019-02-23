@@ -59,7 +59,8 @@
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
 osSemaphoreId VBAT_LOW_FLAGHandle;
-osSemaphoreId SdOperate_Cplt_FlagHandle;
+osSemaphoreId SdRxOperate_Cplt_FlagHandle;
+osSemaphoreId SdTxOperate_Cplt_FlagHandle;
 osSemaphoreId NpOperate_Cplt_FlagHandle;
 
 
@@ -70,10 +71,6 @@ osThreadId SimpleLEDHandle;
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
-//void DACOutput(void const * argument);
-//void LEDOpra(void const * argument);
-//void Wav_Task(void const * argument);
-void Test_Task(void const * argument);
 
 extern void MX_FATFS_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -127,8 +124,11 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
-  osSemaphoreDef(SdOperate_Cplt_Flag);
-  SdOperate_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(SdOperate_Cplt_Flag), 1);
+  osSemaphoreDef(SdRxOperate_Cplt_Flag);
+  SdRxOperate_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(SdRxOperate_Cplt_Flag), 1);
+
+  osSemaphoreDef(SdTxOperate_Cplt_Flag);
+  SdTxOperate_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(SdTxOperate_Cplt_Flag), 1);
 
   osSemaphoreDef(NpOperate_Cplt_Flag);
   NpOperate_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(NpOperate_Cplt_Flag), 1);
@@ -136,7 +136,8 @@ void MX_FREERTOS_Init(void) {
   //osSemaphoreDef(LedOut_Cplt_Flag);
   //LedOut_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(LedOut_Cplt_Flag), 1);
 
-  osSemaphoreWait(SdOperate_Cplt_FlagHandle, 0);
+  osSemaphoreWait(SdRxOperate_Cplt_FlagHandle, 0);
+  osSemaphoreWait(SdTxOperate_Cplt_FlagHandle, 0);
   osSemaphoreWait(NpOperate_Cplt_FlagHandle, 0);
   osSemaphoreWait(VBAT_LOW_FLAGHandle, 0);
   //osSemaphoreWait(LedOut_Cplt_FlagHandle, 0);
@@ -154,8 +155,6 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  osThreadDef(TestTask, Test_Task, osPriorityAboveNormal, 0, 1024);
-  SimpleLEDHandle = osThreadCreate(osThread(TestTask), NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */

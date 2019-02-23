@@ -46,6 +46,7 @@ void MX_PM_Shutdown(void)
     HAL_GPIO_WritePin(POWER_EN_GPIO_Port,
                       POWER_EN_Pin,
                       GPIO_PIN_RESET);
+    while(1);
 }
 
 bool MX_PM_needWarning(void)

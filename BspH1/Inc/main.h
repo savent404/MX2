@@ -106,8 +106,6 @@ void Error_Handler(void);
 #define SIMPLELED5_GPIO_Port GPIOA
 #define AUDIO_ENABLE_Pin GPIO_PIN_3
 #define AUDIO_ENABLE_GPIO_Port GPIOA
-#define PaDacCh2_Pin GPIO_PIN_5
-#define PaDacCh2_GPIO_Port GPIOA
 #define SIMPLELED8_Pin GPIO_PIN_6
 #define SIMPLELED8_GPIO_Port GPIOA
 #define LS3DH_INT1_Pin GPIO_PIN_0

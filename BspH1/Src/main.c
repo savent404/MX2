@@ -84,6 +84,9 @@ const char Coyright[]={0x51, 0x7C, 0x3E, 0x90, 0xB5, 0x27, 0x65, 0x31, 0x01, 0x0
 //16bit md5 of "@@@ Copyright UltimateWorks @@@" + Version in 16 bit (1.00)
 
 extern bool Mmcsd_Present(void);
+extern void MX_Console_Init(void);
+extern void MX_Console_Print(uint8_t *string, uint16_t size);
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -136,9 +139,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_DAC_Init();
   MX_SPI2_Init();
-  MX_TIM7_Init();
   MX_TIM2_Init();
   MX_ADC1_Init();
   MX_ADC3_Init();
@@ -148,6 +149,10 @@ int main(void)
   Sensor_Init();
   HAL_Delay(100);
   MX_LOOP_Init();
+  MX_Console_Init();
+  for(int i=0;i<10;i++) {
+    MX_Console_Print("Ready", sizeof("Ready"));
+  }
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

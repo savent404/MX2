@@ -168,14 +168,14 @@ uint8_t usr_config_init(void)
     return 1;
   }
   set_config(&USR);
-  f_err = get_config(&USR, file);
+  f_err = (FRESULT)get_config(&USR, file);
   if (f_err) return f_err;
   f_close(file);
   /**< 获取每个bank中的Accent.txt, 包括动作延时时间以及动作信息 */
   USR.accent = (Accent_t*)pvPortMalloc(sizeof(Accent_t)*USR.nBank);
   for (uint8_t nBank = 0; nBank < USR.nBank; nBank++)
   {
-    f_err = get_accent_para(nBank, &USR);
+    f_err = (FRESULT)get_accent_para(nBank, &USR);
     if (f_err) return f_err;
   }
 
@@ -635,13 +635,13 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
   f_err = f_open(&file, strBuffer, FA_READ);
   if (f_err)
       return f_err;
-  f_err = get_config(&USR, &file);
+  f_err = (FRESULT)get_config(&USR, &file);
   if (f_err) {
     f_close(&file);
     return f_err;
   }
   f_close(&file);
-
+  return 0;
 }
 uint8_t usr_update_triggerPah(int bankPos)
 {
@@ -649,7 +649,7 @@ uint8_t usr_update_triggerPah(int bankPos)
   // Read All trigger's path in bank
   // TODO: Check get_trigger_para's free function
   for (int i = 0; i <= 5; i++) {
-    f_err = get_trigger_para(i, bankPos + 1, 1, &USR);
+    f_err = (FRESULT)get_trigger_para(i, bankPos + 1, 1, &USR);
     osDelay(10);
     if (f_err)
       return f_err;

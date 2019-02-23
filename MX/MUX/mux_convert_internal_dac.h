@@ -3,6 +3,10 @@
 #include "MX_def.h"
 #include <stdint.h>
 
+#ifndef DAC_FIX_OFFSET
+#define DAC_FIX_OFFSET (0x800/2)
+#endif
+
 MX_C_API static inline void
 mux_convert_addToInt(const void* source, int* dest, int size, float* f)
 {
@@ -12,7 +16,7 @@ mux_convert_addToInt(const void* source, int* dest, int size, float* f)
     int16_t* _s = (int16_t*)source;
     int* _d = dest;
     for (int i = 0; i < size; i++) {
-        buf = *_d + (*_s++ / MX_MUX_MAXIUM_TRACKID);
+        buf = *_d + (*_s++);
 
         if (buf > INT16_MAX) {
             _f = INT16_MAX / 2.0f / buf;
@@ -40,7 +44,7 @@ mux_convert_mergeToBuffer(const int* source, void* dest, int size, int vol)
     // 16bit->12bit
     // 2^2 = 4 level vol
     static const int offset = (4 + 2);
-    static const int zeroOffset = 0x1000 / 2;
+    static const int zeroOffset = DAC_FIX_OFFSET;
     uint16_t buf;
 
     for (int i = 0; i < size; i++)
@@ -56,6 +60,6 @@ mux_resetDmaBuffer(void* in, int size)
     uint16_t* ptr = (uint16_t*)in;
     for (int i = 0; i < size; i++)
     {
-        *ptr++ = 0x1000/2;
+        *ptr++ = DAC_FIX_OFFSET;
     }
 }

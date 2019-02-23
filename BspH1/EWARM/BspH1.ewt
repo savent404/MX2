@@ -1168,6 +1168,12 @@
         <group>
             <name>Port</name>
             <file>
+                <name>$PROJ_DIR$\..\Port\mx_audio_port.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Port\mx_console_port.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Port\mx_key_port.c</name>
             </file>
             <file>
@@ -1313,6 +1319,9 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_tim_ex.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_uart.c</name>
             </file>
         </group>
     </group>
