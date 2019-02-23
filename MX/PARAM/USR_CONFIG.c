@@ -17,8 +17,8 @@ const PARA_STATIC_t STATIC_USR = {
   .vol_chargecomplete = 4150,
   .filelimits = {
     .bank_max = 99,
-    .trigger_in_max = 16,
-    .trigger_out_max = 16,
+    .trigger_IN_max = 16,
+    .trigger_OUT_max = 16,
     .trigger_B_max = 16,
     .trigger_C_max = 16,
     .trigger_D_max = 16,
@@ -71,16 +71,6 @@ static void set_config(PARA_DYNAMIC_t *pt);
  */
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file);
 
-/** \brief 得到Trigger相关信息
- *
- * \param triggerid 0~3, 对应TriggerB-TriggerE
- * \param Bank 需要扫描的Bank
- * \param pt 用户动态配置参数，但初始化后不会更改
- * \return Error Code
- *
- */
-static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, uint8_t storagePos, PARA_DYNAMIC_t *pt);
-
 /** \brief 得到Accent.txt中的信息
  *
  * \param Bank 需要扫描的Bank
@@ -132,23 +122,6 @@ uint8_t usr_config_init(void)
   USR.humsize = (HumSize_t*)pvPortMalloc(sizeof(HumSize_t)*USR.nBank);
   USR._config = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t)*3);
   USR.BankColor = (uint32_t*)pvPortMalloc(sizeof(uint32_t)*4*USR.nBank);
-  USR.triggerB = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
-  USR.triggerC = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
-  USR.triggerD = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
-  USR.triggerE = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
-  USR.triggerIn = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
-  USR.triggerOut = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(TRIGGER_PATH_t)*3);
-
-  /**
-   * Trigger needs to be memset to 0 for first init
-   */
-  memset(USR.triggerB, 0, sizeof(TRIGGER_PATH_t)*3);
-  memset(USR.triggerC, 0, sizeof(TRIGGER_PATH_t)*3);
-  memset(USR.triggerD, 0, sizeof(TRIGGER_PATH_t)*3);
-  memset(USR.triggerE, 0, sizeof(TRIGGER_PATH_t)*3);
-  memset(USR.triggerIn, 0, sizeof(TRIGGER_PATH_t)*3);
-  memset(USR.triggerOut, 0, sizeof(TRIGGER_PATH_t)*3);
-
   /**
    * We need storage CONFIG.txt data now,
    * USE USR.config Init this
@@ -179,8 +152,7 @@ uint8_t usr_config_init(void)
     if (f_err) return f_err;
   }
 
-  //usr_config_init(0, 1);
-  //usr_config_init();
+  // usr_config_init(0, 1);
   usr_init_bank(0, 1);
 
   ///以上任意一个错误都是致命的
@@ -209,140 +181,6 @@ static uint8_t get_humsize(PARA_DYNAMIC_t* pt)
     pt->humsize[i] = buf;
     f_close(&file);
   }
-  return 0;
-}
-
-static uint8_t get_trigger_para(uint8_t triggerid, uint8_t Bank, uint8_t storagePos, PARA_DYNAMIC_t *pt)
-{
-  DIR dir; FILINFO info; char path[25]; FRESULT f_err;
-  #if _USE_LFN
-  info.lfname = LFN_BUF;
-  #endif
-  uint8_t trigger_cnt = 0;
-  switch (triggerid)
-  {
-    case 0: sprintf(path, "0://Bank%d/"TRIGGER(B), Bank); break;
-    case 1: sprintf(path, "0://Bank%d/"TRIGGER(C), Bank); break;
-    case 2: sprintf(path, "0://Bank%d/"TRIGGER(D), Bank); break;
-    case 3: sprintf(path, "0://Bank%d/"TRIGGER(E), Bank); break;
-    case 4: sprintf(path, "0://Bank%d/"TRIGGER(IN), Bank); break;
-    case 5: sprintf(path, "0://Bank%d/"TRIGGER(OUT), Bank); break;
-  }
-  // if (triggerid < 4)
-  //   sprintf(path, "0://Bank%d/Trigger_%c", Bank, triggerid + 'B');
-  // else if (triggerid == 4)
-  //   sprintf(path, "0://Bank%d/In", Bank);
-  // else if (triggerid == 5)
-  //   sprintf(path, "0://Bank%d/Out", Bank);
-
-  if ((f_err = f_opendir(&dir, path)) != FR_OK) {
-    DEBUG(0, "Open Bank%d Trigger%c Error:%d", Bank, triggerid +'B', f_err);
-    return 1;
-  }
-  while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0') {
-      trigger_cnt += 1;
-  } f_closedir(&dir);
-
-  // Number limits
-  switch (triggerid) {
-    case 0:
-      if (trigger_cnt > TRIGGER_MAX_NUM(B))
-        trigger_cnt = TRIGGER_MAX_NUM(B);
-      break;
-    case 1:
-      if (trigger_cnt > TRIGGER_MAX_NUM(C))
-        trigger_cnt = TRIGGER_MAX_NUM(C);
-      break;
-    case 2:
-      if (trigger_cnt > TRIGGER_MAX_NUM(D))
-        trigger_cnt = TRIGGER_MAX_NUM(D);
-      break;
-    case 3:
-      if (trigger_cnt > TRIGGER_MAX_NUM(E))
-        trigger_cnt = TRIGGER_MAX_NUM(E);
-      break;
-    case 4:
-      if (trigger_cnt > TRIGGER_MAX_NUM(in))
-        trigger_cnt = TRIGGER_MAX_NUM(in);
-      break;
-    case 5:
-      if (trigger_cnt > TRIGGER_MAX_NUM(out))
-        trigger_cnt = TRIGGER_MAX_NUM(out);
-      break;
-  }
-
-  switch (triggerid) {
-  case 0:
-      if ((pt->triggerB + storagePos)->path_arry != NULL) {
-          if ((pt->triggerB + storagePos)->number == trigger_cnt)
-              break;
-          vPortFree((pt->triggerB + storagePos)->path_arry);
-      }
-      (pt->triggerB + storagePos)->number = trigger_cnt;
-      (pt->triggerB + storagePos)->path_arry = (char*)pvPortMalloc(sizeof(char) * 30 * trigger_cnt);
-      break;
-  case 1:
-        if ((pt->triggerC + storagePos)->path_arry != NULL) {
-          if ((pt->triggerC + storagePos)->number == trigger_cnt)
-              break;
-          vPortFree((pt->triggerC + storagePos)->path_arry);
-      }
-      (pt->triggerC + storagePos)->number = trigger_cnt;
-      (pt->triggerC + storagePos)->path_arry = (char*)pvPortMalloc(sizeof(char) * 30 * trigger_cnt);
-      break;
-  case 2:
-        if ((pt->triggerD + storagePos)->path_arry != NULL) {
-          if ((pt->triggerD + storagePos)->number == trigger_cnt)
-              break;
-          vPortFree((pt->triggerD + storagePos)->path_arry);
-      }
-      (pt->triggerD + storagePos)->number = trigger_cnt;
-      (pt->triggerD + storagePos)->path_arry = (char*)pvPortMalloc(sizeof(char) * 30 * trigger_cnt);
-      break;
-  case 3:
-        if ((pt->triggerE + storagePos)->path_arry != NULL) {
-          if ((pt->triggerE + storagePos)->number == trigger_cnt)
-              break;
-          vPortFree((pt->triggerE + storagePos)->path_arry);
-      }
-      (pt->triggerE + storagePos)->number = trigger_cnt;
-      (pt->triggerE + storagePos)->path_arry = (char*)pvPortMalloc(sizeof(char) * 30 * trigger_cnt);
-      break;
-  case 4:
-        if ((pt->triggerIn + storagePos)->path_arry != NULL) {
-          if ((pt->triggerIn + storagePos)->number == trigger_cnt)
-              break;
-          vPortFree((pt->triggerIn + storagePos)->path_arry);
-      }
-      (pt->triggerIn + storagePos)->number = trigger_cnt;
-      (pt->triggerIn + storagePos)->path_arry = (char*)pvPortMalloc((sizeof(char) * 30 * trigger_cnt));
-      break;
-  case 5:
-        if ((pt->triggerOut + storagePos)->path_arry != NULL) {
-          if ((pt->triggerOut + storagePos)->number == trigger_cnt)
-              break;
-          vPortFree((pt->triggerOut + storagePos)->path_arry);
-      }
-      (pt->triggerOut + storagePos)->number = trigger_cnt;
-      (pt->triggerOut + storagePos)->path_arry = (char*)pvPortMalloc((sizeof(char) * 30 * trigger_cnt));
-      break;
-  }
-
-  if ((f_err = f_opendir(&dir, path)) != FR_OK) {
-    DEBUG(0, "Open Bank%d Trigger%c Error:%d", Bank, triggerid+'B', f_err);
-    return 1;
-  }
-  uint16_t i = 0;
-  while ((f_err = f_readdir(&dir, &info)) == FR_OK && info.fname[0] != '\0' && ++i <= trigger_cnt) {
-    switch (triggerid) {
-      case 0: strcpy((pt->triggerB + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
-      case 1: strcpy((pt->triggerC + storagePos)->path_arry+ (30)*(i - 1), info.fname); break;
-      case 2: strcpy((pt->triggerD + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
-      case 3: strcpy((pt->triggerE + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
-      case 4: strcpy((pt->triggerIn + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
-      case 5: strcpy((pt->triggerOut + storagePos)->path_arry + (30)*(i - 1), info.fname); break;
-    }
-  } f_closedir(&dir);
   return 0;
 }
 #ifdef __STRICT_ANSI__
@@ -643,17 +481,20 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
   f_close(&file);
   return 0;
 }
+#define UPDATE_TRIGGER(name, path, bankPos)                \
+    sprintf(path, "0:/Bank%d/%s", bankPos, TRIGGER(name)); \
+    if (USR.trigger##name)                                 \
+        MX_TriggerPath_DeInit(USR.trigger##name);          \
+    USR.trigger##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name));
+
 uint8_t usr_update_triggerPah(int bankPos)
 {
-    FRESULT f_err;
-  // Read All trigger's path in bank
-  // TODO: Check get_trigger_para's free function
-  for (int i = 0; i <= 5; i++) {
-    f_err = (FRESULT)get_trigger_para(i, bankPos + 1, 1, &USR);
-    osDelay(10);
-    if (f_err)
-      return f_err;
-  }
-
+  char path[64];
+  UPDATE_TRIGGER(B, path, bankPos);
+  UPDATE_TRIGGER(C, path, bankPos);
+  UPDATE_TRIGGER(D, path, bankPos);
+  UPDATE_TRIGGER(E, path, bankPos);
+  UPDATE_TRIGGER(IN, path, bankPos);
+  UPDATE_TRIGGER(OUT, path, bankPos);
   return 0;
 }
