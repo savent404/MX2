@@ -43,8 +43,8 @@ static const char name_string[][10] = {
     "CH2_Delay", "CH3_Delay", "CH4_Delay", "T_Breath", "Out_Delay", "LEDMASK",
     /**< Position:30~35 */
     "Unknow", "MD", "MT", "CD", "CT", "CL",
-    /**< Position:36 */
-    "CW"
+    /**< Position:36~39*/
+    "CW", "MC", "SC", "TC",
 };
 
 /** \brief 获取循环音频有效负载量
@@ -150,6 +150,11 @@ uint8_t usr_config_init(void)
   {
     f_err = (FRESULT)get_accent_para(nBank, &USR);
     if (f_err) return f_err;
+  }
+
+  if (1)
+  {
+    MX_ColorMatrix_Update("0:/"PATH_COLORMATRIX, &USR.colorMatrix);
   }
 
   // usr_config_init(0, 1);
@@ -384,6 +389,9 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       case 34: sscanf(spt,"%*[^=]=%hd", &(pt->config->CT));break;
       case 35: sscanf(spt,"%*[^=]=%hd", &(pt->config->CL));break;
       case 36: sscanf(spt,"%*[^=]=%hd", &(pt->config->CW));break;
+      case 37: sscanf(spt,"%*[^=]=%d", &(pt->config->MCIndex));break;
+      case 38: sscanf(spt,"%*[^=]=%d", &(pt->config->SCIndex));break;
+      case 39: sscanf(spt,"%*[^=]=%d", &(pt->config->TCIndex));break;
     }
   } return 0;
 }

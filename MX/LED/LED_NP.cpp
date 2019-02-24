@@ -33,8 +33,47 @@ bool iBlade::parameterUpdate(void* arg)
 
     mutex.lock();
 
-    MC = RGB(255, 0, 0);
-    TC = RGB(0, 255, 0);
+    // get MC color
+    if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, USR.config->MCIndex - 1))
+    {
+        DEBUG(5, "MC index out of range %d/%d", USR.config->MCIndex - 1,
+              USR.colorMatrix.num);
+        MC = RGB(125, 125, 0); // default Yellow
+        
+    }
+    else
+    {
+        uint8_t *rgb = USR.colorMatrix.arr[USR.config->MCIndex - 1].arr;
+        MC = RGB(rgb[0], rgb[1], rgb[2]);
+    }
+
+    // get SC color
+    if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, USR.config->SCIndex - 1))
+    {
+        DEBUG(5, "SC index out of range %d/%d", USR.config->SCIndex - 1,
+            USR.colorMatrix.num);
+        MC = RGB(255, 0, 0); // default green
+    }
+    else
+    {
+        uint8_t *rgb = USR.colorMatrix.arr[USR.config->SCIndex - 1].arr;
+        SC = RGB(rgb[0], rgb[1], rgb[2]);
+    }
+
+    // get TC color
+    if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, USR.config->TCIndex - 1))
+    {
+        DEBUG(5, "TC index out of range %d/%d", USR.config->TCIndex - 1,
+            USR.colorMatrix.num);
+        TC = RGB(255, 0, 255); // default 
+    }
+    else
+    {
+        uint8_t *rgb = USR.colorMatrix.arr[USR.config->TCIndex - 1].arr;
+        TC = RGB(rgb[0], rgb[1], rgb[2]);
+    }
+    
+    
     natrualDiffDegree = 30.0f;
     maxLight = 255;
     minLight = 50;

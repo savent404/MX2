@@ -8,7 +8,7 @@ extern PARA_DYNAMIC_t USR;
 
 USR_CONFIG_t config;
 
-int Test_Task(void)
+int main(void)
 {
 
     MX_MUX_Init();
@@ -23,7 +23,7 @@ int Test_Task(void)
     USR.config=&config;
     USR.config->Vol=1;
     // 播放循环背景音 0:/loop.wav
-    MX_MUX_Start(MUX_Track_MainLoop, MUX_Mode_Loop, "0:/hum.wav");
+    MX_MUX_Start(TrackId_MainLoop, SlotMode_Loop, "0:/hum.wav");
     
     for (;;)
     {

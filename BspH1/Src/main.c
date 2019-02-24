@@ -112,7 +112,7 @@ extern osSemaphoreId NpOperate_Cplt_FlagHandle;
   *
   * @retval None
   */
-int main(void)
+__weak int main(void)
 {
   /* USER CODE BEGIN 1 */
 #if APPMODE

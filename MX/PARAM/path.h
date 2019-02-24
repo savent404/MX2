@@ -5,6 +5,10 @@
 #define PATH_CONFIG "SETTING.txt"
 #endif
 
+#ifndef PATH_COLORMATRIX
+#define PATH_COLORMATRIX "ColorMatrix.txt"
+#endif
+
 #ifndef WAV_BOOT
 #define WAV_BOOT "System/Boot.wav"
 #endif

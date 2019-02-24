@@ -29,6 +29,7 @@ private:
     /**
      * @name Storaged Colors
      * @param MC main color
+     * @param SC second main color
      * @param TC trigger color
      * @param natrualDiffDegree 自然渐变中色相角度值
      * @param maxLight 最大亮度
@@ -39,6 +40,7 @@ private:
      * @param [draft]triggerDuration 普通trigger的持续时间
      * @{ */
     RGB MC;
+    RGB SC;
     RGB TC;
     float natrualDiffDegree;
     int maxLight;

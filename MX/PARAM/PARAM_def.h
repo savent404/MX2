@@ -11,6 +11,19 @@ typedef enum {
   System_Close
 } System_t;
 
+typedef union {
+  uint8_t arr[3];
+  struct {
+    uint8_t R;
+    uint8_t G;
+    uint8_t B;
+  } rgb;
+} RGBColor_t;
+
+typedef struct {
+  int num;
+  RGBColor_t* arr;
+} colorMatrix_t;
 
 typedef struct _usr_config_structure {
   uint8_t   Vol;       //音量设置(0无声，1小声，2中等，3大声)
@@ -56,6 +69,10 @@ typedef struct _usr_config_structure {
   uint16_t T_Breath; //LMode 呼吸延时
 
   uint16_t Out_Delay; // 触发Out时， 延时Hum播放时间
+
+  uint16_t MCIndex;
+  uint16_t SCIndex;
+  uint16_t TCIndex;
 } USR_CONFIG_t;
 
 // 小型LED动作
@@ -116,4 +133,6 @@ typedef struct _usr_dynamic_parameter {
   uint8_t bank_color;       /**< 当前LED使用的Bank(相对位移,需与Bank_now一起使用) */
   uint8_t mute_flag:1;      /**< 静音标志位(1Bit) */
   uint8_t audio_busy:1;     /**< 音频输出标志 */
+
+  colorMatrix_t colorMatrix; /** storage the NP's colorMatrix */
 } PARA_DYNAMIC_t;

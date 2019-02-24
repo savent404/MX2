@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "MX_def.h"
 #include "param.h"
+#include "colorMatrix.h"
 
 extern PARA_DYNAMIC_t USR;
 extern const PARA_STATIC_t STATIC_USR;
