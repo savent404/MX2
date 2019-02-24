@@ -6,11 +6,11 @@ static osThreadId loopThreadId;
 
 // [0]: auto 'in'
 // [1]: auto 'powerOff'
-static uint32_t autoTimeout[2] = {0, 0};
+static int autoTimeout[2] = {0, 0};
 // [0]: trigger B timer
 // [1]: trigger C timer
 // [2]: trigger D timer
-static uint32_t frozenTimer[3] = {0, 0, 0};
+static int frozenTimer[3] = {0, 0, 0};
 
 #define KEY_PWR_PRESS     (0x01)
 #define KEY_SUB_PRESS     (0x02)

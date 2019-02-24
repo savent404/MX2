@@ -150,9 +150,11 @@ int main(void)
   HAL_Delay(100);
   MX_LOOP_Init();
   MX_Console_Init();
-  for(int i=0;i<10;i++) {
-    MX_Console_Print("Ready", sizeof("Ready"));
-  }
+  
+  do{
+    const char initialChars[] = "\fStart now!\r\n";
+    MX_Console_Print((uint8_t*)initialChars, sizeof(initialChars));
+  } while(0);
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

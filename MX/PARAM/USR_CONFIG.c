@@ -481,11 +481,14 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
   f_close(&file);
   return 0;
 }
-#define UPDATE_TRIGGER(name, path, bankPos)                \
-    sprintf(path, "0:/Bank%d/%s", bankPos, TRIGGER(name)); \
-    if (USR.trigger##name)                                 \
-        MX_TriggerPath_DeInit(USR.trigger##name);          \
-    USR.trigger##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name));
+
+#define UPDATE_TRIGGER(name, path, bankPos)                               \
+do {                                                                      \
+    sprintf(path, "0:/Bank%d/%s", bankPos + 1, TRIGGER(name));            \
+    if (USR.trigger##name)                                                \
+        MX_TriggerPath_DeInit(USR.trigger##name);                         \
+    USR.trigger##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name)); \
+} while(0);
 
 uint8_t usr_update_triggerPah(int bankPos)
 {

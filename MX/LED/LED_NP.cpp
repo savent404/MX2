@@ -51,6 +51,7 @@ bool iBlade::parameterUpdate(void* arg)
 
     modeBackGround = 2;
     modeTrigger = 0;
+    modeFilter = 1;
 
     mutex.unlock();
     return true;

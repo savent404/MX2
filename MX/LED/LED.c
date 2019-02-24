@@ -27,7 +27,7 @@ LED_IF_t ledIf = {
  */
 void MX_LED_startTrigger(LED_Message_t message)
 {
-    DEBUG(3, "LED send Message:%d", message);
+    DEBUG(5, "LED send Message:%d", message);
     osMessagePut(LED_CMDHandle, message, osWaitForever);
 }
 osEvent MX_LED_GetMessage(uint32_t timeout)

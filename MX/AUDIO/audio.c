@@ -12,7 +12,7 @@ static MUX_Slot_Id_t sid_lockup;
 static void getTriggerFullPath(char* out, TRIGGER_PATH_t* ptr)
 {
     int pos = rand() % MX_TriggerPath_getNum(ptr);
-    sprintf(out, "%s%s", MX_TriggerPath_GetPrefix(ptr),
+    sprintf(out, "%s/%s", MX_TriggerPath_GetPrefix(ptr),
                          MX_TriggerPath_GetName(ptr, pos));
 }
 bool MX_Audio_Play_Start(Audio_ID_t id)
@@ -33,7 +33,7 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
     }
     else if (id == Audio_intoReady)
     {
-        MX_MUX_Start(TrackId_MainLoop, sid_hum, NULL);
+        MX_MUX_Stop(TrackId_MainLoop, sid_hum);
     }
 
     switch(id)

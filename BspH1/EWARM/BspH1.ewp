@@ -1323,7 +1323,13 @@
             <name>$PROJ_DIR$\..\..\MX\PARAM\param.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\MX\PARAM\re.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\MX\SimpleLED\SimpleLED.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\PARAM\triggerPath.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\PARAM\USR_CONFIG.c</name>

@@ -35,7 +35,7 @@ TRIGGER_PATH_t* MX_TriggerPath_Init(const char* dirPath, int maxNum)
     FILINFO info;
     int cnt = 0;
     enum {stage_1, stage_2} stage = stage_1;
-    re_t match_s = re_compile("*.[Ww][Aa][Vv]");
+    re_t match_s = re_compile("[^.]+.[Ww][Aa][Vv]");
     bool matched = false;
     TRIGGER_PATH_t* dest = allocPointer();
 again:
@@ -44,7 +44,7 @@ again:
     }
     while (f_readdir(&dir, &info) == FR_OK && info.fname[0] != '\0')
     {
-        matched = re_matchp(match_s, info.fname) > 0;
+        matched = re_matchp(match_s, info.fname) != -1;
 
         if (matched && stage == stage_1)
             cnt++;
