@@ -10,9 +10,19 @@
 #include "color.hpp"
 #include "LED_NP.h"
 
+//Red: 0x00, Green: 0x01, Blue: 0x02
+//Use a byte to describe the color
+//Bit(5,4): the first color, Bit(3,2): the middle color, Bit(1,0) the last color
+#define NP_RGB  ((0 << 4) | (1 << 2) | (2)) // 0x06
+#define NP_RBG  ((0 << 4) | (2 << 2) | (1)) // 0x09
+#define NP_GRB  ((1 << 4) | (0 << 2) | (2)) // 0x52
+#define NP_GBR  ((2 << 4) | (0 << 2) | (1)) // 0xA1
+#define NP_BRG  ((1 << 4) | (2 << 2) | (0)) // 0x58
+#define NP_BGR  ((2 << 4) | (1 << 2) | (0)) // 0xA4
+
 
 typedef struct {
-    uint8_t NpRGBOrder;//R:b00, G:b01: B:b10 W:b11
+    uint8_t NpRGBOrder;
     uint16_t NpNumber;
     uint16_t NpPeriod_Ns;
     uint16_t NpV0HighWitdh_Ns;
@@ -22,7 +32,7 @@ typedef struct {
 } NpHwConfig_s, *pNpHwConfig_s;
 
 typedef struct {
-    uint8_t NpRGBOrder;//R:b00, G:b01: B:b10 W:b11
+    uint8_t NpRGBOrder;
     uint16_t NpNumber;
     uint16_t NpPeriod_Value;
     uint16_t NpV0_Value;
@@ -253,15 +263,45 @@ __INLINE static void Pixel2TimData(uint8_t * rgb, uint8_t * buffer)
 static void NpData_Refresh(const RGB* ptrColor, int num)
 {
     uint8_t* databufpoint = LEDDigitBuffer;
+    uint8_t Color[3];
+    uint8_t RGBOrder;
+
+    RGBOrder=NpParaConfig.NpRGBOrder;
     
     for(uint16_t i=0;i<num;i++) {
-        uint8_t RGB[3] = {
-            ptrColor->wG(),
-            ptrColor->wR(),            
-            ptrColor->wB()
-        };
+        switch(RGBOrder) {
+        case NP_RGB:
+            Color[0]=ptrColor->wR();
+            Color[1]=ptrColor->wG();            
+            Color[2]=ptrColor->wB();
+            break;
+        case NP_RBG:
+            Color[0]=ptrColor->wR();
+            Color[1]=ptrColor->wB();            
+            Color[2]=ptrColor->wG();
+        case NP_GRB:
+            Color[0]=ptrColor->wG();
+            Color[1]=ptrColor->wR();            
+            Color[2]=ptrColor->wB();
+            break;
+        case NP_GBR:
+            Color[0]=ptrColor->wG();
+            Color[1]=ptrColor->wB();            
+            Color[2]=ptrColor->wR();
+            break;
+        case NP_BRG:
+            Color[0]=ptrColor->wB();
+            Color[1]=ptrColor->wR();            
+            Color[2]=ptrColor->wG();
+            break;
+        case NP_BGR:
+            Color[0]=ptrColor->wB();
+            Color[1]=ptrColor->wG();            
+            Color[2]=ptrColor->wR();
+            break;
+        }
 
-        Pixel2TimData(RGB, databufpoint);
+        Pixel2TimData(Color, databufpoint);
         databufpoint += 24;
         ptrColor++;
     }
