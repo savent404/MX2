@@ -45,7 +45,7 @@ extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_tim4_ch2;
 
 const NpHwConfig_s NpHwConfig = {
-    .NpRGBOrder=0x21,
+    .NpRGBOrder=NP_GRB,
     .NpNumber=50,
     .NpPeriod_Ns=1250,
     .NpV0HighWitdh_Ns=320,
@@ -73,10 +73,6 @@ bool LED_NP_HW_Init(int npnum)
     LED_NP_TIM_Init();
     LED_NP_Buffer_Init(&NpParaConfig);
 
-    /* Clear all flags */
-    hdma_tim4_ch2.DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma_tim4_ch2.ChannelIndex);
-    /* Configure DMA Channel data length */
-    hdma_tim4_ch2.Instance->CNDTR = (uint32_t)NpParaConfig.DmaDataBufferSize;
     /* Configure DMA Channel source address */
     hdma_tim4_ch2.Instance->CPAR = (uint32_t)&(htim4.Instance->CCR2);
     /* Configure DMA Channel destination address */
@@ -85,6 +81,8 @@ bool LED_NP_HW_Init(int npnum)
     hdma_tim4_ch2.XferCpltCallback = TIM_DMADelayPulseCplt;
     /* Set the DMA error callback */
     hdma_tim4_ch2.XferErrorCallback = TIM_DMAError ;
+
+    __HAL_DMA_DISABLE_IT(&hdma_tim4_ch2, DMA_IT_HT);
     
     NP_PWM_Start_DMA();
     osSemaphoreWait(NpOperate_Cplt_FlagHandle, osWaitForever);
@@ -158,6 +156,11 @@ static HAL_StatusTypeDef NP_PWM_Start_DMA(void)
 {
   DMA_HandleTypeDef *hdma;
 
+  htim4.Instance->CCR2=0x0000;
+  htim4.Instance->EGR=TIM_EGR_UG;
+  htim4.Instance->CNT=0x0001;
+  htim4.Instance->CCR2=LEDDigitBuffer[0];
+
   hdma=htim4.hdma[TIM_DMA_ID_CC2];
 
   if((htim4.State == HAL_TIM_STATE_BUSY))
@@ -186,7 +189,6 @@ static HAL_StatusTypeDef NP_PWM_Start_DMA(void)
     /* Clear all flags */
     hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma->ChannelIndex);
     
-    __HAL_DMA_DISABLE_IT(hdma, DMA_IT_HT);
     __HAL_DMA_ENABLE_IT(hdma, (DMA_IT_TC | DMA_IT_TE));
     
     /* Enable the Peripheral */
