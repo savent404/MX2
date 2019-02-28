@@ -10,7 +10,6 @@ static osThreadId selfThreadId[MX_MUX_MAXIUM_TRACKID];
 static osSemaphoreId selfSemId[MX_MUX_MAXIUM_TRACKID];
 // static osMutexId selfMutexId[MX_MUX_MAXIUM_TRACKID];
 static osSemaphoreId selfMutexId[MX_MUX_MAXIUM_TRACKID];
-static int dmaPos[MX_MUX_MAXIUM_TRACKID];
 
 static inline void initMutex(void) {
     osSemaphoreDef(mux);
@@ -38,7 +37,6 @@ static inline void clearAllCallback(MUX_Slot_t* pSlot)
 void MX_MUX_Init(void)
 {
     for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++) {
-        dmaPos[i] = 1;
         tracks[i].id = i;
         tracks[i].mode = TrackState_Idle;
         if (i == TrackId_MainLoop)
@@ -203,7 +201,7 @@ void MX_MUX_Handle(void const* arg)
                 break;
             }
         }
-        destBuffer = pTrack->buffer + dmaPos[pTrack->id] * bufferSize;
+        destBuffer = pTrack->buffer + pTrack->pos * bufferSize;
         mux_convert_mergeToBuffer(storageBuffer, destBuffer, bufferSize, USR.config->Vol);
         releaseMutex(pTrack->id);
     }
