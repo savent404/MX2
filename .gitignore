@@ -68,3 +68,14 @@ dkms.conf
 /SI/
 /BspH1/EWARM/BspH1/Obj/*.pbi
 /BspH1/EWARM/BspH1/Obj/*.xcl
+
+# ignore some IAR mid files
+BspH1/EWARM/Backup of BspH1\.ewp
+BspH1/EWARM/settings/BspH1\.BspH1\.cspy\.bat
+BspH1/EWARM/settings/BspH1\.BspH1\.cspy\.ps1
+BspH1/EWARM/settings/BspH1\.BspH1\.driver\.xcl
+BspH1/EWARM/settings/BspH1\.BspH1\.general\.xcl
+BspH1/EWARM/settings/BspH1\.crun
+BspH1/EWARM/settings/BspH1\.dbgdt
+BspH1/EWARM/settings/BspH1\.dnx
+BspH1/EWARM/BspH1/Obj/
