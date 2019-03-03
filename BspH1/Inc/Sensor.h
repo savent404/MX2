@@ -1,5 +1,5 @@
-#ifndef _LSM6DS33_H_
-#define _LSM6DS33_H_
+#ifndef _SENSOR_H_
+#define _SENSOR_H_
 #include <stdint.h>
 
 #define FUNC_CFG_ACCESS 0x1
@@ -118,10 +118,4 @@ typedef struct _SensorConfig
   uint16_t CL;
   uint16_t CW;
 } SensorConfig;
-
-void Sensor_Init(void);
-void Sensor_Set(SensorConfig *para);
-uint8_t Sensor_isClick(void);
-uint8_t Sensor_isMove(void);
-
 #endif

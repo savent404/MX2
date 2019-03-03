@@ -146,7 +146,6 @@ __weak int main(void)
   MX_TIM1_Init();  
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  Sensor_Init();
   HAL_Delay(100);
   MX_LOOP_Init();
   MX_Console_Init();

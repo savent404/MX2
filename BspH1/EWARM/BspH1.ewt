@@ -1174,6 +1174,9 @@
                 <name>$PROJ_DIR$\..\Port\mx_console_port.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\Port\mx_hand_port.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\Port\mx_key_port.c</name>
             </file>
             <file>
@@ -1217,9 +1220,6 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\main.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\Src\sensor.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\Src\spi.c</name>
@@ -1381,6 +1381,9 @@
     </group>
     <group>
         <name>TestCase</name>
+        <file>
+            <name>$PROJ_DIR$\..\TestCase\test_hand.c</name>
+        </file>
         <file>
             <name>$PROJ_DIR$\..\TestCase\test_looper.c</name>
         </file>
