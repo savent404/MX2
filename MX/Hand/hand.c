@@ -12,5 +12,10 @@ __MX_WEAK bool MX_HAND_DeInit(void)
 
 __MX_WEAK HAND_TriggerId_t MX_HAND_GetTrigger(void)
 {
-    return HAND_NULL;
+    HAND_TriggerId_t a;
+    a.hex = 0;
+    // a.unio.isClash = true;
+    // a.unio.isStab = false;
+    // ....
+    return a;
 }

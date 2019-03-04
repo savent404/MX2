@@ -2,11 +2,16 @@
 
 #include "MX_def.h"
 #include <stdbool.h>
+#include <stdint.h>
 
-typedef enum {
-    HAND_NULL = 0,
-    HAND_WAVE = 1,
-    HAND_CLIK = 2,
+typedef union {
+    uint32_t hex;
+    struct {
+        unsigned lvSpin:4;
+        bool isStab:1;
+        bool isSwing:1;
+        bool isClash:1;
+    } unio;
 } HAND_TriggerId_t;
 
 MX_PORT_API bool MX_HAND_Init(void);

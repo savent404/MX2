@@ -44,14 +44,16 @@ bool MX_HAND_DeInit(void)
 
 HAND_TriggerId_t MX_HAND_GetTrigger(void)
 {
+    HAND_TriggerId_t res;
+    res.hex = 0;
     uint8_t isClik = Sensor_isClick();
     uint8_t isMove = Sensor_isMove();
 
     if (isClik)
-        return HAND_CLIK;
+        res.unio.isClash = true;
     if (isMove)
-        return HAND_WAVE;
-    return HAND_NULL;
+        res.unio.isSwing = true;
+    return res;
 }
 
 static void Sensor_Init(void)

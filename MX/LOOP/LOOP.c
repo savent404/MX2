@@ -319,13 +319,15 @@ void handleRunning(void)
 
     // move detection
     HAND_TriggerId_t handTrigger = MX_HAND_GetTrigger();
-    if (handTrigger == HAND_CLIK && askTrigger(1)) {
-        MX_LED_startTrigger(LED_TriggerC);
-        MX_Audio_Play_Start(Audio_TriggerC);
-    }
-    else if (handTrigger == HAND_WAVE && askTrigger(0)) {
-        MX_LED_startTrigger(LED_TriggerB);
-        MX_Audio_Play_Start(Audio_TriggerB);
+    if (handTrigger.hex != 0) {
+        if (handTrigger.unio.isClash && askTrigger(1)) {
+            MX_LED_startTrigger(LED_TriggerC);
+            MX_Audio_Play_Start(Audio_TriggerC);
+        }
+        else if (handTrigger.unio.isSwing && askTrigger(0)) {
+            MX_LED_startTrigger(LED_TriggerB);
+            MX_Audio_Play_Start(Audio_TriggerB);
+        }
     }
 
     if (MX_PM_isCharging())
@@ -342,7 +344,7 @@ void handleRunning(void)
     }
 
     // clear auto 'in' trigger timer if there is any trigger.
-    if (handTrigger != HAND_NULL || keyRes != 0)
+    if (handTrigger.hex != 0 || keyRes != 0)
     {
         autoTimeout[0] = 0;
     }
