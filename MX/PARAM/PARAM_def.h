@@ -61,12 +61,18 @@ typedef struct _usr_config_structure {
   uint16_t  Lbright;   // LED全局亮度，范围0~1023
   uint16_t  Ldeep;     // LED全局亮度下探值，范围0~1023，当LDeep>Lbright时，此值归0
   uint16_t  LMode;     //开机运行时LED基础工作模式，详见Config
-  uint16_t  MD;
-  uint16_t  MT;
-  uint16_t  CD;
-  uint16_t  CT;
+  uint16_t  GB;        //global sensitive
+  uint16_t  MD;        //move duration
+  uint16_t  MT;        //move threshold
+  uint16_t  CD;        //click duration
+  uint16_t  CT;        //click threshold
   uint16_t  CL;
   uint16_t  CW;
+  uint16_t  ST;        //stab threshold
+  uint16_t  SPL1;      //spin level one
+  uint16_t  SPL2;      //spin level two
+  uint16_t  SPL3;      //spin level three
+  uint16_t  SPL4;      //spin level four
   uint16_t SimpleLED_MASK;   /**< 小型LED掩码，标志1允许亮，标志0则不亮，LSB代表LED0 */
   uint16_t ChDelay[4];
 

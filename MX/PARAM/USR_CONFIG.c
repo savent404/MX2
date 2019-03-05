@@ -40,8 +40,10 @@ static const char name_string[][10] = {
     "CH2_Delay", "CH3_Delay", "CH4_Delay", "T_Breath", "Out_Delay", "LEDMASK",
     /**< Position:30~35 */
     "Unknow", "MD", "MT", "CD", "CT", "CL",
-    /**< Position:36~39*/
-    "CW", "MC", "SC", "TC",
+    /**< Position:36~40*/
+    "CW", "MC", "SC", "TC", "GB",
+    /**< Position:41~45*/
+    "ST", "SPL1", "SPL2", "SPL3", "SPL4",
 };
 
 /** \brief 获取循环音频有效负载量
@@ -321,6 +323,18 @@ static void set_config(PARA_DYNAMIC_t *pt)
   pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
   pt->config->Out_Delay = 200; //Out 循环音延时200ms
   pt->config->SimpleLED_MASK = 0xFF;
+  pt->config->GB = 0x80;
+  pt->config->MD = 0x60;
+  pt->config->MT = 0x3F;
+  pt->config->CD = 0x03;
+  pt->config->CT = 0x1F;
+  pt->config->CL = 0x00;
+  pt->config->CW = 0x00;
+  pt->config->ST = 200;
+  pt->config->SPL1 = 100;
+  pt->config->SPL2 = 200;
+  pt->config->SPL3 = 300;
+  pt->config->SPL4 = 400;
 }
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
 {
@@ -389,6 +403,12 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       case 37: sscanf(spt,"%*[^=]=%d", &(pt->config->MCIndex));break;
       case 38: sscanf(spt,"%*[^=]=%d", &(pt->config->SCIndex));break;
       case 39: sscanf(spt,"%*[^=]=%d", &(pt->config->TCIndex));break;
+      case 40: sscanf(spt,"%*[^=]=%d", &(pt->config->GB));break;
+      case 41: sscanf(spt,"%*[^=]=%d", &(pt->config->ST));break;
+      case 42: sscanf(spt,"%*[^=]=%d", &(pt->config->SPL1));break;
+      case 43: sscanf(spt,"%*[^=]=%d", &(pt->config->SPL2));break;
+      case 44: sscanf(spt,"%*[^=]=%d", &(pt->config->SPL3));break;
+      case 45: sscanf(spt,"%*[^=]=%d", &(pt->config->SPL4));break;
     }
   } return 0;
 }
@@ -478,6 +498,7 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
   f_err = f_open(&file, strBuffer, FA_READ);
   if (f_err)
       return f_err;
+  set_config(&USR);
   f_err = (FRESULT)get_config(&USR, &file);
   if (f_err) {
     f_close(&file);

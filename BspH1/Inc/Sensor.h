@@ -117,5 +117,10 @@ typedef struct _SensorConfig
   uint16_t CT;
   uint16_t CL;
   uint16_t CW;
+  uint16_t ST;
+  uint16_t SPL1;
+  uint16_t SPL2;
+  uint16_t SPL3;
+  uint16_t SPL4;
 } SensorConfig;
 #endif
