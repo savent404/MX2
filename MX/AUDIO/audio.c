@@ -7,7 +7,7 @@
 #include <string.h>
 
 static MUX_Slot_Id_t sid_hum;
-static MUX_Slot_Id_t sid_lockup;
+static MUX_Slot_Id_t sid_trigger = 0;
 
 static void getTriggerFullPath(char* out, TRIGGER_PATH_t* ptr)
 {
@@ -87,17 +87,14 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
             getTriggerFullPath(path, USR.triggerOUT);
             break;
     }
-    if (id == Audio_TriggerE)
-        sid_lockup = MX_MUX_Start(TrackId_Trigger, mode, path);
-    else
-        MX_MUX_Start(TrackId_Trigger, mode, path);
+    sid_trigger = MX_MUX_Start(TrackId_Trigger, mode, path);
     return true;
 }
 
 bool MX_Audio_Play_Stop(Audio_ID_t id)
 {
     if (id == Audio_TriggerE)
-        MX_MUX_Stop(TrackId_Trigger, sid_lockup);
+        MX_MUX_Stop(TrackId_Trigger, sid_trigger);
     return true;
 }
 
@@ -106,7 +103,7 @@ bool MX_Audio_isReady(void)
     return MX_MUX_hasSlotsIdle(TrackId_Trigger);
 }
 
-uint32_t MX_Audio_getTriggerLastTime(void)
+int MX_Audio_getTriggerLastTime(void)
 {
-    return 0;
+    return MX_MUX_getLastTime(TrackId_Trigger, sid_trigger);
 }

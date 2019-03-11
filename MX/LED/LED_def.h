@@ -7,7 +7,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef enum _led_message {
+typedef enum _led_cmd_{
     LED_Trigger_EXIT = 0x00,
     LED_NoTrigger = 0x01,
     LED_TriggerB  = 0x02,
@@ -18,7 +18,21 @@ typedef enum _led_message {
     LED_Trigger_ColorSwitch = 0x07,
     LED_Trigger_Start = 0x08,
     LED_Trigger_Stop = 0x09,
+} LED_CMD_t;
+
+#if LED_SUPPORT_FOLLOW_AUDIO == 0
+typedef LED_CMD_t LED_Message_t;
+#elif LED_SUPPORT_FOLLOW_AUDIO == 1
+// Audio Last Time = ALT
+typedef int LED_ALT_t;
+typedef union _led_message_t {
+    uint32_t hex;
+    struct {
+        LED_CMD_t cmd:4;
+        LED_ALT_t alt:28;
+    } pair;
 } LED_Message_t;
+#endif
 
 typedef enum _led_method {
     LED_Method_Static,

@@ -280,8 +280,8 @@ void handleRunning(void)
         {
             DEBUG(5, "System going to ready")
             USR.sys_status = System_Ready;
-            MX_LED_startTrigger(LED_Trigger_Stop);
             MX_Audio_Play_Start(Audio_intoReady);
+            MX_LED_startTrigger(LED_Trigger_Stop);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             USR.bank_color = 0;
             MX_LED_bankUpdate(&USR);
@@ -298,22 +298,22 @@ void handleRunning(void)
             {
                 DEBUG(5, "Trigger E");
                 SimpleLED_ChangeStatus(SIMPLELED_STATUS_LOCKUP);
-                MX_LED_startTrigger(LED_TriggerE);
                 MX_Audio_Play_Start(Audio_TriggerE);
+                MX_LED_startTrigger(LED_TriggerE);
                 while (!(scanKey() & KEY_SUB_RELEASE)) {
                 }
                 DEBUG(5, "Trigger E End");
                 SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
-                MX_LED_startTrigger(LED_TriggerE_END);
                 MX_Audio_Play_Stop(Audio_TriggerE);
+                MX_LED_startTrigger(LED_TriggerE_END);
                 break;
             }
         }
         if (timeout < USR.config->TEtrigger && askTrigger(2))
         {
             DEBUG(5, "Trigger D");
-            MX_LED_startTrigger(LED_TriggerD);
             MX_Audio_Play_Start(Audio_TriggerD);
+            MX_LED_startTrigger(LED_TriggerD);
         }
     }
 
@@ -321,12 +321,12 @@ void handleRunning(void)
     HAND_TriggerId_t handTrigger = MX_HAND_GetTrigger();
     if (handTrigger.hex != 0) {
         if (handTrigger.unio.isClash && askTrigger(1)) {
-            MX_LED_startTrigger(LED_TriggerC);
             MX_Audio_Play_Start(Audio_TriggerC);
+            MX_LED_startTrigger(LED_TriggerC);
         }
         else if (handTrigger.unio.isSwing && askTrigger(0)) {
-            MX_LED_startTrigger(LED_TriggerB);
             MX_Audio_Play_Start(Audio_TriggerB);
+            MX_LED_startTrigger(LED_TriggerB);
         }
     }
 
@@ -334,8 +334,8 @@ void handleRunning(void)
     {
             DEBUG(5, "System going to charging")
             USR.sys_status = System_Ready;
-            MX_LED_startTrigger(LED_Trigger_Stop);
             MX_Audio_Play_Start(Audio_Charging);
+            MX_LED_startTrigger(LED_Trigger_Stop);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             USR.bank_color = 0;
             MX_LED_bankUpdate(&USR);
@@ -355,8 +355,8 @@ void handleRunning(void)
     {
         DEBUG(5, "System going to ready")
         USR.sys_status = System_Ready;
-        MX_LED_startTrigger(LED_Trigger_Stop);
         MX_Audio_Play_Start(Audio_intoReady);
+        MX_LED_startTrigger(LED_Trigger_Stop);
         USR.bank_color = 0;
         MX_LED_bankUpdate(&USR);
         SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);

@@ -7,6 +7,18 @@
 
 #define MX_LED_MS2CNT(x) ((x) / MX_LED_INTERVAL)
 
+
+/**
+ * @brief restore info at [x]_backup
+ */
+#define __LED_PUSH(x) ((x##_backup) = (x))
+#define __LED_POP(x)  ((x) = (x##_backup))
+
+/**
+ * @brief def a var with backup
+ */
+#define DEF_WITH_BACKUP(x) x,x##_backup
+
 class iBlade : public iBladeDriver {
 public:
     iBlade(size_t num);
@@ -29,13 +41,33 @@ protected:
 
     inline void pushColors(void)
     {
-        MC_backup = MC;
-        SC_backup = SC;
+        __LED_PUSH(MC);
+        __LED_PUSH(SC);
     }
     inline void popColors(void)
     {
-        MC = MC_backup;
-        SC = SC_backup;
+        __LED_POP(MC);
+        __LED_POP(SC);
+    }
+    inline void pushSet(void)
+    {
+        pushColors();
+        __LED_PUSH(modeBackGround);
+        __LED_PUSH(modeTrigger);
+        __LED_PUSH(modeFilter);
+        __LED_PUSH(stepBackGround);
+        __LED_PUSH(stepTrigger);
+        __LED_PUSH(stepFilter);
+    }
+    inline void popSet(void)
+    {
+        popColors();
+        __LED_POP(modeBackGround);
+        __LED_POP(modeTrigger);
+        __LED_POP(modeFilter);
+        __LED_POP(stepBackGround);
+        __LED_POP(stepTrigger);
+        __LED_POP(stepFilter);
     }
 private:
     mutex_t mutex;
@@ -47,11 +79,9 @@ private:
      * @param maxLight 最大亮度
      * @param minLight 最小亮度
      * @{ */
-    RGB MC;
-    RGB SC;
-    RGB TC;
-    RGB MC_backup;
-    RGB SC_backup;
+    RGB DEF_WITH_BACKUP(MC);
+    RGB DEF_WITH_BACKUP(SC);
+    RGB DEF_WITH_BACKUP(TC);
     int maxLight;
     int minLight;
     /** @} */
@@ -112,7 +142,6 @@ private:
     float flipLength;
     inline void flip_switchColor(int mode)
     {
-        pushColors();
         switch (mode)
         {
         case 1:
@@ -166,7 +195,7 @@ private:
     /**
      * @name 运行时参数
      * @{ */
-    enum { idle, out, in, Run} status;
+    enum { idle, out, in, Run, InTrigger} status;
     enum modeBackGround_t
     {
         Static = 1,
@@ -177,7 +206,7 @@ private:
         Spark = 6,
         Rainbow = 7,
         Flame = 8
-    } modeBackGround;
+    };
     enum modeTrigger_t
     {
         NoTrigger = 0,
@@ -187,7 +216,7 @@ private:
         Speard = 4,
         Comet = 5,
         Accelerate = 6,
-    } modeTrigger;
+    };
     enum modeFilter_t
     {
         NoFilter = 0,
@@ -195,12 +224,14 @@ private:
         Flicker = 2,
         Wave = 3,
         Fade = 4,
-    } modeFilter;
-    step_t stepBackGround;
-    step_t stepBackGround_backup;
-    step_t stepTrigger;
-    step_t stepFilter;
-    step_t stepFilter_backup;
+    };
+    enum modeBackGround_t DEF_WITH_BACKUP(modeBackGround);
+    enum modeTrigger_t DEF_WITH_BACKUP(modeTrigger);
+    enum modeFilter_t DEF_WITH_BACKUP(modeFilter);
+
+    step_t DEF_WITH_BACKUP(stepBackGround);
+    step_t DEF_WITH_BACKUP(stepTrigger);
+    step_t DEF_WITH_BACKUP(stepFilter);
     /** @} */
 
 

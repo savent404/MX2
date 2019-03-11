@@ -138,6 +138,16 @@ void MX_MUX_Stop(MUX_Track_Id_t tid, MUX_Slot_Id_t sid)
     }
 }
 
+unsigned int MX_MUX_getLastTime(MUX_Track_Id_t tid, MUX_Slot_Id_t sid)
+{
+    if (tracks[tid].maxium_slot <= sid)
+        return 0;
+    if (tracks[tid].slots[sid].mode == SlotMode_Idle)
+        return 0;
+    if (tracks[tid].slots[sid].mode == SlotMode_Loop)
+        return -1;
+    return mux_fileObj_lastTime(tracks[tid].slots[sid].pObj);
+}
 void MX_MUX_RegisterCallback(MUX_Track_Id_t tid, MUX_Slot_Id_t sid, MUX_Slot_CallbackWay_t way, MUX_Slot_Callback_t func)
 {
     waitMutex(tid);

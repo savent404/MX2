@@ -69,6 +69,7 @@ void iBlade::handleLoop(void *arg)
     case modeTrigger_t::Flip:
         if (stepTrigger.now == 0)
         {
+            pushColors();
             flip_switchColor(flipMode);
         }
         if (stepTrigger.now == stepTrigger.total / 2)
@@ -80,7 +81,6 @@ void iBlade::handleLoop(void *arg)
         // teardown this in the `handle of stepTrigger.walk()`
         if (stepTrigger.now == 0)
         {
-            pushColors();
             HSV mc(MC);
             HSV sc(SC);
             mc.h += driftShift;
@@ -93,8 +93,6 @@ void iBlade::handleLoop(void *arg)
         // teardown this in the `handle of stepTrigger.walk()`
         if (stepTrigger.now == 0)
         {
-            stepBackGround = stepBackGround;
-            stepFilter_backup = stepFilter;
             stepBackGround.total = int((float)stepBackGround / accelerateRate);
 			stepBackGround.now = int((float)stepBackGround / accelerateRate);
             stepFilter.total = int((float)stepFilter / accelerateRate);
@@ -120,6 +118,7 @@ void iBlade::handleLoop(void *arg)
             int endPos = pos + int(flipLength*getPixelNum()*0.5);
             startMask() = startPos;
             endMask() = endPos;
+            pushColors();
             flip_switchColor(flipMode);
 
             // draw BackGround again
@@ -194,37 +193,43 @@ void iBlade::handleLoop(void *arg)
     stepBackGround.walk();
 
     if (stepFilter.walk() && modeFilter == modeFilter_t::Fade)
+    {
         if (status == out)
         {
             status = Run;
-            setFilterParam(modeFilter_t::NoFilter);
-            RGB black(0, 0, 0);
-            drawLine(black, 0, getPixelNum());
+            popSet();
         }
         else if (status == in)
         {
+            // close all
+            popSet();
             status = idle;
             modeTrigger = modeTrigger_t::NoTrigger;
             RGB black(0, 0, 0);
             drawLine(black, 0, getPixelNum());
         }
+    }
 
     if (stepTrigger.walk())
     {
-        if (modeTrigger == modeTrigger_t::Flip)
+        if (status == InTrigger && modeTrigger != modeTrigger_t::Accelerate)
         {
-            popColors();
+            popSet();
         }
-        if (modeTrigger == modeTrigger_t::Drift)
+        else if (status == InTrigger && modeTrigger == modeTrigger_t::Accelerate)
         {
-            popColors();
+            // means keep stepFilter&stepBackGround's now and repeatCnt
+            step_t B = stepBackGround, F = stepFilter;
+            popSet();
+            stepBackGround.now = int(B.now * accelerateRate);
+            stepBackGround.repeatCnt = B.repeatCnt;
+            stepFilter.now = int(F.now * accelerateRate);
+            stepFilter.repeatCnt = F.repeatCnt;
         }
-        if (modeTrigger == modeTrigger_t::Accelerate)
+        else
         {
-            stepBackGround.total = stepBackGround_backup.total;
-            stepFilter = stepFilter_backup.total;
+            modeTrigger = modeTrigger_t::NoTrigger;
         }
-        modeTrigger = modeTrigger_t::NoTrigger;
     }
 }
 
@@ -234,20 +239,46 @@ void iBlade::handleTrigger(const void *evt)
 
     if (p->status == osEventTimeout)
         return;
-    auto message = static_cast<LED_Message_t>(p->value.v);
+#if LED_SUPPORT_FOLLOW_AUDIO==0
+    auto cmd = static_cast<LED_CMD_t>(p->value.v);
+    int alt = -1; // iBlade need LED_SUPPORT_FOLLOW_AUDIO
+                  // It's just for fun.
+#elif LED_SUPPORT_FOLLOW_AUDIO==1
+    LED_Message_t message;
+    message.hex = p->value.v;
+    auto cmd = message.pair.cmd;
+    auto alt = message.pair.alt;
+#endif
 
-    switch (message)
+
+    if (status == Run)
+    {
+        pushSet();
+    }
+    switch (cmd)
     {
     case LED_Trigger_Start:
+    {
+        // setup default set first
+        setFilterParam(modeFilter_t::NoFilter);
+        RGB black(0, 0, 0);
+        drawLine(black, 0, getPixelNum());
+        // push set
+        pushSet(); 
+        // set trigger'Out'
         status = out;
-        setFilterParam(modeFilter_t::Fade);
-        stepFilter.repeatCnt = 0;
+        // setFilterParam(modeFilter_t::Fade);
+        stepFilter = step_t(0, MX_LED_MS2CNT(alt), 0);
+        modeFilter = modeFilter_t::Fade;
         filterDirection = 1;
-        break;
+        filterStartPos = 0.0f;
+    }
+    break;
     case LED_Trigger_Stop:
         status = in;
-        setFilterParam(modeFilter_t::Fade);
-        stepFilter.repeatCnt = 0;
+        stepFilter = step_t(0, MX_LED_MS2CNT(alt), 0);
+        modeFilter = modeFilter_t::Fade;
+        filterStartPos = 0.0f;
         filterDirection = -1;
         break;
 
@@ -256,19 +287,23 @@ void iBlade::handleTrigger(const void *evt)
     case LED_Trigger_EXIT:
         if (status == out)
             status = Run;
-        modeTrigger = modeTrigger_t::NoTrigger;
-        popColors();
+        if (status == InTrigger)
+            status = Run;
+        popSet();
         break;
 
     case LED_TriggerB:
     case LED_TriggerC:
     case LED_TriggerD:
+        status = InTrigger;
         setTriggerParam(modeTrigger_t::Drift);
         break;
     case LED_TriggerE:
+        status = InTrigger;
         setTriggerParam(modeTrigger_t::Flip);
         break;
     case LED_Trigger_ColorSwitch:
+        status = InTrigger;
         setTriggerParam(modeTrigger_t::Flip);
         break;
     default:

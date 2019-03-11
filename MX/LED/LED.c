@@ -1,6 +1,7 @@
 #include "LED.h"
 #include "cmsis_os.h"
 #include "debug.h"
+#include "audio.h"
 #if USE_NP == 1
 #include "LED_NP.h"
 #else
@@ -25,10 +26,20 @@ LED_IF_t ledIf = {
 /**
  * @Breif  触发条件后向LEDOpra任务发送触发信息
  */
-void MX_LED_startTrigger(LED_Message_t message)
+void MX_LED_startTrigger(LED_CMD_t message)
 {
-    DEBUG(5, "LED send Message:%d", message);
-    osMessagePut(LED_CMDHandle, message, osWaitForever);
+    LED_Message_t out;
+    
+#if LED_SUPPORT_FOLLOW_AUDIO==0
+    out = message;
+    osMessagePut(LED_CMDHandle, out, osWaitForever);
+    DEBUG(5, "LED send Message:0x%04x", out);
+#elif LED_SUPPORT_FOLLOW_AUDIO==1
+    out.pair.cmd = message;
+    out.pair.alt = MX_Audio_getTriggerLastTime();
+    osMessagePut(LED_CMDHandle, out.hex, osWaitForever);
+    DEBUG(5, "LED send Message:0x%04x", out.hex);
+#endif
 }
 osEvent MX_LED_GetMessage(uint32_t timeout)
 {

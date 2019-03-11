@@ -61,3 +61,10 @@ mux_fileObj_seek(MUX_FileObj_t* pFile, int ofs)
     }
     return true;
 }
+
+MX_C_API static inline unsigned
+mux_fileObj_lastTime(MUX_FileObj_t* pFile)
+{
+    unsigned long leftSize = f_size((FIL*)pFile);
+    return (unsigned)(leftSize / sizeof(uint16_t) / 22);
+}

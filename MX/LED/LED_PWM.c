@@ -56,14 +56,21 @@ bool LED_PWM_Update(PARA_DYNAMIC_t* pt)
 
 void LED_PWM_Handle(PARA_DYNAMIC_t* ptr)
 {
-    enum _led_message message;
-
+    LED_Message_t message;
+    LED_CMD_t cmd;
     osEvent evt = MX_LED_GetMessage(20);
 
+
+#if LED_SUPPORT_FOLLOW_AUDIO==0
     message = evt.value.v;
+    cmd = message;
+#elif LED_SUPPORT_FOLLOW_AUDIO==1
+    message.hex = evt.value.v;
+    cmd = message.pair.cmd;
+#endif
 // 当在LED执行函数中收到了额外的动作命令，将忽略上方代码并跳转到此处
 GETMESSAGE:
-    switch (message) {
+    switch (cmd) {
     case LED_Trigger_Start: {
         uint32_t step = 0;
         uint32_t step_ms = 10;
@@ -95,8 +102,8 @@ GETMESSAGE:
     case LED_TriggerC:
     case LED_TriggerD:
     case LED_TriggerE: {
-        LED_Message_t buf = message;
-        while ((((message = LED_Trigger_Method(buf)) != LED_Trigger_EXIT)) && message < buf)
+        LED_CMD_t buf = cmd;
+        while ((((cmd = LED_Trigger_Method(buf)) != LED_Trigger_EXIT)) && cmd < buf)
             ;
     } break;
     case LED_TriggerE_END:
@@ -110,22 +117,22 @@ GETMESSAGE:
             LED_RGB_Limited(BankColor[0], BankColor[1], BankColor[2], BankColor[3]);
         } break;
         case LED_LMode_Method_Breath: {
-            while ((message = LED_RGB_Breath(breath_step++, 10, T_BREATH)) == LED_NoTrigger)
+            while ((cmd = LED_RGB_Breath(breath_step++, 10, T_BREATH)) == LED_NoTrigger)
                 ;
             goto GETMESSAGE;
         } break;
         case LED_LMode_Method_SlowPulse: {
-            while ((message = LED_RGB_Pulse(T_SP)) == LED_NoTrigger)
+            while ((cmd = LED_RGB_Pulse(T_SP)) == LED_NoTrigger)
                 ;
             goto GETMESSAGE;
         } break;
         case LED_LMode_Method_MidPulse: {
-            while ((message = LED_RGB_Pulse(T_MP)) == LED_NoTrigger)
+            while ((cmd = LED_RGB_Pulse(T_MP)) == LED_NoTrigger)
                 ;
             goto GETMESSAGE;
         } break;
         case LED_LMode_Method_FastPulse: {
-            while ((message = LED_RGB_Pulse(T_FP)) == LED_NoTrigger)
+            while ((cmd = LED_RGB_Pulse(T_FP)) == LED_NoTrigger)
                 ;
             goto GETMESSAGE;
         } break;
@@ -141,11 +148,11 @@ GETMESSAGE:
     }
 }
 
-static LED_Trigger_Method_t LED_Trigger_Method(LED_Message_t trigger_bcd)
+static LED_CMD_t LED_Trigger_Method(LED_CMD_t trigger_bcd)
 {
     uint8_t trigger_mode;
     uint8_t using_mode;
-    LED_Message_t message;
+    LED_CMD_t message;
     switch (trigger_bcd) {
     case LED_TriggerB:
         trigger_mode = USR.config->TBMode;
@@ -237,7 +244,7 @@ static void LED_RGB_Output_Light(uint16_t* colors, float light)
 // Ever time run single step, if a trigger is coming, return triggerid
 
 // Color: Bank->FBank->Bank
-static LED_Message_t LED_RGB_Charging(uint32_t step, uint32_t step_ms, uint32_t period_ms)
+static LED_CMD_t LED_RGB_Charging(uint32_t step, uint32_t step_ms, uint32_t period_ms)
 {
     const float pi_2 = 3.141592654 * 2;
     uint32_t period_step = period_ms / step_ms;
@@ -254,7 +261,7 @@ static LED_Message_t LED_RGB_Charging(uint32_t step, uint32_t step_ms, uint32_t 
     else
         return evt.value.v;
 }
-static LED_Message_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t period_ms)
+static LED_CMD_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t period_ms)
 {
     const float pi_2 = 3.141592654 * 2;
     uint32_t period_step = period_ms / step_ms;
@@ -271,7 +278,7 @@ static LED_Message_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t p
     else
         return evt.value.v;
 }
-static LED_Message_t LED_RGB_Breath(uint32_t step, uint32_t step_ms, uint32_t period_ms)
+static LED_CMD_t LED_RGB_Breath(uint32_t step, uint32_t step_ms, uint32_t period_ms)
 {
     const float pi_2 = 3.141592654 * 2;
     uint32_t period_step = period_ms / step_ms;
@@ -286,7 +293,7 @@ static LED_Message_t LED_RGB_Breath(uint32_t step, uint32_t step_ms, uint32_t pe
     else
         return evt.value.v;
 }
-static LED_Message_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
+static LED_CMD_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
 {
     step %= 2;
     if (!step)
@@ -297,9 +304,17 @@ static LED_Message_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
+    {
+#if LED_SUPPORT_FOLLOW_AUDIO==0
         return evt.value.v;
+#elif LED_SUPPORT_FOLLOW_AUDIO==1
+        LED_Message_t message;
+        message.hex = evt.value.v;
+        return message.pair.cmd;
+#endif
+    }
 }
-static LED_Message_t LED_RGB_Pulse(uint32_t step_ms)
+static LED_CMD_t LED_RGB_Pulse(uint32_t step_ms)
 {
     uint16_t buf = rand() % (LBright - LDeep) + LDeep;
     float light = (float)buf / 1024;
@@ -310,7 +325,7 @@ static LED_Message_t LED_RGB_Pulse(uint32_t step_ms)
     else
         return evt.value.v;
 }
-static LED_Message_t LED_RGB_SoftRise(uint32_t step, uint32_t step_ms, uint32_t total_ms)
+static LED_CMD_t LED_RGB_SoftRise(uint32_t step, uint32_t step_ms, uint32_t total_ms)
 {
     const float pi_div2 = 3.141592654 / 2;
     uint32_t step_num = total_ms / step_ms;
@@ -323,7 +338,7 @@ static LED_Message_t LED_RGB_SoftRise(uint32_t step, uint32_t step_ms, uint32_t 
     else
         return evt.value.v;
 }
-static LED_Message_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms, uint32_t step, uint32_t step_ms, uint32_t total_ms)
+static LED_CMD_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms, uint32_t step, uint32_t step_ms, uint32_t total_ms)
 {
     const float pi_div2 = 3.141592654 / 2;
     uint32_t step_num = total_ms / step_ms;
@@ -365,7 +380,7 @@ static LED_Message_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms,
     // else return evt.value.v;
     return LED_NoTrigger;
 }
-static LED_Message_t LED_RGB_SoftDown(uint32_t step, uint32_t step_ms, uint32_t total_ms)
+static LED_CMD_t LED_RGB_SoftDown(uint32_t step, uint32_t step_ms, uint32_t total_ms)
 {
     static uint16_t r, g, b, l;
     const float pi_div2 = 3.141592654 / 2;

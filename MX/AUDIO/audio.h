@@ -25,5 +25,5 @@ typedef enum _play_audio_id {
 MX_C_API bool MX_Audio_Play_Start(Audio_ID_t id);
 MX_C_API bool MX_Audio_Play_Stop(Audio_ID_t id);
 MX_C_API bool MX_Audio_isReady(void);
-MX_C_API uint32_t MX_Audio_getTriggerLastTime(void);
+MX_C_API int MX_Audio_getTriggerLastTime(void);
 MX_PORT_API void MX_Audio_PlayBeep(void);

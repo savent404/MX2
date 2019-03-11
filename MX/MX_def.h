@@ -52,6 +52,17 @@
 #define MX_LED_INTERVAL  (20)
 #endif
 
+/**
+ * @brief LED持续时长支持根据音频时长
+ */
+#ifndef LED_SUPPORT_FOLLOW_AUDIO
+#   if USE_NP == 0
+#       define LED_SUPPORT_FOLLOW_AUDIO (0)
+#   else
+#       define LED_SUPPORT_FOLLOW_AUDIO (1)
+#   endif
+#endif
+
 #ifndef MX_WTDG_FEED
 #   ifdef USE_DEBUG
 #       define MX_WTDG_FEED() NULL

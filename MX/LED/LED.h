@@ -13,7 +13,13 @@
 extern LED_IF_t ledIf;
 
 MX_C_API osEvent MX_LED_GetMessage(uint32_t timeout);
-MX_C_API void MX_LED_startTrigger(LED_Message_t message);
+
+/**
+ * @brief the API to tell LED handler trigger is started
+ * @note  If enabled Follow Audio last time, this API should call
+ *        after started trigger's audio
+ */
+MX_C_API void MX_LED_startTrigger(LED_CMD_t message);
 MX_C_API void MX_LED_bankUpdate(PARA_DYNAMIC_t*);
 MX_C_API void MX_LED_Init(void);
 
