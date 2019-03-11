@@ -119,7 +119,7 @@ public:
     /**
      * @brief 判断两个class RGB是否全等
      */
-    bool operator==(const RGB& other)
+    bool operator==(const RGB& other) const
     {
         if (&other == this)
             return true;
@@ -138,7 +138,7 @@ public:
      * @brief 判断两个class RGB是否s相似
      * @note  结合了w的透明色
      */
-    bool similar(const RGB& other, uint8_t offset = 10)
+    bool similar(const RGB& other, uint8_t offset = 10) const
     {
         int sub;
         if (&other == this)
@@ -210,6 +210,25 @@ public:
             return B;
         }
     }
+
+    /**
+     * @param offset 0.0f~1.0f
+     */
+    static RGB midColor(const RGB& source, const RGB& dest, float offset) 
+    {
+        uint8_t sub[4];
+        sub[0] = dest.R - source.R;
+        sub[1] = dest.G - source.G;
+        sub[2] = dest.B - source.B;
+        sub[3] = dest.W - source.W;
+
+        for (int i = 0; i < 4; i++)
+            sub[i] *= offset;
+        return RGB(source.R + sub[0],
+                   source.G + sub[1],
+                   source.B + sub[2],
+                   source.W + sub[3]);
+    }
 };
 /**
  * @brief HSV颜色空间
@@ -238,7 +257,7 @@ typedef struct HSV {
      * @param rgb class RGB
      * @note  It's just call HSV::operator=
      */
-    HSV(RGB& rgb)
+    HSV(const RGB& rgb)
     {
         *this = rgb;
     }
@@ -246,29 +265,30 @@ typedef struct HSV {
      * @brief convert HSV to RGB
      * @return class RGB
      */
-    RGB convert2RGB()
+    RGB convert2RGB() const
     {
+        float _h = h;
         // In-case h is negative
-        while (h < 0)
-            h += 360.0f;
+        while (_h < 0)
+            _h += 360.0f;
         float C = v * s;
-        float P = fmodf(h / 60.0f, 6.0f);
+        float P = fmodf(_h / 60.0f, 6.0f);
         float X = C * (1 - fabs(fmodf(P, 2) - 1));
         float m = v - C;
         C += m;
         X += m;
 
-        if (h < 60) {
+        if (_h < 60) {
             return RGB(C * 255, X * 255, m * 255);
-        } else if (h < 120) {
+        } else if (_h < 120) {
             return RGB(X * 255, C * 255, m * 255);
-        } else if (h < 180) {
+        } else if (_h < 180) {
             return RGB(m * 255, C * 255, X * 255);
-        } else if (h < 240) {
+        } else if (_h < 240) {
             return RGB(m * 255, X * 255, C * 255);
-        } else if (h < 300) {
+        } else if (_h < 300) {
             return RGB(X * 255, m * 255, C * 255);
-        } else if (h < 360) {
+        } else if (_h < 360) {
             return RGB(C * 255, m * 255, X * 255);
         } else {
             return RGB(0, 0, 0);
@@ -338,7 +358,7 @@ typedef struct HSV {
     /**
      * @brief HSV can auto-convert to RGB
      */
-    operator class RGB() {
+    operator class RGB() const {
         return this->convert2RGB();
     }
 } HSV;

@@ -27,6 +27,10 @@ struct step_t {
     int total;
     int repeatCnt;
 
+    typedef enum {
+      infinity = -1,
+      noRepeat = 0
+    } mode;
     /**
      * @param _now 当前step
      * @param _total 总的step

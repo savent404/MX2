@@ -23,6 +23,7 @@ protected:
      * @brief 颜色存储结构 
      */
     RGB *vector;
+    int mask[2];
 
     inline int imax(int a, int b) { return a > b ? a : b;}
     inline int imin(int a, int b) { return a > b ? b : a;}
@@ -34,6 +35,8 @@ public:
     {
         numPixe = pixelNum;
         vector = new RGB[pixelNum];
+        mask[0] = 0;
+        mask[1] = pixelNum;
     }
 
     /**
@@ -44,6 +47,15 @@ public:
         delete vector;
     }
 
+    inline int& startMask()
+    {
+        return mask[0];
+    }
+
+    inline int& endMask()
+    {
+        return mask[1];
+    }
     /**
      * @brief 返回Pixel数量
      * @note  此函数在绘制函数中大量使用
@@ -52,7 +64,18 @@ public:
     {
         return numPixe;
     }
-
+    /**
+     * @brief 获取整个数组的只读指针
+     */
+    const RGB* c_ptr() const
+    {
+        return vector;
+    }
+private:    
+    inline bool isOutofMask(int i)
+    {
+        return i < imax(0, startMask()) || i >= imin(endMask(), getPixelNum());
+    }
     /**
      * @brief 通过数组形式访问颜色
      */
@@ -64,15 +87,6 @@ public:
 
         return vector[pos];
     }
-
-    /**
-     * @brief 获取整个数组的只读指针
-     */
-    const RGB* c_ptr() const
-    {
-        return vector;
-    }
-
     /**
      * @brief 获取整个数组的指针
      */
@@ -82,6 +96,12 @@ public:
     }
 
 public: // API
+    inline void setColor(int pos, const RGB& a)
+    {
+        if (isOutofMask(pos))
+            return;
+        vector[pos] = a;
+    }
     /**
      * @brief drawLine
      * @param driver
@@ -89,14 +109,14 @@ public: // API
      * @param start [0...pixelNum-1]
      * @param end   [0...pixelNum-1]
      */
-    void drawLine(RGB& color, int start, int end)
+    void drawLine(const RGB& color, int start, int end)
     {
-        RGB* _ptr = start >= 0 ? ptr() + start : ptr();
+		RGB* _ptr = ptr() + start;
         int num = end - start;
-        for (int i = 0; i < num; i++) {
-            if (i < 0 || i >= getPixelNum())
+		for (int i = start; i < end; i++, _ptr++) {
+            if (isOutofMask(i))
                 continue;
-            *_ptr++ = color;
+            *_ptr = color;
         }
     }
     /**
@@ -108,8 +128,8 @@ public: // API
      * @param posStart
      * @param posEnd
      */
-    void drawShade(RGB& colorStart,
-        RGB& colorEnd,
+    void drawShade(const RGB& colorStart,
+        const RGB& colorEnd,
         int posStart,
         int posEnd)
     {
@@ -120,7 +140,7 @@ public: // API
         }
 
         int sub[4];
-        RGB* _ptr = posStart >= 0 ? ptr() + posStart : ptr();
+		RGB* _ptr = ptr() + posStart;
         int num = posEnd - posStart;
 
         sub[0] = colorEnd.R - colorStart.R;
@@ -128,13 +148,12 @@ public: // API
         sub[2] = colorEnd.B - colorStart.B;
         sub[3] = colorEnd.W - colorStart.W;
 
-        for (int i = 0; i < num; i++) {
-            if (i + posStart < 0 || i + posStart >= getPixelNum())
+		for (int i = posStart; i < posEnd; i++, _ptr++) {
+            if (isOutofMask(i + posStart))
                 continue;
             _ptr->R = colorStart.R + sub[0] * i / num;
             _ptr->G = colorStart.G + sub[1] * i / num;
             _ptr->B = colorStart.B + sub[2] * i / num;
-            _ptr++;
         }
     }
 
@@ -143,7 +162,7 @@ public: // API
      * @param colorStart 起始颜色
      * @param colorShiftDegree 颜色相位偏移 (单位:°)
      */
-    void drawNaturalShade(RGB& colorStart, float colorShiftDegree, int startPos, int endPos)
+    void drawNaturalShade(const RGB& colorStart, float colorShiftDegree, int startPos, int endPos)
     {
         HSV hsv(colorStart);
         hsv.h += colorShiftDegree;
@@ -156,33 +175,56 @@ public: // API
      */
     virtual void update() = 0;
 
+private:
+    __attribute__((pure)) static inline int getPositivePos(int a, int b)
+    {
+        if (a < 0)
+        {
+            int res = a % b;
+            return (res + b) % b;
+        }
+        return a % b;
+    }
 protected:
     /** Many draw API ************************************/
     /**
      * @brief 彩虹
      * @param shift 红色起始位置的相对位置 0.0f~1.0f
+     * @param extraLength 抽象长度 1.0f为默认值
      */
-    void drawRainbow(float shift)
+    void drawRainbow(float shift, float extraLength = 1.0f)
     {
         static RGB rgb[3] = { RGB(255, 0, 0), RGB(0, 255, 0), RGB(0, 0, 255) };
-        int startPos = getPixelNum() * shift;
-        int interval = getPixelNum() / 3;
-        if (startPos >= getPixelNum())
-            startPos = getPixelNum();
-        if (startPos < 0)
-            startPos = 0;
-
-        for (int i = 0; i < 3; i++)
+        int interval = int(getPixelNum() * extraLength / 3.0f);
+        int startPos = int(getPixelNum() * extraLength * shift);
+        
+        int startI = -1 * (startPos / interval + 1);
+        int endI = getPixelNum() / interval + 1;
+        for (int i = startI; i < endI; i++)
         {
-            int pos = (startPos + i * interval) % getPixelNum();
-            drawShade(rgb[i], rgb[(i + 1) % 3], pos, pos + interval);
+            int pos = startPos + i * interval;
+            int endPos = pos + interval;
+            int color = getPositivePos(i, 3);
+            int nextColor = getPositivePos(i + 1, 3);
+            drawShade(rgb[color], rgb[nextColor], pos, endPos);
         }
-        /** make sure -x~-x+interval filled.*/
-        int p = 2 - startPos / interval;
-        int pp = startPos % interval - interval;
-        drawShade(rgb[p], rgb[(p + 1) % 3], pp, pp + interval);
     }
 
+    void drawRandownSpot(const RGB& origin, RGB& sub, float rate)
+    {
+        int d = int(rate * 128);
+        RGB* p = ptr();
+        for (int i = 0; i < getPixelNum(); i++, p++)
+        {
+            if (isOutofMask(i))
+                continue;
+            int ans = rand() % 128;
+            if (ans <= d)
+                *p = sub;
+            else
+                *p = origin;
+        }
+    }
     /**
      * @brief 限制亮度，应当在某个上下范围内
      * @param max 最大亮度 0~255
@@ -218,6 +260,19 @@ protected:
         }
     }
 
+    void filterSet(uint8_t light, int startPos, int endPos)
+    {
+        if (startPos >= endPos)
+            return;
+        RGB* pC = ptr() + startPos;
+        for (int i = startPos; i < endPos; i++, pC++)
+        {
+            if (isOutofMask(i))
+                continue;
+            pC->W = light;
+        }
+    }
+
     /**
      * @brief 设定灯的亮度，设定上下阈值的相对偏移量并转化为正弦变换
      * @param shift 相对偏移量，-1.0->min, 1.0->max
@@ -233,6 +288,52 @@ protected:
         filterSet(light);
     }
 
+    // pos should be -1.0f~1.0f
+    inline float func_trangle(float pos)
+    {
+            //  *       *
+            //   *     *
+            //    *   *
+            //     * *
+            //      *
+            // ***************
+            // -1   0   1
+        while (pos < -1.0f)
+            pos += 2.0f;
+        while (pos > 1.0f)
+            pos -= 2.0f;
+        return pos > 0 ? pos : -pos;
+    }
+    /**
+     * @brief 设定灯的亮度，以三角波流动
+     */
+    void filterWave(float shift, float extraLen, int _max, int _min)
+    {
+        RGB *pC = ptr();
+        int lightDiff = _max - _min;
+        for (int i = 0; i < getPixelNum(); i++, pC++)
+        {
+            if (isOutofMask(i))
+                continue;
+            float absPos = (float(i) / getPixelNum() / extraLen - shift) * 2.0f;
+            float lightRate = func_trangle(absPos);
+            pC->W = lightRate * lightDiff + _min;
+        }
+    }
+
+    void filterShade(int startPos, int endPos, int startLight, int endLight)
+    {
+        int dest = endPos - startPos;
+        dest = dest == 0 ? 1 : dest;
+        float fInc = float(endLight - startLight) / float(dest);
+        RGB* pC = ptr() + startPos;
+		for (int i = startPos; i < endPos; i++, pC++)
+        {
+            if (isOutofMask(i))
+                continue;
+			pC->W = uint8_t(int(startLight + (i - startPos)*fInc) & 0XFF);
+        }
+    }
     /**
      * @brief 随机雨点效果
      * @param rate 0~1.0f 值约大，变化越剧烈
@@ -246,11 +347,14 @@ protected:
         if (drop)
         {
             int pos = rand() % getPixelNum();
-            pC[pos].W = 0;
+            if (!isOutofMask(pos))
+                pC[pos].W = 0;
         }
 
         for (int i = 0; i < getPixelNum(); i++)
         {
+            if (isOutofMask(i))
+                continue;
             ans = pC[i - 1].W + pC[i].W + pC[i + 1].W + 2;
             pC[i] = imin(255, ans / 3);
         }

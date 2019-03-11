@@ -1,8 +1,7 @@
 include(CMakeForceCompiler)
 
-set(MCU_FLOAT_ABI soft)
 set(MCU_FPU fpv4-sp-d16)
-set(MCU_ARCH cortex-m3)
+set(MCU_ARCH cortex-m4)
 set(MCU_FLOAT_ABI softfp)
 set(MUC_FAMILY STM32F1xx)
 set(MCU_LINE   STM32F103xE)
