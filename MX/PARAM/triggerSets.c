@@ -1,0 +1,216 @@
+#include "triggerSets.h"
+#include "ff.h"
+#include "re.h"
+#include "FreeRTOS.h"
+#include "debug.h"
+
+#define MAX_STR_LEN (16)
+static const char BG[][MAX_STR_LEN] =
+{
+    "MODE",
+    "T_MC",
+    "T_SC",
+    "T_MS",
+    "T_SM",
+    "NP_BREATHCYCLE",
+    "NP_TSPARK",
+    "NP_SPARKDENSITY",
+    "RAINBOWLENGTH",
+    "RAINBOWDIRECTION",
+    "RAINBOWSPEED",
+    "FLAMERATE",
+};
+
+static const char TG[][MAX_STR_LEN] = 
+{
+    "MODE",
+    "NP_FLIPCOLOR",
+    "NP_TFLIP",
+    "NP_MAXFLIPCOUNT",
+    "NP_FLIPLENGTH",
+    "NP_CDRIFT",
+    "NP_TDRIFT",
+    "NP_AccN",
+};
+
+static const char FT[][MAX_STR_LEN] =
+{
+    "MODE",
+    "NP_TBREATH",
+    "NP_BRIGHTMAX",
+    "NP_BRIGHTMIN",
+    "NP_TFLICKER",
+    "NP_FLICKERDENSITY",
+    "NP_WAVELENGTH",
+    "NP_WAVESPEED",
+    "NP_WAVECOUNT",
+    "NP_FADEPOSITION",
+    "NP_FADEDIRECTION",
+    "NP_TFADE",
+};
+
+static inline bool getKeyVal(const char* in, char* name, char* val)
+{
+    static bool inited = false;
+    static re_t match;
+    if (inited == false)
+    {
+        inited = true;
+        match = re_compile("\\s*\\w+\\s*=\\s*\\d+");
+    }
+
+    if (!re_matchp(match, in))
+        return false;
+
+    const char *_p = in;
+
+    // note: if u type 'a b c=....' you will get 'abc=...'
+    while (*_p != '=' && *_p != '\0')
+    {
+        char t = *_p++;
+        if (t == ' ')
+            continue;
+        if (t <= 'Z' && t >= 'A' ||
+            t <= 'z' && t >= 'a')
+            *name++ = t;
+    }
+    *name = '\0';
+    while (*_p != '/' && *_p != '\0')
+    {
+        char t = *_p++;
+        if (t == ' ')
+            continue;
+        if ((t <= '9' && t >= '0') || t == ',' || t == '.')
+            *val++ = t;
+    }
+    *val = '\0';
+    return true;
+}
+
+static inline int findPosition(const char* name, const char* strArr, int strNum)
+{
+    for (int i = 0; i < strNum; i++)
+    {
+        const char* str = strArr + i*MAX_STR_LEN;
+        if (!strncasecmp(name, str, MAX_STR_LEN - 1))
+            return i;
+    }
+    return -1;
+}
+static inline void matchWrite(int16_t* arr, const char* inputLine, const char* strArr, int strNum)
+{
+    static char name[32], value[32];
+    if (!getKeyVal(inputLine, name, value))
+        return;
+    // find this name in string arr
+    int pos = findPosition(name, strArr, strNum);
+    if (pos < 0)
+        return false;
+    arr[pos] = (int16_t)atoi(value);
+    return true;
+}
+
+static int16_t *allocStructure(int size)
+{
+    int16_t *ptr = (int16_t*)pvPortMalloc(size * sizeof(int16_t));
+    for (int i = 0; i < size; i++)
+    {
+        ptr[i] = -1;
+    }
+    return ptr;
+}
+
+static void freeStructure(int16_t* ptr)
+{
+    vPortFree(ptr);
+}
+
+void triggerSets_freeBG(triggerSets_BG_t bg)
+{
+    vPortFree(bg);
+}
+void triggerSets_freeTG(triggerSets_TG_t tg)
+{
+    vPortFree(tg);
+}
+void triggerSets_freeFT(triggerSets_FT_t ft)
+{
+    vPortFree(ft);
+}
+
+
+triggerSets_BG_t triggerSets_readBG(const char* filePath)
+{
+    FIL file;
+    FRESULT res;
+
+    int16_t* a = allocStructure(sizeof(BG) / sizeof(BG[0]));
+    char lineBuffer[128];
+    DEBUG_IF((res = f_open(&file, filePath)) != FR_OK, "Can't open file:%s", filePath);
+    if (res != FR_OK)
+        return a;
+    while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0)
+    {
+        matchWrite(a, lineBuffer, BG, sizeof(BG) / sizeof(BG[0]));
+    }
+    f_close(&file);
+    return a;
+}
+triggerSets_TG_t triggerSets_readTG(const char* filePath)
+{
+    FIL file;
+    FRESULT res;
+
+    int16_t* a = allocStructure(sizeof(BG) / sizeof(BG[0]));
+    char lineBuffer[128];
+    DEBUG_IF((res = f_open(&file, filePath)) != FR_OK, "Can't open file:%s", filePath);
+    if (res != FR_OK)
+        return a;
+    while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0)
+    {
+        matchWrite(a, lineBuffer, BG, sizeof(TG) / sizeof(TG[0]));
+    }
+    f_close(&file);
+    return a;
+}
+triggerSets_FT_t tirggerSets_readFT(const char* filePath)
+{
+    FIL file;
+    FRESULT res;
+
+    int16_t* a = allocStructure(sizeof(FT) / sizeof(FT[0]));
+    char lineBuffer[128];
+    DEBUG_IF((res = f_open(&file, filePath)) != FR_OK, "Can't open file:%s", filePath);
+    if (res != FR_OK)
+        return a;
+    while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0)
+    {
+        matchWrite(a, lineBuffer, BG, sizeof(TG) / sizeof(TG[0]));
+    }
+    f_close(&file);
+    return a;
+}
+
+int16_t triggerSets_getGB(triggerSets_BG_t p, const char* name)
+{
+    int pos = findPosition(name, BG, sizeof(BG)/sizeof(BG[0]));
+    if (pos < 0)
+        return -1;
+    return ((int16_t*)p)[pos];
+}
+
+int16_t triggerSets_getTG(triggerSets_TG_t p, const char* name)
+{
+    int pos = findPosition(name, TG, sizeof(TG) / sizeof(TG[0]));
+    if (pos < 0)
+        return -1;
+    return ((int16_t*)p)[pos];
+}
+
+int16_t triggerSets_getFT(triggerSets_FT_t p, const char* name)
+{
+    int pos = findPosition(name, FT, sizeof(FT) / sizeof(FT[0]));
+    if (pos < 0)
+        return -1;
+    return ((int16_t*)p)[pos];
+}

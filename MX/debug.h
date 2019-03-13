@@ -16,9 +16,15 @@
         MX_Console_Printf("[%02d]: " format "\tFile:%s\tLine:%d\r\n", \
                           level, ##__VA_ARGS__, __FILE__, __LINE__);  \
     } while (0);
+
+#define DEBUG_IF(exp, level, format, ...)            \
+            if (exp) {                               \
+                DEBUG(level, format, ##__VA_ARGS__); \
+            }
 #else
 #define DEBUG(level, format, ...) ;
 #define DEBUG_BKPT()
+#define DEBUG_IF(exp, level, format, ...) ;
 #endif
 
 #ifndef _Error_Handler
