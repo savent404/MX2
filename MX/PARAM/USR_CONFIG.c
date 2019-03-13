@@ -490,12 +490,19 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
   return 0;
 }
 
-#define UPDATE_TRIGGER(name, path, bankPos)                               \
-do {                                                                      \
-    sprintf(path, "0:/Bank%d/%s", bankPos + 1, TRIGGER(name));            \
-    if (USR.trigger##name)                                                \
-        MX_TriggerPath_DeInit(USR.trigger##name);                         \
-    USR.trigger##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name)); \
+#define UPDATE_TRIGGER(name, path, bankPos)                                     \
+do {                                                                            \
+    TRIGGERPATH_Type_t wav = TRIGGERPATH_WAV;                                   \
+    TRIGGERPATH_Type_t bg = TRIGGERPATH_BG;                                     \
+    TRIGGERPATH_Type_t tg = TRIGGERPATH_TG;                                     \
+    TRIGGERPATH_Type_t ft = TRIGGERPATH_FT;                                     \
+    sprintf(path, "0:/Bank%d/%s", bankPos + 1, TRIGGER(name));                  \
+    if (USR.trigger##name)                                                      \
+        MX_TriggerPath_DeInit(USR.trigger##name);                               \
+    USR.trigger##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), wav);  \
+    USR.triggerBG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), bg); \
+    USR.triggerTG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), tg); \
+    USR.triggerFT##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), ft); \
 } while(0);
 
 uint8_t usr_update_triggerPah(int bankPos)

@@ -3,9 +3,15 @@
 #include "MX_def.h"
 #include "PARAM_def.h"
 
+typedef enum TRIGGERPATH_Type_t {
+    TRIGGERPATH_WAV,
+    TRIGGERPATH_BG,
+    TRIGGERPATH_FT,
+    TRIGGERPATH_TG,
+} TRIGGERPATH_Type_t;
 
 MX_INTERNAL_API TRIGGER_PATH_t*
-MX_TriggerPath_Init(const char* dirPath, int maxnum);
+MX_TriggerPath_Init(const char* dirPath, int maxnum, TRIGGERPATH_Type_t type);
 
 MX_INTERNAL_API void
 MX_TriggerPath_DeInit(const TRIGGER_PATH_t* ptr);

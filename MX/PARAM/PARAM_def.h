@@ -114,16 +114,29 @@ typedef struct {
 
 typedef uint32_t HumSize_t;
 
+#define DEF_TRIGGERPATH(name)     \
+TRIGGER_PATH_t *trigger##name;    \
+TRIGGER_PATH_t *triggerBG##name;  \
+TRIGGER_PATH_t *triggerTG##name;  \
+TRIGGER_PATH_t *triggerFT##name;
+
 typedef struct _usr_dynamic_parameter {
   uint8_t nBank;            /**< 定义SD卡中存在的Bank数 */
   HumSize_t *humsize;       /**< 定义每个循环音频文件有效数据量 */
   uint32_t *BankColor;      /**< 定义每个Bank的颜色，Bank色(2*uint32_t)+FBank色(2*uint32_t) */
-  TRIGGER_PATH_t *triggerB; /**< 定义每个Bank中TriggerB的信息 */
-  TRIGGER_PATH_t *triggerC; /**< 定义每个Bank中TriggerC的信息 */
-  TRIGGER_PATH_t *triggerD; /**< 定义每个Bank中TriggerD的信息 */
-  TRIGGER_PATH_t *triggerE; /**< 定义每个Bank中TriggerE的信息 */
-  TRIGGER_PATH_t *triggerIN;
-  TRIGGER_PATH_t *triggerOUT;
+  // TRIGGER_PATH_t *triggerB; /**< 定义每个Bank中TriggerB的信息 */
+  // TRIGGER_PATH_t *triggerC; /**< 定义每个Bank中TriggerC的信息 */
+  // TRIGGER_PATH_t *triggerD; /**< 定义每个Bank中TriggerD的信息 */
+  // TRIGGER_PATH_t *triggerE; /**< 定义每个Bank中TriggerE的信息 */
+  // TRIGGER_PATH_t *triggerIN;
+  // TRIGGER_PATH_t *triggerOUT;
+  DEF_TRIGGERPATH(B)
+  DEF_TRIGGERPATH(C)
+  DEF_TRIGGERPATH(D)
+  DEF_TRIGGERPATH(E)
+  DEF_TRIGGERPATH(IN)
+  DEF_TRIGGERPATH(OUT)
+  
   Accent_t *accent;         /**< 简单LEDAccent配置信息 */
   USR_CONFIG_t backUpConfig;
   USR_CONFIG_t *config;     /**< 用户config文本配置信息 */
@@ -136,3 +149,5 @@ typedef struct _usr_dynamic_parameter {
 
   colorMatrix_t colorMatrix; /** storage the NP's colorMatrix */
 } PARA_DYNAMIC_t;
+
+#undef DEF_TRIGGERPATH

@@ -7,6 +7,21 @@
 
 static const int strFixedLen = 32;
 
+static const char* getRegex(TRIGGERPATH_Type_t type)
+{
+    switch (type)
+    {
+        case TRIGGERPATH_WAV:
+            return "[^.]+.[Ww][Aa][Vv]";
+        case TRIGGERPATH_BG:
+            return "[^.]+.[Bb][Gg]";
+        case TRIGGERPATH_TG:
+            return "[^.]+.[Tt][Gg]";
+        case TRIGGERPATH_FT:
+            return "[^.]+.[Ff][Tt]";
+    }
+    return "";
+}
 static TRIGGER_PATH_t* allocPointer()
 {
     TRIGGER_PATH_t* dest = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(*dest));
@@ -29,13 +44,13 @@ static void clearPointer(const TRIGGER_PATH_t* dest)
     vPortFree((void*)dest);
 }
 
-TRIGGER_PATH_t* MX_TriggerPath_Init(const char* dirPath, int maxNum)
+TRIGGER_PATH_t* MX_TriggerPath_Init(const char* dirPath, int maxNum, TRIGGERPATH_Type_t type)
 {
     DIR dir;
     FILINFO info;
     int cnt = 0;
     enum {stage_1, stage_2} stage = stage_1;
-    re_t match_s = re_compile("[^.]+.[Ww][Aa][Vv]");
+    re_t match_s = re_compile(getRegex(type));
     bool matched = false;
     TRIGGER_PATH_t* dest = allocPointer();
 again:
