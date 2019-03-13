@@ -104,3 +104,16 @@ const char* MX_TriggerPath_GetPrefix(const TRIGGER_PATH_t* ptr)
 {
     return ptr->prefix;
 }
+
+bool MX_TriggerPath_HasSame(const TRIGGER_PATH_t* ptr, const char* name)
+{
+    int num = MX_TriggerPath_getNum(ptr);
+    const char* cmp;
+    for (int i = 0; i < num; i++)
+    {
+        cmp = MX_TriggerPath_GetName(ptr, i);
+        if (!strcasecmp(cmp, name))
+            return true;
+    }
+    return false;
+}

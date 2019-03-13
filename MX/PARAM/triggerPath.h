@@ -3,6 +3,8 @@
 #include "MX_def.h"
 #include "PARAM_def.h"
 
+#include <stdbool.h>
+
 typedef enum TRIGGERPATH_Type_t {
     TRIGGERPATH_WAV,
     TRIGGERPATH_BG,
@@ -24,3 +26,6 @@ MX_TriggerPath_GetName(const TRIGGER_PATH_t*, int pos);
 
 MX_INTERNAL_API const char*
 MX_TriggerPath_GetPrefix(const TRIGGER_PATH_t*);
+
+MX_INTERNAL_API bool
+MX_TriggerPath_HasSame(const TRIGGER_PATH_t*, const char* name);
