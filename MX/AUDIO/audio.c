@@ -9,11 +9,12 @@
 static MUX_Slot_Id_t sid_hum;
 static MUX_Slot_Id_t sid_trigger = 0;
 
+static int static_pos = -1;
 static void getTriggerFullPath(char* out, TRIGGER_PATH_t* ptr)
 {
-    int pos = rand() % MX_TriggerPath_getNum(ptr);
+    static_pos = rand() % MX_TriggerPath_getNum(ptr);
     sprintf(out, "%s/%s", MX_TriggerPath_GetPrefix(ptr),
-                         MX_TriggerPath_GetName(ptr, pos));
+                         MX_TriggerPath_GetName(ptr, static_pos));
 }
 bool MX_Audio_Play_Start(Audio_ID_t id)
 {
@@ -106,4 +107,9 @@ bool MX_Audio_isReady(void)
 int MX_Audio_getTriggerLastTime(void)
 {
     return MX_MUX_getLastTime(TrackId_Trigger, sid_trigger);
+}
+
+int MX_Audio_getLastTriggerPos(void)
+{
+    return static_pos;
 }
