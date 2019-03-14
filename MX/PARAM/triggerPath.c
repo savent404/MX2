@@ -105,15 +105,40 @@ const char* MX_TriggerPath_GetPrefix(const TRIGGER_PATH_t* ptr)
     return ptr->prefix;
 }
 
-bool MX_TriggerPath_HasSame(const TRIGGER_PATH_t* ptr, const char* name)
+static inline int c_find(const char* in, char c)
+{
+    int cnt = 0;
+    while (*in != ' ' && *in != c)
+    {
+        cnt++;
+        in++;
+    }
+    return cnt;
+}
+
+int MX_TriggerPath_HasSame(const TRIGGER_PATH_t* ptr, const char* name)
 {
     int num = MX_TriggerPath_getNum(ptr);
+    int strlen = c_find(name, '.');
     const char* cmp;
     for (int i = 0; i < num; i++)
     {
         cmp = MX_TriggerPath_GetName(ptr, i);
-        if (!strcasecmp(cmp, name))
-            return true;
+        if (!strncasecmp(cmp, name, strlen))
+            return i;
     }
-    return false;
+    return -1;
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+const char* _MX_TriggerPath_getOtherPath(const TRIGGER_PATH_t* ptr, const char* name)
+{
+    static char path[128];
+    int res;
+    if ((res = MX_TriggerPath_HasSame(ptr, name)) < 0)
+        res = rand() % MX_TriggerPath_getNum(ptr);
+    sprintf(path, "%s/%s", MX_TriggerPath_GetPrefix(ptr),
+                           MX_TriggerPath_GetName(ptr, res));
+    return path;
 }

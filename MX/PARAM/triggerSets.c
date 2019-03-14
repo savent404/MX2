@@ -173,7 +173,7 @@ triggerSets_TG_t triggerSets_readTG(const char* filePath)
     f_close(&file);
     return a;
 }
-triggerSets_FT_t tirggerSets_readFT(const char* filePath)
+triggerSets_FT_t triggerSets_readFT(const char* filePath)
 {
     FIL file;
     FRESULT res;

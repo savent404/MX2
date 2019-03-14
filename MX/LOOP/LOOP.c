@@ -2,6 +2,8 @@
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
 
+
+#include "triggerSets.h"
 static osThreadId loopThreadId;
 
 // [0]: auto 'in'
@@ -25,6 +27,20 @@ static void handleCharged(void);
 static void handleCharging(void);
 
 static bool canBoot(void);
+
+#define update_param(pos, tgName)\
+    do {                                                                                      \
+        const char* wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);               \
+        triggerSets_BG_t bg =                                                                 \
+            triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
+        triggerSets_freeBG(bg);                                                               \
+        triggerSets_TG_t tg =                                                                 \
+            triggerSets_readTG(_MX_TriggerPath_getOtherPath(USR.triggerTG##tgName, wavName)); \
+        triggerSets_freeTG(tg);                                                               \
+        triggerSets_FT_t ft =                                                                 \
+            triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName)); \
+        triggerSets_freeFT(ft);                                                               \
+    } while (0)
 
 bool MX_LOOP_Init(void)
 {
@@ -209,6 +225,7 @@ void handleReady(void)
             USR.sys_status = System_Running;
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_intoRunning);
+            update_param(MX_Audio_getLastTriggerPos(), OUT);
             MX_LED_startTrigger(LED_Trigger_Start);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
             autoTimeout[0] = 0;

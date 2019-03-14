@@ -27,5 +27,8 @@ MX_TriggerPath_GetName(const TRIGGER_PATH_t*, int pos);
 MX_INTERNAL_API const char*
 MX_TriggerPath_GetPrefix(const TRIGGER_PATH_t*);
 
-MX_INTERNAL_API bool
+MX_INTERNAL_API int 
 MX_TriggerPath_HasSame(const TRIGGER_PATH_t*, const char* name);
+
+MX_INTERNAL_API const char*
+_MX_TriggerPath_getOtherPath(const TRIGGER_PATH_t*, const char*);
