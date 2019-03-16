@@ -3,8 +3,9 @@
 #include "re.h"
 #include "FreeRTOS.h"
 #include "debug.h"
+#include <stdlib.h>
 
-#define MAX_STR_LEN (16)
+#define MAX_STR_LEN (24)
 static const char BG[][MAX_STR_LEN] =
 {
     "MODE",
@@ -56,10 +57,10 @@ static inline bool getKeyVal(const char* in, char* name, char* val)
     if (inited == false)
     {
         inited = true;
-        match = re_compile("\\s*\\w+\\s*=\\s*\\d+");
+        match = re_compile("\\w+\\s*=\\s*\\d+");
     }
 
-    if (!re_matchp(match, in))
+    if (re_matchp(match, in) == -1)
         return false;
 
     const char *_p = in;
@@ -105,9 +106,9 @@ static inline void matchWrite(int16_t* arr, const char* inputLine, const char* s
     // find this name in string arr
     int pos = findPosition(name, strArr, strNum);
     if (pos < 0)
-        return false;
+        return;
     arr[pos] = (int16_t)atoi(value);
-    return true;
+    return;
 }
 
 static int16_t *allocStructure(int size)
@@ -146,12 +147,13 @@ triggerSets_BG_t triggerSets_readBG(const char* filePath)
 
     int16_t* a = allocStructure(sizeof(BG) / sizeof(BG[0]));
     char lineBuffer[128];
-    DEBUG_IF((res = f_open(&file, filePath)) != FR_OK, "Can't open file:%s", filePath);
+    res = f_open(&file, filePath, FA_READ);
+    DEBUG_IF(res != FR_OK, 5, "Cant open file:%s", filePath);
     if (res != FR_OK)
         return a;
     while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0)
     {
-        matchWrite(a, lineBuffer, BG, sizeof(BG) / sizeof(BG[0]));
+        matchWrite(a, lineBuffer, BG[0], sizeof(BG) / sizeof(BG[0]));
     }
     f_close(&file);
     return a;
@@ -161,14 +163,14 @@ triggerSets_TG_t triggerSets_readTG(const char* filePath)
     FIL file;
     FRESULT res;
 
-    int16_t* a = allocStructure(sizeof(BG) / sizeof(BG[0]));
+    int16_t* a = allocStructure(sizeof(TG) / sizeof(TG[0]));
     char lineBuffer[128];
-    DEBUG_IF((res = f_open(&file, filePath)) != FR_OK, "Can't open file:%s", filePath);
+    DEBUG_IF((res = f_open(&file, filePath, FA_READ)) != FR_OK, 5, "Can't open file:%s", filePath);
     if (res != FR_OK)
         return a;
     while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0)
     {
-        matchWrite(a, lineBuffer, BG, sizeof(TG) / sizeof(TG[0]));
+        matchWrite(a, lineBuffer, TG[0], sizeof(TG) / sizeof(TG[0]));
     }
     f_close(&file);
     return a;
@@ -180,12 +182,12 @@ triggerSets_FT_t triggerSets_readFT(const char* filePath)
 
     int16_t* a = allocStructure(sizeof(FT) / sizeof(FT[0]));
     char lineBuffer[128];
-    DEBUG_IF((res = f_open(&file, filePath)) != FR_OK, "Can't open file:%s", filePath);
+    DEBUG_IF((res = f_open(&file, filePath, FA_READ)) != FR_OK, 5, "Can't open file:%s", filePath);
     if (res != FR_OK)
         return a;
     while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0)
     {
-        matchWrite(a, lineBuffer, BG, sizeof(TG) / sizeof(TG[0]));
+        matchWrite(a, lineBuffer, FT[0], sizeof(FT) / sizeof(FT[0]));
     }
     f_close(&file);
     return a;
@@ -193,7 +195,7 @@ triggerSets_FT_t triggerSets_readFT(const char* filePath)
 
 int16_t triggerSets_getGB(triggerSets_BG_t p, const char* name)
 {
-    int pos = findPosition(name, BG, sizeof(BG)/sizeof(BG[0]));
+    int pos = findPosition(name, BG[0], sizeof(BG)/sizeof(BG[0]));
     if (pos < 0)
         return -1;
     return ((int16_t*)p)[pos];
@@ -201,7 +203,7 @@ int16_t triggerSets_getGB(triggerSets_BG_t p, const char* name)
 
 int16_t triggerSets_getTG(triggerSets_TG_t p, const char* name)
 {
-    int pos = findPosition(name, TG, sizeof(TG) / sizeof(TG[0]));
+    int pos = findPosition(name, TG[0], sizeof(TG) / sizeof(TG[0]));
     if (pos < 0)
         return -1;
     return ((int16_t*)p)[pos];
@@ -209,7 +211,7 @@ int16_t triggerSets_getTG(triggerSets_TG_t p, const char* name)
 
 int16_t triggerSets_getFT(triggerSets_FT_t p, const char* name)
 {
-    int pos = findPosition(name, FT, sizeof(FT) / sizeof(FT[0]));
+    int pos = findPosition(name, FT[0], sizeof(FT) / sizeof(FT[0]));
     if (pos < 0)
         return -1;
     return ((int16_t*)p)[pos];

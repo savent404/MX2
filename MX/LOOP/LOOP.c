@@ -330,6 +330,7 @@ void handleRunning(void)
         {
             DEBUG(5, "Trigger D");
             MX_Audio_Play_Start(Audio_TriggerD);
+            update_param(MX_Audio_getLastTriggerPos(), D);
             MX_LED_startTrigger(LED_TriggerD);
         }
     }

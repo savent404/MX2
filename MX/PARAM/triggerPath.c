@@ -69,7 +69,7 @@ again:
     f_closedir(&dir);
 
     if (stage == stage_1) {
-        dest->path_arry = (char*)pvPortMalloc(cnt * strFixedLen);
+        dest->path_arry = cnt ? (char*)pvPortMalloc(cnt * strFixedLen):NULL;
         dest->prefix = (char*)pvPortMalloc(strlen(dirPath) + 1);
         strcpy(dest->prefix, dirPath);
         cnt = cnt > maxNum ? maxNum : cnt;
@@ -136,6 +136,8 @@ const char* _MX_TriggerPath_getOtherPath(const TRIGGER_PATH_t* ptr, const char* 
 {
     static char path[128];
     int res;
+    if (MX_TriggerPath_getNum(ptr) == 0)
+        return "";
     if ((res = MX_TriggerPath_HasSame(ptr, name)) < 0)
         res = rand() % MX_TriggerPath_getNum(ptr);
     sprintf(path, "%s/%s", MX_TriggerPath_GetPrefix(ptr),
