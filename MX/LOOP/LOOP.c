@@ -75,7 +75,7 @@ void MX_LOOP_Handle(void const * arg)
     }
     MX_MUX_Init();
     MX_LED_Init();
-    SimpleLED_Init();
+    // SimpleLED_Init();
 
     if (!canBoot())
     {
