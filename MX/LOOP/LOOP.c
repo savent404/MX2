@@ -33,7 +33,7 @@ static bool canBoot(void);
         const char* wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);               \
         triggerSets_BG_t bg =                                                                 \
             triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
-        MX_LED_updateBG(gb);                                                                  \
+        MX_LED_updateBG(bg);                                                                  \
         triggerSets_freeBG(bg);                                                               \
         triggerSets_TG_t tg =                                                                 \
             triggerSets_readTG(_MX_TriggerPath_getOtherPath(USR.triggerTG##tgName, wavName)); \

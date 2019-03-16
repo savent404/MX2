@@ -215,6 +215,7 @@ void iBlade::handleLoop(void *arg)
         if (status == InTrigger && modeTrigger != modeTrigger_t::Accelerate)
         {
             popSet();
+            status = Run;
         }
         else if (status == InTrigger && modeTrigger == modeTrigger_t::Accelerate)
         {
@@ -253,6 +254,14 @@ void iBlade::handleTrigger(const void *evt)
 
     if (status == Run || cmd == LED_Trigger_Start || cmd == LED_Trigger_Stop)
     {
+        if (cmd == LED_Trigger_Start)
+        {
+            // set default param
+            setNormalParam();
+            setBackGroudParam(modeBackGround_t::Rainbow);
+            setTriggerParam(modeTrigger_t::NoTrigger);
+            setFilterParam(modeFilter_t::NoFilter);
+        }
         pushSet();
         // load pre ready mode&step
         stepBackGround = stepBackGround_ready;
