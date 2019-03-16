@@ -193,7 +193,7 @@ triggerSets_FT_t triggerSets_readFT(const char* filePath)
     return a;
 }
 
-int16_t triggerSets_getGB(triggerSets_BG_t p, const char* name)
+int16_t triggerSets_getBG(triggerSets_BG_t p, const char* name)
 {
     int pos = findPosition(name, BG[0], sizeof(BG)/sizeof(BG[0]));
     if (pos < 0)

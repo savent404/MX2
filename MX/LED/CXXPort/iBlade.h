@@ -17,7 +17,7 @@
 /**
  * @brief def a var with backup
  */
-#define DEF_WITH_BACKUP(x) x,x##_backup
+#define DEF_WITH_BACKUP(x) x,x##_backup,x##_ready
 
 class iBlade : public iBladeDriver {
 public:
@@ -39,6 +39,10 @@ protected:
      */
     void handleTrigger(const void* arg);
 
+    friend void updateBG(iBlade&, int16_t*);
+    friend void updateTG(iBlade&, int16_t*);
+    friend void updateFT(iBlade&, int16_t*);
+    
     inline void pushColors(void)
     {
         __LED_PUSH(MC);
@@ -86,6 +90,11 @@ private:
     int minLight;
     /** @} */
     /**
+     * @name Storaged Param about BackGround:Blink
+     * @{ */
+    int cntBlinkSwitch;
+    /** @} */
+    /**
      * @name Storaged Param about BackGround:Pulse
      * @{ */
     int msMCMaintain;
@@ -110,6 +119,7 @@ private:
      * @name Storaged Param about BackGround:Rainbow
      ** @{ */
     float rainbowLength;
+    int rainbowDirection;
     /** @} */
 
     /**
@@ -177,6 +187,7 @@ private:
     /**
      * @name Storage Param about Trigger:Speard
      ** @{ */
+    int speardMode;
     int speardLength;
     int speardPos;
     /** @} */

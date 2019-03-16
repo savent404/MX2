@@ -33,12 +33,15 @@ static bool canBoot(void);
         const char* wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);               \
         triggerSets_BG_t bg =                                                                 \
             triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
+        MX_LED_updateBG(gb);                                                                  \
         triggerSets_freeBG(bg);                                                               \
         triggerSets_TG_t tg =                                                                 \
             triggerSets_readTG(_MX_TriggerPath_getOtherPath(USR.triggerTG##tgName, wavName)); \
+        MX_LED_updateTG(tg);                                                                  \
         triggerSets_freeTG(tg);                                                               \
         triggerSets_FT_t ft =                                                                 \
             triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName)); \
+        MX_LED_updateFT(ft);                                                                  \
         triggerSets_freeFT(ft);                                                               \
     } while (0)
 
@@ -292,12 +295,14 @@ void handleRunning(void)
             USR.bank_color += 1;
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_ColorSwitch);
+            MX_LED_startTrigger(LED_Trigger_ColorSwitch);
         }
         else if (timeout >= maxTimeout)
         {
             DEBUG(5, "System going to ready")
             USR.sys_status = System_Ready;
             MX_Audio_Play_Start(Audio_intoReady);
+            update_param(MX_Audio_getLastTriggerPos(), IN);
             MX_LED_startTrigger(LED_Trigger_Stop);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             USR.bank_color = 0;
@@ -316,6 +321,7 @@ void handleRunning(void)
                 DEBUG(5, "Trigger E");
                 SimpleLED_ChangeStatus(SIMPLELED_STATUS_LOCKUP);
                 MX_Audio_Play_Start(Audio_TriggerE);
+                update_param(MX_Audio_getLastTriggerPos(), E);
                 MX_LED_startTrigger(LED_TriggerE);
                 while (!(scanKey() & KEY_SUB_RELEASE)) {
                 }
@@ -340,10 +346,12 @@ void handleRunning(void)
     if (handTrigger.hex != 0) {
         if (handTrigger.unio.isClash && askTrigger(1)) {
             MX_Audio_Play_Start(Audio_TriggerC);
+            update_param(MX_Audio_getLastTriggerPos(), C);
             MX_LED_startTrigger(LED_TriggerC);
         }
         else if (handTrigger.unio.isSwing && askTrigger(0)) {
             MX_Audio_Play_Start(Audio_TriggerB);
+            update_param(MX_Audio_getLastTriggerPos(), B);
             MX_LED_startTrigger(LED_TriggerB);
         }
     }
@@ -374,6 +382,7 @@ void handleRunning(void)
         DEBUG(5, "System going to ready")
         USR.sys_status = System_Ready;
         MX_Audio_Play_Start(Audio_intoReady);
+        update_param(MX_Audio_getLastTriggerPos(), IN);
         MX_LED_startTrigger(LED_Trigger_Stop);
         USR.bank_color = 0;
         MX_LED_bankUpdate(&USR);

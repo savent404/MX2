@@ -6,6 +6,7 @@ extern "C" {
 #include "param.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "PARAM_def.h"
 
 typedef enum _led_cmd_{
     LED_Trigger_EXIT = 0x00,
@@ -62,6 +63,9 @@ typedef struct _interface_led {
     bool (*init)(void* arg);
     void (*handle)(PARA_DYNAMIC_t* ptr);
     bool (*updateParam)(PARA_DYNAMIC_t* param);
+    void (*updateBG)(triggerSets_BG_t);
+    void (*updateFT)(triggerSets_FT_t);
+    void (*updateTG)(triggerSets_TG_t);
 } LED_IF_t;
 
 #ifdef __cplusplus

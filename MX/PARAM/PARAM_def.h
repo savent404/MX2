@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 
+typedef int16_t* triggerSets_BG_t;
+typedef int16_t* triggerSets_FT_t;
+typedef int16_t* triggerSets_TG_t;
+
 typedef enum {
   System_Restart,
   System_Running,

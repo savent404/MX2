@@ -15,6 +15,9 @@ LED_IF_t ledIf = {
     .init = LED_NP_Init,
     .updateParam = LED_NP_Update,
     .handle = LED_NP_Handle,
+    .updateBG = LED_NP_updateBG,
+    .updateTG = LED_NP_updateTG,
+    .updateFT = LED_NP_updateFT,
 #else
     .init = LED_PWM_Init,
     .updateParam = LED_PWM_Update,
@@ -81,3 +84,19 @@ void MX_LED_Init(void)
     osMessageQDef(LED_CMD, 8, uint32_t);
     LED_CMDHandle = osMessageCreate(osMessageQ(LED_CMD), selfThreadId);
 }
+
+void MX_LED_updateBG(triggerSets_BG_t t)
+{
+    ledIf.updateBG(t);
+}
+
+void MX_LED_updateTG(triggerSets_TG_t t)
+{
+    ledIf.updateTG(t);
+}
+
+void MX_LED_updateFT(triggerSets_FT_t t)
+{
+    ledIf.updateFT(t);
+}
+
