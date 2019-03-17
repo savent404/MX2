@@ -72,7 +72,8 @@ static inline bool getKeyVal(const char* in, char* name, char* val)
         if (t == ' ')
             continue;
         if (t <= 'Z' && t >= 'A' ||
-            t <= 'z' && t >= 'a')
+            t <= 'z' && t >= 'a' ||
+            t == '_')
             *name++ = t;
     }
     *name = '\0';
