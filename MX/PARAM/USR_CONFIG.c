@@ -8,6 +8,7 @@
 //#include <strings.h>
 #include "AF.h"
 #include "path.h"
+#include "fatfs_ultis.h"
 
 PARA_DYNAMIC_t USR;
 
@@ -25,10 +26,6 @@ const PARA_STATIC_t STATIC_USR = {
     .trigger_E_max = 16,
   }
 };
-
-#if _USE_LFN //使用Heap模式， 为Fatfs长文件名模式提供一个缓存
-static TCHAR LFN_BUF[120];
-#endif
 
 static const char name_string[][10] = {
     /**< Position:0~5  */
@@ -93,27 +90,27 @@ uint8_t usr_config_init(void)
   /**< 获取Bank数量 */
   {
     DIR dir;
-    FILINFO info;
-    #if _USE_LFN
-    info.lfname = LFN_BUF;
-    #endif
+    FILINFO *info = fatfs_allocFileInfo();
     /**< Open Dir:[0:/] */
     if ((f_err = f_opendir(&dir, "0:/")) != FR_OK)
     {
       DEBUG(0, "Can't Open Dir(0:/):%d", f_err);
+      fatfs_freeFileInfo(info);
       return 1;
     }
     /**< Get Number of Banks */
     USR.nBank = 0;
-    while ((f_readdir(&dir, &info) == FR_OK) && info.fname[0] != '\0') {
-      if ((info.fattrib & AM_DIR) && (info.fname[0] == 'B' || info.fname[0] == 'b')) USR.nBank += 1;
+    while ((f_readdir(&dir, info) == FR_OK) && info->fname[0] != '\0') {
+      if ((info->fattrib & AM_DIR) && (info->fname[0] == 'B' || info->fname[0] == 'b')) USR.nBank += 1;
     }
     /**< Close Dir */
     if ((f_err = f_closedir(&dir)) != FR_OK)
     {
       DEBUG(0, "Can't Close Dir:%d", f_err);
+      fatfs_freeFileInfo(info);
       return 1;
     }
+    fatfs_freeFileInfo(info);
     /**< Bank number limits */
     if (STATIC_USR.filelimits.bank_max < USR.nBank && STATIC_USR.filelimits.bank_max) {
       USR.nBank = STATIC_USR.filelimits.bank_max;

@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "fatfs_ultis.h"
+
 static const int strFixedLen = 32;
 
 static const char* getRegex(TRIGGERPATH_Type_t type)
@@ -47,7 +49,7 @@ static void clearPointer(const TRIGGER_PATH_t* dest)
 TRIGGER_PATH_t* MX_TriggerPath_Init(const char* dirPath, int maxNum, TRIGGERPATH_Type_t type)
 {
     DIR dir;
-    FILINFO info;
+    FILINFO *info = fatfs_allocFileInfo();
     int cnt = 0;
     enum {stage_1, stage_2} stage = stage_1;
     re_t match_s = re_compile(getRegex(type));
@@ -57,14 +59,14 @@ again:
     if (f_opendir(&dir, dirPath) != FR_OK) {
         goto failed;
     }
-    while (f_readdir(&dir, &info) == FR_OK && info.fname[0] != '\0')
+    while (f_readdir(&dir, info) == FR_OK && info->fname[0] != '\0')
     {
-        matched = re_matchp(match_s, info.fname) != -1;
+        matched = re_matchp(match_s, info->fname) != -1;
 
         if (matched && stage == stage_1)
             cnt++;
         else if (matched && stage == stage_2 && cnt--)
-            strncpy(dest->path_arry + cnt*strFixedLen, info.fname, strFixedLen - 1);
+            strncpy(dest->path_arry + cnt*strFixedLen, info->fname, strFixedLen - 1);
     }
     f_closedir(&dir);
 
@@ -77,8 +79,10 @@ again:
         stage = stage_2;
         goto again;
     }
+    fatfs_freeFileInfo(info);
     return dest;
 failed:
+    fatfs_freeFileInfo(info);
     clearPointer(dest);
     return NULL;
 }
