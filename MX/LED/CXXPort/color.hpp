@@ -306,6 +306,7 @@ typedef struct HSV {
         h = other.h;
         s = other.s;
         v = other.v;
+        return *this;
     }
 
     /**
