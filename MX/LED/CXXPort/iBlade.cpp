@@ -477,6 +477,7 @@ __attribute__((weak)) void iBlade::setBackGroudParam(iBlade::modeBackGround_t mo
         case modeBackGround_t::Rainbow:
             rainbowLength = 1.0f;
             stepBackGround = step_t(0, MX_LED_MS2CNT(2000), step_t::infinity);
+            rainbowDirection = 1;
             break;
         case modeBackGround_t::Flame:
             flameRate = 128;

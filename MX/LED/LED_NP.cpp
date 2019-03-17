@@ -37,7 +37,7 @@ bool iBlade::parameterUpdate(void* arg)
     mutex.lock();
 
     setNormalParam();
-    setBackGroudParam(modeBackGround_t::Gradient);
+    setBackGroudParam(modeBackGround_t::Static);
     setTriggerParam(modeTrigger_t::NoTrigger);
     setFilterParam(modeFilter_t::NoFilter);
 
@@ -84,23 +84,26 @@ void updateBG(iBlade& a, int16_t* p)
             break;
         }
         case 4: {
-            a.modeBackGround_ready = iBlade::modeBackGround_t::Pulse;
 
+            int ans = 0;
             int16_t tmp = triggerSets_getBG(t, "T_MC");
             a.msMCMaintain = tmp == -1 ? 0 : tmp;
+            ans += a.msMCMaintain;
 
             tmp = triggerSets_getBG(t, "T_SC");
             a.msSCMaintain = tmp == -1 ? 0 : tmp;
+            ans += a.msSCMaintain;
 
             tmp = triggerSets_getBG(t, "T_MS");
             a.msMCSwitch = tmp == -1 ? 0 : tmp;
+            ans += a.msMCSwitch;
 
             tmp = triggerSets_getBG(t, "T_SM");
             a.msSCSwitch = tmp == -1 ? 0 : tmp;
+            ans += a.msSCSwitch;
 
-            a.stepBackGround_ready =
-                step_t(0, MX_LED_MS2CNT(a.msMCMaintain + a.msMCSwitch +a.msSCMaintain + a.msSCSwitch),
-                                        step_t::infinity);
+            a.modeBackGround_ready = iBlade::modeBackGround_t::Pulse;
+            a.stepBackGround_ready = step_t(0, MX_LED_MS2CNT(ans), step_t::infinity);
             break;
         }
 
@@ -123,14 +126,22 @@ void updateBG(iBlade& a, int16_t* p)
         }
         case 7: {
             a.modeBackGround_ready = iBlade::modeBackGround_t::Rainbow;
+
             int16_t tmp = triggerSets_getBG(t, "RainbowLength");
             a.rainbowLength = float(tmp == -1 ? 0 : tmp) / a.getPixelNum();
+            if (a.rainbowLength < 0)
+                a.rainbowLength = 0;
+            if (a.rainbowLength > 1.0f)
+                a.rainbowLength = 1.0f;
+
             tmp = triggerSets_getBG(t, "RainbowDirection");
             tmp = tmp == -1 ? 0 : tmp;
             a.rainbowDirection = tmp == 0 ? 1 : -1;
+
             tmp = triggerSets_getBG(t, "RainbowSpeed");
             tmp = tmp == -1 ? 0 : tmp;
             tmp = tmp == 0 ? 1 : tmp;
+            tmp = tmp > a.getPixelNum() ? a.getPixelNum() : tmp;
             a.stepBackGround_ready = step_t(0, a.getPixelNum() / tmp, step_t::infinity);
             break;
         }
