@@ -44,9 +44,9 @@ bool iBlade::parameterUpdate(void* arg)
     mutex.lock();
 
     setNormalParam();
-    setBackGroudParam(modeBackGround_t::Static);
-    setTriggerParam(modeTrigger_t::NoTrigger);
-    setFilterParam(modeFilter_t::NoFilter);
+    setBackGroudParam(modeL1_t::Static);
+    setTriggerParam(modeL2_t::NoTrigger);
+    setFilterParam(modeL3_t::NoFilter);
 
     mutex.unlock();
     return true;
@@ -69,24 +69,24 @@ void updateBG(iBlade& a, int16_t* p)
     switch (mode)
     {
         case 1: {
-            a.modeBackGround_ready = iBlade::modeBackGround_t::Static;
-            a.stepBackGround_ready = step_t(0, 0, step_t::infinity);
+            a.modeL1_ready = iBlade::modeL1_t::Static;
+            a.stepL1_ready = step_t(0, 0, step_t::infinity);
             break;
         }
         case 2: {
-            a.modeBackGround_ready = iBlade::modeBackGround_t::Gradient;
-            a.stepBackGround_ready = step_t(0, 0, step_t::infinity);
+            a.modeL1_ready = iBlade::modeL1_t::Gradient;
+            a.stepL1_ready = step_t(0, 0, step_t::infinity);
             break;
         }
         case 3: {
-            a.modeBackGround_ready = iBlade::modeBackGround_t::Blink;
+            a.modeL1_ready = iBlade::modeL1_t::Blink;
             int16_t t_ms = triggerSets_getBG(t, "T_MC");
             int16_t t_sc = triggerSets_getBG(t, "T_SC");
             if (t_ms == -1)
                 t_ms = 0;
             if (t_sc == -1)
                 t_sc = 0;
-            a.stepBackGround_ready = step_t(0, MX_LED_MS2CNT(t_ms + t_sc), step_t::infinity);
+            a.stepL1_ready = step_t(0, MX_LED_MS2CNT(t_ms + t_sc), step_t::infinity);
             a.cntBlinkSwitch = MX_LED_MS2CNT(t_ms);
             break;
         }
@@ -109,8 +109,8 @@ void updateBG(iBlade& a, int16_t* p)
             a.msSCSwitch = tmp == -1 ? 0 : tmp;
             ans += a.msSCSwitch;
 
-            a.modeBackGround_ready = iBlade::modeBackGround_t::Pulse;
-            a.stepBackGround_ready = step_t(0, MX_LED_MS2CNT(ans), step_t::infinity);
+            a.modeL1_ready = iBlade::modeL1_t::Pulse;
+            a.stepL1_ready = step_t(0, MX_LED_MS2CNT(ans), step_t::infinity);
             break;
         }
 
@@ -118,21 +118,21 @@ void updateBG(iBlade& a, int16_t* p)
             int16_t tmp = triggerSets_getBG(t, "NP_BreathCycle");
             if (tmp == -1 || tmp == 0)
                 break;
-            a.modeBackGround_ready = iBlade::modeBackGround_t::ColorBreath;
-            a.stepBackGround_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
+            a.modeL1_ready = iBlade::modeL1_t::ColorBreath;
+            a.stepL1_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
             break;
         }
         case 6: {
-            a.modeBackGround_ready = iBlade::modeBackGround_t::Spark;
+            a.modeL1_ready = iBlade::modeL1_t::Spark;
             int16_t tmp = triggerSets_getBG(t, "NP_Tspark");
             tmp = tmp == -1 ? 0 : tmp;
-            a.stepBackGround_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
+            a.stepL1_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
             tmp = triggerSets_getBG(t, "NP_SparkDensity");
             a.fSparkRate = float(tmp == -1 ? 0 : tmp) / 100.0f;
             break;
         }
         case 7: {
-            a.modeBackGround_ready = iBlade::modeBackGround_t::Rainbow;
+            a.modeL1_ready = iBlade::modeL1_t::Rainbow;
 
             int16_t tmp = triggerSets_getBG(t, "RainbowLength");
             a.rainbowLength = float(tmp == -1 ? 0 : tmp) / a.getPixelNum();
@@ -149,7 +149,7 @@ void updateBG(iBlade& a, int16_t* p)
             tmp = tmp == -1 ? 0 : tmp;
             tmp = tmp == 0 ? 1 : tmp;
             tmp = tmp > a.getPixelNum() ? a.getPixelNum() : tmp;
-            a.stepBackGround_ready = step_t(0, a.getPixelNum() / tmp, step_t::infinity);
+            a.stepL1_ready = step_t(0, a.getPixelNum() / tmp, step_t::infinity);
             break;
         }
     }
@@ -168,7 +168,7 @@ void updateTG(iBlade& a, int16_t* p)
     {
         case 1:
         case 2: {
-            a.modeTrigger_ready = iBlade::modeTrigger_t::Flip;
+            a.modeL2_ready = iBlade::modeL2_t::Flip;
             int16_t tmp = triggerSets_getTG(t, "NP_FlipColor");
             tmp = tmp == -1 ? 0 : tmp;
             tmp = tmp == 0 ? 1 : tmp;
@@ -179,11 +179,11 @@ void updateTG(iBlade& a, int16_t* p)
             int16_t tmp2 = triggerSets_getTG(t, "NP_MaxFlipCount");
             tmp2 = tmp2 == -1 ? 0 : tmp2;
 
-            a.stepTrigger_ready = step_t(0, MX_LED_MS2CNT(tmp), tmp2 == 0 ? step_t::infinity : tmp2);
+            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(tmp), tmp2 == 0 ? step_t::infinity : tmp2);
 
             if (mode == 2)
             {
-                a.modeTrigger_ready = iBlade::modeTrigger_t::Flip_Partial;
+                a.modeL2_ready = iBlade::modeL2_t::Flip_Partial;
                 tmp = triggerSets_getTG(t, "NP_FlipLenth");
                 tmp = tmp == -1 ? 0 : tmp;
                 a.flipLength = float(tmp) / a.getPixelNum();
@@ -191,15 +191,15 @@ void updateTG(iBlade& a, int16_t* p)
             break;
         }
         case 3: {
-            a.modeTrigger_ready = iBlade::modeTrigger_t::Drift;
+            a.modeL2_ready = iBlade::modeL2_t::Drift;
             int16_t tmp = triggerSets_getTG(t, "NP_Cdrift");
             a.driftShift = float(tmp);
             tmp = triggerSets_getTG(t, "NP_TDrift");
-            a.stepTrigger_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
+            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
             break;
         }
         case 4: {
-            a.modeTrigger_ready = iBlade::modeTrigger_t::Speard;
+            a.modeL2_ready = iBlade::modeL2_t::Speard;
             int16_t tmp;
 
             tmp = triggerSets_getTG(t, "NP_SpeardMode");
@@ -221,15 +221,15 @@ void updateTG(iBlade& a, int16_t* p)
                 tmp = speed * 3 / 4;
                 speed = rand() % tmp + tmp / 3;
             }
-            a.stepTrigger_ready = step_t(0, MX_LED_MS2CNT(speed), step_t::infinity);
+            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(speed), step_t::infinity);
 
             tmp = triggerSets_getTG(t, "NP_SpeardLocation");
             a.speardPos = tmp == -1 ? 0 : tmp;
             break;
         }
         case 5: {
-            a.modeTrigger_ready = iBlade::modeTrigger_t::Accelerate;
-            a.stepTrigger_ready = step_t(0, 0xFFFFFF, 0);
+            a.modeL2_ready = iBlade::modeL2_t::Accelerate;
+            a.stepL2_ready = step_t(0, 0xFFFFFF, 0);
             int16_t tmp = triggerSets_getTG(t, "NP_AccN");
             a.accelerateRate = float(tmp == -1 ? 0 : tmp);
             break;
@@ -248,35 +248,35 @@ void updateFT(iBlade& a, int16_t* p)
     switch (mode)
     {
         case 1: {
-            a.modeFilter_ready = iBlade::modeFilter_t::Breath;
+            a.modeL3_ready = iBlade::modeL3_t::Breath;
             int16_t tmp = triggerSets_getFT(t, "NP_Tbreath");
             tmp = tmp == -1 ? 0 : tmp;
-            a.stepFilter_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
+            a.stepL3_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
             // TODO: 设置最大/最小亮度
             break;
         }
         case 2: {
-            a.modeFilter_ready = iBlade::modeFilter_t::Flicker;
+            a.modeL3_ready = iBlade::modeL3_t::Flicker;
             int16_t tmp = triggerSets_getFT(t, "NP_Tflicker");
             tmp = tmp == -1 ? 0 : tmp;
-            a.stepFilter_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
+            a.stepL3_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
             // TODO: 设置变化点密度，最大最小亮度
             break;
         }
         case 3: {
-            a.modeFilter_ready = iBlade::modeFilter_t::Wave;
+            a.modeL3_ready = iBlade::modeL3_t::Wave;
             int16_t tmp = triggerSets_getFT(t, "NP_WaveLength");
             tmp = tmp == -1 ? 0 : tmp;
             a.waveLength = float(tmp) / a.getPixelNum();
             tmp = triggerSets_getFT(t, "NP_WaveSpeed");
             tmp = tmp == -1 ? 0 : tmp;
             tmp = tmp == 0 ? 1 : tmp;
-            a.stepFilter_ready = step_t(0, MX_LED_MS2CNT(int(a.waveLength * a.getPixelNum() / tmp)), step_t::infinity);
+            a.stepL3_ready = step_t(0, MX_LED_MS2CNT(int(a.waveLength * a.getPixelNum() / tmp)), step_t::infinity);
             // TODO: 设置最大数量，最大最小亮度
             break;
         }
         case 4: {
-            a.modeFilter_ready = iBlade::modeFilter_t::Fade;
+            a.modeL3_ready = iBlade::modeL3_t::Fade;
             int16_t tmp = triggerSets_getFT(t, "NP_FadePosition");
             tmp = tmp == -1 ? 0 : tmp;
             a.filterStartPos = float(tmp) / a.getPixelNum();
@@ -285,7 +285,7 @@ void updateFT(iBlade& a, int16_t* p)
             a.filterDirection = tmp == 0 ? 1 : -1;
             tmp = triggerSets_getFT(t, "NP_Tfade");
             tmp = tmp == -1 ? 0 : tmp;
-            a.stepFilter_ready = step_t(0, MX_LED_MS2CNT(tmp), 0);
+            a.stepL3_ready = step_t(0, MX_LED_MS2CNT(tmp), 0);
         }
     }
     a.mutex.unlock();

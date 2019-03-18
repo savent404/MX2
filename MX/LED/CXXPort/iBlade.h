@@ -56,22 +56,22 @@ protected:
     inline void pushSet(void)
     {
         pushColors();
-        __LED_PUSH(modeBackGround);
-        __LED_PUSH(modeTrigger);
-        __LED_PUSH(modeFilter);
-        __LED_PUSH(stepBackGround);
-        __LED_PUSH(stepTrigger);
-        __LED_PUSH(stepFilter);
+        __LED_PUSH(modeL1);
+        __LED_PUSH(modeL2);
+        __LED_PUSH(modeL3);
+        __LED_PUSH(stepL1);
+        __LED_PUSH(stepL2);
+        __LED_PUSH(stepL3);
     }
     inline void popSet(void)
     {
         popColors();
-        __LED_POP(modeBackGround);
-        __LED_POP(modeTrigger);
-        __LED_POP(modeFilter);
-        __LED_POP(stepBackGround);
-        __LED_POP(stepTrigger);
-        __LED_POP(stepFilter);
+        __LED_POP(modeL1);
+        __LED_POP(modeL2);
+        __LED_POP(modeL3);
+        __LED_POP(stepL1);
+        __LED_POP(stepL2);
+        __LED_POP(stepL3);
     }
 private:
     mutex_t mutex;
@@ -207,7 +207,7 @@ private:
      * @name 运行时参数
      * @{ */
     enum { idle, out, in, Run, InTrigger} status;
-    enum modeBackGround_t
+    enum modeL1_t
     {
         Static = 1,
         Gradient = 2,
@@ -218,7 +218,7 @@ private:
         Rainbow = 7,
         Flame = 8
     };
-    enum modeTrigger_t
+    enum modeL2_t
     {
         NoTrigger = 0,
         Flip = 1,
@@ -228,7 +228,7 @@ private:
         Comet = 5,
         Accelerate = 6,
     };
-    enum modeFilter_t
+    enum modeL3_t
     {
         NoFilter = 0,
         Breath = 1,
@@ -236,22 +236,22 @@ private:
         Wave = 3,
         Fade = 4,
     };
-    enum modeBackGround_t DEF_WITH_BACKUP(modeBackGround);
-    enum modeTrigger_t DEF_WITH_BACKUP(modeTrigger);
-    enum modeFilter_t DEF_WITH_BACKUP(modeFilter);
+    enum modeL1_t DEF_WITH_BACKUP(modeL1);
+    enum modeL2_t DEF_WITH_BACKUP(modeL2);
+    enum modeL3_t DEF_WITH_BACKUP(modeL3);
 
-    step_t DEF_WITH_BACKUP(stepBackGround);
-    step_t DEF_WITH_BACKUP(stepTrigger);
-    step_t DEF_WITH_BACKUP(stepFilter);
+    step_t DEF_WITH_BACKUP(stepL1);
+    step_t DEF_WITH_BACKUP(stepL2);
+    step_t DEF_WITH_BACKUP(stepL3);
 
     step_t stepProcess;
     /** @} */
 
 
     void setNormalParam(void);
-    void setBackGroudParam(modeBackGround_t mode);
-    void setTriggerParam(modeTrigger_t mode);
-    void setFilterParam(modeFilter_t mode);
+    void setBackGroudParam(modeL1_t mode);
+    void setTriggerParam(modeL2_t mode);
+    void setFilterParam(modeL3_t mode);
 private:
     void backGroundRender(void);
 };
