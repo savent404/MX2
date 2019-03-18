@@ -243,6 +243,8 @@ private:
     step_t DEF_WITH_BACKUP(stepBackGround);
     step_t DEF_WITH_BACKUP(stepTrigger);
     step_t DEF_WITH_BACKUP(stepFilter);
+
+    step_t stepProcess;
     /** @} */
 
 

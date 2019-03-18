@@ -190,34 +190,18 @@ void iBlade::handleLoop(void *arg)
         break;
     }
 
+    // Back Ground & filter should be infinity loop
+    // but trigger can be end up.
     stepBackGround.walk();
-
-    if (stepFilter.walk() && modeFilter == modeFilter_t::Fade)
-    {
-        if (status == out)
-        {
-            status = Run;
-            popSet();
-        }
-        else if (status == in)
-        {
-            // close all
-            popSet();
-            status = idle;
-            modeTrigger = modeTrigger_t::NoTrigger;
-            RGB black(0, 0, 0);
-            drawLine(black, 0, getPixelNum());
-        }
-    }
-
+    stepFilter.walk();
     if (stepTrigger.walk())
     {
-        if (status == InTrigger && modeTrigger != modeTrigger_t::Accelerate)
-        {
-            popSet();
-            status = Run;
-        }
-        else if (status == InTrigger && modeTrigger == modeTrigger_t::Accelerate)
+        modeTrigger = modeTrigger_t::NoTrigger;
+    }
+
+    if (stepProcess.walk())
+    {
+        if (status == InTrigger && modeTrigger == modeTrigger_t::Accelerate)
         {
             // means keep stepFilter&stepBackGround's now and repeatCnt
             step_t B = stepBackGround, F = stepFilter;
@@ -227,9 +211,21 @@ void iBlade::handleLoop(void *arg)
             stepFilter.now = int(F.now * accelerateRate);
             stepFilter.repeatCnt = F.repeatCnt;
         }
-        else
+        if (status != Run && status != idle)
         {
-            modeTrigger = modeTrigger_t::NoTrigger;
+            status = Run;
+            popSet();
+        }
+        else if (status == out)
+        {
+        }
+        else if (status == in)
+        {
+            RGB black(0, 0, 0);
+            drawLine(black, 0, getPixelNum());
+        }
+        else if (status == InTrigger)
+        {
         }
     }
 }
@@ -258,7 +254,7 @@ void iBlade::handleTrigger(const void *evt)
         {
             // set default param
             setNormalParam();
-            setBackGroudParam(modeBackGround_t::Rainbow);
+            setBackGroudParam(modeBackGround_t::Static);
             setTriggerParam(modeTrigger_t::NoTrigger);
             setFilterParam(modeFilter_t::NoFilter);
         }
@@ -271,6 +267,11 @@ void iBlade::handleTrigger(const void *evt)
         stepFilter = stepFilter_ready;
         modeFilter = modeFilter_ready;
     }
+
+    // default: step up stepProcess to handle trigger
+    // if is triggerE(force), it should be endless.
+    stepProcess = step_t(0, MX_LED_MS2CNT(alt), 0);
+
     switch (cmd)
     {
     case LED_Trigger_Start:
@@ -306,15 +307,13 @@ void iBlade::handleTrigger(const void *evt)
     case LED_TriggerB:
     case LED_TriggerC:
     case LED_TriggerD:
+    case LED_Trigger_ColorSwitch:
         status = InTrigger;
         // setTriggerParam(modeTrigger_t::Drift);
         break;
     case LED_TriggerE:
         status = InTrigger;
-        // setTriggerParam(modeTrigger_t::Flip);
-        break;
-    case LED_Trigger_ColorSwitch:
-        status = InTrigger;
+        stepProcess.repeatCnt = step_t::infinity;
         // setTriggerParam(modeTrigger_t::Flip);
         break;
     default:
