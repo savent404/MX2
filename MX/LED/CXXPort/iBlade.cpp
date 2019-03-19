@@ -8,6 +8,17 @@ iBlade::iBlade(size_t num)
     : iBladeDriver(num), status(idle)
 {
     pFlame = nullptr;
+    setNormalParam();
+    setBackGroudParam(modeL1_t::Static);
+    setTriggerParam(modeL2_t::NoTrigger);
+    setFilterParam(modeL3_t::NoFilter);
+    pushSet();
+    modeL1_ready = modeL1;
+    modeL2_ready = modeL2;
+    modeL3_ready = modeL3;
+    stepL1_ready = stepL1;
+    stepL2_ready = stepL2;
+    stepL3_ready = stepL3;
 }
 
 iBlade::~iBlade()
@@ -210,16 +221,28 @@ void iBlade::handleLoop(void *arg)
             stepL3.now = int(F.now * accelerateRate);
             stepL3.repeatCnt = F.repeatCnt;
         }
-        if (status != Run && status != idle)
+        if (status != out)
+        {
+            stepL1_ready = stepL1;
+            stepL2_ready = stepL2;
+            stepL3_ready = stepL3;
+            modeL1_ready = modeL1;
+            modeL2_ready = modeL2;
+            modeL3_ready = modeL3;
+        }
+        if (status == InTrigger)
         {
             status = Run;
             popSet();
         }
         else if (status == out)
         {
+            status = Run;
+            popSet();
         }
         else if (status == in)
         {
+            status = idle;
             RGB black(0, 0, 0);
             drawLine(black, 0, getPixelNum());
         }
