@@ -216,7 +216,7 @@ public:
      */
     static RGB midColor(const RGB& source, const RGB& dest, float offset) 
     {
-        uint8_t sub[4];
+        int16_t sub[4];
         sub[0] = dest.R - source.R;
         sub[1] = dest.G - source.G;
         sub[2] = dest.B - source.B;
