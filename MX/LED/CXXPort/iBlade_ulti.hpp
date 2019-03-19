@@ -66,7 +66,7 @@ struct step_t {
      * @note  如果repeatCnt小于零，那么几乎为无限次重复
      */
     bool walk() {
-        bool finishLoop = ++now >= total;
+        bool finishLoop = ++now > total;
         if (finishLoop) {
             if (repeatCnt-- == 0)
                 return true;
