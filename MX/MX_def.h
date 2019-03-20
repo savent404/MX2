@@ -29,7 +29,7 @@
 #endif
 
 #ifndef MX_MUX_DUAL_TRACK
-#define MX_MUX_DUAL_TRACK (0)
+#define MX_MUX_DUAL_TRACK (1)
 #endif
 
 #undef MX_MUX_MAXIUM_TRACKID
