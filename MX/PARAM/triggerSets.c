@@ -180,7 +180,8 @@ triggerSets_TG_t triggerSets_readTG(const char* filePath)
 
     int16_t* a = allocStructure(sizeof(TG) / sizeof(TG[0]));
     char lineBuffer[128];
-    DEBUG_IF((res = f_open(&file, filePath, FA_READ)) != FR_OK, 5, "Can't open file:%s", filePath);
+    res = f_open(&file, filePath, FA_READ);
+    DEBUG_IF(res != FR_OK, 5, "Cant open file:%s", filePath);
     if (res != FR_OK)
         return a;
     while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0)
@@ -197,7 +198,8 @@ triggerSets_FT_t triggerSets_readFT(const char* filePath)
 
     int16_t* a = allocStructure(sizeof(FT) / sizeof(FT[0]));
     char lineBuffer[128];
-    DEBUG_IF((res = f_open(&file, filePath, FA_READ)) != FR_OK, 5, "Can't open file:%s", filePath);
+    res = f_open(&file, filePath, FA_READ);
+    DEBUG_IF(res != FR_OK, 5, "Cant open file:%s", filePath);
     if (res != FR_OK)
         return a;
     while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0)
