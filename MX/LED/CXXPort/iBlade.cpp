@@ -12,6 +12,9 @@ iBlade::iBlade(size_t num)
     setBackGroudParam(modeL1_t::Static);
     setTriggerParam(modeL2_t::NoTrigger);
     setFilterParam(modeL3_t::NoFilter);
+    MC = RGB(255, 0, 0);
+    SC = RGB(0, 255, 0);
+    TC = RGB(0, 0, 255);
     pushSet();
     modeL1_ready = modeL1;
     modeL2_ready = modeL2;
@@ -95,8 +98,13 @@ void iBlade::handleLoop(void *arg)
             HSV sc(SC);
             mc.h += driftShift;
             sc.h += driftShift;
+            pushColors();
             MC = mc.convert2RGB();
             SC = sc.convert2RGB();
+        }
+        else if (stepL2.now == stepL2.total / 2)
+        {
+            popColors();
         }
         break;
     case modeL2_t::Accelerate:
