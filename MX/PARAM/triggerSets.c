@@ -28,7 +28,7 @@ static const char TG[][MAX_STR_LEN] =
     "NP_FLIPCOLOR",
     "NP_TFLIP",
     "NP_MAXFLIPCOUNT",
-    "NP_FLIPLENGTH",
+    "NP_FLIPLENTH",
     "NP_CDRIFT",
     "NP_TDRIFT",
     "NP_AccN",
