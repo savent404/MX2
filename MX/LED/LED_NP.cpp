@@ -152,6 +152,12 @@ void updateBG(iBlade& a, int16_t* p)
             a.stepL1_ready = step_t(0, a.getPixelNum() / tmp, step_t::infinity);
             break;
         }
+        case 8: {
+            a.modeL1_ready = iBlade::modeL1_t::Flame;
+            int16_t tmp = triggerSets_getBG(t, "FLAMERATE");
+            a.flameRate = tmp == -1 ? 0 : tmp;
+            break;
+        }
     }
     a.mutex.unlock();
 }
