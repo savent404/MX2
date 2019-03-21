@@ -24,6 +24,7 @@ const PARA_STATIC_t STATIC_USR = {
     .trigger_C_max = 16,
     .trigger_D_max = 16,
     .trigger_E_max = 16,
+    .trigger_HUM_max = 16,
   }
 };
 
@@ -532,6 +533,7 @@ do {                                                                            
 uint8_t usr_update_triggerPah(int bankPos)
 {
   char path[64];
+  UPDATE_TRIGGER(HUM, path, bankPos);
   UPDATE_TRIGGER(B, path, bankPos);
   UPDATE_TRIGGER(C, path, bankPos);
   UPDATE_TRIGGER(D, path, bankPos);

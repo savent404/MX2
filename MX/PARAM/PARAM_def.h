@@ -110,6 +110,7 @@ typedef struct _file_number_limits {
   uint16_t trigger_C_max;
   uint16_t trigger_D_max;
   uint16_t trigger_E_max;
+  uint16_t trigger_HUM_max;
 } File_NumberLimits_t;
 
 typedef struct _usr_static_parameter {
@@ -143,6 +144,7 @@ typedef struct _usr_dynamic_parameter {
   // TRIGGER_PATH_t *triggerE; /**< 定义每个Bank中TriggerE的信息 */
   // TRIGGER_PATH_t *triggerIN;
   // TRIGGER_PATH_t *triggerOUT;
+  DEF_TRIGGERPATH(HUM);
   DEF_TRIGGERPATH(B)
   DEF_TRIGGERPATH(C)
   DEF_TRIGGERPATH(D)

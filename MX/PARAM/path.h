@@ -41,6 +41,10 @@
 #define WAV_ERROR "System/alarm.wav"
 #endif
 
+#ifndef Trigger_HUM_name
+#define Trigger_HUM_name "Hum"
+#endif
+
 #ifndef Trigger_B_name
 #define Trigger_B_name "Swing"
 #endif

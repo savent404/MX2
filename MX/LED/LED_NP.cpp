@@ -309,3 +309,22 @@ void LED_NP_updateFT(triggerSets_FT_t p)
 {
     updateFT(*blade, static_cast<int16_t*>(p));
 }
+
+void LED_NP_applySets(void)
+{
+    applySets(*blade);
+}
+
+#define apply(name) (name = name##_ready)
+void applySets(iBlade& a)
+{
+    apply(a.MC);
+    apply(a.SC);
+    apply(a.TC);
+    apply(a.modeL1);
+    apply(a.modeL2);
+    apply(a.modeL3);
+    apply(a.stepL1);
+    apply(a.stepL2);
+    apply(a.stepL3);
+}

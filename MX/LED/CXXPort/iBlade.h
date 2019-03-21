@@ -42,6 +42,7 @@ protected:
     friend void updateBG(iBlade&, int16_t*);
     friend void updateTG(iBlade&, int16_t*);
     friend void updateFT(iBlade&, int16_t*);
+    friend void applySets(iBlade&);
     
     inline void pushColors(void)
     {

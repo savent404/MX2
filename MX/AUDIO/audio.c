@@ -9,12 +9,13 @@
 static MUX_Slot_Id_t sid_hum;
 static MUX_Slot_Id_t sid_trigger = 0;
 
-static int static_pos = -1;
-static void getTriggerFullPath(char* out, TRIGGER_PATH_t* ptr)
+static int static_hum_pos = -1;
+static int static_trg_pos = -1;
+static void getTriggerFullPath(char* out, TRIGGER_PATH_t* ptr, int* log)
 {
-    static_pos = rand() % MX_TriggerPath_getNum(ptr);
+    *log = rand() % MX_TriggerPath_getNum(ptr);
     sprintf(out, "%s/%s", MX_TriggerPath_GetPrefix(ptr),
-                         MX_TriggerPath_GetName(ptr, static_pos));
+                         MX_TriggerPath_GetName(ptr, *log));
 }
 bool MX_Audio_Play_Start(Audio_ID_t id)
 {
@@ -27,10 +28,11 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
 
     if (id == Audio_intoRunning)
     {
-        sprintf(path, "%s/Bank%d/hum.wav", MX_PARAM_GetPrefix(), USR.bank_now + 1);
+        getTriggerFullPath(path, USR.triggerHUM, static_hum_pos);
+        // sprintf(path, "%s/Bank%d/hum.wav", MX_PARAM_GetPrefix(), USR.bank_now + 1);
         sid_hum = MX_MUX_Start(TrackId_MainLoop,
-                              SlotMode_Loop,
-                              path);
+                               SlotMode_Loop,
+                               path);
     }
     else if (id == Audio_intoReady)
     {
@@ -63,16 +65,16 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
             sprintf(path, "%s/"WAV_RECHARGE, prefix);
             break;
         case Audio_TriggerB:
-            getTriggerFullPath(path, USR.triggerB);
+            getTriggerFullPath(path, USR.triggerB, static_trg_pos);
             break;
         case Audio_TriggerC:
-            getTriggerFullPath(path, USR.triggerC);
+            getTriggerFullPath(path, USR.triggerC, static_trg_pos);
             break;
         case Audio_TriggerD:
-            getTriggerFullPath(path, USR.triggerD);
+            getTriggerFullPath(path, USR.triggerD, static_trg_pos);
             break;
         case Audio_TriggerE:
-            getTriggerFullPath(path, USR.triggerE);
+            getTriggerFullPath(path, USR.triggerE, static_trg_pos);
             mode = SlotMode_Loop;
             break;
         case Audio_TriggerE|0x80:
@@ -82,10 +84,10 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
             sprintf(path, "%s/"WAV_COLORSWITCH, prefix);
             break;
         case Audio_intoReady:
-            getTriggerFullPath(path, USR.triggerIN);
+            getTriggerFullPath(path, USR.triggerIN, static_trg_pos);
             break;
         case Audio_intoRunning:
-            getTriggerFullPath(path, USR.triggerOUT);
+            getTriggerFullPath(path, USR.triggerOUT, static_trg_pos);
             break;
     }
     sid_trigger = MX_MUX_Start(TrackId_Trigger, mode, path);
@@ -109,7 +111,11 @@ int MX_Audio_getTriggerLastTime(void)
     return MX_MUX_getLastTime(TrackId_Trigger, sid_trigger);
 }
 
+int MX_Audio_getLastHumPos(void)
+{
+    return static_hum_pos;
+}
 int MX_Audio_getLastTriggerPos(void)
 {
-    return static_pos;
+    return static_trg_pos;
 }

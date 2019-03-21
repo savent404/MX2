@@ -27,4 +27,5 @@ MX_C_API bool MX_Audio_Play_Stop(Audio_ID_t id);
 MX_C_API bool MX_Audio_isReady(void);
 MX_C_API int MX_Audio_getTriggerLastTime(void);
 MX_C_API int MX_Audio_getLastTriggerPos(void);
+MX_C_API int MX_Audio_getLastHumPos(void);
 MX_PORT_API void MX_Audio_PlayBeep(void);

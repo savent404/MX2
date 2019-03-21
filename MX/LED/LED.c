@@ -18,6 +18,7 @@ LED_IF_t ledIf = {
     .updateBG = LED_NP_updateBG,
     .updateTG = LED_NP_updateTG,
     .updateFT = LED_NP_updateFT,
+    .applySets= LED_NP_applySets,
 #else
     .init = LED_PWM_Init,
     .updateParam = LED_PWM_Update,
@@ -100,3 +101,7 @@ void MX_LED_updateFT(triggerSets_FT_t t)
     ledIf.updateFT(t);
 }
 
+void MX_LED_applySets(void)
+{
+    ledIf.applySets();
+}

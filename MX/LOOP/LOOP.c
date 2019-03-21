@@ -228,6 +228,8 @@ void handleReady(void)
             USR.sys_status = System_Running;
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_intoRunning);
+            update_param(MX_Audio_getLastHumPos(), HUM);
+            MX_LED_applySets();
             update_param(MX_Audio_getLastTriggerPos(), OUT);
             MX_LED_startTrigger(LED_Trigger_Start);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
