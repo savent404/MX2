@@ -280,14 +280,6 @@ void iBlade::handleTrigger(const void *evt)
 
     if (status == Run || cmd == LED_Trigger_Start || cmd == LED_Trigger_Stop)
     {
-        if (cmd == LED_Trigger_Start)
-        {
-            // set default param
-            setNormalParam();
-            setBackGroudParam(modeL1_t::Static);
-            setTriggerParam(modeL2_t::NoTrigger);
-            setFilterParam(modeL3_t::NoFilter);
-        }
         pushSet();
         // load pre ready mode&step
         stepL1 = stepL1_ready;

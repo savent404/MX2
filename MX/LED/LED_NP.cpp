@@ -318,9 +318,11 @@ void LED_NP_applySets(void)
 #define apply(name) (name = name##_ready)
 void applySets(iBlade& a)
 {
+    /*
     apply(a.MC);
     apply(a.SC);
     apply(a.TC);
+    */
     apply(a.modeL1);
     apply(a.modeL2);
     apply(a.modeL3);
