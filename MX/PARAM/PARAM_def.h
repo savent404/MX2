@@ -2,9 +2,12 @@
 
 #include <stdint.h>
 
-typedef int16_t* triggerSets_BG_t;
-typedef int16_t* triggerSets_FT_t;
-typedef int16_t* triggerSets_TG_t;
+typedef int16_t* triggerSets_base_t;
+typedef triggerSets_base_t triggerSets_BG_t;
+typedef triggerSets_base_t triggerSets_FT_t;
+typedef triggerSets_base_t triggerSets_TG_t;
+typedef triggerSets_base_t triggerSets_HW_t;
+
 
 typedef enum {
   System_Restart,
@@ -158,6 +161,7 @@ typedef struct _usr_dynamic_parameter {
   uint8_t audio_busy:1;     /**< 音频输出标志 */
 
   colorMatrix_t colorMatrix; /** storage the NP's colorMatrix */
+  triggerSets_HW_t hwParam;
 } PARA_DYNAMIC_t;
 
 #undef DEF_TRIGGERPATH

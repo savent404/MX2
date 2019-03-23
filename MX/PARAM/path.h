@@ -9,6 +9,10 @@
 #define PATH_COLORMATRIX "ColorMatrix.txt"
 #endif
 
+#ifndef PATH_HWCONFIG
+#define PATH_HWCONFIG "LEDCFG.txt"
+#endif
+
 #ifndef WAV_BOOT
 #define WAV_BOOT "System/Boot.wav"
 #endif

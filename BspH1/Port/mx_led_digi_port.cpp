@@ -7,6 +7,8 @@
 
 #include "MX_LEDDigitCfg.h"
 
+#include "triggerSets.h"
+
 #include "color.hpp"
 #include "LED_NP.h"
 
@@ -67,9 +69,38 @@ __INLINE static void Pixel2TimData(uint8_t * rgb, uint8_t * buffer);
 static void NpData_Refresh(const RGB* arg, int num);
 static HAL_StatusTypeDef NP_PWM_Start_DMA(void);
 
-bool LED_NP_HW_Init(int npnum)
-{    
-    LED_NP_Para_Decode((pNpHwConfig_s)&NpHwConfig, &NpParaConfig);
+bool LED_NP_HW_Init(int npnum, triggerSets_HW_t hw)
+{
+    NpHwConfig_s param;
+    int16_t tmp;
+
+    tmp = triggerSets_getHW(hw, "NP_ORDER");
+    tmp = tmp == -1 ? NP_GRB : tmp;
+    param.NpRGBOrder = tmp;
+
+    tmp = triggerSets_getHW(hw, "NP_NUM");
+    tmp = tmp == -1 ? 50 : tmp;
+    param.NpNumber = tmp;
+
+    tmp = triggerSets_getHW(hw, "NP_PERIOD");
+    tmp = tmp == -1 ? 1250 : tmp;
+    param.NpPeriod_Ns = tmp;
+
+    tmp = triggerSets_getHW(hw, "NP_V0PULSE");
+    tmp = tmp == -1 ? 320 : tmp;
+    param.NpV0HighWitdh_Ns = tmp;
+
+    tmp = triggerSets_getHW(hw, "NP_V1PULSE");
+    tmp = tmp == -1 ? 640 : tmp;
+    param.NpV1HighWitdh_Ns = tmp;
+
+    tmp = triggerSets_getHW(hw, "NP_RSTPULSE");
+    tmp = tmp == -1 ? 80 : tmp;
+    param.NpRstnWidth_Ns = (int32_t)tmp * 1000;
+
+    param.TimerClkFreq_Mhz = 120;
+
+    LED_NP_Para_Decode(&param, &NpParaConfig);
     LED_NP_TIM_Init();
     LED_NP_Buffer_Init(&NpParaConfig);
 

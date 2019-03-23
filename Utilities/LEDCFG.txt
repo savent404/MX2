@@ -1,0 +1,6 @@
+NP_ORDER=6 //RGB order of Dev, RGB:6, RBG:9, GRB:82,  BRG:88, BGR:164,
+NP_NUM=100 //the number of pixel
+NP_PERIOD=1250 //the period of the pixel bit data, unit is NS
+NP_V0PULSE=320 //the high pulse width when the bit value is 0, unit is NS
+NP_V1PULSE=640 //the high pulse width when the bit value is 1, unit is NS
+NP_RSTPULSE=80 //the reset pulse width, unit is US

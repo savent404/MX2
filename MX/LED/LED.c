@@ -73,7 +73,7 @@ void LEDOpra(void const* argument)
 
 void MX_LED_Init(void)
 {
-    if (ledIf.init != NULL && ledIf.init(NULL) == false) {
+    if (ledIf.init != NULL && ledIf.init(USR.hwParam) == false) {
         DEBUG(0, "LED Driver Inited error");
         while (1)
             DEBUG_BKPT();

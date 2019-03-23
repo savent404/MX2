@@ -14,5 +14,5 @@ MX_C_API void LED_NP_updateBG(triggerSets_BG_t);
 MX_C_API void LED_NP_updateTG(triggerSets_TG_t);
 MX_C_API void LED_NP_updateFT(triggerSets_FT_t);
 
-MX_PORT_API bool LED_NP_HW_Init(int num);
+MX_PORT_API bool LED_NP_HW_Init(int num, triggerSets_HW_t);
 MX_PORT_API bool LED_NP_HW_Update(const void* arg, int num);

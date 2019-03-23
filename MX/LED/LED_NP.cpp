@@ -8,12 +8,19 @@ static iBlade* blade = nullptr;
 
 bool LED_NP_Init(void* arg)
 {
-    blade = new iBlade(50);
+    triggerSets_HW_t hw = static_cast<triggerSets_HW_t>(arg);
+
+    // get pixel number, default:50
+    int num = triggerSets_getHW(hw, "NP_NUM");
+    num = (num < 0 ||  num > 256) ? 128 : num;
+
+    blade = new iBlade(num);
     if (!blade)
     {
         return false;
     }
-    if (LED_NP_HW_Init(blade->getPixelNum()) == false)
+
+    if (LED_NP_HW_Init(blade->getPixelNum(), hw) == false)
     {
         return false;
     }

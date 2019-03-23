@@ -89,6 +89,7 @@ uint8_t usr_config_init(void)
 {
   FRESULT f_err;
   FIL *file = (FIL*)pvPortMalloc(sizeof(FIL));
+  char path[32];
   /**< 获取Bank数量 */
   {
     DIR dir;
@@ -143,6 +144,11 @@ uint8_t usr_config_init(void)
   f_err = (FRESULT)get_config(&USR, file);
   if (f_err) return f_err;
   f_close(file);
+
+  /**< 获取硬件配置参数 */
+  sprintf(path, "%s/"PATH_HWCONFIG, MX_PARAM_GetPrefix());
+  USR.hwParam = triggerSets_readHW(path);
+  
   /**< 获取每个bank中的Accent.txt, 包括动作延时时间以及动作信息 */
   USR.accent = (Accent_t*)pvPortMalloc(sizeof(Accent_t)*USR.nBank);
   for (uint8_t nBank = 0; nBank < USR.nBank; nBank++)

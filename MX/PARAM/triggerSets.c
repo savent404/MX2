@@ -50,6 +50,16 @@ static const char FT[][MAX_STR_LEN] =
     "NP_TFADE",
 };
 
+static const char HW[][MAX_STR_LEN] = 
+{
+    "NP_ORDER",
+    "NP_NUM",
+    "NP_PERIOD",
+    "NP_V0PULSE",
+    "NP_V1PULSE",
+    "NP_RSTPULSE",
+};
+
 static inline bool getKeyVal(const char* in, char* name, char* val)
 {
     static bool inited = false;
@@ -139,7 +149,10 @@ void triggerSets_freeFT(triggerSets_FT_t ft)
 {
     vPortFree(ft);
 }
-
+void triggerSets_freeHW(triggerSets_HW_t hw)
+{
+    vPortFree(hw);
+}
 
 triggerSets_BG_t triggerSets_readBG(const char* filePath)
 {
@@ -158,6 +171,7 @@ triggerSets_BG_t triggerSets_readBG(const char* filePath)
     }
     f_close(&file);
     return a;
+
 }
 triggerSets_TG_t triggerSets_readTG(const char* filePath)
 {
@@ -193,6 +207,24 @@ triggerSets_FT_t triggerSets_readFT(const char* filePath)
     f_close(&file);
     return a;
 }
+triggerSets_HW_t triggerSets_readHW(const char* filePath)
+{
+    FIL file;
+    FRESULT res;
+
+    int16_t* a = allocStructure(sizeof(HW) / sizeof(HW[0]));
+    char lineBuffer[128];
+    res = f_open(&file, filePath, FA_READ);
+    DEBUG_IF(res != FR_OK, 5, "Cant open file:%s", filePath);
+    if (res != FR_OK)
+        return a;
+    while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0)
+    {
+        matchWrite(a, lineBuffer, HW[0], sizeof(HW) / sizeof(HW[0]));
+    }
+    f_close(&file);
+    return a;
+}
 
 int16_t triggerSets_getBG(triggerSets_BG_t p, const char* name)
 {
@@ -213,6 +245,13 @@ int16_t triggerSets_getTG(triggerSets_TG_t p, const char* name)
 int16_t triggerSets_getFT(triggerSets_FT_t p, const char* name)
 {
     int pos = findPosition(name, FT[0], sizeof(FT) / sizeof(FT[0]));
+    if (pos < 0)
+        return -1;
+    return ((int16_t*)p)[pos];
+}
+int16_t triggerSets_getHW(triggerSets_HW_t p, const char* name)
+{
+    int pos = findPosition(name, HW[0], sizeof(HW) / sizeof(HW[0]));
     if (pos < 0)
         return -1;
     return ((int16_t*)p)[pos];

@@ -848,7 +848,7 @@
                 </option>
                 <option>
                     <name>DoFill</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>FillerByte</name>
@@ -1067,9 +1067,6 @@
                 <name>$PROJ_DIR$\..\Port\mx_key_port.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Port\mx_led_anag_port.c</name>
-            </file>
-            <file>
                 <name>$PROJ_DIR$\..\Port\mx_led_digi_port.cpp</name>
             </file>
             <file>
@@ -1270,6 +1267,9 @@
         <name>TestCase</name>
         <file>
             <name>$PROJ_DIR$\..\TestCase\test_hand.c</name>
+            <excluded>
+                <configuration>BspH1</configuration>
+            </excluded>
         </file>
         <file>
             <name>$PROJ_DIR$\..\TestCase\test_looper.c</name>
@@ -1333,6 +1333,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\PARAM\triggerPath.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\PARAM\triggerSets.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\PARAM\USR_CONFIG.c</name>
