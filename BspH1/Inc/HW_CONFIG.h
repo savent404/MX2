@@ -9,7 +9,7 @@
 #define USE_NP              (0)
 #endif
 
-#define APPMODE             (1)
+#define APPMODE             (0)
 
 #if USE_NP == 1
 #define ENABLE_WS2811

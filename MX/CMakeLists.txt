@@ -10,6 +10,7 @@ if (USE_NP)
 endif(USE_NP)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/MX/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/MX/Console)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/MX/AUDIO)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/MX/Hand)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/MX/KEY)
