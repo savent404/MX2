@@ -140,7 +140,8 @@ void iBlade::handleLoop(void *arg)
     {
         static int pos = 0;
 
-        if (stepL2.now == 0)
+        // when trigger at the begining, step.total==infinity(-1)
+        if (stepL2.now == 0 && stepL2.total == step_t::infinity)
         {
             pos = rand() % getPixelNum();
         }
