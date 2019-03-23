@@ -146,7 +146,9 @@ __weak int main(void)
   MX_TIM1_Init();  
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
+#if APPMODE == 0
   HAL_Delay(100);
+#endif
   MX_LOOP_Init();
   MX_Console_Init();
   

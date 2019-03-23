@@ -48,7 +48,7 @@ extern DMA_HandleTypeDef hdma_tim4_ch2;
 
 const NpHwConfig_s NpHwConfig = {
     .NpRGBOrder=NP_GRB,
-    .NpNumber=50,
+    .NpNumber=100,
     .NpPeriod_Ns=1250,
     .NpV0HighWitdh_Ns=320,
     .NpV1HighWitdh_Ns=640,

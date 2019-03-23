@@ -92,7 +92,7 @@ void MX_LOOP_Handle(void const * arg)
     MX_WTDG_FEED();
 
     /* Break point here */
-    DEBUG_BKPT();
+    //DEBUG_BKPT();
 
     USR.sys_status = System_Restart;
     //vTaskPrioritySet(loopThreadId, osPriorityRealtime);

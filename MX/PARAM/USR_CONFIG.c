@@ -129,12 +129,6 @@ uint8_t usr_config_init(void)
    */
   USR.config = &(USR.backUpConfig);
 
-  /**< 获取Hum 有效负载 */
-  if (get_humsize(&USR))
-  {
-    return 1;
-  }
-
   /**< 获取CONFIG.txt中的信息,包含各种配置信息以及功率LED灯的颜色信息*/
   if ((f_err = f_open(file, PATH_CONFIG, FA_READ)) != FR_OK)
   {
@@ -172,28 +166,6 @@ uint8_t usr_config_init(void)
   return 0;
 }
 
-static uint8_t get_humsize(PARA_DYNAMIC_t* pt)
-{
-  FIL file;
-  FRESULT f_err;
-  char path[30];
-  uint32_t buf;
-  UINT f_cnt;
-
-  for (uint8_t i = 0; i < pt->nBank; i++)
-  {
-    sprintf(path, "0:/Bank%d/hum.wav", i+1);
-    if((f_err = f_open(&file, path, FA_READ)) != FR_OK)
-    {
-      DEBUG(0, "Open %s Error:%d", path, f_err);
-      return 1;
-    } f_lseek(&file, sizeof(struct _AF_PCM) + 4);
-    f_read(&file, &buf, 4, &f_cnt);
-    pt->humsize[i] = buf;
-    f_close(&file);
-  }
-  return 0;
-}
 #ifdef __STRICT_ANSI__
 int strcasecmp(const char *src1, const char *src2)
 {

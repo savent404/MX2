@@ -229,15 +229,6 @@ void iBlade::handleLoop(void *arg)
             stepL3.now = int(F.now * accelerateRate);
             stepL3.repeatCnt = F.repeatCnt;
         }
-        if (status != out)
-        {
-            stepL1_ready = stepL1;
-            stepL2_ready = stepL2;
-            stepL3_ready = stepL3;
-            modeL1_ready = modeL1;
-            modeL2_ready = modeL2;
-            modeL3_ready = modeL3;
-        }
         if (status == InTrigger)
         {
             status = Run;
