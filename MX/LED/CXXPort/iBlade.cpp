@@ -81,13 +81,20 @@ void iBlade::handleLoop(void *arg)
     switch (modeL2)
     {
     case modeL2_t::Flip:
-        if (stepL2.now == 0)
+        if (flipMode == 5)
         {
-            flip_switchColor(flipMode);
+            // do it later
         }
-        if (stepL2.now == stepL2.total / 2)
+        else
         {
-            popColors();
+            if (stepL2.now == 0)
+            {
+                flip_switchColor(flipMode);
+            }
+            if (stepL2.now == stepL2.total / 2)
+            {
+                popColors();
+            }
         }
         break;
     case modeL2_t::Drift:
@@ -120,33 +127,49 @@ void iBlade::handleLoop(void *arg)
     }
 
     backGroundRender();
+    if (modeL2 == modeL2_t::Flip && flipMode == 5 && stepL2.now < stepL2.total / 2)
+    {
+        // this function will take a long time
+        // cause each pixel should use RGB->HSV->RGB
+        flipColors();
+    }
 
     switch (modeL2)
     {
     case modeL2_t::Flip_Partial:
     {
         static int pos = 0;
+
         if (stepL2.now == 0)
         {
             pos = rand() % getPixelNum();
         }
-        if (stepL2.now <= stepL2.total/2)
-        {
-            int startPos = pos - int(flipLength*getPixelNum()*0.5);
-            int endPos = pos + int(flipLength*getPixelNum()*0.5);
-            startMask() = startPos;
-            endMask() = endPos;
-            pushColors();
-            flip_switchColor(flipMode);
+        int startPos = pos - int(flipLength*getPixelNum()*0.5);
+        int endPos = pos + int(flipLength*getPixelNum()*0.5);
 
-            // draw BackGround again
-            backGroundRender();
-            
-            //
-            startMask() = 0;
-            endMask() = getPixelNum();
-            popColors();
+        // set protected mask
+        startMask() = startPos;
+        endMask() = endPos;
+
+        if (flipMode != 5)
+        {
+            if (stepL2.now <= stepL2.total/2)
+            {
+                pushColors();
+                flip_switchColor(flipMode);
+                backGroundRender();
+                popColors();
+            }
         }
+        // flipMode=5
+        else if (stepL2.now < stepL2.total / 2)
+        {
+            flipColors();
+        }
+
+        // set protected mask
+        startMask() = 0;
+        endMask() = getPixelNum();
     }
     break;
     case modeL2_t::Speard:

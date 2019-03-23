@@ -191,9 +191,7 @@ private:
             break;
         case 5:
         {
-            HSV x(MC);
-            x.h += 180.0f;
-            MC = x.convert2RGB();
+            // use flipColors API
         }
         break;
         }

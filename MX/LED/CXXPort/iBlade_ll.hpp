@@ -225,6 +225,22 @@ protected:
                 *p = origin;
         }
     }
+
+
+    void flipColors(void)
+    {
+        RGB* p = ptr();
+        RGB t;
+        for (int i = 0; i < getPixelNum(); i++, p++)
+        {
+            if (isOutofMask(i))
+                continue;
+            HSV hsv(*p);
+            hsv.h += 180.0f;
+            t = hsv;
+            *p = t;
+        }
+    }
     /**
      * @brief 限制亮度，应当在某个上下范围内
      * @param max 最大亮度 0~255
