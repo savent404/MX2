@@ -207,30 +207,38 @@ void updateTG(iBlade& a, int16_t* p)
         case 4: {
             a.modeL2_ready = iBlade::modeL2_t::Speard;
             int16_t tmp;
+            int mode;
 
             tmp = triggerSets_getTG(t, "NP_SpeardMode");
             tmp = tmp == -1 ? 0 : tmp;
             a.speardMode = tmp;
+            mode = tmp;
 
             tmp = triggerSets_getTG(t, "NP_SpeardLength");
             a.speardLength = tmp == -1 ? 0 : tmp;
-            if (mode == 0)
+            if (mode == 1)
             {
                 tmp = a.speardLength * 3 / 4;
-                a.speardLength = rand() % tmp + tmp / 3;
+                tmp = rand() % (a.speardLength / 2) - a.speardLength / 4;
+                a.speardLength += tmp;
             }
 
             tmp = triggerSets_getTG(t, "NP_SpeardSpeed");
             int speed = tmp == -1 ? 0 : tmp;
-            if (mode == 0)
+            if (mode == 1)
             {
-                tmp = speed * 3 / 4;
-                speed = rand() % tmp + tmp / 3;
+                tmp = rand() % (speed / 2) - speed / 4;
+                speed += tmp;
             }
-            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(speed), step_t::infinity);
+            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(a.getPixelNum() / speed), step_t::infinity);
 
             tmp = triggerSets_getTG(t, "NP_SpeardLocation");
             a.speardPos = tmp == -1 ? 0 : tmp;
+            if (mode == 1)
+            {
+                tmp = rand() % (a.getPixelNum() / 2) - a.getPixelNum() / 4;
+                a.speardPos += tmp;
+            }
             break;
         }
         case 5: {

@@ -32,6 +32,10 @@ static const char TG[][MAX_STR_LEN] =
     "NP_CDRIFT",
     "NP_TDRIFT",
     "NP_AccN",
+    "NP_SpeardMode",
+    "NP_SpeardLength",
+    "NP_SpeardSpeed",
+    "NP_SpeardLocation",
 };
 
 static const char FT[][MAX_STR_LEN] =
