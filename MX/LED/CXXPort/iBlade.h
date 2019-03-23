@@ -13,6 +13,8 @@
  */
 #define __LED_PUSH(x) ((x##_backup) = (x))
 #define __LED_POP(x)  ((x) = (x##_backup))
+#define __LED_APPLE(x) ((x) = (x##_ready))
+#define __LED_STASH(x) ((x##_ready) = (x))
 
 /**
  * @brief def a var with backup
@@ -73,6 +75,24 @@ protected:
         __LED_POP(stepL1);
         __LED_POP(stepL2);
         __LED_POP(stepL3);
+    }
+    inline void stashSet(void)
+    {
+        __LED_STASH(modeL1);
+        __LED_STASH(modeL2);
+        __LED_STASH(modeL3);
+        __LED_STASH(stepL1);
+        __LED_STASH(stepL2);
+        __LED_STASH(stepL3);
+    }
+    inline void applySet(void)
+    {
+        __LED_APPLE(modeL1);
+        __LED_APPLE(modeL2);
+        __LED_APPLE(modeL3);
+        __LED_APPLE(stepL1);
+        __LED_APPLE(stepL2);
+        __LED_APPLE(stepL3);
     }
 private:
     mutex_t mutex;

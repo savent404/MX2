@@ -272,13 +272,7 @@ void iBlade::handleTrigger(const void *evt)
     if (status == Run || cmd == LED_Trigger_Start || cmd == LED_Trigger_Stop)
     {
         pushSet();
-        // load pre ready mode&step
-        stepL1 = stepL1_ready;
-        modeL1 = modeL1_ready;
-        stepL2 = stepL2_ready;
-        modeL2 = modeL2_ready;
-        stepL3 = stepL3_ready;
-        modeL3 = modeL3_ready;
+        applySet();
     }
 
     // default: step up stepProcess to handle trigger
@@ -315,6 +309,7 @@ void iBlade::handleTrigger(const void *evt)
         if (status == InTrigger)
             status = Run;
         popSet();
+        stashSet();
         break;
 
     case LED_TriggerB:
