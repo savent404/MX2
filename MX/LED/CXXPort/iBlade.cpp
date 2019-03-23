@@ -257,6 +257,7 @@ void iBlade::handleLoop(void *arg)
         {
             status = Run;
             popSet();
+            stashSet();
         }
         else if (status == out)
         {
