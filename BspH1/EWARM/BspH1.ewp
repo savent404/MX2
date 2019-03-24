@@ -222,7 +222,6 @@
                     <state>USE_NP</state>
                     <state>GD32F303xG</state>
                     <state>MX_MUX_DUAL_TRACK</state>
-                    <state>USE_DEBUG</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>

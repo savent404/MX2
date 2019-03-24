@@ -46,7 +46,7 @@ typedef struct {
 extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_tim4_ch2;
 
-const NpHwConfig_s NpHwConfig = {
+const NpHwConfig_s DefaultNpHwConfig = {
     .NpRGBOrder=NP_GRB,
     .NpNumber=100,
     .NpPeriod_Ns=1250,
@@ -75,27 +75,27 @@ bool LED_NP_HW_Init(int npnum, triggerSets_HW_t hw)
     int16_t tmp;
 
     tmp = triggerSets_getHW(hw, "NP_ORDER");
-    tmp = tmp == -1 ? NP_GRB : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpRGBOrder : tmp;
     param.NpRGBOrder = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_NUM");
-    tmp = tmp == -1 ? 50 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpNumber : tmp;
     param.NpNumber = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_PERIOD");
-    tmp = tmp == -1 ? 1250 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpPeriod_Ns : tmp;
     param.NpPeriod_Ns = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_V0PULSE");
-    tmp = tmp == -1 ? 320 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpV0HighWitdh_Ns : tmp;
     param.NpV0HighWitdh_Ns = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_V1PULSE");
-    tmp = tmp == -1 ? 640 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpV1HighWitdh_Ns : tmp;
     param.NpV1HighWitdh_Ns = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_RSTPULSE");
-    tmp = tmp == -1 ? 80 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpRstnWidth_Ns / 1000 : tmp;
     param.NpRstnWidth_Ns = (int32_t)tmp * 1000;
 
     param.TimerClkFreq_Mhz = 120;
