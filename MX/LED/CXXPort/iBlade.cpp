@@ -22,6 +22,7 @@ iBlade::iBlade(size_t num)
     stepL1_ready = stepL1;
     stepL2_ready = stepL2;
     stepL3_ready = stepL3;
+    isInCritical = false;
 }
 
 iBlade::~iBlade()
@@ -34,8 +35,6 @@ void iBlade::handle(void *arg)
 {
     auto *pConfig = static_cast<PARA_DYNAMIC_t *>(arg);
 
-    // 用于标志临界区，当进入In/Out状态时不释放mutex
-    bool isInCritical = false;
 
     {
         RGB black(0, 0, 0);
@@ -293,7 +292,8 @@ void iBlade::handleTrigger(const void *evt)
     auto alt = message.pair.alt;
 #endif
 
-
+    if (isInCritical)
+        return;
     if (status == Run || cmd == LED_Trigger_Start || cmd == LED_Trigger_Stop)
     {
         pushSet();
