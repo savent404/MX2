@@ -1,4 +1,5 @@
 #include "LED_PWM.h"
+#include <math.h>
 
 /** Some private parameters */
 static const uint32_t T_SP = 300; //慢速脉冲模式，亮度变化周期，单位ms

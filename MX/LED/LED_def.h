@@ -67,6 +67,7 @@ typedef struct _interface_led {
     void (*updateFT)(triggerSets_FT_t);
     void (*updateTG)(triggerSets_TG_t);
     void (*applySets)(void);
+    bool (*isInCritical)(void);
 } LED_IF_t;
 
 #ifdef __cplusplus

@@ -19,6 +19,7 @@ LED_IF_t ledIf = {
     .updateTG = LED_NP_updateTG,
     .updateFT = LED_NP_updateFT,
     .applySets= LED_NP_applySets,
+    .isInCritical = LED_NP_isInCritical,
 #else
     .init = LED_PWM_Init,
     .updateParam = LED_PWM_Update,
@@ -104,4 +105,9 @@ void MX_LED_updateFT(triggerSets_FT_t t)
 void MX_LED_applySets(void)
 {
     ledIf.applySets();
+}
+
+bool MX_LED_isInCritical(void)
+{
+    return ledIf.isInCritical();
 }

@@ -29,6 +29,7 @@ public:
     void handle(void* arg);
     
     virtual void update();
+
 protected:
     /**
      * @brief 处理绘画事务
@@ -226,8 +227,10 @@ private:
      * @name 运行时参数
      * @{ */
     enum { idle, out, in, Run, InTrigger} status;
+public:
     // 用于标志临界区，当进入In/Out状态时不释放mutex
     bool isInCritical;
+private:
     enum modeL1_t
     {
         Static = 1,

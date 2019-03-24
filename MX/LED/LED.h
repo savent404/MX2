@@ -27,5 +27,6 @@ MX_C_API void MX_LED_updateTG(triggerSets_TG_t);
 MX_C_API void MX_LED_updateFT(triggerSets_FT_t);
 MX_C_API void MX_LED_applySets(void);
 MX_C_API void MX_LED_Init(void);
+MX_C_API bool MX_LED_isInCritical(void);
 
 #endif
