@@ -312,6 +312,7 @@ static void NpData_Refresh(const RGB* ptrColor, int num)
             Color[0]=ptrColor->wR();
             Color[1]=ptrColor->wB();            
             Color[2]=ptrColor->wG();
+            break;
         case NP_GRB:
             Color[0]=ptrColor->wG();
             Color[1]=ptrColor->wR();            
@@ -331,6 +332,11 @@ static void NpData_Refresh(const RGB* ptrColor, int num)
             Color[0]=ptrColor->wB();
             Color[1]=ptrColor->wG();            
             Color[2]=ptrColor->wR();
+            break;
+        default:
+            Color[0]=ptrColor->wG();
+            Color[1]=ptrColor->wR();            
+            Color[2]=ptrColor->wB();
             break;
         }
 
