@@ -275,6 +275,9 @@ void handleReady(void)
         osDelay(3000); //3s
         MX_PM_Shutdown();
     }
+
+    // handle data but never trigger actions
+    MX_HAND_GetTrigger();
 }
 
 void handleRunning(void)
