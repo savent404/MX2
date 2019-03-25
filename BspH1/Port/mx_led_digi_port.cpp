@@ -15,12 +15,15 @@
 //Red: 0x00, Green: 0x01, Blue: 0x02
 //Use a byte to describe the color
 //Bit(5,4): the first color, Bit(3,2): the middle color, Bit(1,0) the last color
-#define NP_RGB  ((0 << 4) | (1 << 2) | (2)) // 0x06
-#define NP_RBG  ((0 << 4) | (2 << 2) | (1)) // 0x09
-#define NP_GRB  ((1 << 4) | (0 << 2) | (2)) // 0x52
-#define NP_GBR  ((2 << 4) | (0 << 2) | (1)) // 0xA1
-#define NP_BRG  ((1 << 4) | (2 << 2) | (0)) // 0x58
-#define NP_BGR  ((2 << 4) | (1 << 2) | (0)) // 0xA4
+#define NP_R (0b00)
+#define NP_G (0b01)
+#define NP_B (0b10)
+#define NP_RGB  ((NP_R << 4) | (NP_G << 2) | (NP_B)) // 0x06
+#define NP_RBG  ((NP_R << 4) | (NP_B << 2) | (NP_G)) // 0x09
+#define NP_GRB  ((NP_G << 4) | (NP_R << 2) | (NP_B)) // 0x12
+#define NP_GBR  ((NP_G << 4) | (NP_B << 2) | (NP_R)) // 0x18
+#define NP_BRG  ((NP_B << 4) | (NP_R << 2) | (NP_G)) // 0x21
+#define NP_BGR  ((NP_B << 4) | (NP_G << 2) | (NP_R)) // 0x24
 
 
 typedef struct {

@@ -1,4 +1,4 @@
-NP_ORDER=82 //RGB order of Dev, RGB:6, RBG:9, GRB:82,  BRG:88, BGR:164,
+NP_ORDER=18 //RGB order of Dev, RGB:6, RBG:9, GRB:18, GBR:24,  BRG:33, BGR:36,
 NP_NUM=100 //the number of pixel
 NP_PERIOD=1250 //the period of the pixel bit data, unit is NS
 NP_V0PULSE=320 //the high pulse width when the bit value is 0, unit is NS
