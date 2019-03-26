@@ -15,12 +15,15 @@
 //Red: 0x00, Green: 0x01, Blue: 0x02
 //Use a byte to describe the color
 //Bit(5,4): the first color, Bit(3,2): the middle color, Bit(1,0) the last color
-#define NP_RGB  ((0 << 4) | (1 << 2) | (2)) // 0x06
-#define NP_RBG  ((0 << 4) | (2 << 2) | (1)) // 0x09
-#define NP_GRB  ((1 << 4) | (0 << 2) | (2)) // 0x52
-#define NP_GBR  ((2 << 4) | (0 << 2) | (1)) // 0xA1
-#define NP_BRG  ((1 << 4) | (2 << 2) | (0)) // 0x58
-#define NP_BGR  ((2 << 4) | (1 << 2) | (0)) // 0xA4
+#define NP_R (0b00)
+#define NP_G (0b01)
+#define NP_B (0b10)
+#define NP_RGB  ((NP_R << 4) | (NP_G << 2) | (NP_B)) // 0x06
+#define NP_RBG  ((NP_R << 4) | (NP_B << 2) | (NP_G)) // 0x09
+#define NP_GRB  ((NP_G << 4) | (NP_R << 2) | (NP_B)) // 0x12
+#define NP_GBR  ((NP_G << 4) | (NP_B << 2) | (NP_R)) // 0x18
+#define NP_BRG  ((NP_B << 4) | (NP_R << 2) | (NP_G)) // 0x21
+#define NP_BGR  ((NP_B << 4) | (NP_G << 2) | (NP_R)) // 0x24
 
 
 typedef struct {
@@ -46,7 +49,7 @@ typedef struct {
 extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_tim4_ch2;
 
-const NpHwConfig_s NpHwConfig = {
+const NpHwConfig_s DefaultNpHwConfig = {
     .NpRGBOrder=NP_GRB,
     .NpNumber=100,
     .NpPeriod_Ns=1250,
@@ -75,27 +78,27 @@ bool LED_NP_HW_Init(int npnum, triggerSets_HW_t hw)
     int16_t tmp;
 
     tmp = triggerSets_getHW(hw, "NP_ORDER");
-    tmp = tmp == -1 ? NP_GRB : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpRGBOrder : tmp;
     param.NpRGBOrder = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_NUM");
-    tmp = tmp == -1 ? 50 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpNumber : tmp;
     param.NpNumber = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_PERIOD");
-    tmp = tmp == -1 ? 1250 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpPeriod_Ns : tmp;
     param.NpPeriod_Ns = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_V0PULSE");
-    tmp = tmp == -1 ? 320 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpV0HighWitdh_Ns : tmp;
     param.NpV0HighWitdh_Ns = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_V1PULSE");
-    tmp = tmp == -1 ? 640 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpV1HighWitdh_Ns : tmp;
     param.NpV1HighWitdh_Ns = tmp;
 
     tmp = triggerSets_getHW(hw, "NP_RSTPULSE");
-    tmp = tmp == -1 ? 80 : tmp;
+    tmp = tmp == -1 ? DefaultNpHwConfig.NpRstnWidth_Ns / 1000 : tmp;
     param.NpRstnWidth_Ns = (int32_t)tmp * 1000;
 
     param.TimerClkFreq_Mhz = 120;
@@ -312,6 +315,7 @@ static void NpData_Refresh(const RGB* ptrColor, int num)
             Color[0]=ptrColor->wR();
             Color[1]=ptrColor->wB();            
             Color[2]=ptrColor->wG();
+            break;
         case NP_GRB:
             Color[0]=ptrColor->wG();
             Color[1]=ptrColor->wR();            
@@ -331,6 +335,11 @@ static void NpData_Refresh(const RGB* ptrColor, int num)
             Color[0]=ptrColor->wB();
             Color[1]=ptrColor->wG();            
             Color[2]=ptrColor->wR();
+            break;
+        default:
+            Color[0]=ptrColor->wG();
+            Color[1]=ptrColor->wR();            
+            Color[2]=ptrColor->wB();
             break;
         }
 
