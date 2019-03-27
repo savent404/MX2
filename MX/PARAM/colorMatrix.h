@@ -32,7 +32,9 @@ MX_ColorMatrix_Update(const char* path, colorMatrix_t* ptr)
     FIL file;
     FRESULT res;
     char buffer[64];
-    re_t match_p = re_compile("\\s*\\d+\\s*,\\s*\\d+\\s*,\\s*\\d+\\s*");
+    static re_t match_p = NULL;
+    if (match_p == NULL)
+        match_p = re_compile("\\s*\\d+\\s*,\\s*\\d+\\s*,\\s*\\d+\\s*");
     enum { stage_1, stage_2 } stage = stage_1;
     int cnt = 0;
     if ((res = f_open(&file, path, FA_READ)) != FR_OK)
