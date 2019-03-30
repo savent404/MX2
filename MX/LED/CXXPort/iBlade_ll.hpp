@@ -148,7 +148,7 @@ public: // API
         sub[2] = colorEnd.B - colorStart.B;
         sub[3] = colorEnd.W - colorStart.W;
 
-		for (int i = posStart; i < posEnd; i++, _ptr++) {
+        for (int i = 0; i < num; i++, _ptr++) {
             if (isOutofMask(i + posStart))
                 continue;
             _ptr->R = colorStart.R + sub[0] * i / num;
@@ -200,6 +200,9 @@ protected:
         
         int startI = -1 * (startPos / interval + 1);
         int endI = getPixelNum() / interval + 1;
+
+        startMask() = 0;
+        endMask() = getPixelNum() * extraLength;
         for (int i = startI; i < endI; i++)
         {
             int pos = startPos + i * interval;
@@ -208,6 +211,8 @@ protected:
             int nextColor = getPositivePos(i + 1, 3);
             drawShade(rgb[color], rgb[nextColor], pos, endPos);
         }
+        startMask() = 0;
+        endMask() = getPixelNum();
     }
 
     void drawRandownSpot(const RGB& origin, RGB& sub, float rate)
