@@ -241,41 +241,21 @@ void iBlade::handleLoop(void *arg)
 
     // Back Ground & filter should be infinity loop
     // but trigger can be end up.
-    stepL1.walk();
-    if (stepL3.walk())
+    if (stepL1.walk())
     {
-        modeL3 = modeL3_t::NoFilter;
+        clearL1();
     }
     if (stepL2.walk())
     {
-        modeL2 = modeL2_t::NoTrigger;
+        clearL2();
     }
-
+    if (stepL3.walk())
+    {
+        clearL3();
+    }
     if (stepProcess.walk())
     {
-        if (status == InTrigger && modeL2 == modeL2_t::Accelerate)
-        {
-            // means keep stepL3&stepL1's now and repeatCnt
-            float s[2] = { (float)stepL1, (float)stepL3 };
-            popSet();
-            stepL1.now = s[0] * stepL1.total;
-            stepL3.now = s[1] * stepL3.total;
-        }
-        if (status == InTrigger || status == out)
-        {
-            status = Run;
-            popSet();
-            stashSet();
-        }
-        else if (status == in)
-        {
-            status = idle;
-            RGB black(0, 0, 0);
-            drawLine(black, 0, getPixelNum());
-        }
-        else if (status == InTrigger)
-        {
-        }
+        clearProcess();
     }
 }
 
@@ -298,6 +278,8 @@ void iBlade::handleTrigger(const void *evt)
 
     if (isInCritical)
         return;
+    if (status == InTrigger)
+        clearProcess();
     if (status == Run || cmd == LED_Trigger_Start || cmd == LED_Trigger_Stop)
     {
         pushSet();
@@ -575,4 +557,44 @@ __attribute__((weak)) void iBlade::setFilterParam(iBlade::modeL3_t mode)
         break;
     }
     DEBUG(5, "There is");
+}
+
+void iBlade::clearL1(void)
+{
+
+}
+
+void iBlade::clearL2(void)
+{
+    modeL2 = modeL2_t::NoTrigger;
+}
+
+void iBlade::clearL3(void)
+{
+    modeL3 = modeL3_t::NoFilter;
+}
+
+void iBlade::clearProcess(void)
+{
+    if (status == InTrigger && modeL2 == modeL2_t::Accelerate)
+    {
+        // means keep stepL3&stepL1's now and repeatCnt
+        float s[2] = { (float)stepL1, (float)stepL3 };
+        popSet();
+        status = Run;
+        stepL1.now = s[0] * stepL1.total;
+        stepL3.now = s[1] * stepL3.total;
+    }
+    if (status == InTrigger || status == out)
+    {
+        status = Run;
+        popSet();
+        stashSet();
+    }
+    else if (status == in)
+    {
+        status = idle;
+        RGB black(0, 0, 0);
+        drawLine(black, 0, getPixelNum());
+    }
 }

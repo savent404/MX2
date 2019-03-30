@@ -287,4 +287,8 @@ private:
     void setFilterParam(modeL3_t mode);
 private:
     void backGroundRender(void);
+    void clearL1(void);
+    void clearL2(void);
+    void clearL3(void);
+    void clearProcess(void);
 };
