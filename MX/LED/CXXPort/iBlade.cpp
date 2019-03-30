@@ -97,7 +97,6 @@ void iBlade::handleLoop(void *arg)
         }
         break;
     case modeL2_t::Drift:
-        // teardown this in the `handle of stepL2.walk()`
         if (stepL2.now == 0)
         {
             HSV mc(MC);
@@ -114,13 +113,15 @@ void iBlade::handleLoop(void *arg)
         }
         break;
     case modeL2_t::Accelerate:
-        // teardown this in the `handle of stepL2.walk()`
         if (stepL2.now == 0)
         {
-            stepL1.total = int((float)stepL1 / accelerateRate);
-			stepL1.now = int((float)stepL1 / accelerateRate);
-            stepL3.total = int((float)stepL3 / accelerateRate);
-			stepL3.now = int((float)stepL3 / accelerateRate);
+            float r = 1 / accelerateRate;
+
+            stepL1.total = int(r * stepL1.total);
+            stepL1.now = int(r * stepL1.now);
+
+            stepL3.total = int(r * stepL3.total);
+            stepL3.now = int(r * stepL3.now);
         }
         break;
     }
@@ -245,23 +246,16 @@ void iBlade::handleLoop(void *arg)
         if (status == InTrigger && modeL2 == modeL2_t::Accelerate)
         {
             // means keep stepL3&stepL1's now and repeatCnt
-            step_t B = stepL1, F = stepL3;
+            float s[2] = { (float)stepL1, (float)stepL3 };
             popSet();
-            stepL1.now = int(B.now * accelerateRate);
-            stepL1.repeatCnt = B.repeatCnt;
-            stepL3.now = int(F.now * accelerateRate);
-            stepL3.repeatCnt = F.repeatCnt;
+            stepL1.now = s[0] * stepL1.total;
+            stepL3.now = s[1] * stepL3.total;
         }
-        if (status == InTrigger)
+        if (status == InTrigger || status == out)
         {
             status = Run;
             popSet();
             stashSet();
-        }
-        else if (status == out)
-        {
-            status = Run;
-            popSet();
         }
         else if (status == in)
         {
@@ -342,12 +336,10 @@ void iBlade::handleTrigger(const void *evt)
     case LED_TriggerD:
     case LED_Trigger_ColorSwitch:
         status = InTrigger;
-        // setTriggerParam(modeL2_t::Drift);
         break;
     case LED_TriggerE:
         status = InTrigger;
         stepProcess.repeatCnt = step_t::infinity;
-        // setTriggerParam(modeL2_t::Flip);
         break;
     default:
         break;
