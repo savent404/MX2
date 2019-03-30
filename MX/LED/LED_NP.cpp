@@ -230,7 +230,7 @@ void updateTG(iBlade& a, int16_t* p)
                 tmp = rand() % (speed / 2) - speed / 4;
                 speed += tmp;
             }
-            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(a.getPixelNum() / speed), step_t::infinity);
+            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(a.getPixelNum() / speed), 0);
 
             tmp = triggerSets_getTG(t, "NP_SpeardLocation");
             a.speardPos = tmp == -1 ? 0 : tmp;
