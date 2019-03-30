@@ -143,9 +143,10 @@ void iBlade::handleLoop(void *arg)
     {
         static int pos = 0;
 
-        // when trigger at the begining, step.total==infinity(-1)
-        if (stepL2.now == 0 && stepL2.total == step_t::infinity)
+        // when trigger at the begining
+        if (stepL2.now == 0 && flipNeedFresh)
         {
+            flipNeedFresh = false;
             pos = rand() % getPixelNum();
         }
         int startPos = pos - int(flipLength*getPixelNum()*0.5);

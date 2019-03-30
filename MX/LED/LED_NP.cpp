@@ -198,6 +198,7 @@ void updateTG(iBlade& a, int16_t* p)
                 tmp = tmp == -1 ? 0 : tmp;
                 a.flipLength = float(tmp) / a.getPixelNum();
             }
+            a.flipNeedFresh = true;
             break;
         }
         case 3: {

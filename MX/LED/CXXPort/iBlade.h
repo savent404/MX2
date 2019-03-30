@@ -180,6 +180,7 @@ private:
     int flipTime;
     int flipMaxCnt;
     float flipLength;
+    bool flipNeedFresh;
     inline void flip_switchColor(int mode)
     {
         switch (mode)
