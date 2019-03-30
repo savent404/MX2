@@ -236,9 +236,6 @@ private:
      * @name 运行时参数
      * @{ */
     enum { idle, out, in, Run, InTrigger} status;
-public:
-    // 用于标志临界区，当进入In/Out状态时不释放mutex
-    bool isInCritical;
 private:
     enum modeL1_t
     {

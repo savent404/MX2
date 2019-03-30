@@ -365,8 +365,3 @@ void applySets(iBlade& a)
 {
     a.applySet();
 }
-
-bool LED_NP_isInCritical(void)
-{
-    return blade->isInCritical;
-}

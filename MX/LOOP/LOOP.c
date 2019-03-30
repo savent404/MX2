@@ -28,8 +28,8 @@ static void handleCharging(void);
 
 static bool canBoot(void);
 
-#define update_param(pos, tgName)\
-    if (MX_LED_isInCritical() == false) {                                                                                      \
+#define update_param(pos, tgName)                                                             \
+    do {                                                                                      \
         const char* wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);               \
         triggerSets_BG_t bg =                                                                 \
             triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
@@ -43,7 +43,7 @@ static bool canBoot(void);
             triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName)); \
         MX_LED_updateFT(ft);                                                                  \
         triggerSets_freeFT(ft);                                                               \
-    }
+    } while(0)
 
 bool MX_LOOP_Init(void)
 {
@@ -247,9 +247,7 @@ void handleReady(void)
         if (timeout >= maxTimeout)
         {
             DEBUG(5, "System Bank switch");
-            //vTaskPrioritySet(loopThreadId, osPriorityRealtime);
             usr_switch_bank((USR.bank_now + 1) % USR.nBank, 0);
-            //vTaskPrioritySet(loopThreadId, osPriorityNormal);
             MX_LED_bankUpdate(&USR);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             MX_Audio_Play_Start(Audio_BankSwitch);

@@ -25,7 +25,6 @@ iBlade::iBlade(size_t num)
     stepL1_ready = stepL1;
     stepL2_ready = stepL2;
     stepL3_ready = stepL3;
-    isInCritical = false;
 }
 
 iBlade::~iBlade()
@@ -51,17 +50,9 @@ void iBlade::handle(void *arg)
     {
         evt = MX_LED_GetMessage(MX_LED_INTERVAL);
 
-        if (!isInCritical)
-            mutex.lock();
+        mutex.lock();
 
         handleTrigger(&evt);
-
-        // handle into critical or out critical
-        if (!isInCritical && (status == out || status == in))
-            isInCritical = true;
-
-        if (isInCritical && (status != out && status != in))
-            isInCritical = false;
 
         if (status != idle)
         {
@@ -70,8 +61,7 @@ void iBlade::handle(void *arg)
             update();
         }
 
-        if (!isInCritical)
-            mutex.unlock();
+        mutex.unlock();
     }
 }
 
@@ -256,6 +246,7 @@ void iBlade::handleLoop(void *arg)
     if (stepProcess.walk())
     {
         clearProcess();
+        stashSet();
     }
 }
 
@@ -276,9 +267,7 @@ void iBlade::handleTrigger(const void *evt)
     auto alt = message.pair.alt;
 #endif
 
-    if (isInCritical)
-        return;
-    if (status == InTrigger)
+    if (status == InTrigger || status == out || status == in)
         clearProcess();
     if (status == Run || cmd == LED_Trigger_Start || cmd == LED_Trigger_Stop)
     {
@@ -589,7 +578,7 @@ void iBlade::clearProcess(void)
     {
         status = Run;
         popSet();
-        stashSet();
+        // stashSet();
     }
     else if (status == in)
     {
