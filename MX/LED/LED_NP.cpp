@@ -285,6 +285,7 @@ void updateFT(iBlade& a, int16_t* p)
             tmp = tmp == -1 ? 0 : tmp;
             a.stepL3_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
             // TODO: 设置变化点密度
+            tmp = triggerSets_getFT(t, "NP_BrightMax");
             tmp = tmp == -1 ? 255 : tmp;
             a.maxLight_ready = tmp;
 
@@ -303,14 +304,18 @@ void updateFT(iBlade& a, int16_t* p)
             tmp = triggerSets_getFT(t, "NP_WaveSpeed");
             tmp = tmp == -1 ? 0 : tmp;
             tmp = tmp == 0 ? 1 : tmp;
-            a.stepL3_ready = step_t(0, MX_LED_MS2CNT(int(a.waveLength * a.getPixelNum() / tmp)), step_t::infinity);
-            // TODO: 设置最大数量
+
+            int16_t tt = triggerSets_getFT(t, "NP_WaveCount");
+            a.stepL3_ready = step_t(0, int(a.getPixelNum() / tmp), tt);
+            tmp = triggerSets_getFT(t, "NP_BrightMax");
             tmp = tmp == -1 ? 255 : tmp;
             a.maxLight_ready = tmp;
 
             tmp = triggerSets_getFT(t, "NP_BrightMin");
             tmp = tmp == -1 ? 0 : tmp;
             a.minLight_ready = tmp;
+
+            a.waveDirection = 1;
             break;
         }
         case 4: {

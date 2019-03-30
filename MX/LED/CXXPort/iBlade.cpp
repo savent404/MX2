@@ -196,6 +196,9 @@ void iBlade::handleLoop(void *arg)
 
     switch (modeL3)
     {
+    case modeL3_t::NoFilter:
+        filterSet(maxLight);
+        break;
     case modeL3_t::Breath:
     {
         // float rate = sin((float)stepL3 * 2 * M_PI);
@@ -238,7 +241,10 @@ void iBlade::handleLoop(void *arg)
     // Back Ground & filter should be infinity loop
     // but trigger can be end up.
     stepL1.walk();
-    stepL3.walk();
+    if (stepL3.walk())
+    {
+        modeL3 = modeL3_t::NoFilter;
+    }
     if (stepL2.walk())
     {
         modeL2 = modeL2_t::NoTrigger;
