@@ -369,7 +369,8 @@ void handleRunning(void)
     {
             DEBUG(5, "System going to charging")
             USR.sys_status = System_Ready;
-            MX_Audio_Play_Start(Audio_Charging);
+            MX_Audio_Play_Start(Audio_intoReady);
+            // MX_Audio_Play_Start(Audio_Charging);
             MX_LED_startTrigger(LED_Trigger_Stop);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             USR.bank_color = 0;
