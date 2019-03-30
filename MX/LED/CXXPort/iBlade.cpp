@@ -15,7 +15,10 @@ iBlade::iBlade(size_t num)
     MC = RGB(255, 0, 0);
     SC = RGB(0, 255, 0);
     TC = RGB(0, 0, 255);
+    maxLight = 255;
+    minLight = 0;
     pushSet();
+    stashSet();
     modeL1_ready = modeL1;
     modeL2_ready = modeL2;
     modeL3_ready = modeL3;
