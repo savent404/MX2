@@ -156,6 +156,10 @@ void updateBG(iBlade& a, int16_t* p)
             a.modeL1_ready = iBlade::modeL1_t::Flame;
             int16_t tmp = triggerSets_getBG(t, "FLAMERATE");
             a.flameRate = tmp == -1 ? 0 : tmp;
+
+            tmp = triggerSets_getBG(t, "FLAMEFREQ");
+            tmp = tmp == -1 ? 1 : tmp;
+            a.stepL1_ready = step_t(0, tmp, step_t::infinity);
             break;
         }
     }

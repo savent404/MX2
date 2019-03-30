@@ -20,6 +20,7 @@ static const char BG[][MAX_STR_LEN] =
     "RAINBOWDIRECTION",
     "RAINBOWSPEED",
     "FLAMERATE",
+    "FLAMEFREQ",
 };
 
 static const char TG[][MAX_STR_LEN] = 
