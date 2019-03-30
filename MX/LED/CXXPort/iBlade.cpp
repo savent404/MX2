@@ -216,12 +216,8 @@ void iBlade::handleLoop(void *arg)
             int startPos = int((filterStartPos + filterDirection*float(stepL3))*getPixelNum());
             if (filterDirection == -1)
                 startPos += getPixelNum();
-            int endPos = getPixelNum() - startPos > getPixelNum() * 0.2 ?
-                         int(getPixelNum()*0.2 + startPos) :
-                         getPixelNum();
             filterSet(maxLight, 0, startPos);
-            filterShade(startPos, endPos, maxLight, minLight);
-            filterSet(0, endPos, getPixelNum());
+            filterSet(0, startPos, getPixelNum());
         }
         break;
     default:
