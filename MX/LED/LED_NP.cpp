@@ -235,7 +235,7 @@ void updateTG(iBlade& a, int16_t* p)
                 tmp = rand() % (speed / 2) - speed / 4;
                 speed += tmp;
             }
-            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(a.getPixelNum() / speed), 0);
+            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(1000 * a.getPixelNum() / speed), 0);
 
             tmp = triggerSets_getTG(t, "NP_SpeardLocation");
             a.speardPos = tmp == -1 ? 0 : tmp;
@@ -307,7 +307,7 @@ void updateFT(iBlade& a, int16_t* p)
             tmp = tmp == 0 ? 1 : tmp;
 
             int16_t tt = triggerSets_getFT(t, "NP_WaveCount");
-            a.stepL3_ready = step_t(0, int(a.getPixelNum() / tmp), tt);
+            a.stepL3_ready = step_t(0, MX_LED_MS2CNT(int(1000 * a.getPixelNum() / tmp)), tt);
             tmp = triggerSets_getFT(t, "NP_BrightMax");
             tmp = tmp == -1 ? 255 : tmp;
             a.maxLight_ready = tmp;
