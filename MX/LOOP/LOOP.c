@@ -225,6 +225,7 @@ void handleReady(void)
         else
         {
             DEBUG(5, "System going to running");
+            usr_switch_bank(USR.bank_now, 1);
             USR.sys_status = System_Running;
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_intoRunning);
@@ -247,7 +248,7 @@ void handleReady(void)
         if (timeout >= maxTimeout)
         {
             DEBUG(5, "System Bank switch");
-            usr_switch_bank((USR.bank_now + 1) % USR.nBank, 0);
+            usr_switch_bank((USR.bank_now + 1) % USR.nBank, 1);
             MX_LED_bankUpdate(&USR);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             MX_Audio_Play_Start(Audio_BankSwitch);
@@ -296,8 +297,13 @@ void handleRunning(void)
         {
             DEBUG(5, "System ColorSwitch");
             USR.bank_color += 1;
+            int n = USR.bank_now;
+            usr_switch_bank((USR.bank_now + USR.bank_color) % USR.nBank, 1);
+            USR.bank_now = n;
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_ColorSwitch);
+            update_param(MX_Audio_getLastHumPos(), HUM);
+            MX_LED_applySets();
             MX_LED_startTrigger(LED_Trigger_ColorSwitch);
         }
         else if (timeout >= maxTimeout)
