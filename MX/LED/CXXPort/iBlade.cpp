@@ -396,7 +396,8 @@ void iBlade::backGroundRender(void)
         }
         // use this pointer to call `setColor` func
         if (stepL1.now == 0)
-            pFlame->update(this, flameRate);
+            for (int i = 0; i < flameMulti; i++)
+                pFlame->update(this, flameRate);
         break;
     default:
         DEBUG(5, "Unknow modeL1:%d", modeL1);

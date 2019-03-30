@@ -160,6 +160,10 @@ void updateBG(iBlade& a, int16_t* p)
             tmp = triggerSets_getBG(t, "FLAMEFREQ");
             tmp = tmp == -1 ? 1 : tmp;
             a.stepL1_ready = step_t(0, tmp, step_t::infinity);
+
+            tmp = triggerSets_getBG(t, "FLAMEMULTI");
+            tmp = tmp == -1 ? 1 : tmp;
+            a.flameMulti = tmp;
             break;
         }
     }

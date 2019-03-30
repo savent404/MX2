@@ -143,6 +143,7 @@ private:
      * @pFlame
      * @{ */
     int flameRate;
+    int flameMulti;
     Flame_t* pFlame;
     /** @} */
     /**
