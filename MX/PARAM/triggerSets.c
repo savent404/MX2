@@ -20,6 +20,8 @@ static const char BG[][MAX_STR_LEN] =
     "RAINBOWDIRECTION",
     "RAINBOWSPEED",
     "FLAMERATE",
+    "FLAMEFREQ",
+    "FLAMEMULTI",
 };
 
 static const char TG[][MAX_STR_LEN] = 
@@ -45,7 +47,8 @@ static const char FT[][MAX_STR_LEN] =
     "NP_BRIGHTMAX",
     "NP_BRIGHTMIN",
     "NP_TFLICKER",
-    "NP_FLICKERDENSITY",
+    "NP_MAXFLIPCOUNT",
+    "NP_FLIPLENTH",
     "NP_WAVELENGTH",
     "NP_WAVESPEED",
     "NP_WAVECOUNT",

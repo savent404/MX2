@@ -44,9 +44,9 @@ bool iBlade::parameterUpdate(void* arg)
     mutex.lock();
 
     setNormalParam();
-    setBackGroudParam(modeL1_t::Static);
-    setTriggerParam(modeL2_t::NoTrigger);
-    setFilterParam(modeL3_t::NoFilter);
+    // setBackGroudParam(modeL1_t::Static);
+    // setTriggerParam(modeL2_t::NoTrigger);
+    // setFilterParam(modeL3_t::NoFilter);
 
     mutex.unlock();
     return true;
@@ -156,6 +156,14 @@ void updateBG(iBlade& a, int16_t* p)
             a.modeL1_ready = iBlade::modeL1_t::Flame;
             int16_t tmp = triggerSets_getBG(t, "FLAMERATE");
             a.flameRate = tmp == -1 ? 0 : tmp;
+
+            tmp = triggerSets_getBG(t, "FLAMEFREQ");
+            tmp = tmp == -1 ? 1 : tmp;
+            a.stepL1_ready = step_t(0, tmp, step_t::infinity);
+
+            tmp = triggerSets_getBG(t, "FLAMEMULTI");
+            tmp = tmp == -1 ? 1 : tmp;
+            a.flameMulti = tmp;
             break;
         }
     }
@@ -194,6 +202,7 @@ void updateTG(iBlade& a, int16_t* p)
                 tmp = tmp == -1 ? 0 : tmp;
                 a.flipLength = float(tmp) / a.getPixelNum();
             }
+            a.flipNeedFresh = true;
             break;
         }
         case 3: {
@@ -230,7 +239,7 @@ void updateTG(iBlade& a, int16_t* p)
                 tmp = rand() % (speed / 2) - speed / 4;
                 speed += tmp;
             }
-            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(a.getPixelNum() / speed), step_t::infinity);
+            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(1000 * a.getPixelNum() / speed), 0);
 
             tmp = triggerSets_getTG(t, "NP_SpeardLocation");
             a.speardPos = tmp == -1 ? 0 : tmp;
@@ -266,7 +275,13 @@ void updateFT(iBlade& a, int16_t* p)
             int16_t tmp = triggerSets_getFT(t, "NP_Tbreath");
             tmp = tmp == -1 ? 0 : tmp;
             a.stepL3_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
-            // TODO: 设置最大/最小亮度
+            tmp = triggerSets_getFT(t, "NP_BrightMax");
+            tmp = tmp == -1 ? 255 : tmp;
+            a.maxLight_ready = tmp;
+
+            tmp = triggerSets_getFT(t, "NP_BrightMin");
+            tmp = tmp == -1 ? 0 : tmp;
+            a.minLight_ready = tmp;
             break;
         }
         case 2: {
@@ -274,7 +289,16 @@ void updateFT(iBlade& a, int16_t* p)
             int16_t tmp = triggerSets_getFT(t, "NP_Tflicker");
             tmp = tmp == -1 ? 0 : tmp;
             a.stepL3_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
-            // TODO: 设置变化点密度，最大最小亮度
+            // TODO: 设置变化点密度
+            tmp = triggerSets_getFT(t, "NP_BrightMax");
+            tmp = tmp == -1 ? 255 : tmp;
+            a.maxLight_ready = tmp;
+
+            tmp = triggerSets_getFT(t, "NP_BrightMin");
+            tmp = tmp == -1 ? 0 : tmp;
+            a.minLight_ready = tmp;
+
+            tmp = triggerSets_getFT(t, "NP_FlickerDensity");
             break;
         }
         case 3: {
@@ -285,8 +309,19 @@ void updateFT(iBlade& a, int16_t* p)
             tmp = triggerSets_getFT(t, "NP_WaveSpeed");
             tmp = tmp == -1 ? 0 : tmp;
             tmp = tmp == 0 ? 1 : tmp;
-            a.stepL3_ready = step_t(0, MX_LED_MS2CNT(int(a.waveLength * a.getPixelNum() / tmp)), step_t::infinity);
-            // TODO: 设置最大数量，最大最小亮度
+
+            int16_t tt = triggerSets_getFT(t, "NP_WaveCount");
+            tt = tt == 0 ? step_t::infinity : tt;
+            a.stepL3_ready = step_t(0, MX_LED_MS2CNT(int(1000 * a.getPixelNum() / tmp)), tt);
+            tmp = triggerSets_getFT(t, "NP_BrightMax");
+            tmp = tmp == -1 ? 255 : tmp;
+            a.maxLight_ready = tmp;
+
+            tmp = triggerSets_getFT(t, "NP_BrightMin");
+            tmp = tmp == -1 ? 0 : tmp;
+            a.minLight_ready = tmp;
+
+            a.waveDirection = 1;
             break;
         }
         case 4: {
@@ -300,6 +335,13 @@ void updateFT(iBlade& a, int16_t* p)
             tmp = triggerSets_getFT(t, "NP_Tfade");
             tmp = tmp == -1 ? 0 : tmp;
             a.stepL3_ready = step_t(0, MX_LED_MS2CNT(tmp), 0);
+            tmp = triggerSets_getFT(t, "NP_BrightMax");
+            tmp = tmp == -1 ? 255 : tmp;
+            a.maxLight_ready = tmp;
+
+            tmp = triggerSets_getFT(t, "NP_BrightMin");
+            tmp = tmp == -1 ? 0 : tmp;
+            a.minLight_ready = tmp;
         }
     }
     a.mutex.unlock();
@@ -327,9 +369,4 @@ void LED_NP_applySets(void)
 void applySets(iBlade& a)
 {
     a.applySet();
-}
-
-bool LED_NP_isInCritical(void)
-{
-    return blade->isInCritical;
 }

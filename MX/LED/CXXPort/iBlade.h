@@ -66,6 +66,8 @@ protected:
         __LED_PUSH(stepL1);
         __LED_PUSH(stepL2);
         __LED_PUSH(stepL3);
+        __LED_PUSH(maxLight);
+        __LED_PUSH(minLight);
     }
     inline void popSet(void)
     {
@@ -76,6 +78,8 @@ protected:
         __LED_POP(stepL1);
         __LED_POP(stepL2);
         __LED_POP(stepL3);
+        __LED_POP(maxLight);
+        __LED_POP(minLight);
     }
     inline void stashSet(void)
     {
@@ -85,6 +89,8 @@ protected:
         __LED_STASH(stepL1);
         __LED_STASH(stepL2);
         __LED_STASH(stepL3);
+        __LED_STASH(maxLight);
+        __LED_STASH(minLight);
     }
     inline void applySet(void)
     {
@@ -94,6 +100,8 @@ protected:
         __LED_APPLE(stepL1);
         __LED_APPLE(stepL2);
         __LED_APPLE(stepL3);
+        __LED_APPLE(maxLight);
+        __LED_APPLE(minLight);
     }
 private:
     mutex_t mutex;
@@ -108,8 +116,8 @@ private:
     RGB DEF_WITH_BACKUP(MC);
     RGB DEF_WITH_BACKUP(SC);
     RGB DEF_WITH_BACKUP(TC);
-    int maxLight;
-    int minLight;
+    int DEF_WITH_BACKUP(maxLight);
+    int DEF_WITH_BACKUP(minLight);
     /** @} */
     /**
      * @name Storaged Param about BackGround:Blink
@@ -135,6 +143,7 @@ private:
      * @pFlame
      * @{ */
     int flameRate;
+    int flameMulti;
     Flame_t* pFlame;
     /** @} */
     /**
@@ -172,6 +181,7 @@ private:
     int flipTime;
     int flipMaxCnt;
     float flipLength;
+    bool flipNeedFresh;
     inline void flip_switchColor(int mode)
     {
         switch (mode)
@@ -227,9 +237,6 @@ private:
      * @name 运行时参数
      * @{ */
     enum { idle, out, in, Run, InTrigger} status;
-public:
-    // 用于标志临界区，当进入In/Out状态时不释放mutex
-    bool isInCritical;
 private:
     enum modeL1_t
     {
@@ -278,4 +285,8 @@ private:
     void setFilterParam(modeL3_t mode);
 private:
     void backGroundRender(void);
+    void clearL1(void);
+    void clearL2(void);
+    void clearL3(void);
+    void clearProcess(void);
 };

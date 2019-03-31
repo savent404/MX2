@@ -80,10 +80,12 @@ again:
         goto again;
     }
     fatfs_freeFileInfo(info);
+    vPortFree(match_s);
     return dest;
 failed:
     fatfs_freeFileInfo(info);
     clearPointer(dest);
+    vPortFree(match_s);
     return NULL;
 }
 

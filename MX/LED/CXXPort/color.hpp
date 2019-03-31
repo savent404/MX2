@@ -271,6 +271,8 @@ typedef struct HSV {
         // In-case h is negative
         while (_h < 0)
             _h += 360.0f;
+        while (_h >= 360)
+            _h -= 360.0f;
         float C = v * s;
         float P = fmodf(_h / 60.0f, 6.0f);
         float X = C * (1 - fabs(fmodf(P, 2) - 1));

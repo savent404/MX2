@@ -28,8 +28,8 @@ static void handleCharging(void);
 
 static bool canBoot(void);
 
-#define update_param(pos, tgName)\
-    if (MX_LED_isInCritical() == false) {                                                                                      \
+#define update_param(pos, tgName)                                                             \
+    do {                                                                                      \
         const char* wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);               \
         triggerSets_BG_t bg =                                                                 \
             triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
@@ -43,7 +43,7 @@ static bool canBoot(void);
             triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName)); \
         MX_LED_updateFT(ft);                                                                  \
         triggerSets_freeFT(ft);                                                               \
-    }
+    } while(0)
 
 bool MX_LOOP_Init(void)
 {
@@ -225,6 +225,7 @@ void handleReady(void)
         else
         {
             DEBUG(5, "System going to running");
+            usr_switch_bank(USR.bank_now, 1);
             USR.sys_status = System_Running;
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_intoRunning);
@@ -247,9 +248,7 @@ void handleReady(void)
         if (timeout >= maxTimeout)
         {
             DEBUG(5, "System Bank switch");
-            //vTaskPrioritySet(loopThreadId, osPriorityRealtime);
-            usr_switch_bank((USR.bank_now + 1) % USR.nBank, 0);
-            //vTaskPrioritySet(loopThreadId, osPriorityNormal);
+            usr_switch_bank((USR.bank_now + 1) % USR.nBank, 1);
             MX_LED_bankUpdate(&USR);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             MX_Audio_Play_Start(Audio_BankSwitch);
@@ -298,8 +297,11 @@ void handleRunning(void)
         {
             DEBUG(5, "System ColorSwitch");
             USR.bank_color += 1;
+            usr_update_triggerPah((USR.bank_now + USR.bank_color) % USR.nBank, true);
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_ColorSwitch);
+            update_param(MX_Audio_getLastHumPos(), HUM);
+            MX_LED_applySets();
             MX_LED_startTrigger(LED_Trigger_ColorSwitch);
         }
         else if (timeout >= maxTimeout)
@@ -365,7 +367,8 @@ void handleRunning(void)
     {
             DEBUG(5, "System going to charging")
             USR.sys_status = System_Ready;
-            MX_Audio_Play_Start(Audio_Charging);
+            MX_Audio_Play_Start(Audio_intoReady);
+            // MX_Audio_Play_Start(Audio_Charging);
             MX_LED_startTrigger(LED_Trigger_Stop);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             USR.bank_color = 0;

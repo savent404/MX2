@@ -15,14 +15,16 @@ iBlade::iBlade(size_t num)
     MC = RGB(255, 0, 0);
     SC = RGB(0, 255, 0);
     TC = RGB(0, 0, 255);
+    maxLight = 255;
+    minLight = 0;
     pushSet();
+    stashSet();
     modeL1_ready = modeL1;
     modeL2_ready = modeL2;
     modeL3_ready = modeL3;
     stepL1_ready = stepL1;
     stepL2_ready = stepL2;
     stepL3_ready = stepL3;
-    isInCritical = false;
 }
 
 iBlade::~iBlade()
@@ -48,17 +50,9 @@ void iBlade::handle(void *arg)
     {
         evt = MX_LED_GetMessage(MX_LED_INTERVAL);
 
-        if (!isInCritical)
-            mutex.lock();
+        mutex.lock();
 
         handleTrigger(&evt);
-
-        // handle into critical or out critical
-        if (!isInCritical && (status == out || status == in))
-            isInCritical = true;
-
-        if (isInCritical && (status != out && status != in))
-            isInCritical = false;
 
         if (status != idle)
         {
@@ -67,8 +61,7 @@ void iBlade::handle(void *arg)
             update();
         }
 
-        if (!isInCritical)
-            mutex.unlock();
+        mutex.unlock();
     }
 }
 
@@ -97,7 +90,6 @@ void iBlade::handleLoop(void *arg)
         }
         break;
     case modeL2_t::Drift:
-        // teardown this in the `handle of stepL2.walk()`
         if (stepL2.now == 0)
         {
             HSV mc(MC);
@@ -114,13 +106,15 @@ void iBlade::handleLoop(void *arg)
         }
         break;
     case modeL2_t::Accelerate:
-        // teardown this in the `handle of stepL2.walk()`
         if (stepL2.now == 0)
         {
-            stepL1.total = int((float)stepL1 / accelerateRate);
-			stepL1.now = int((float)stepL1 / accelerateRate);
-            stepL3.total = int((float)stepL3 / accelerateRate);
-			stepL3.now = int((float)stepL3 / accelerateRate);
+            float r = 1 / accelerateRate;
+
+            stepL1.total = int(r * stepL1.total);
+            stepL1.now = int(r * stepL1.now);
+
+            stepL3.total = int(r * stepL3.total);
+            stepL3.now = int(r * stepL3.now);
         }
         break;
     }
@@ -139,9 +133,10 @@ void iBlade::handleLoop(void *arg)
     {
         static int pos = 0;
 
-        // when trigger at the begining, step.total==infinity(-1)
-        if (stepL2.now == 0 && stepL2.total == step_t::infinity)
+        // when trigger at the begining
+        if (stepL2.now == 0 && flipNeedFresh)
         {
+            flipNeedFresh = false;
             pos = rand() % getPixelNum();
         }
         int startPos = pos - int(flipLength*getPixelNum()*0.5);
@@ -192,6 +187,9 @@ void iBlade::handleLoop(void *arg)
 
     switch (modeL3)
     {
+    case modeL3_t::NoFilter:
+        filterSet(maxLight);
+        break;
     case modeL3_t::Breath:
     {
         // float rate = sin((float)stepL3 * 2 * M_PI);
@@ -218,12 +216,8 @@ void iBlade::handleLoop(void *arg)
             int startPos = int((filterStartPos + filterDirection*float(stepL3))*getPixelNum());
             if (filterDirection == -1)
                 startPos += getPixelNum();
-            int endPos = getPixelNum() - startPos > getPixelNum() * 0.2 ?
-                         int(getPixelNum()*0.2 + startPos) :
-                         getPixelNum();
             filterSet(maxLight, 0, startPos);
-            filterShade(startPos, endPos, maxLight, minLight);
-            filterSet(0, endPos, getPixelNum());
+            filterSet(0, startPos, getPixelNum());
         }
         break;
     default:
@@ -233,45 +227,22 @@ void iBlade::handleLoop(void *arg)
 
     // Back Ground & filter should be infinity loop
     // but trigger can be end up.
-    stepL1.walk();
-    stepL3.walk();
+    if (stepL1.walk())
+    {
+        clearL1();
+    }
     if (stepL2.walk())
     {
-        modeL2 = modeL2_t::NoTrigger;
+        clearL2();
     }
-
+    if (stepL3.walk())
+    {
+        clearL3();
+    }
     if (stepProcess.walk())
     {
-        if (status == InTrigger && modeL2 == modeL2_t::Accelerate)
-        {
-            // means keep stepL3&stepL1's now and repeatCnt
-            step_t B = stepL1, F = stepL3;
-            popSet();
-            stepL1.now = int(B.now * accelerateRate);
-            stepL1.repeatCnt = B.repeatCnt;
-            stepL3.now = int(F.now * accelerateRate);
-            stepL3.repeatCnt = F.repeatCnt;
-        }
-        if (status == InTrigger)
-        {
-            status = Run;
-            popSet();
-            stashSet();
-        }
-        else if (status == out)
-        {
-            status = Run;
-            popSet();
-        }
-        else if (status == in)
-        {
-            status = idle;
-            RGB black(0, 0, 0);
-            drawLine(black, 0, getPixelNum());
-        }
-        else if (status == InTrigger)
-        {
-        }
+        clearProcess();
+        stashSet();
     }
 }
 
@@ -292,8 +263,8 @@ void iBlade::handleTrigger(const void *evt)
     auto alt = message.pair.alt;
 #endif
 
-    if (isInCritical)
-        return;
+    if (status == InTrigger || status == out || status == in)
+        clearProcess();
     if (status == Run || cmd == LED_Trigger_Start || cmd == LED_Trigger_Stop)
     {
         pushSet();
@@ -342,12 +313,10 @@ void iBlade::handleTrigger(const void *evt)
     case LED_TriggerD:
     case LED_Trigger_ColorSwitch:
         status = InTrigger;
-        // setTriggerParam(modeL2_t::Drift);
         break;
     case LED_TriggerE:
         status = InTrigger;
         stepProcess.repeatCnt = step_t::infinity;
-        // setTriggerParam(modeL2_t::Flip);
         break;
     default:
         break;
@@ -419,10 +388,12 @@ void iBlade::backGroundRender(void)
     case modeL1_t::Flame:
         if (pFlame == nullptr)
         {
-            pFlame = new Flame_t(getPixelNum());
+            pFlame = new Flame_t(getPixelNum(), MC, SC);
         }
         // use this pointer to call `setColor` func
-        pFlame->update(this, flameRate);
+        if (stepL1.now == 0)
+            for (int i = 0; i < flameMulti; i++)
+                pFlame->update(this, flameRate);
         break;
     default:
         DEBUG(5, "Unknow modeL1:%d", modeL1);
@@ -572,4 +543,44 @@ __attribute__((weak)) void iBlade::setFilterParam(iBlade::modeL3_t mode)
         break;
     }
     DEBUG(5, "There is");
+}
+
+void iBlade::clearL1(void)
+{
+
+}
+
+void iBlade::clearL2(void)
+{
+    modeL2 = modeL2_t::NoTrigger;
+}
+
+void iBlade::clearL3(void)
+{
+    modeL3 = modeL3_t::NoFilter;
+}
+
+void iBlade::clearProcess(void)
+{
+    if (status == InTrigger && modeL2 == modeL2_t::Accelerate)
+    {
+        // means keep stepL3&stepL1's now and repeatCnt
+        float s[2] = { (float)stepL1, (float)stepL3 };
+        popSet();
+        status = Run;
+        stepL1.now = s[0] * stepL1.total;
+        stepL3.now = s[1] * stepL3.total;
+    }
+    if (status == InTrigger || status == out)
+    {
+        status = Run;
+        popSet();
+        // stashSet();
+    }
+    else if (status == in)
+    {
+        status = idle;
+        RGB black(0, 0, 0);
+        drawLine(black, 0, getPixelNum());
+    }
 }
