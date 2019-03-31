@@ -60,6 +60,11 @@ void iBlade::handle(void *arg)
 
             update();
         }
+        else
+        {
+            RGB b(0, 0, 0);
+            drawLine(b, 0, getPixelNum());
+        }
 
         mutex.unlock();
     }
@@ -316,6 +321,9 @@ void iBlade::handleTrigger(const void *evt)
         break;
     case LED_TriggerE:
         status = InTrigger;
+        stepL1.repeatCnt = step_t::infinity;
+        stepL2.repeatCnt = step_t::infinity;
+        stepL3.repeatCnt = step_t::infinity;
         stepProcess.repeatCnt = step_t::infinity;
         break;
     default:
@@ -562,6 +570,7 @@ void iBlade::clearL3(void)
 
 void iBlade::clearProcess(void)
 {
+    stepProcess.repeatCnt = -1;
     if (status == InTrigger && modeL2 == modeL2_t::Accelerate)
     {
         // means keep stepL3&stepL1's now and repeatCnt

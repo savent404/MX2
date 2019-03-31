@@ -72,12 +72,41 @@ protected:
     inline void popSet(void)
     {
         popColors();
-        __LED_POP(modeL1);
-        __LED_POP(modeL2);
-        __LED_POP(modeL3);
-        __LED_POP(stepL1);
-        __LED_POP(stepL2);
-        __LED_POP(stepL3);
+        if (modeL1 == modeL1_backup)
+        {
+            float t = (float)stepL1;
+            __LED_POP(stepL1);
+            stepL1.now = t * stepL1.total;
+        }
+        else
+        {
+            __LED_POP(modeL1);
+            __LED_POP(stepL1);
+        }
+
+        if (modeL2 == modeL2_backup)
+        {
+            float t = (float)stepL2;
+            __LED_POP(stepL2);
+            stepL2.now = t * stepL2.total;
+        }
+        else
+        {
+            __LED_POP(modeL2);
+            __LED_POP(stepL2);
+        }
+
+        if (modeL3 == modeL3_backup)
+        {
+            float t = (float)stepL3;
+            __LED_POP(stepL3);
+            stepL3.now = t * stepL3.total;
+        }
+        else
+        {
+            __LED_POP(modeL3);
+            __LED_POP(stepL3);
+        }
         __LED_POP(maxLight);
         __LED_POP(minLight);
     }
@@ -94,12 +123,41 @@ protected:
     }
     inline void applySet(void)
     {
-        __LED_APPLE(modeL1);
-        __LED_APPLE(modeL2);
-        __LED_APPLE(modeL3);
-        __LED_APPLE(stepL1);
-        __LED_APPLE(stepL2);
-        __LED_APPLE(stepL3);
+        if (modeL1 == modeL1_ready)
+        {
+            float t = (float)stepL1;
+            __LED_APPLE(stepL1);
+            stepL1.now = t * stepL1.total;
+        }
+        else
+        {
+            __LED_APPLE(modeL1);
+            __LED_APPLE(stepL1);
+        }
+
+        if (modeL2 == modeL2_ready)
+        {
+            float t = (float)stepL2;
+            __LED_APPLE(stepL2);
+            stepL2.now = t * stepL2.total;
+        }
+        else
+        {
+            __LED_APPLE(modeL2);
+            __LED_APPLE(stepL2);
+        }
+
+        if (modeL3 == modeL3_ready)
+        {
+            float t = (float)stepL3;
+            __LED_APPLE(stepL3);
+            stepL3.now = t * stepL3.total;
+        }
+        else
+        {
+            __LED_APPLE(modeL3);
+            __LED_APPLE(stepL3);
+        }
         __LED_APPLE(maxLight);
         __LED_APPLE(minLight);
     }

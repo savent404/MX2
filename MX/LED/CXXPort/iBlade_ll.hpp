@@ -196,14 +196,11 @@ protected:
     {
         static RGB rgb[3] = { RGB(255, 0, 0), RGB(0, 255, 0), RGB(0, 0, 255) };
         int interval = int(getPixelNum() * extraLength / 3.0f);
-        int startPos = int(getPixelNum() * extraLength * shift);
+        int startPos = int(getPixelNum() * extraLength * shift) - int(getPixelNum() * extraLength);
         
-        int startI = -1 * (startPos / interval + 1);
-        int endI = getPixelNum() / interval + 1;
+        int cnt = (getPixelNum() - startPos) / interval + 1;
 
-        startMask() = 0;
-        endMask() = getPixelNum() * extraLength;
-        for (int i = startI; i < endI; i++)
+        for (int i = 0; i < cnt; i++)
         {
             int pos = startPos + i * interval;
             int endPos = pos + interval;
@@ -211,8 +208,6 @@ protected:
             int nextColor = getPositivePos(i + 1, 3);
             drawShade(rgb[color], rgb[nextColor], pos, endPos);
         }
-        startMask() = 0;
-        endMask() = getPixelNum();
     }
 
     void drawRandownSpot(const RGB& origin, RGB& sub, float rate)

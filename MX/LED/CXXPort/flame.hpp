@@ -17,7 +17,7 @@ public:
         size = PixelNum;
         index = new unsigned[size];
         HSV h[2] = { HSV(main), HSV(sub) };
-        float difH = h[0].h - h[1].h;
+        float difH = h[1].h - h[0].h;
         for (int i = 0; i < size; i++)
             index[i] = 0;
         for (int i = 0; i < 256; i++)

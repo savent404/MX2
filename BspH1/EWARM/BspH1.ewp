@@ -1301,6 +1301,9 @@
             <name>$PROJ_DIR$\..\..\MX\Console\console.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\MX\cPlusMalloc.cpp</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\MX\Hand\hand.c</name>
         </file>
         <file>
