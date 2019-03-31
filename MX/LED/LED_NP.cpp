@@ -311,6 +311,7 @@ void updateFT(iBlade& a, int16_t* p)
             tmp = tmp == 0 ? 1 : tmp;
 
             int16_t tt = triggerSets_getFT(t, "NP_WaveCount");
+            tt = tt == 0 ? step_t::infinity : tt;
             a.stepL3_ready = step_t(0, MX_LED_MS2CNT(int(1000 * a.getPixelNum() / tmp)), tt);
             tmp = triggerSets_getFT(t, "NP_BrightMax");
             tmp = tmp == -1 ? 255 : tmp;
