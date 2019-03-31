@@ -297,9 +297,7 @@ void handleRunning(void)
         {
             DEBUG(5, "System ColorSwitch");
             USR.bank_color += 1;
-            int n = USR.bank_now;
-            usr_switch_bank((USR.bank_now + USR.bank_color) % USR.nBank, 1);
-            USR.bank_now = n;
+            usr_update_triggerPah((USR.bank_now + USR.bank_color) % USR.nBank, true);
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_ColorSwitch);
             update_param(MX_Audio_getLastHumPos(), HUM);

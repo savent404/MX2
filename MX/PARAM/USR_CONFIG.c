@@ -438,7 +438,7 @@ uint8_t usr_switch_bank(int dest, int freshFlag)
   USR.config = USR._config + 1;
   USR.bank_now = dest;
 
-  usr_update_triggerPah(destBankPos[1]);
+  usr_update_triggerPah(destBankPos[1], false);
 
   return 0;
 }
@@ -487,6 +487,27 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
   return 0;
 }
 
+
+#define DEINIT_PATH(name)            \
+    if (name) {                      \
+        MX_TriggerPath_DeInit(name); \
+        name = NULL;                 \
+    }
+
+#define UPDATE_COLOR(name, path, bankPos)                                       \
+do {                                                                            \
+    TRIGGERPATH_Type_t bg = TRIGGERPATH_BG;                                     \
+    TRIGGERPATH_Type_t tg = TRIGGERPATH_TG;                                     \
+    TRIGGERPATH_Type_t ft = TRIGGERPATH_FT;                                     \
+    sprintf(path, "0:/Bank%d/%s", bankPos + 1, TRIGGER(name));                  \
+    DEINIT_PATH(USR.triggerBG##name);                                           \
+    DEINIT_PATH(USR.triggerTG##name);                                           \
+    DEINIT_PATH(USR.triggerFT##name);                                           \
+    USR.triggerBG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), bg); \
+    USR.triggerTG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), tg); \
+    USR.triggerFT##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), ft); \
+} while(0);
+
 #define UPDATE_TRIGGER(name, path, bankPos)                                     \
 do {                                                                            \
     TRIGGERPATH_Type_t wav = TRIGGERPATH_WAV;                                   \
@@ -494,23 +515,36 @@ do {                                                                            
     TRIGGERPATH_Type_t tg = TRIGGERPATH_TG;                                     \
     TRIGGERPATH_Type_t ft = TRIGGERPATH_FT;                                     \
     sprintf(path, "0:/Bank%d/%s", bankPos + 1, TRIGGER(name));                  \
-    if (USR.trigger##name)                                                      \
-        MX_TriggerPath_DeInit(USR.trigger##name);                               \
+    DEINIT_PATH(USR.trigger##name);                                             \
+    DEINIT_PATH(USR.triggerBG##name);                                           \
+    DEINIT_PATH(USR.triggerTG##name);                                           \
+    DEINIT_PATH(USR.triggerFT##name);                                           \
     USR.trigger##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), wav);  \
     USR.triggerBG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), bg); \
     USR.triggerTG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), tg); \
     USR.triggerFT##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), ft); \
 } while(0);
 
-uint8_t usr_update_triggerPah(int bankPos)
+
+uint8_t usr_update_triggerPah(int bankPos, bool isColorSwitch)
 {
   char path[64];
-  UPDATE_TRIGGER(HUM, path, bankPos);
-  UPDATE_TRIGGER(B, path, bankPos);
-  UPDATE_TRIGGER(C, path, bankPos);
-  UPDATE_TRIGGER(D, path, bankPos);
-  UPDATE_TRIGGER(E, path, bankPos);
-  UPDATE_TRIGGER(IN, path, bankPos);
-  UPDATE_TRIGGER(OUT, path, bankPos);
+  if (!isColorSwitch) {
+      UPDATE_TRIGGER(HUM, path, bankPos);
+      UPDATE_TRIGGER(B, path, bankPos);
+      UPDATE_TRIGGER(C, path, bankPos);
+      UPDATE_TRIGGER(D, path, bankPos);
+      UPDATE_TRIGGER(E, path, bankPos);
+      UPDATE_TRIGGER(IN, path, bankPos);
+      UPDATE_TRIGGER(OUT, path, bankPos);
+  } else {
+      UPDATE_COLOR(HUM, path, bankPos);
+      UPDATE_COLOR(B, path, bankPos);
+      UPDATE_COLOR(C, path, bankPos);
+      UPDATE_COLOR(D, path, bankPos);
+      UPDATE_COLOR(E, path, bankPos);
+      UPDATE_COLOR(IN, path, bankPos);
+      UPDATE_COLOR(OUT, path, bankPos);
+  }
   return 0;
 }
