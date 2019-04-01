@@ -227,7 +227,7 @@ protected:
     }
 
 
-    void flipColors(void)
+    void flipColors(float shift)
     {
         RGB* p = ptr();
         RGB t;
@@ -236,7 +236,7 @@ protected:
             if (isOutofMask(i))
                 continue;
             HSV hsv(*p);
-            hsv.h += 180.0f;
+            hsv.h += shift;
             t = hsv;
             *p = t;
         }

@@ -25,6 +25,7 @@ iBlade::iBlade(size_t num)
     stepL1_ready = stepL1;
     stepL2_ready = stepL2;
     stepL3_ready = stepL3;
+    pFlame = new Flame_t(getPixelNum(), MC, SC);
 }
 
 iBlade::~iBlade()
@@ -94,6 +95,7 @@ void iBlade::handleLoop(void *arg)
             }
         }
         break;
+    /*
     case modeL2_t::Drift:
         if (stepL2.now == 0)
         {
@@ -110,6 +112,7 @@ void iBlade::handleLoop(void *arg)
             popColors();
         }
         break;
+    */
     case modeL2_t::Accelerate:
         if (stepL2.now == 0)
         {
@@ -129,7 +132,7 @@ void iBlade::handleLoop(void *arg)
     {
         // this function will take a long time
         // cause each pixel should use RGB->HSV->RGB
-        flipColors();
+        flipColors(driftShift);
     }
 
     switch (modeL2)
@@ -164,7 +167,7 @@ void iBlade::handleLoop(void *arg)
         // flipMode=5
         else if (stepL2.now < stepL2.total / 2)
         {
-            flipColors();
+            flipColors(driftShift);
         }
 
         // set protected mask
@@ -176,7 +179,7 @@ void iBlade::handleLoop(void *arg)
     {
         if (stepL2.now == 0 && speardMode != 0)
             speardPos = rand() % getPixelNum();
-        int dist = int((float)stepL2 * getPixelNum());
+        int dist = int((float)stepL2 * speardLength / 2);
         drawLine(TC, speardPos - dist, speardPos + dist);
     }
     break;
@@ -394,10 +397,6 @@ void iBlade::backGroundRender(void)
         drawRainbow(float(stepL1) * rainbowDirection, rainbowLength);
         break;
     case modeL1_t::Flame:
-        if (pFlame == nullptr)
-        {
-            pFlame = new Flame_t(getPixelNum(), MC, SC);
-        }
         // use this pointer to call `setColor` func
         if (stepL1.now == 0)
             for (int i = 0; i < flameMulti; i++)
@@ -422,43 +421,48 @@ __attribute__((weak)) void iBlade::setNormalParam(void)
     maxLight = 255;
     minLight = 0;
    // get MC color
-   if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, USR.config->MCIndex - 1))
+   int index = USR.np_colorIndex * 3;
+   if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, index))
    {
-       DEBUG(5, "MC index out of range %d/%d", USR.config->MCIndex - 1,
+       DEBUG(5, "MC index out of range %d/%d", index,
              USR.colorMatrix.num);
        MC = RGB(125, 125, 0); // default Yellow
    }
    else
    {
-       uint8_t *rgb = USR.colorMatrix.arr[USR.config->MCIndex - 1].arr;
+       uint8_t *rgb = USR.colorMatrix.arr[index].arr;
        MC = RGB(rgb[0], rgb[1], rgb[2]);
    }
 
    // get SC color
-   if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, USR.config->SCIndex - 1))
+   index = USR.np_colorIndex * 3 + 1;
+   if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, index))
    {
-       DEBUG(5, "SC index out of range %d/%d", USR.config->SCIndex - 1,
+       DEBUG(5, "SC index out of range %d/%d", index,
            USR.colorMatrix.num);
        SC = RGB(255, 0, 0); // default green
    }
    else
    {
-       uint8_t *rgb = USR.colorMatrix.arr[USR.config->SCIndex - 1].arr;
+       uint8_t *rgb = USR.colorMatrix.arr[index].arr;
        SC = RGB(rgb[0], rgb[1], rgb[2]);
    }
 
    // get TC color
-   if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, USR.config->TCIndex - 1))
+   index = USR.np_colorIndex * 3 + 2;
+   if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, index))
    {
-       DEBUG(5, "TC index out of range %d/%d", USR.config->TCIndex - 1,
+       DEBUG(5, "TC index out of range %d/%d", index,
            USR.colorMatrix.num);
        TC = RGB(255, 0, 255); // default 
    }
    else
    {
-       uint8_t *rgb = USR.colorMatrix.arr[USR.config->TCIndex - 1].arr;
+       uint8_t *rgb = USR.colorMatrix.arr[index].arr;
        TC = RGB(rgb[0], rgb[1], rgb[2]);
    }
+
+   pFlame->initColor(MC, SC);
 }
 __attribute__((weak)) void iBlade::setBackGroudParam(iBlade::modeL1_t mode)
 {
@@ -510,10 +514,12 @@ __attribute__((weak)) void iBlade::setTriggerParam(iBlade::modeL2_t mode)
         flipLength = 0.4;
         stepL2 = step_t(0, MX_LED_MS2CNT(flipTime), flipMaxCnt - 1);
         break;
+    /*
     case modeL2_t::Drift:
         driftShift = 30.0f;
         stepL2 = step_t(0, MX_LED_MS2CNT(800), 0);
         break;
+    */
     case modeL2_t::Speard:
         speardLength = 0.2f;
         stepL2 = step_t(0, MX_LED_MS2CNT(800), 0);

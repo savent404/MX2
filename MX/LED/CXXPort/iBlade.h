@@ -240,6 +240,7 @@ private:
     int flipMaxCnt;
     float flipLength;
     bool flipNeedFresh;
+    float driftShift;
     inline void flip_switchColor(int mode)
     {
         switch (mode)
@@ -265,13 +266,9 @@ private:
         break;
         }
     }
+    /** @} */
 
                     
-    /**
-     * @name Storage Param about Trigger::Drift
-     * @{ */
-    float driftShift;
-    /** @} */
     /**
      * @name Storage Param about Trigger:Speard
      ** @{ */
@@ -312,7 +309,7 @@ private:
         NoTrigger = 0,
         Flip = 1,
         Flip_Partial = 2,
-        Drift = 3,
+        // Drift = 3,
         Speard = 4,
         Comet = 5,
         Accelerate = 6,

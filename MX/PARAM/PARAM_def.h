@@ -28,8 +28,11 @@ typedef union {
 } RGBColor_t;
 
 typedef struct {
-  int num;
-  RGBColor_t* arr;
+  int num;            // color索引数量
+  RGBColor_t* arr;    // color数组
+
+  int bankNum;        // 记录的Bank数量
+  int* colorIndex;    // 每个bank记录的color索引
 } colorMatrix_t;
 
 typedef struct _usr_config_structure {
@@ -82,10 +85,6 @@ typedef struct _usr_config_structure {
   uint16_t T_Breath; //LMode 呼吸延时
 
   uint16_t Out_Delay; // 触发Out时， 延时Hum播放时间
-
-  uint16_t MCIndex;
-  uint16_t SCIndex;
-  uint16_t TCIndex;
 } USR_CONFIG_t;
 
 // 小型LED动作
@@ -163,6 +162,7 @@ typedef struct _usr_dynamic_parameter {
   uint8_t audio_busy:1;     /**< 音频输出标志 */
 
   colorMatrix_t colorMatrix; /** storage the NP's colorMatrix */
+  int np_colorIndex;
   triggerSets_HW_t hwParam;
 } PARA_DYNAMIC_t;
 

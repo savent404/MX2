@@ -16,6 +16,12 @@ MX_ColorMatrix_Free(colorMatrix_t* ptr)
         ptr->arr = NULL;
         ptr->num = 0;
     }
+    if (ptr->bankNum != 0 && ptr->colorIndex)
+    {
+        vPortFree(ptr->colorIndex);
+        ptr->colorIndex = NULL;
+        ptr->num = 0;
+    }
 }
 
 static inline void

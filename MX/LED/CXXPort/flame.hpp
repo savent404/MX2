@@ -16,23 +16,28 @@ public:
     {
         size = PixelNum;
         index = new unsigned[size];
-        HSV h[2] = { HSV(main), HSV(sub) };
-        float difH = h[1].h - h[0].h;
         for (int i = 0; i < size; i++)
             index[i] = 0;
-        for (int i = 0; i < 256; i++)
-        {
-            float _h = h[0].h + float(i) / 256.0f * difH;
-            float light = ((maxLight - minLight) * i / 256 + minLight) / 256.0f;
-            float r = 1.0f - 0.1f * (rand() % 128) / 128.0f;
-            HSV h(_h, r, light);
-            vector[i] = h.convert2RGB();
-        }
+        initColor(main, sub, maxLight, minLight);
     }
     ~Flame_t()
     {
         if (index)
             delete[] index;
+    }
+
+    void initColor(RGB main, RGB sub, int maxL = 255, int minL = 0)
+    {
+        HSV h[2] = { HSV(main), HSV(sub) };
+        float diffH = h[1].h - h[0].h;
+        for (int i = 0; i < 256; i++)
+        {
+            float _h = h[0].h + float(i) / 256.0f * diffH;
+            float _l = ((maxL- minL) * i / 256 + minL) / 256.0f;
+            float _r = 1.0f - 0.1f * (rand() % 128) / 128.0f;
+            HSV h(_h, _r, _l);
+            vector[i] = h;
+        }
     }
 
     /**

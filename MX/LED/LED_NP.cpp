@@ -202,9 +202,15 @@ void updateTG(iBlade& a, int16_t* p)
                 tmp = tmp == -1 ? 0 : tmp;
                 a.flipLength = float(tmp) / a.getPixelNum();
             }
+            if (mode == 5)
+            {
+                tmp = triggerSets_getTG(t, "NP_Cdrift");
+                a.driftShift = float(tmp);
+            }
             a.flipNeedFresh = true;
             break;
         }
+        /* Move this into Flip, NP_FlipColor=5
         case 3: {
             a.modeL2_ready = iBlade::modeL2_t::Drift;
             int16_t tmp = triggerSets_getTG(t, "NP_Cdrift");
@@ -213,6 +219,7 @@ void updateTG(iBlade& a, int16_t* p)
             a.stepL2_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
             break;
         }
+        */
         case 4: {
             a.modeL2_ready = iBlade::modeL2_t::Speard;
             int16_t tmp;
@@ -227,7 +234,6 @@ void updateTG(iBlade& a, int16_t* p)
             a.speardLength = tmp == -1 ? 0 : tmp;
             if (mode == 1)
             {
-                tmp = a.speardLength * 3 / 4;
                 tmp = rand() % (a.speardLength / 2) - a.speardLength / 4;
                 a.speardLength += tmp;
             }

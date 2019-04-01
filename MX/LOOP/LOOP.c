@@ -26,6 +26,9 @@ static void handleRunning(void);
 static void handleCharged(void);
 static void handleCharging(void);
 
+
+// 保存现场
+static void saveContext(void);
 static bool canBoot(void);
 
 #define update_param(pos, tgName)                                                             \
@@ -90,14 +93,10 @@ void MX_LOOP_Handle(void const * arg)
     MX_PM_Boot();
 
     MX_WTDG_FEED();
-
     /* Break point here */
     DEBUG_BKPT();
-
     USR.sys_status = System_Restart;
-    //vTaskPrioritySet(loopThreadId, osPriorityRealtime);
-    usr_switch_bank(0, 1);
-    //vTaskPrioritySet(loopThreadId, osPriorityNormal);
+    usr_switch_bank(0);
     USR.bank_color = 0;
 
     MX_LED_bankUpdate(&USR);
@@ -225,7 +224,7 @@ void handleReady(void)
         else
         {
             DEBUG(5, "System going to running");
-            usr_switch_bank(USR.bank_now, 1);
+            usr_switch_bank(USR.bank_now);
             USR.sys_status = System_Running;
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_intoRunning);
@@ -248,7 +247,7 @@ void handleReady(void)
         if (timeout >= maxTimeout)
         {
             DEBUG(5, "System Bank switch");
-            usr_switch_bank((USR.bank_now + 1) % USR.nBank, 1);
+            usr_switch_bank((USR.bank_now + 1) % USR.nBank);
             MX_LED_bankUpdate(&USR);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             MX_Audio_Play_Start(Audio_BankSwitch);
@@ -296,8 +295,12 @@ void handleRunning(void)
         if (timeout < maxTimeout && (keyRes & KEY_SUB_PRESS))
         {
             DEBUG(5, "System ColorSwitch");
-            USR.bank_color += 1;
-            usr_update_triggerPah((USR.bank_now + USR.bank_color) % USR.nBank, true);
+            USR.np_colorIndex += 1;
+            USR.np_colorIndex %= USR.colorMatrix.num / 3;
+
+            // 当无法正常退出时保证colorSwitch切换的上下文可以断电保存
+            saveContext();
+
             MX_LED_bankUpdate(&USR);
             MX_Audio_Play_Start(Audio_ColorSwitch);
             update_param(MX_Audio_getLastHumPos(), HUM);
@@ -308,6 +311,7 @@ void handleRunning(void)
         {
             DEBUG(5, "System going to ready")
             USR.sys_status = System_Ready;
+            saveContext();
             MX_Audio_Play_Start(Audio_intoReady);
             update_param(MX_Audio_getLastTriggerPos(), IN);
             MX_LED_startTrigger(LED_Trigger_Stop);
@@ -367,8 +371,8 @@ void handleRunning(void)
     {
             DEBUG(5, "System going to charging")
             USR.sys_status = System_Ready;
+            saveContext();
             MX_Audio_Play_Start(Audio_intoReady);
-            // MX_Audio_Play_Start(Audio_Charging);
             MX_LED_startTrigger(LED_Trigger_Stop);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             USR.bank_color = 0;
@@ -389,6 +393,7 @@ void handleRunning(void)
     {
         DEBUG(5, "System going to ready")
         USR.sys_status = System_Ready;
+        saveContext();
         MX_Audio_Play_Start(Audio_intoReady);
         update_param(MX_Audio_getLastTriggerPos(), IN);
         MX_LED_startTrigger(LED_Trigger_Stop);
@@ -489,4 +494,10 @@ bool canBoot(void)
         overtime = USR.config->Tpon;
     
     return osKernelSysTick() >= osKernelSysTickMicroSec(overtime);
+}
+
+
+void saveContext(void)
+{
+    USR.colorMatrix.colorIndex[USR.bank_now] = USR.np_colorIndex;
 }

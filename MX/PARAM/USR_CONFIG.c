@@ -42,9 +42,12 @@ static const char name_string[][10] = {
     /**< Position:30~35 */
     "Unknow", "MD", "MT", "CD", "CT", "CL",
     /**< Position:36~40*/
-    "CW", "MC", "SC", "TC", "GB",
+    "CW", "null", "null", "null", "GB",
     /**< Position:41~45*/
     "ST", "SPL1", "SPL2", "SPL3", "SPL4",
+};
+static const char name_colorswitch[][10] = {
+    "MC", "SC", "TC",
 };
 
 /** \brief 获取循环音频有效负载量
@@ -70,6 +73,9 @@ static void set_config(PARA_DYNAMIC_t *pt);
  *
  */
 static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file);
+
+// get_config的变种，只获取新的颜色索引
+static uint8_t get_colorSwitch_config(PARA_DYNAMIC_t *pt, FIL *file);
 
 /** \brief 得到Accent.txt中的信息
  *
@@ -155,6 +161,11 @@ uint8_t usr_config_init(void)
   if (1)
   {
     MX_ColorMatrix_Update("0:/"PATH_COLORMATRIX, &USR.colorMatrix);
+    USR.colorMatrix.bankNum = USR.nBank;
+    USR.colorMatrix.colorIndex = (int*)pvPortMalloc(sizeof(int) * USR.nBank);
+    for (int i = 0; i < USR.nBank; i++) {
+        USR.colorMatrix.colorIndex[i] = 0;
+    }
   }
 
   // usr_config_init(0, 1);
@@ -379,9 +390,11 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
       case 34: sscanf(spt,"%*[^=]=%hd", &(pt->config->CT));break;
       case 35: sscanf(spt,"%*[^=]=%hd", &(pt->config->CL));break;
       case 36: sscanf(spt,"%*[^=]=%hd", &(pt->config->CW));break;
+      /*
       case 37: sscanf(spt,"%*[^=]=%d", &(pt->config->MCIndex));break;
       case 38: sscanf(spt,"%*[^=]=%d", &(pt->config->SCIndex));break;
       case 39: sscanf(spt,"%*[^=]=%d", &(pt->config->TCIndex));break;
+      */
       case 40: sscanf(spt,"%*[^=]=%d", &(pt->config->GB));break;
       case 41: sscanf(spt,"%*[^=]=%d", &(pt->config->ST));break;
       case 42: sscanf(spt,"%*[^=]=%d", &(pt->config->SPL1));break;
@@ -392,55 +405,23 @@ static uint8_t get_config(PARA_DYNAMIC_t *pt, FIL *file)
   } return 0;
 }
 
-
 /**
  * @brief  切换bank时更新各项usr参数
  * @note   包括第一次参数的初始化，所以需要注意某些指针的默认值应当为NULL
  * @param  dest 目的bank
  * @param  freshFlag != 0 强制初始化前后两个bank,否则采取尽可能复制的方法
  */
-uint8_t usr_switch_bank(int dest, int freshFlag)
+uint8_t usr_switch_bank(int dest)
 {
-  int bankNow = USR.bank_now;
-  int bankNum = USR.nBank;
-  int bankPos[3] = {bankNow-1, bankNow, bankNow+1};
-  int destBankPos[3] = {dest-1, dest, dest+1};
-  // init bankPos
-  for (int i = 0; i < 3; i++) {
-    while (bankPos[i] >= bankNum)
-      bankPos[i] -= bankNum;
-    while (bankPos[i] < 0)
-      bankPos[i] += bankNum;
-    while (destBankPos[i] >= bankNum)
-      destBankPos[i] -= bankNum;
-    while (destBankPos[i] < 0)
-      destBankPos[i] += bankNum;
-  }
-
-  // choose copy as possible as we can instead of re-init bank parameter.
-  for (int i = 0; i < 3; i++) {
-    int canCopy = -1;
-    // search bank can use copy method
-    for (int j = 0; j < 3; j++) {
-      if (bankPos[j] == destBankPos[i])
-        canCopy = j;
-    }
-
-    // copy | re-init
-    if (freshFlag || canCopy == -1) {
-      if (usr_init_bank(destBankPos[i], i))
+    if (usr_init_bank(dest, 1))
         return 1;
-    } else {
-      memcpy(USR._config + i, USR._config + canCopy, sizeof(USR_CONFIG_t));
-    }
-  }
 
-  USR.config = USR._config + 1;
-  USR.bank_now = dest;
+    USR.config = USR._config + 1;
+    USR.bank_now = dest;
 
-  usr_update_triggerPah(destBankPos[1], false);
+    usr_update_triggerPah(dest);
 
-  return 0;
+    return 0;
 }
 
 /**
@@ -469,6 +450,7 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
 
   // set BANK config ptr
   USR.config = USR._config + storagePos;
+  USR.np_colorIndex = USR.colorMatrix.colorIndex[bankPos];
 
   // Load Parameter default and setted in CONFIG.txt
   // Then read from EFFECT.txt in specific dir
@@ -526,25 +508,15 @@ do {                                                                            
 } while(0);
 
 
-uint8_t usr_update_triggerPah(int bankPos, bool isColorSwitch)
+uint8_t usr_update_triggerPah(int bankPos)
 {
   char path[64];
-  if (!isColorSwitch) {
-      UPDATE_TRIGGER(HUM, path, bankPos);
-      UPDATE_TRIGGER(B, path, bankPos);
-      UPDATE_TRIGGER(C, path, bankPos);
-      UPDATE_TRIGGER(D, path, bankPos);
-      UPDATE_TRIGGER(E, path, bankPos);
-      UPDATE_TRIGGER(IN, path, bankPos);
-      UPDATE_TRIGGER(OUT, path, bankPos);
-  } else {
-      UPDATE_COLOR(HUM, path, bankPos);
-      UPDATE_COLOR(B, path, bankPos);
-      UPDATE_COLOR(C, path, bankPos);
-      UPDATE_COLOR(D, path, bankPos);
-      UPDATE_COLOR(E, path, bankPos);
-      UPDATE_COLOR(IN, path, bankPos);
-      UPDATE_COLOR(OUT, path, bankPos);
-  }
+  UPDATE_TRIGGER(HUM, path, bankPos);
+  UPDATE_TRIGGER(B, path, bankPos);
+  UPDATE_TRIGGER(C, path, bankPos);
+  UPDATE_TRIGGER(D, path, bankPos);
+  UPDATE_TRIGGER(E, path, bankPos);
+  UPDATE_TRIGGER(IN, path, bankPos);
+  UPDATE_TRIGGER(OUT, path, bankPos);
   return 0;
 }
