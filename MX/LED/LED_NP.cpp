@@ -44,9 +44,8 @@ bool iBlade::parameterUpdate(void* arg)
     mutex.lock();
 
     setNormalParam();
-    // setBackGroudParam(modeL1_t::Static);
-    // setTriggerParam(modeL2_t::NoTrigger);
-    // setFilterParam(modeL3_t::NoFilter);
+    pushSet();
+    stashSet();
 
     mutex.unlock();
     return true;
