@@ -332,6 +332,12 @@ void iBlade::handleTrigger(const void *evt)
     default:
         break;
     }
+
+    // Fade的特殊判断:音乐跟随
+    if (modeL3 == modeL3_t::Fade && stepL3.total == 0)
+    {
+        stepL3.total = stepProcess.total;
+    }
 }
 
 void iBlade::backGroundRender(void)
