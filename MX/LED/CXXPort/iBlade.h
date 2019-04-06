@@ -212,6 +212,13 @@ private:
     /** @} */
 
     /**
+     * @name Storaged Param about BackGround:Gradient
+     * @{ */
+    int gradientDirection;
+    int gradientLength;
+    /** @} */
+
+    /**
      * @name Storage Param about Filter:Wave
      * @param waveDirection :+1 wave out, -1 wave in
      ** @{ */

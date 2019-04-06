@@ -221,9 +221,7 @@ void iBlade::handleLoop(void *arg)
         break;
     case modeL3_t::Fade:
         {
-            int startPos = int((filterStartPos + filterDirection*float(stepL3))*getPixelNum());
-            if (filterDirection == -1)
-                startPos += getPixelNum();
+            int startPos = int( filterStartPos*getPixelNum()*(filterDirection == 1 ? float(stepL3) : 1.0f - float(stepL3)));
             filterSet(maxLight, 0, startPos);
             filterSet(0, startPos, getPixelNum());
         }
@@ -294,14 +292,12 @@ void iBlade::handleTrigger(const void *evt)
         stepL3 = step_t(0, MX_LED_MS2CNT(alt), 0);
         modeL3 = modeL3_t::Fade;
         filterDirection = 1;
-        filterStartPos = 0.0f;
     }
     break;
     case LED_Trigger_Stop:
         status = in;
         stepL3 = step_t(0, MX_LED_MS2CNT(alt), 0);
         modeL3 = modeL3_t::Fade;
-        filterStartPos = 0.0f;
         filterDirection = -1;
         break;
 
@@ -348,7 +344,7 @@ void iBlade::backGroundRender(void)
         drawLine(MC, 0, getPixelNum());
         break;
     case modeL1_t::Gradient:
-        drawShade(MC, SC, 0, getPixelNum());
+        drawGradient(MC, SC, (float)stepL1 * gradientDirection, gradientLength);
         break;
     case modeL1_t::Blink:
         if (stepL1.now >= cntBlinkSwitch)
@@ -467,7 +463,6 @@ __attribute__((weak)) void iBlade::setNormalParam(void)
        uint8_t *rgb = USR.colorMatrix.arr[index].arr;
        TC = RGB(rgb[0], rgb[1], rgb[2]);
    }
-
    pFlame->initColor(MC, SC);
 }
 __attribute__((weak)) void iBlade::setBackGroudParam(iBlade::modeL1_t mode)

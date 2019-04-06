@@ -74,7 +74,19 @@ void updateBG(iBlade& a, int16_t* p)
         }
         case 2: {
             a.modeL1_ready = iBlade::modeL1_t::Gradient;
-            a.stepL1_ready = step_t(0, 0, step_t::infinity);
+            int16_t tmp;
+
+            tmp = triggerSets_getBG(t, "NP_GLength");
+            tmp = tmp == -1 ? a.getPixelNum() : tmp;
+            a.gradientLength = tmp;
+
+            tmp = triggerSets_getBG(t, "NP_Gspeed");
+            tmp = tmp == -1 ? 1 : tmp;
+            a.stepL1_ready = step_t(0, MX_LED_MS2CNT(1000 * a.getPixelNum() / tmp), step_t::infinity);
+            
+            tmp = triggerSets_getBG(t, "NP_Gdirection");
+            tmp = tmp == -1 ? 0 : tmp;
+            a.gradientDirection = tmp == 0 ? 1 : -1;
             break;
         }
         case 3: {

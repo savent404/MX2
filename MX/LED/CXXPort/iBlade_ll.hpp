@@ -188,6 +188,24 @@ private:
 protected:
     /** Many draw API ************************************/
     /**
+     * @brief 流动渐变
+     */
+    void drawGradient(const RGB& main, const RGB& sub, const float shift, const int interval)
+    {
+        int startPos = int(interval * shift);
+        int halfInterval = interval / 2;
+        int startI, endI;
+        startI = startPos / interval - 1;
+        endI = getPixelNum() / interval + 1;
+        for (int i = startI; i <= endI; i++)
+        {
+            int pos = startPos + i * interval;
+            int endPos = pos + interval;
+            drawShade(main, sub, pos, pos + halfInterval);
+            drawShade(sub, main, pos + halfInterval, endPos);
+        }
+    }
+    /**
      * @brief 彩虹
      * @param shift 红色起始位置的相对位置 0.0f~1.0f
      * @param extraLength 抽象长度 1.0f为默认值

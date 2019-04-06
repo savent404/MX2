@@ -22,6 +22,9 @@ static const char BG[][MAX_STR_LEN] =
     "FLAMERATE",
     "FLAMEFREQ",
     "FLAMEMULTI",
+    "NP_GLength",
+    "NP_Gspeed",
+    "NP_Gdirection",
 };
 
 static const char TG[][MAX_STR_LEN] = 
