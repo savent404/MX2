@@ -41,6 +41,7 @@ static const char TG[][MAX_STR_LEN] =
     "NP_SpeardLength",
     "NP_SpeardSpeed",
     "NP_SpeardLocation",
+    "NP_MaxFlipCount",
 };
 
 static const char FT[][MAX_STR_LEN] =
