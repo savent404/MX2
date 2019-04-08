@@ -55,7 +55,8 @@ dkms.conf
 /MX2_AP_EB/MX2_AP_EB.cscope_file_list
 /MX2_AP_EB/bin/
 /MX2_AP_EB/obj/
-
+# ignore vscode project
+.vscode
 # ignore CLion project
 ./idea
 
