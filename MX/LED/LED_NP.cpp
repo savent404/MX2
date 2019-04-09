@@ -210,10 +210,15 @@ void updateTG(iBlade& a, int16_t* p)
             
             tmp = triggerSets_getTG(t, "NP_Tflip");
             tmp = tmp == -1 ? 0 : tmp;
+            int cnt = MX_LED_MS2CNT(tmp);
+            if (tmp != 0 && cnt <= 1)
+            {
+                cnt = 2;
+            }
             int16_t tmp2 = triggerSets_getTG(t, "NP_MaxFlipCount");
             tmp2 = tmp2 == -1 ? 0 : tmp2;
 
-            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(tmp), tmp2 == 0 ? step_t::infinity : tmp2);
+            a.stepL2_ready = step_t(0, cnt, tmp2 == 0 ? step_t::infinity : tmp2);
 
             if (mode == 2)
             {
@@ -222,7 +227,7 @@ void updateTG(iBlade& a, int16_t* p)
                 tmp = tmp == -1 ? 0 : tmp;
                 a.flipLength = float(tmp) / a.getPixelNum();
             }
-            if (mode == 5)
+            if (a.flipMode == 5)
             {
                 tmp = triggerSets_getTG(t, "NP_Cdrift");
                 a.driftShift = float(tmp);

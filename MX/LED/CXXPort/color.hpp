@@ -320,41 +320,42 @@ typedef struct HSV {
         float g = rgb.G / 255.0f;
         float b = rgb.B / 255.0f;
 
-        int pmax = 2;
-        float max = b, min = b;
-        if (max < r) {
-            pmax = 0;
-            max = r;
-        }
-        if (min > r) {
-            min = r;
-        }
-        if (max < g) {
-            max = g;
-            pmax = 1;
-        }
-        if (min > g) {
-            min = g;
-        }
-        float delta = max - min;
+        float max, min, delta;
 
-        if (delta <= float(1e-4) && delta >= float(-1e-4)) {
-            h = 0;
-        } else if (pmax == 0) {
-            h = (int((g - b) / delta) % 6) * 60.0f;
-        } else if (pmax == 1) {
-            h = (((b - r) / delta) + 2) * 60.0f;
-        } else if (pmax == 2) {
-            h = (((r - g) / delta) + 4) * 60.0f;
+        min = r < g ? r : g;
+        min = min < b ? min : b;
+
+        max = r > g ? r : g;
+        max = max > b ? max : b;
+
+        this->v = max;
+        delta = max - min;
+
+        if (delta < 0.0001f)
+        {
+            this->s = 0;
+            this->h = 0;
+            return *this;
         }
 
-        if (max <= float(1e-4) && max >= float(-1e-4)) {
-            s = 0;
+        if (max > 0.0) {
+            s = (delta / max);
         } else {
-            s = delta / max;
+            s = 0.0f;
+            h = 0.0f; // is undefined
+            return *this;
         }
 
-        v = max;
+        if (r >= max)
+            h = (g - b) / delta;
+        else if (g >= max)
+            h = 2.0 + (b - r) / delta;
+        else
+            h = 4.0 + (r - g) / delta;
+        h *= 60.0f;
+
+        while (h < 0.0f)
+            h += 360.0f;
         return *this;
     }
 
