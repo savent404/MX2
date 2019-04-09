@@ -173,7 +173,10 @@ void iBlade::handleLoop(void *arg)
         if (stepL2.now == 0 && speardMode != 0)
             speardPos = rand() % getPixelNum();
         int dist = int((float)stepL2 * speardLength / 2);
-        drawLine(TC, speardPos - dist, speardPos + dist);
+        HSV hTmp = TC;
+        hTmp.h += speardColorShift;
+        RGB tmp = hTmp;
+        drawLine(tmp, speardPos - dist, speardPos + dist);
     }
     break;
     }

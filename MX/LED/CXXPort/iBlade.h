@@ -292,6 +292,7 @@ private:
     int speardMode;
     int speardLength;
     int speardPos;
+    int speardColorShift;
     /** @} */
 
 

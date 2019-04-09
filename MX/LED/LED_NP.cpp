@@ -303,6 +303,9 @@ void updateTG(iBlade& a, int16_t* p)
                 tmp = rand() % (a.getPixelNum() / 2) - a.getPixelNum() / 4;
                 a.speardPos += tmp;
             }
+
+            tmp = triggerSets_getTG(t, "NP_Cdrift");
+            a.speardColorShift = tmp == -1 ? 0 : tmp;
             break;
         }
         case 5: {
