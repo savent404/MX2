@@ -234,6 +234,16 @@ private:
     /** @} */
 
     /**
+     * @name Storage Param about Trigger:Comet
+     ** @{ */
+    int cometStartPos;
+    int cometLength;
+    int cometRange;
+    int cometColorShift;
+    int cometType;
+    /** @} */
+
+    /**
      * @name Storage Param about Trigger:Flip & Partial Flip
      * @param flipMode
      *                  - 1: MC->FC
@@ -316,10 +326,9 @@ private:
         NoTrigger = 0,
         Flip = 1,
         Flip_Partial = 2,
-        // Drift = 3,
+        Comet = 3,
         Speard = 4,
-        Comet = 5,
-        Accelerate = 6,
+        Accelerate = 5,
     };
     enum modeL3_t
     {

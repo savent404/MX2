@@ -42,6 +42,12 @@ static const char TG[][MAX_STR_LEN] =
     "NP_SpeardSpeed",
     "NP_SpeardLocation",
     "NP_MaxFlipCount",
+    "NP_CometMode",
+    "NP_CometType",
+    "NP_CometLength",
+    "NP_CometRange",
+    "NP_CometSpeed",
+    "NP_CometLocation",
 };
 
 static const char FT[][MAX_STR_LEN] =

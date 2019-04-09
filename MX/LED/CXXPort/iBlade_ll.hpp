@@ -244,6 +244,38 @@ protected:
         }
     }
 
+    /**
+     * @brief 绘制comet效果
+     * 
+     * @param color 效果色
+     * @param startPos 起始位置
+     * @param cometLen 斑点大小
+     * @param shiftPos 相对于startPos的偏移量
+     * @param maxRange 移动最大距离
+     * @param directionMode 移动模式(0=单向向上，1=双向)
+     */
+    void drawComet(const RGB& color, int startPos, int shiftPos, int cometLen, int maxRange, int directionMode)
+    {
+        int limit[2] = {startPos - maxRange, startPos + maxRange};
+        int range[2];
+        if (startPos + shiftPos <= limit[1])
+        {
+            range[0] = startPos + shiftPos - cometLen / 2;
+            range[1] = startPos + shiftPos + cometLen / 2;
+            range[0] = range[0] <= limit[0] ? limit[0] : range[0];
+            range[1] = range[1] >= limit[1] ? limit[1] : range[1];
+            drawLine(color, range[0], range[1]);
+        }
+        if (startPos - shiftPos >= limit[0] && directionMode == 1)
+        {
+            range[0] = startPos - shiftPos - cometLen / 2;
+            range[1] = startPos - shiftPos + cometLen / 2;
+            range[0] = range[0] <= limit[0] ? limit[0] : range[0];
+            range[1] = range[1] >= limit[1] ? limit[1] : range[1];
+            drawLine(color, range[0], range[1]);
+        }
+    }
+
 
     void flipColors(float shift)
     {

@@ -180,6 +180,15 @@ void updateBG(iBlade& a, int16_t* p)
     }
     a.mutex.unlock();
 }
+
+/**
+ * Rand range(0.25~1.0)
+ */
+static int randParam(int val)
+{
+    float rate = (rand() % 256) / 256.0f;
+    return (val * 3 * rate / 4) + (val / 4);
+}
 void updateTG(iBlade& a, int16_t* p)
 {
     triggerSets_TG_t t = static_cast<triggerSets_TG_t>(p);
@@ -221,16 +230,40 @@ void updateTG(iBlade& a, int16_t* p)
             a.flipNeedFresh = true;
             break;
         }
-        /* Move this into Flip, NP_FlipColor=5
         case 3: {
-            a.modeL2_ready = iBlade::modeL2_t::Drift;
-            int16_t tmp = triggerSets_getTG(t, "NP_Cdrift");
-            a.driftShift = float(tmp);
-            tmp = triggerSets_getTG(t, "NP_TDrift");
-            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(tmp), step_t::infinity);
+            int16_t tmp;
+
+            a.modeL2_ready = iBlade::modeL2_t::Comet;
+
+            int16_t cometMode = triggerSets_getTG(t, "NP_CometMode");
+            cometMode = cometMode == -1 ? 0 : cometMode;
+            
+            tmp = triggerSets_getTG(t, "NP_CometType");
+            tmp = tmp == -1 ? 0 : tmp;
+            a.cometType = tmp;
+
+            tmp = triggerSets_getTG(t, "NP_CometLength");
+            tmp = tmp == -1 ? a.getPixelNum() / 5 : tmp;
+            a.cometLength = cometMode == 1 ? randParam(tmp) : tmp;
+
+            tmp = triggerSets_getTG(t, "NP_CometRange");
+            tmp = tmp == -1 ? a.getPixelNum() : tmp;
+            a.cometRange = tmp;
+
+            tmp = triggerSets_getTG(t, "NP_CometSpeed");
+            tmp = tmp <= 0 ? 1 : tmp;
+            int tt = int(a.getPixelNum() * 1000 / tmp);
+            a.stepL2_ready = step_t(0, MX_LED_MS2CNT(tt), 0);
+
+            tmp = triggerSets_getTG(t, "NP_CometLocation");
+            tmp = tmp == -1 ? a.getPixelNum() / 2 : tmp;
+            a.cometStartPos = cometMode == 1 ? randParam(tmp) : tmp;
+
+            tmp = triggerSets_getTG(t, "NP_Cdrift");
+            tmp = tmp == -1 ? 60 : tmp;
+            a.cometColorShift = tmp;
             break;
         }
-        */
         case 4: {
             a.modeL2_ready = iBlade::modeL2_t::Speard;
             int16_t tmp;

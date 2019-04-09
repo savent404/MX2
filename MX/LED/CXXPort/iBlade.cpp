@@ -95,24 +95,6 @@ void iBlade::handleLoop(void *arg)
             }
         }
         break;
-    /*
-    case modeL2_t::Drift:
-        if (stepL2.now == 0)
-        {
-            HSV mc(MC);
-            HSV sc(SC);
-            mc.h += driftShift;
-            sc.h += driftShift;
-            pushColors();
-            MC = mc.convert2RGB();
-            SC = sc.convert2RGB();
-        }
-        else if (stepL2.now == stepL2.total / 2)
-        {
-            popColors();
-        }
-        break;
-    */
     case modeL2_t::Accelerate:
         if (stepL2.now == 0)
         {
@@ -137,6 +119,17 @@ void iBlade::handleLoop(void *arg)
 
     switch (modeL2)
     {
+    case modeL2_t::Comet:
+    {
+        // get trigger color
+        HSV hsvTmp = SC;
+        hsvTmp.h += cometColorShift;
+        RGB c = RGB(hsvTmp);
+
+        int shiftPos = float(stepL2)*getPixelNum();
+        drawComet(c, cometStartPos, shiftPos, cometLength, cometRange, cometType);
+        break;
+    }
     case modeL2_t::Flip_Partial:
     {
         static int pos = 0;
@@ -181,14 +174,6 @@ void iBlade::handleLoop(void *arg)
             speardPos = rand() % getPixelNum();
         int dist = int((float)stepL2 * speardLength / 2);
         drawLine(TC, speardPos - dist, speardPos + dist);
-    }
-    break;
-    case modeL2_t::Comet:
-    {
-        int startPos = int(((float)stepL2 - comentLength)*getPixelNum());
-        int realStartPos = startPos >= 0 ? startPos : 0;
-        int endPos = int((float)stepL2*getPixelNum());
-        drawShade(c_ptr()[realStartPos], TC, startPos, endPos);
     }
     break;
     }
