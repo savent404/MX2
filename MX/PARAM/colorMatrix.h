@@ -1,23 +1,21 @@
 #pragma once
 
-#include "PARAM_def.h"
 #include "MX_def.h"
-#include "ff.h"
+#include "PARAM_def.h"
 #include "debug.h"
+#include "ff.h"
 #include "re.h"
 #include <stdbool.h>
 
 static inline void
 MX_ColorMatrix_Free(colorMatrix_t* ptr)
 {
-    if (ptr->num != 0 && ptr->arr)
-    {
+    if (ptr->num != 0 && ptr->arr) {
         vPortFree(ptr->arr);
         ptr->arr = NULL;
         ptr->num = 0;
     }
-    if (ptr->bankNum != 0 && ptr->colorIndex)
-    {
+    if (ptr->bankNum != 0 && ptr->colorIndex) {
         vPortFree(ptr->colorIndex);
         ptr->colorIndex = NULL;
         ptr->num = 0;
@@ -41,10 +39,11 @@ MX_ColorMatrix_Update(const char* path, colorMatrix_t* ptr)
     static re_t match_p = NULL;
     if (match_p == NULL)
         match_p = re_compile("\\s*\\d+\\s*,\\s*\\d+\\s*,\\s*\\d+\\s*");
-    enum { stage_1, stage_2 } stage = stage_1;
+    enum { stage_1,
+        stage_2 } stage
+        = stage_1;
     int cnt = 0;
-    if ((res = f_open(&file, path, FA_READ)) != FR_OK)
-    {
+    if ((res = f_open(&file, path, FA_READ)) != FR_OK) {
         DEBUG(3, "Can't open file:%s error:%d", path, (int)res);
         return false;
     }
@@ -53,12 +52,10 @@ again:
         bool matched = re_matchp(match_p, buffer) != -1;
         if (stage == stage_1 && matched) {
             cnt++;
-        }
-        else if (stage == stage_2 && matched) {
+        } else if (stage == stage_2 && matched) {
             int ans[3];
             sscanf(buffer, "%d,%d,%d", &ans[0], &ans[1], &ans[2]);
-            for (int i = 0; i < 3; i++)
-            {
+            for (int i = 0; i < 3; i++) {
                 if (ans[i] > 255)
                     ans[i] = 255;
                 else if (ans[i] < 0)

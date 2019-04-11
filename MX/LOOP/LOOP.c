@@ -2,22 +2,21 @@
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
 
-
 #include "triggerSets.h"
 static osThreadId loopThreadId;
 
 // [0]: auto 'in'
 // [1]: auto 'powerOff'
-static int autoTimeout[2] = {0, 0};
+static int autoTimeout[2] = { 0, 0 };
 // [0]: trigger B timer
 // [1]: trigger C timer
 // [2]: trigger D timer
-static int frozenTimer[3] = {0, 0, 0};
+static int frozenTimer[3] = { 0, 0, 0 };
 
-#define KEY_PWR_PRESS     (0x01)
-#define KEY_SUB_PRESS     (0x02)
-#define KEY_PWR_RELEASE   (0x04)
-#define KEY_SUB_RELEASE   (0x08)
+#define KEY_PWR_PRESS (0x01)
+#define KEY_SUB_PRESS (0x02)
+#define KEY_PWR_RELEASE (0x04)
+#define KEY_SUB_RELEASE (0x08)
 
 static uint8_t scanKey(void);
 static bool askTrigger(uint8_t);
@@ -26,27 +25,23 @@ static void handleRunning(void);
 static void handleCharged(void);
 static void handleCharging(void);
 
-
 // 保存现场
 static void saveContext(void);
 static bool canBoot(void);
 
-#define update_param(pos, tgName)                                                             \
-    do {                                                                                      \
-        const char* wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);               \
-        triggerSets_BG_t bg =                                                                 \
-            triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
-        MX_LED_updateBG(bg);                                                                  \
-        triggerSets_freeBG(bg);                                                               \
-        triggerSets_TG_t tg =                                                                 \
-            triggerSets_readTG(_MX_TriggerPath_getOtherPath(USR.triggerTG##tgName, wavName)); \
-        MX_LED_updateTG(tg);                                                                  \
-        triggerSets_freeTG(tg);                                                               \
-        triggerSets_FT_t ft =                                                                 \
-            triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName)); \
-        MX_LED_updateFT(ft);                                                                  \
-        triggerSets_freeFT(ft);                                                               \
-    } while(0)
+#define update_param(pos, tgName)                                                                               \
+    do {                                                                                                        \
+        const char* wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);                                 \
+        triggerSets_BG_t bg = triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
+        MX_LED_updateBG(bg);                                                                                    \
+        triggerSets_freeBG(bg);                                                                                 \
+        triggerSets_TG_t tg = triggerSets_readTG(_MX_TriggerPath_getOtherPath(USR.triggerTG##tgName, wavName)); \
+        MX_LED_updateTG(tg);                                                                                    \
+        triggerSets_freeTG(tg);                                                                                 \
+        triggerSets_FT_t ft = triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName)); \
+        MX_LED_updateFT(ft);                                                                                    \
+        triggerSets_freeFT(ft);                                                                                 \
+    } while (0)
 
 bool MX_LOOP_Init(void)
 {
@@ -62,7 +57,7 @@ bool MX_LOOP_DeInit(void)
     return true;
 }
 
-void MX_LOOP_Handle(void const * arg)
+void MX_LOOP_Handle(void const* arg)
 {
     // enable PM first
     MX_PM_Init();
@@ -70,23 +65,19 @@ void MX_LOOP_Handle(void const * arg)
     /** Init all the other function modules
      */
     // if init parameter error, just beep and shutdown.
-    if (MX_PARAM_Init() == false ||
-        MX_HAND_Init() == false ||
-        MX_KEY_Init() == false)
-    {
+    if (MX_PARAM_Init() == false || MX_HAND_Init() == false || MX_KEY_Init() == false) {
         MX_Audio_PlayBeep();
         MX_PM_Shutdown();
         while (1)
-          DEBUG_BKPT();
+            DEBUG_BKPT();
     }
     MX_MUX_Init();
     MX_LED_Init();
     // SimpleLED_Init();
 
-    if (!canBoot())
-    {
+    if (!canBoot()) {
         MX_PM_Shutdown();
-        while(1)
+        while (1)
             ;
     }
 
@@ -115,40 +106,37 @@ void MX_LOOP_Handle(void const * arg)
     MX_Audio_Play_Start(Audio_Boot);
 
     //wait power key to release
-    while(KEY_PRESS==MX_KEY_GetStatus(KEY_PWR)) {
+    while (KEY_PRESS == MX_KEY_GetStatus(KEY_PWR)) {
         MX_WTDG_FEED();
         osDelay(MX_LOOP_INTERVAL);
     }
 
     USR.sys_status = System_Ready;
 
-    for (;;)
-    {
-        if (MX_PM_needPowerOff())
-        {
+    for (;;) {
+        if (MX_PM_needPowerOff()) {
             USR.mute_flag = 0;
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP);
             MX_Audio_Play_Start(Audio_PowerOff);
             MX_PM_Shutdown();
         }
-        switch(USR.sys_status)
-        {
-            case System_Ready: {
-                handleReady();
-                break;
-            }
-            case System_Running: {
-                handleRunning();
-                break;
-            }
-            case System_Charged: {
-                handleCharged();
-                break;
-            }
-            case System_Charging: {
-                handleCharging();
-                break;
-            }
+        switch (USR.sys_status) {
+        case System_Ready: {
+            handleReady();
+            break;
+        }
+        case System_Running: {
+            handleRunning();
+            break;
+        }
+        case System_Charged: {
+            handleCharged();
+            break;
+        }
+        case System_Charging: {
+            handleCharging();
+            break;
+        }
         }
 
         osDelay(MX_LOOP_INTERVAL);
@@ -161,12 +149,10 @@ uint8_t scanKey(void)
     static uint8_t status = KEY_PWR_PRESS;
     uint8_t buf = 0, pre_buf, res = 0;
 
-    if (MX_KEY_GetStatus(KEY_PWR) == KEY_PRESS)
-    {
+    if (MX_KEY_GetStatus(KEY_PWR) == KEY_PRESS) {
         buf |= KEY_PWR_PRESS;
     }
-    if (MX_KEY_GetStatus(KEY_SUB) == KEY_PRESS)
-    {
+    if (MX_KEY_GetStatus(KEY_SUB) == KEY_PRESS) {
         buf |= KEY_SUB_PRESS;
     }
 
@@ -174,12 +160,10 @@ uint8_t scanKey(void)
     buf ^= status;
     status = pre_buf;
 
-    if (buf & KEY_PWR_PRESS)
-    {
+    if (buf & KEY_PWR_PRESS) {
         res |= pre_buf & KEY_PWR_PRESS ? KEY_PWR_PRESS : KEY_PWR_RELEASE;
     }
-    if (buf & KEY_SUB_PRESS)
-    {
+    if (buf & KEY_SUB_PRESS) {
         res |= pre_buf & KEY_SUB_PRESS ? KEY_SUB_PRESS : KEY_SUB_RELEASE;
     }
 
@@ -200,20 +184,15 @@ void handleReady(void)
     uint8_t keyRes = scanKey();
     uint16_t timeout = 0;
 
-    if (keyRes & KEY_PWR_PRESS)
-    {
-        uint16_t maxTimeout = USR.config->Tpoff > USR.config->Tout ?
-            USR.config->Tpoff :
-            USR.config->Tout;
+    if (keyRes & KEY_PWR_PRESS) {
+        uint16_t maxTimeout = USR.config->Tpoff > USR.config->Tout ? USR.config->Tpoff : USR.config->Tout;
         // wait for key release
-        while (!(scanKey() & KEY_PWR_RELEASE) && timeout < maxTimeout)
-        {
+        while (!(scanKey() & KEY_PWR_RELEASE) && timeout < maxTimeout) {
             timeout += MX_LOOP_INTERVAL;
         }
 
         // power off
-        if(timeout >= maxTimeout || USR.config->Tpoff <= USR.config->Tout)
-        {
+        if (timeout >= maxTimeout || USR.config->Tpoff <= USR.config->Tout) {
             DEBUG(5, "System going to close");
             USR.sys_status = System_Close;
             MX_Audio_Play_Start(Audio_PowerOff);
@@ -221,8 +200,7 @@ void handleReady(void)
             MX_PM_Shutdown();
         }
         // trigger 'out'
-        else
-        {
+        else {
             DEBUG(5, "System going to running");
             usr_switch_bank(USR.bank_now);
             USR.sys_status = System_Running;
@@ -235,17 +213,13 @@ void handleReady(void)
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
             autoTimeout[0] = 0;
         }
-    }
-    else if (keyRes & KEY_SUB_PRESS)
-    {
+    } else if (keyRes & KEY_SUB_PRESS) {
         uint16_t maxTimeout = USR.config->Ts_switch;
-        while ((!(scanKey() & KEY_SUB_RELEASE)) && timeout < maxTimeout)
-        {
+        while ((!(scanKey() & KEY_SUB_RELEASE)) && timeout < maxTimeout) {
             timeout += MX_LOOP_INTERVAL;
         }
 
-        if (timeout >= maxTimeout)
-        {
+        if (timeout >= maxTimeout) {
             DEBUG(5, "System Bank switch");
             usr_switch_bank((USR.bank_now + 1) % USR.nBank);
             MX_LED_bankUpdate(&USR);
@@ -254,19 +228,16 @@ void handleReady(void)
         }
     }
 
-    if (MX_PM_isCharging())
-    {
+    if (MX_PM_isCharging()) {
         DEBUG(5, "System going to Charging");
         USR.sys_status = System_Charging;
     }
 
-    if (keyRes != 0)
-    {
+    if (keyRes != 0) {
         autoTimeout[1] = 0;
     }
     autoTimeout[1] += MX_LOOP_INTERVAL;
-    if (autoTimeout[1] >= USR.config->Tautooff && USR.config->Tautooff)
-    {
+    if (autoTimeout[1] >= USR.config->Tautooff && USR.config->Tautooff) {
         DEBUG(5, "System going to close");
         USR.sys_status = System_Close;
         MX_Audio_Play_Start(Audio_PowerOff);
@@ -282,18 +253,16 @@ void handleRunning(void)
 {
     uint8_t keyRes = scanKey();
     uint16_t timeout = 0;
-    if (keyRes & KEY_PWR_PRESS)
-    {
+    if (keyRes & KEY_PWR_PRESS) {
         uint16_t maxTimeout = USR.config->Tin;
         while ((!((keyRes = scanKey()) & KEY_PWR_RELEASE)) && // Waiting for PowerKey release
-               (!(keyRes & KEY_SUB_PRESS)) &&                 // Waiting for UserKey press
-               timeout < maxTimeout)                          // Waiting for timeout
+            (!(keyRes & KEY_SUB_PRESS)) && // Waiting for UserKey press
+            timeout < maxTimeout) // Waiting for timeout
         {
             timeout += MX_LOOP_INTERVAL;
         }
 
-        if (timeout < maxTimeout && (keyRes & KEY_SUB_PRESS))
-        {
+        if (timeout < maxTimeout && (keyRes & KEY_SUB_PRESS)) {
             DEBUG(5, "System ColorSwitch");
             USR.np_colorIndex += 1;
             USR.np_colorIndex %= USR.colorMatrix.num / 3;
@@ -306,9 +275,7 @@ void handleRunning(void)
             update_param(MX_Audio_getLastHumPos(), HUM);
             MX_LED_applySets();
             MX_LED_startTrigger(LED_Trigger_ColorSwitch);
-        }
-        else if (timeout >= maxTimeout)
-        {
+        } else if (timeout >= maxTimeout) {
             DEBUG(5, "System going to ready")
             USR.sys_status = System_Ready;
             saveContext();
@@ -319,16 +286,12 @@ void handleRunning(void)
             USR.bank_color = 0;
             MX_LED_bankUpdate(&USR);
         }
-    }
-    else if (keyRes & KEY_SUB_PRESS)
-    {
+    } else if (keyRes & KEY_SUB_PRESS) {
         uint16_t maxTimeout = USR.config->TEtrigger;
-        while (!(scanKey() & KEY_SUB_RELEASE))
-        {
+        while (!(scanKey() & KEY_SUB_RELEASE)) {
             timeout += MX_LOOP_INTERVAL;
 
-            if (timeout >= maxTimeout)
-            {
+            if (timeout >= maxTimeout) {
                 DEBUG(5, "Trigger E");
                 SimpleLED_ChangeStatus(SIMPLELED_STATUS_LOCKUP);
                 MX_Audio_Play_Start(Audio_TriggerE);
@@ -343,8 +306,7 @@ void handleRunning(void)
                 break;
             }
         }
-        if (timeout < USR.config->TEtrigger && askTrigger(2))
-        {
+        if (timeout < USR.config->TEtrigger && askTrigger(2)) {
             DEBUG(5, "Trigger D");
             MX_Audio_Play_Start(Audio_TriggerD);
             update_param(MX_Audio_getLastTriggerPos(), D);
@@ -359,38 +321,34 @@ void handleRunning(void)
             MX_Audio_Play_Start(Audio_TriggerC);
             update_param(MX_Audio_getLastTriggerPos(), C);
             MX_LED_startTrigger(LED_TriggerC);
-        }
-        else if (handTrigger.unio.isSwing && askTrigger(0)) {
+        } else if (handTrigger.unio.isSwing && askTrigger(0)) {
             MX_Audio_Play_Start(Audio_TriggerB);
             update_param(MX_Audio_getLastTriggerPos(), B);
             MX_LED_startTrigger(LED_TriggerB);
         }
     }
 
-    if (MX_PM_isCharging())
-    {
-            DEBUG(5, "System going to charging")
-            USR.sys_status = System_Ready;
-            saveContext();
-            MX_Audio_Play_Start(Audio_intoReady);
-            MX_LED_startTrigger(LED_Trigger_Stop);
-            SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
-            USR.bank_color = 0;
-            MX_LED_bankUpdate(&USR);
+    if (MX_PM_isCharging()) {
+        DEBUG(5, "System going to charging")
+        USR.sys_status = System_Ready;
+        saveContext();
+        MX_Audio_Play_Start(Audio_intoReady);
+        MX_LED_startTrigger(LED_Trigger_Stop);
+        SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+        USR.bank_color = 0;
+        MX_LED_bankUpdate(&USR);
 
-            USR.sys_status = System_Charging;
+        USR.sys_status = System_Charging;
     }
 
     // clear auto 'in' trigger timer if there is any trigger.
-    if (handTrigger.hex != 0 || keyRes != 0)
-    {
+    if (handTrigger.hex != 0 || keyRes != 0) {
         autoTimeout[0] = 0;
     }
 
     autoTimeout[0] += MX_LOOP_INTERVAL;
 
-    if (autoTimeout[0] >= USR.config->Tautoin && USR.config->Tautoin)
-    {
+    if (autoTimeout[0] >= USR.config->Tautoin && USR.config->Tautoin) {
         DEBUG(5, "System going to ready")
         USR.sys_status = System_Ready;
         saveContext();
@@ -403,8 +361,7 @@ void handleRunning(void)
     }
 
     // update frozen trigger
-    for (int i = 0; i < 3; i++)
-    {
+    for (int i = 0; i < 3; i++) {
         if (frozenTimer[i] > 0)
             frozenTimer[i] -= MX_LOOP_INTERVAL;
         if (frozenTimer[i] < 0)
@@ -415,8 +372,7 @@ void handleRunning(void)
 void handleCharged(void)
 {
     // plug-out, just shutdown
-    if (MX_PM_isCharging() == false)
-    {
+    if (MX_PM_isCharging() == false) {
         DEBUG(5, "System shutdown");
         USR.sys_status = System_Close;
         MX_Audio_Play_Start(Audio_PowerOff);
@@ -429,20 +385,16 @@ void handleCharging(void)
 {
     // any key press, play 'charging'
     uint8_t res = scanKey();
-    if ( (res & KEY_PWR_PRESS) ||
-         (res & KEY_SUB_PRESS) )
-    {
+    if ((res & KEY_PWR_PRESS) || (res & KEY_SUB_PRESS)) {
         MX_Audio_Play_Start(Audio_Charging);
     }
     // charging -> charged
-    if (MX_PM_isCharged())
-    {
+    if (MX_PM_isCharged()) {
         DEBUG(5, "System going to Charged");
         USR.sys_status = System_Charged;
     }
     // plug-out, just shutdown
-    if (MX_PM_isCharging() == false)
-    {
+    if (MX_PM_isCharging() == false) {
         DEBUG(5, "System shutdown");
         USR.sys_status = System_Close;
         MX_Audio_Play_Start(Audio_PowerOff);
@@ -459,30 +411,25 @@ void handleCharging(void)
  */
 bool askTrigger(uint8_t id)
 {
-    if (frozenTimer[id] == 0)
-    {
-        switch(id) {
-            case 0: {
-                frozenTimer[0] = USR.config->TBfreeze > INT16_MAX ?
-                    INT16_MAX : USR.config->TBfreeze;
-                break;
-            }
-            case 1: {
-                frozenTimer[1] = USR.config->TCfreeze > INT16_MAX ?
-                    INT16_MAX : USR.config->TCfreeze;
-                break;
-            }
-            case 2: {
-                frozenTimer[2] = USR.config->TDfreeze > INT16_MAX ?
-                    INT16_MAX : USR.config->TDfreeze;
-                break;
-            }
+    if (frozenTimer[id] == 0) {
+        switch (id) {
+        case 0: {
+            frozenTimer[0] = USR.config->TBfreeze > INT16_MAX ? INT16_MAX : USR.config->TBfreeze;
+            break;
+        }
+        case 1: {
+            frozenTimer[1] = USR.config->TCfreeze > INT16_MAX ? INT16_MAX : USR.config->TCfreeze;
+            break;
+        }
+        case 2: {
+            frozenTimer[2] = USR.config->TDfreeze > INT16_MAX ? INT16_MAX : USR.config->TDfreeze;
+            break;
+        }
         }
         return true;
     }
     return false;
 }
-
 
 bool canBoot(void)
 {
@@ -492,10 +439,9 @@ bool canBoot(void)
         overtime = USR.config->Tmute;
     else
         overtime = USR.config->Tpon;
-    
+
     return osKernelSysTick() >= osKernelSysTickMicroSec(overtime);
 }
-
 
 void saveContext(void)
 {

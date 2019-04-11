@@ -11,16 +11,15 @@ static const int strFixedLen = 32;
 
 static const char* getRegex(TRIGGERPATH_Type_t type)
 {
-    switch (type)
-    {
-        case TRIGGERPATH_WAV:
-            return "[^.]+.[Ww][Aa][Vv]";
-        case TRIGGERPATH_BG:
-            return "[^.]+.[Bb][Gg]";
-        case TRIGGERPATH_TG:
-            return "[^.]+.[Tt][Gg]";
-        case TRIGGERPATH_FT:
-            return "[^.]+.[Ff][Tt]";
+    switch (type) {
+    case TRIGGERPATH_WAV:
+        return "[^.]+.[Ww][Aa][Vv]";
+    case TRIGGERPATH_BG:
+        return "[^.]+.[Bb][Gg]";
+    case TRIGGERPATH_TG:
+        return "[^.]+.[Tt][Gg]";
+    case TRIGGERPATH_FT:
+        return "[^.]+.[Ff][Tt]";
     }
     return "";
 }
@@ -49,9 +48,11 @@ static void clearPointer(const TRIGGER_PATH_t* dest)
 TRIGGER_PATH_t* MX_TriggerPath_Init(const char* dirPath, int maxNum, TRIGGERPATH_Type_t type)
 {
     DIR dir;
-    FILINFO *info = fatfs_allocFileInfo();
+    FILINFO* info = fatfs_allocFileInfo();
     int cnt = 0;
-    enum {stage_1, stage_2} stage = stage_1;
+    enum { stage_1,
+        stage_2 } stage
+        = stage_1;
     re_t match_s = re_compile(getRegex(type));
     bool matched = false;
     TRIGGER_PATH_t* dest = allocPointer();
@@ -59,19 +60,18 @@ again:
     if (f_opendir(&dir, dirPath) != FR_OK) {
         goto failed;
     }
-    while (f_readdir(&dir, info) == FR_OK && info->fname[0] != '\0')
-    {
+    while (f_readdir(&dir, info) == FR_OK && info->fname[0] != '\0') {
         matched = re_matchp(match_s, info->fname) != -1;
 
         if (matched && stage == stage_1)
             cnt++;
         else if (matched && stage == stage_2 && cnt--)
-            strncpy(dest->path_arry + cnt*strFixedLen, info->fname, strFixedLen - 1);
+            strncpy(dest->path_arry + cnt * strFixedLen, info->fname, strFixedLen - 1);
     }
     f_closedir(&dir);
 
     if (stage == stage_1) {
-        dest->path_arry = cnt ? (char*)pvPortMalloc(cnt * strFixedLen):NULL;
+        dest->path_arry = cnt ? (char*)pvPortMalloc(cnt * strFixedLen) : NULL;
         dest->prefix = (char*)pvPortMalloc(strlen(dirPath) + 1);
         strcpy(dest->prefix, dirPath);
         cnt = cnt > maxNum ? maxNum : cnt;
@@ -114,8 +114,7 @@ const char* MX_TriggerPath_GetPrefix(const TRIGGER_PATH_t* ptr)
 static inline int c_find(const char* in, char c)
 {
     int cnt = 0;
-    while (*in != ' ' && *in != c)
-    {
+    while (*in != ' ' && *in != c) {
         cnt++;
         in++;
     }
@@ -127,8 +126,7 @@ int MX_TriggerPath_HasSame(const TRIGGER_PATH_t* ptr, const char* name)
     int num = MX_TriggerPath_getNum(ptr);
     int strlen = c_find(name, '.');
     const char* cmp;
-    for (int i = 0; i < num; i++)
-    {
+    for (int i = 0; i < num; i++) {
         cmp = MX_TriggerPath_GetName(ptr, i);
         if (!strncasecmp(cmp, name, strlen))
             return i;
@@ -147,6 +145,6 @@ const char* _MX_TriggerPath_getOtherPath(const TRIGGER_PATH_t* ptr, const char* 
     if ((res = MX_TriggerPath_HasSame(ptr, name)) < 0)
         res = rand() % MX_TriggerPath_getNum(ptr);
     sprintf(path, "%s/%s", MX_TriggerPath_GetPrefix(ptr),
-                           MX_TriggerPath_GetName(ptr, res));
+        MX_TriggerPath_GetName(ptr, res));
     return path;
 }

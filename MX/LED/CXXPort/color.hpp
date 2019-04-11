@@ -73,7 +73,7 @@ public:
         R = other.R;
         G = other.G;
         B = other.B;
-//        W = other.W;
+        //        W = other.W;
         return *this;
     }
 
@@ -150,9 +150,9 @@ public:
         if (abs(sub) >= offset)
             return false;
         sub = wB() - other.wB();
-//        if (abs(sub) >= offset)
-//            return false;
-//        return true;
+        //        if (abs(sub) >= offset)
+        //            return false;
+        //        return true;
         return abs(sub) < offset;
     }
 
@@ -214,7 +214,7 @@ public:
     /**
      * @param offset 0.0f~1.0f
      */
-    static RGB midColor(const RGB& source, const RGB& dest, float offset) 
+    static RGB midColor(const RGB& source, const RGB& dest, float offset)
     {
         int16_t sub[4];
         sub[0] = dest.R - source.R;
@@ -225,9 +225,9 @@ public:
         for (int i = 0; i < 4; i++)
             sub[i] *= offset;
         return RGB(source.R + sub[0],
-                   source.G + sub[1],
-                   source.B + sub[2],
-                   source.W + sub[3]);
+            source.G + sub[1],
+            source.B + sub[2],
+            source.W + sub[3]);
     }
 };
 /**
@@ -331,8 +331,7 @@ typedef struct HSV {
         this->v = max;
         delta = max - min;
 
-        if (delta < 0.0001f)
-        {
+        if (delta < 0.0001f) {
             this->s = 0;
             this->h = 0;
             return *this;
@@ -362,7 +361,8 @@ typedef struct HSV {
     /**
      * @brief HSV can auto-convert to RGB
      */
-    operator class RGB() const {
+    operator class RGB() const
+    {
         return this->convert2RGB();
     }
 } HSV;

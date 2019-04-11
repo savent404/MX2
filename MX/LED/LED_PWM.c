@@ -61,11 +61,10 @@ void LED_PWM_Handle(PARA_DYNAMIC_t* ptr)
     LED_CMD_t cmd;
     osEvent evt = MX_LED_GetMessage(20);
 
-
-#if LED_SUPPORT_FOLLOW_AUDIO==0
+#if LED_SUPPORT_FOLLOW_AUDIO == 0
     message = evt.value.v;
     cmd = message;
-#elif LED_SUPPORT_FOLLOW_AUDIO==1
+#elif LED_SUPPORT_FOLLOW_AUDIO == 1
     message.hex = evt.value.v;
     cmd = message.pair.cmd;
 #endif
@@ -304,11 +303,10 @@ static LED_CMD_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
     osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
-    else
-    {
-#if LED_SUPPORT_FOLLOW_AUDIO==0
+    else {
+#if LED_SUPPORT_FOLLOW_AUDIO == 0
         return evt.value.v;
-#elif LED_SUPPORT_FOLLOW_AUDIO==1
+#elif LED_SUPPORT_FOLLOW_AUDIO == 1
         LED_Message_t message;
         message.hex = evt.value.v;
         return message.pair.cmd;

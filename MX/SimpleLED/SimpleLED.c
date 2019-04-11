@@ -29,33 +29,26 @@ void SimpleLED_ChangeStatus(SimpleLED_Status_t status)
     pacction = SimpleLED_GetAction(status);
 }
 
-void SimpleLED_Callback(void const * arg)
+void SimpleLED_Callback(void const* arg)
 {
-    for(;;)
-    {
+    for (;;) {
         osDelay(interval);
 
         if ((timer -= interval) > 0)
             continue;
 
-        if (pacction == NULL)
-        {
+        if (pacction == NULL) {
             SimpleLED_Opra(0);
             timer = 100;
             continue;
         }
 
         /** Still working [0~pacction->Num] */
-        if (loopFlag == false &&
-            cnt < pacction->Num)
-        {
+        if (loopFlag == false && cnt < pacction->Num) {
             SimpleLED_Opra(*(pacction->Action + cnt++));
-        }
-        else if (loopFlag == false)
-        {
+        } else if (loopFlag == false) {
             pacction = SimpleLED_GetAction(SIMPLELED_STATUS_ON);
-        }
-        else  /* loopFlag == true */
+        } else /* loopFlag == true */
         {
             SimpleLED_Opra(*(pacction->Action + (cnt++ % pacction->Num)));
         }
@@ -65,27 +58,26 @@ void SimpleLED_Callback(void const * arg)
 
 SimpleLED_Acction_t* SimpleLED_GetAction(SimpleLED_Status_t status)
 {
-    SimpleLED_Acction_t *ans;
-    switch( status)
-    {
-        case SIMPLELED_STATUS_SLEEP:
-            ans = NULL;
-            break;
-        case SIMPLELED_STATUS_STANDBY:
-            ans = (USR.accent + USR.bank_now)->Standby;
-            loopFlag = true;
-            break;
-        case SIMPLELED_STATUS_ON:
-            ans = (USR.accent + USR.bank_now)->Clash;
-            loopFlag = false;
-            break;
-        case SIMPLELED_STATUS_LOCKUP:
-            ans = (USR.accent + USR.bank_now)->Lockup;
-            loopFlag = true;
-            break;
-        default:
-            ans = NULL;
-            loopFlag = false;
+    SimpleLED_Acction_t* ans;
+    switch (status) {
+    case SIMPLELED_STATUS_SLEEP:
+        ans = NULL;
+        break;
+    case SIMPLELED_STATUS_STANDBY:
+        ans = (USR.accent + USR.bank_now)->Standby;
+        loopFlag = true;
+        break;
+    case SIMPLELED_STATUS_ON:
+        ans = (USR.accent + USR.bank_now)->Clash;
+        loopFlag = false;
+        break;
+    case SIMPLELED_STATUS_LOCKUP:
+        ans = (USR.accent + USR.bank_now)->Lockup;
+        loopFlag = true;
+        break;
+    default:
+        ans = NULL;
+        loopFlag = false;
     }
     cnt = 0;
     timer = 0;
@@ -101,13 +93,10 @@ void SimpleLED_Opra(uint32_t led)
 
 __MX_WEAK void SimpleLED_HW_Init(void)
 {
-
 }
 __MX_WEAK void SimpleLED_HW_DeInit(void)
 {
-    
 }
 __MX_WEAK void SimpleLED_HW_Opra(uint32_t mask)
 {
-
 }

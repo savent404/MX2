@@ -9,13 +9,12 @@ __MX_WEAK bool LED_NP_HW_Init(int num)
 
 __MX_WEAK bool LED_NP_HW_Update(const void* arg, int num)
 {
-    const RGB* ptrColor = static_cast<const RGB*> (arg);
+    const RGB* ptrColor = static_cast<const RGB*>(arg);
 
     /** wait last dma transfer end */
     // etc. osSemaphoreWait(....)
 
-    for (int i = 0; i < num; i++)
-    {
+    for (int i = 0; i < num; i++) {
         uint8_t rgb[3] = {
             ptrColor->wR(),
             ptrColor->wG(),

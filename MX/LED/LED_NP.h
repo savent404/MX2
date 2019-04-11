@@ -1,13 +1,13 @@
 #pragma once
 
-#include "MX_def.h"
-#include "LED_def.h"
-#include <string.h>
-#include <stdbool.h>
-#include "cmsis_os.h"
 #include "LED.h"
+#include "LED_def.h"
+#include "MX_def.h"
+#include "cmsis_os.h"
+#include <stdbool.h>
+#include <string.h>
 
-MX_C_API bool LED_NP_Init(void * arg);
+MX_C_API bool LED_NP_Init(void* arg);
 MX_C_API void LED_NP_Handle(PARA_DYNAMIC_t* ptr);
 MX_C_API bool LED_NP_Update(PARA_DYNAMIC_t* ptr);
 MX_C_API void LED_NP_updateBG(triggerSets_BG_t);

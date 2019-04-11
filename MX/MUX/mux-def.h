@@ -45,9 +45,9 @@ typedef enum {
 } MUX_Track_Id_t;
 
 typedef enum {
-    TrackState_Idle = 0,    //未运行状态
+    TrackState_Idle = 0, //未运行状态
     TrackState_Running = 1, //正在运行
-    TrackState_Critical = 2,//正在临界区域
+    TrackState_Critical = 2, //正在临界区域
 } MUX_Track_Mode_t;
 
 typedef struct {
@@ -55,7 +55,8 @@ typedef struct {
     MUX_Track_Mode_t mode;
     int maxium_slot;
     MUX_Slot_t* slots;
-    enum {pos1, pos2} pos;
+    enum { pos1,
+        pos2 } pos;
     muxBuffer_t* buffer;
     int bufferSize;
 } MUX_Track_t;

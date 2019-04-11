@@ -15,10 +15,10 @@
 MX_C_API void MX_MUX_Init(void);
 MX_C_API void MX_MUX_DeInit(void);
 
-MX_C_API MUX_Slot_Id_t 
+MX_C_API MUX_Slot_Id_t
 MX_MUX_Start(MUX_Track_Id_t, MUX_Slot_Mode_t, const char* filepath);
 MX_C_API void
-MX_MUX_Stop(MUX_Track_Id_t, MUX_Slot_Id_t);
+    MX_MUX_Stop(MUX_Track_Id_t, MUX_Slot_Id_t);
 
 /**
  * @brief get wav last time
@@ -26,12 +26,12 @@ MX_MUX_Stop(MUX_Track_Id_t, MUX_Slot_Id_t);
  *        return ms
  */
 MX_C_API unsigned int
-MX_MUX_getLastTime(MUX_Track_Id_t, MUX_Slot_Id_t);
+    MX_MUX_getLastTime(MUX_Track_Id_t, MUX_Slot_Id_t);
 
 MX_C_API void
-MX_MUX_RegisterCallback(MUX_Track_Id_t, MUX_Slot_Id_t, MUX_Slot_CallbackWay_t, MUX_Slot_Callback_t);
+    MX_MUX_RegisterCallback(MUX_Track_Id_t, MUX_Slot_Id_t, MUX_Slot_CallbackWay_t, MUX_Slot_Callback_t);
 MX_C_API void
-MX_MUX_UnregisterCallback(MUX_Track_Id_t, MUX_Slot_Id_t, MUX_Slot_CallbackWay_t);
+    MX_MUX_UnregisterCallback(MUX_Track_Id_t, MUX_Slot_Id_t, MUX_Slot_CallbackWay_t);
 
 MX_C_API bool MX_MUX_hasSlotsIdle(MUX_Track_Id_t);
 

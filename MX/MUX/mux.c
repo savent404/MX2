@@ -1,7 +1,7 @@
 #include "mux.h"
 #include "FreeRTOS.h"
-#include "param.h"
 #include "cmsis_os.h"
+#include "param.h"
 #include <stdlib.h>
 
 static MUX_Track_t tracks[MX_MUX_MAXIUM_TRACKID];
@@ -11,16 +11,19 @@ static osSemaphoreId selfSemId[MX_MUX_MAXIUM_TRACKID];
 // static osMutexId selfMutexId[MX_MUX_MAXIUM_TRACKID];
 static osSemaphoreId selfMutexId[MX_MUX_MAXIUM_TRACKID];
 
-static inline void initMutex(void) {
+static inline void initMutex(void)
+{
     osSemaphoreDef(mux);
     for (int i = 0; i < MX_MUX_MAXIUM_TRACKID; i++)
         selfMutexId[i] = osSemaphoreCreate(osSemaphore(mux), 1);
 }
-static inline void waitMutex(MUX_Track_Id_t tid) {
-  osSemaphoreWait(selfMutexId[tid], osWaitForever);
+static inline void waitMutex(MUX_Track_Id_t tid)
+{
+    osSemaphoreWait(selfMutexId[tid], osWaitForever);
 }
-static inline void releaseMutex(MUX_Track_Id_t tid) {
-  osSemaphoreRelease(selfMutexId[tid]);
+static inline void releaseMutex(MUX_Track_Id_t tid)
+{
+    osSemaphoreRelease(selfMutexId[tid]);
 }
 
 static inline void callCallbackFunc(MUX_Slot_Callback_t func)
@@ -54,7 +57,7 @@ void MX_MUX_Init(void)
             clearAllCallback(&tracks[i].slots[j]);
         }
         MX_MUX_HW_Init(i);
-        mux_resetDmaBuffer(tracks[i].buffer, MX_MUX_BUFFSIZE*2);
+        mux_resetDmaBuffer(tracks[i].buffer, MX_MUX_BUFFSIZE * 2);
     }
     initMutex();
     /** Init semaphore */
@@ -63,7 +66,7 @@ void MX_MUX_Init(void)
         selfSemId[i] = osSemaphoreCreate(osSemaphore(mux), 1);
         osSemaphoreWait(selfSemId[i], 1);
     }
-    
+
     /** Start thread */
     osThreadDef(mux1, MX_MUX_Handle, osPriorityNormal, 0, MX_MUX_THREAD_STACK_SIZE);
     selfThreadId[0] = osThreadCreate(osThread(mux1), &tracks[0]);
@@ -219,8 +222,7 @@ bool MX_MUX_hasSlotsIdle(MUX_Track_Id_t tid)
 {
     MUX_Track_t* pTrack = &tracks[tid];
     MUX_Slot_t* pSlot;
-    for (int i = 0; i < pTrack->maxium_slot; i++)
-    {
+    for (int i = 0; i < pTrack->maxium_slot; i++) {
         pSlot = &pTrack->slots[i];
         if (pSlot->mode == SlotMode_Idle)
             return true;

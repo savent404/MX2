@@ -7,10 +7,10 @@
 typedef union {
     uint32_t hex;
     struct {
-        unsigned lvSpin:4;
-        bool isStab:1;
-        bool isSwing:1;
-        bool isClash:1;
+        unsigned lvSpin : 4;
+        bool isStab : 1;
+        bool isSwing : 1;
+        bool isClash : 1;
     } unio;
 } HAND_TriggerId_t;
 

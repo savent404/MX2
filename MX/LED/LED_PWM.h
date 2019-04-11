@@ -1,16 +1,16 @@
 #pragma once
 
-#include "LED_def.h"
 #include "LED.h"
-#include "tim.h"
+#include "LED_def.h"
 #include "audio.h"
+#include "tim.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /** Some private functions used in PWM LED */
-static LED_CMD_t  LED_Trigger_Method(LED_CMD_t trigger_bcd);
+static LED_CMD_t LED_Trigger_Method(LED_CMD_t trigger_bcd);
 static void LED_RGB_Output(uint16_t r, uint16_t g, uint16_t b, uint16_t l);
 static void LED_RGB_Limited(uint16_t r, uint16_t g, uint16_t b, uint16_t l);
 static void LED_RGB_Output_Light(uint16_t* colors, float light);

@@ -28,4 +28,4 @@ MX_PORT_API bool MX_PM_isCharged(void);
 /**
  * @note Get current battery capacity
  */
-MX_PORT_API bool MX_PM_CurrentCapacity(uint16_t *permillage);
+MX_PORT_API bool MX_PM_CurrentCapacity(uint16_t* permillage);

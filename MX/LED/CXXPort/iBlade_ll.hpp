@@ -22,11 +22,12 @@ protected:
     /**
      * @brief 颜色存储结构 
      */
-    RGB *vector;
+    RGB* vector;
     int mask[2];
 
-    inline int imax(int a, int b) { return a > b ? a : b;}
-    inline int imin(int a, int b) { return a > b ? b : a;}
+    inline int imax(int a, int b) { return a > b ? a : b; }
+    inline int imin(int a, int b) { return a > b ? b : a; }
+
 public:
     /**
      * @brief 根据指定的Pixel数量构造驱动
@@ -71,7 +72,8 @@ public:
     {
         return vector;
     }
-private:    
+
+private:
     inline bool isOutofMask(int i)
     {
         return i < imax(0, startMask()) || i >= imin(endMask(), getPixelNum());
@@ -82,7 +84,8 @@ private:
     RGB& operator[](int pos)
     {
         if (pos > numPixe) {
-            while(1);
+            while (1)
+                ;
         }
 
         return vector[pos];
@@ -111,9 +114,9 @@ public: // API
      */
     void drawLine(const RGB& color, int start, int end)
     {
-		RGB* _ptr = ptr() + start;
+        RGB* _ptr = ptr() + start;
         int num = end - start;
-		for (int i = start; i < end; i++, _ptr++) {
+        for (int i = start; i < end; i++, _ptr++) {
             if (isOutofMask(i))
                 continue;
             *_ptr = color;
@@ -133,14 +136,13 @@ public: // API
         int posStart,
         int posEnd)
     {
-        if (colorStart.similar(colorEnd))
-        {
+        if (colorStart.similar(colorEnd)) {
             drawLine(colorStart, posStart, posEnd);
             return;
         }
 
         int sub[4];
-		RGB* _ptr = ptr() + posStart;
+        RGB* _ptr = ptr() + posStart;
         int num = posEnd - posStart;
 
         sub[0] = colorEnd.R - colorStart.R;
@@ -178,13 +180,13 @@ public: // API
 private:
     __attribute__((pure)) static inline int getPositivePos(int a, int b)
     {
-        if (a < 0)
-        {
+        if (a < 0) {
             int res = a % b;
             return (res + b) % b;
         }
         return a % b;
     }
+
 protected:
     /** Many draw API ************************************/
     /**
@@ -197,8 +199,7 @@ protected:
         int startI, endI;
         startI = startPos / interval - 1;
         endI = getPixelNum() / interval + 1;
-        for (int i = startI; i <= endI; i++)
-        {
+        for (int i = startI; i <= endI; i++) {
             int pos = startPos + i * interval;
             int endPos = pos + interval;
             drawShade(main, sub, pos, pos + halfInterval);
@@ -215,11 +216,10 @@ protected:
         static RGB rgb[3] = { RGB(255, 0, 0), RGB(0, 255, 0), RGB(0, 0, 255) };
         int interval = int(getPixelNum() * extraLength / 3.0f);
         int startPos = int(getPixelNum() * extraLength * shift) - int(getPixelNum() * extraLength);
-        
+
         int cnt = (getPixelNum() - startPos) / interval + 1;
 
-        for (int i = 0; i < cnt; i++)
-        {
+        for (int i = 0; i < cnt; i++) {
             int pos = startPos + i * interval;
             int endPos = pos + interval;
             int color = getPositivePos(i, 3);
@@ -232,8 +232,7 @@ protected:
     {
         int d = int(rate * 128);
         RGB* p = ptr();
-        for (int i = 0; i < getPixelNum(); i++, p++)
-        {
+        for (int i = 0; i < getPixelNum(); i++, p++) {
             if (isOutofMask(i))
                 continue;
             int ans = rand() % 128;
@@ -256,18 +255,16 @@ protected:
      */
     void drawComet(const RGB& color, int startPos, int shiftPos, int cometLen, int maxRange, int directionMode)
     {
-        int limit[2] = {startPos - maxRange, startPos + maxRange};
+        int limit[2] = { startPos - maxRange, startPos + maxRange };
         int range[2];
-        if (startPos + shiftPos <= limit[1])
-        {
+        if (startPos + shiftPos <= limit[1]) {
             range[0] = startPos + shiftPos - cometLen / 2;
             range[1] = startPos + shiftPos + cometLen / 2;
             range[0] = range[0] <= limit[0] ? limit[0] : range[0];
             range[1] = range[1] >= limit[1] ? limit[1] : range[1];
             drawLine(color, range[0], range[1]);
         }
-        if (startPos - shiftPos >= limit[0] && directionMode == 1)
-        {
+        if (startPos - shiftPos >= limit[0] && directionMode == 1) {
             range[0] = startPos - shiftPos - cometLen / 2;
             range[1] = startPos - shiftPos + cometLen / 2;
             range[0] = range[0] <= limit[0] ? limit[0] : range[0];
@@ -276,13 +273,11 @@ protected:
         }
     }
 
-
     void flipColors(float shift)
     {
         RGB* p = ptr();
         RGB t;
-        for (int i = 0; i < getPixelNum(); i++, p++)
-        {
+        for (int i = 0; i < getPixelNum(); i++, p++) {
             if (isOutofMask(i))
                 continue;
             HSV hsv(*p);
@@ -300,8 +295,7 @@ protected:
     {
         RGB* pC = ptr();
         int light;
-        for (int i = 0; i < getPixelNum(); i++)
-        {
+        for (int i = 0; i < getPixelNum(); i++) {
             light = pC->realLight();
 
             if (light == 0)
@@ -320,8 +314,7 @@ protected:
     void filterSet(uint8_t light)
     {
         RGB* pC = ptr();
-        for (int i = 0; i < getPixelNum(); i++, pC++)
-        {
+        for (int i = 0; i < getPixelNum(); i++, pC++) {
             pC->W = light;
         }
     }
@@ -331,8 +324,7 @@ protected:
         if (startPos >= endPos)
             return;
         RGB* pC = ptr() + startPos;
-        for (int i = startPos; i < endPos; i++, pC++)
-        {
+        for (int i = startPos; i < endPos; i++, pC++) {
             if (isOutofMask(i))
                 continue;
             pC->W = light;
@@ -357,30 +349,30 @@ protected:
     // pos should be -1.0f~1.0f
     inline float func_trangle(float pos)
     {
-            //  *       *
-            //   *     *
-            //    *   *
-            //     * *
-            //      *
-            // ***************
-            // -1   0   1
+        //  *       *
+        //   *     *
+        //    *   *
+        //     * *
+        //      *
+        // ***************
+        // -1   0   1
         while (pos < -1.0f)
             pos += 2.0f;
         while (pos > 1.0f)
             pos -= 2.0f;
         return pos > 0 ? pos : -pos;
     }
-    public:
+
+public:
     void filterRandomWave(float shift, float length, int _max, int _min)
     {
         int len = int(getPixelNum() * length);
-        int startX = int(getPixelNum() * (1.0f + length) * shift) - len/2;
+        int startX = int(getPixelNum() * (1.0f + length) * shift) - len / 2;
         int range = int(getPixelNum() * length / 2.0f);
         range = range <= 0 ? 1 : range;
-        RGB *pC = ptr() + startX - range;
+        RGB* pC = ptr() + startX - range;
         int lightDiff = _max - _min;
-        for (int i = startX - range; i < startX + range; i++, pC++)
-        {
+        for (int i = startX - range; i < startX + range; i++, pC++) {
             if (isOutofMask(i))
                 continue;
             float absPos = float(i - startX) / range;
@@ -388,16 +380,16 @@ protected:
             pC->W = lightRate * lightDiff + _min;
         }
     }
-    protected:
+
+protected:
     /**
      * @brief 设定灯的亮度，以三角波流动
      */
     void filterWave(float shift, float extraLen, int _max, int _min)
     {
-        RGB *pC = ptr();
+        RGB* pC = ptr();
         int lightDiff = _max - _min;
-        for (int i = 0; i < getPixelNum(); i++, pC++)
-        {
+        for (int i = 0; i < getPixelNum(); i++, pC++) {
             if (isOutofMask(i))
                 continue;
             float absPos = (float(i) / getPixelNum() / extraLen - shift) * 2.0f;
@@ -406,18 +398,16 @@ protected:
         }
     }
 
-
     void filterShade(int startPos, int endPos, int startLight, int endLight)
     {
         int dest = endPos - startPos;
         dest = dest == 0 ? 1 : dest;
         float fInc = float(endLight - startLight) / float(dest);
         RGB* pC = ptr() + startPos;
-		for (int i = startPos; i < endPos; i++, pC++)
-        {
+        for (int i = startPos; i < endPos; i++, pC++) {
             if (isOutofMask(i))
                 continue;
-			pC->W = uint8_t(int(startLight + (i - startPos)*fInc) & 0XFF);
+            pC->W = uint8_t(int(startLight + (i - startPos) * fInc) & 0XFF);
         }
     }
     /**
@@ -427,18 +417,16 @@ protected:
     void filterRandomRain(float rate)
     {
         bool drop = rand() % 128 <= rate * 128;
-        RGB *pC = ptr();
+        RGB* pC = ptr();
         int ans;
 
-        if (drop)
-        {
+        if (drop) {
             int pos = rand() % getPixelNum();
             if (!isOutofMask(pos))
                 pC[pos].W = 0;
         }
 
-        for (int i = 0; i < getPixelNum(); i++)
-        {
+        for (int i = 0; i < getPixelNum(); i++) {
             if (isOutofMask(i))
                 continue;
             ans = pC[i - 1].W + pC[i].W + pC[i + 1].W + 2;

@@ -1,8 +1,9 @@
 #include "console.h"
 
-__MX_WEAK void MX_Console_Print(uint8_t *string, uint16_t size) {}
+__MX_WEAK void MX_Console_Print(uint8_t* string, uint16_t size) {}
 
-int MX_Console_Printf(const char *format, ...) {
+int MX_Console_Printf(const char* format, ...)
+{
 
     static char buffer[512] = { 0 };
     uint16_t res;

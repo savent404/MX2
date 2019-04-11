@@ -47,8 +47,7 @@ mux_convert_mergeToBuffer(const int* source, void* dest, int size, int vol)
     static const int zeroOffset = DAC_FIX_OFFSET;
     uint16_t buf;
 
-    for (int i = 0; i < size; i++)
-    {
+    for (int i = 0; i < size; i++) {
         buf = (uint16_t)(((*_s++ * vol) >> offset) + zeroOffset);
         *_d++ = buf;
     }
@@ -58,8 +57,7 @@ MX_C_API static inline void
 mux_resetDmaBuffer(void* in, int size)
 {
     uint16_t* ptr = (uint16_t*)in;
-    for (int i = 0; i < size; i++)
-    {
+    for (int i = 0; i < size; i++) {
         *ptr++ = DAC_FIX_OFFSET;
     }
 }

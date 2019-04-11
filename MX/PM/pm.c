@@ -42,8 +42,8 @@ __MX_WEAK bool MX_PM_isCharged(void)
     return false;
 }
 
-__MX_WEAK bool MX_PM_CurrentCapacity(uint16_t *permillage)
+__MX_WEAK bool MX_PM_CurrentCapacity(uint16_t* permillage)
 {
-    *permillage=0x0000;
+    *permillage = 0x0000;
     return false;
 }

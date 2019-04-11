@@ -1,13 +1,13 @@
 #ifndef USR_CONFIG_H_
 #define USR_CONFIG_H_
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include "MX_def.h"
-#include "param.h"
 #include "colorMatrix.h"
+#include "param.h"
 #include "triggerSets.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 
 extern PARA_DYNAMIC_t USR;
 extern const PARA_STATIC_t STATIC_USR;

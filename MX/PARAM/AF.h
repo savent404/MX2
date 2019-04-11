@@ -43,9 +43,9 @@ struct _AF_PCM {
        Size without ChunkID and ChunkSize */
     uint32_t ChunkSize;
 
-    char    Format[4];
+    char Format[4];
 
-    char    Subchunk1ID[4];
+    char Subchunk1ID[4];
 
     uint32_t Subchunk1Size;
 

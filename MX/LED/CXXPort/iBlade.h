@@ -1,18 +1,17 @@
 #pragma once
 
 #include "MX_def.h"
-#include "iBlade_ll.hpp"
-#include "iBlade_ulti.hpp"
 #include "color.hpp"
 #include "flame.hpp"
+#include "iBlade_ll.hpp"
+#include "iBlade_ulti.hpp"
 #include "randomWave.hpp"
-
 
 /**
  * @brief restore info at [x]_backup
  */
 #define __LED_PUSH(x) ((x##_backup) = (x))
-#define __LED_POP(x)  ((x) = (x##_backup))
+#define __LED_POP(x) ((x) = (x##_backup))
 #define __LED_APPLE(x) ((x) = (x##_ready))
 #define __LED_STASH(x) ((x##_ready) = (x))
 #define __LED_APPLE_CLEAR(x) ((x##_ready) = (x##_backup))
@@ -20,7 +19,7 @@
 /**
  * @brief def a var with backup
  */
-#define DEF_WITH_BACKUP(x) x,x##_backup,x##_ready
+#define DEF_WITH_BACKUP(x) x, x##_backup, x##_ready
 
 class iBlade : public iBladeDriver {
 public:
@@ -28,7 +27,7 @@ public:
     ~iBlade();
     bool parameterUpdate(void* arg);
     void handle(void* arg);
-    
+
     virtual void update();
 
 protected:
@@ -47,7 +46,7 @@ protected:
     friend void updateTG(iBlade&, int16_t*);
     friend void updateFT(iBlade&, int16_t*);
     friend void applySets(iBlade&);
-    
+
     inline void pushColors(void)
     {
         __LED_PUSH(MC);
@@ -73,38 +72,29 @@ protected:
     inline void popSet(void)
     {
         popColors();
-        if (modeL1 == modeL1_backup)
-        {
+        if (modeL1 == modeL1_backup) {
             float t = (float)stepL1;
             __LED_POP(stepL1);
             stepL1.now = t * stepL1.total;
-        }
-        else
-        {
+        } else {
             __LED_POP(modeL1);
             __LED_POP(stepL1);
         }
 
-        if (modeL2 == modeL2_backup)
-        {
+        if (modeL2 == modeL2_backup) {
             float t = (float)stepL2;
             __LED_POP(stepL2);
             stepL2.now = t * stepL2.total;
-        }
-        else
-        {
+        } else {
             __LED_POP(modeL2);
             __LED_POP(stepL2);
         }
 
-        if (modeL3 == modeL3_backup)
-        {
+        if (modeL3 == modeL3_backup) {
             float t = (float)stepL3;
             __LED_POP(stepL3);
             stepL3.now = t * stepL3.total;
-        }
-        else
-        {
+        } else {
             __LED_POP(modeL3);
             __LED_POP(stepL3);
         }
@@ -135,38 +125,29 @@ protected:
     }
     inline void applySet(void)
     {
-        if (modeL1 == modeL1_ready)
-        {
+        if (modeL1 == modeL1_ready) {
             float t = (float)stepL1;
             __LED_APPLE(stepL1);
             stepL1.now = t * stepL1.total;
-        }
-        else
-        {
+        } else {
             __LED_APPLE(modeL1);
             __LED_APPLE(stepL1);
         }
 
-        if (modeL2 == modeL2_ready)
-        {
+        if (modeL2 == modeL2_ready) {
             float t = (float)stepL2;
             __LED_APPLE(stepL2);
             stepL2.now = t * stepL2.total;
-        }
-        else
-        {
+        } else {
             __LED_APPLE(modeL2);
             __LED_APPLE(stepL2);
         }
 
-        if (modeL3 == modeL3_ready)
-        {
+        if (modeL3 == modeL3_ready) {
             float t = (float)stepL3;
             __LED_APPLE(stepL3);
             stepL3.now = t * stepL3.total;
-        }
-        else
-        {
+        } else {
             __LED_APPLE(modeL3);
             __LED_APPLE(stepL3);
         }
@@ -175,6 +156,7 @@ protected:
 
         clearApplySets();
     }
+
 private:
     mutex_t mutex;
     /**
@@ -274,8 +256,7 @@ private:
     float driftShift;
     inline void flip_switchColor(int mode)
     {
-        switch (mode)
-        {
+        switch (mode) {
         case 1:
             MC = TC;
             break;
@@ -290,16 +271,13 @@ private:
             MC = SC_backup;
             SC = MC_backup;
             break;
-        case 5:
-        {
+        case 5: {
             // use flipColors API
-        }
-        break;
+        } break;
         }
     }
     /** @} */
 
-                    
     /**
      * @name Storage Param about Trigger:Speard
      ** @{ */
@@ -329,10 +307,14 @@ private:
     /**
      * @name 运行时参数
      * @{ */
-    enum { idle, out, in, Run, InTrigger} status;
+    enum { idle,
+        out,
+        in,
+        Run,
+        InTrigger } status;
+
 private:
-    enum modeL1_t
-    {
+    enum modeL1_t {
         Static = 1,
         Gradient = 2,
         Blink = 3,
@@ -342,8 +324,7 @@ private:
         Rainbow = 7,
         Flame = 8
     };
-    enum modeL2_t
-    {
+    enum modeL2_t {
         NoTrigger = 0,
         Flip = 1,
         Flip_Partial = 2,
@@ -351,8 +332,7 @@ private:
         Speard = 4,
         Accelerate = 5,
     };
-    enum modeL3_t
-    {
+    enum modeL3_t {
         NoFilter = 0,
         Breath = 1,
         Flicker = 2,
@@ -371,11 +351,11 @@ private:
     step_t stepProcess;
     /** @} */
 
-
     void setNormalParam(void);
     void setBackGroudParam(modeL1_t mode);
     void setTriggerParam(modeL2_t mode);
     void setFilterParam(modeL3_t mode);
+
 private:
     void backGroundRender(void);
     void clearL1(void);

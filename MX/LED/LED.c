@@ -1,7 +1,7 @@
 #include "LED.h"
+#include "audio.h"
 #include "cmsis_os.h"
 #include "debug.h"
-#include "audio.h"
 #if USE_NP == 1
 #include "LED_NP.h"
 #else
@@ -9,7 +9,7 @@
 #endif
 /* Var *************************************************/
 static osMessageQId LED_CMDHandle;
-static osThreadId   selfThreadId = NULL;
+static osThreadId selfThreadId = NULL;
 LED_IF_t ledIf = {
 #if USE_NP == 1
     .init = LED_NP_Init,
@@ -18,7 +18,7 @@ LED_IF_t ledIf = {
     .updateBG = LED_NP_updateBG,
     .updateTG = LED_NP_updateTG,
     .updateFT = LED_NP_updateFT,
-    .applySets= LED_NP_applySets,
+    .applySets = LED_NP_applySets,
 #else
     .init = LED_PWM_Init,
     .updateParam = LED_PWM_Update,
@@ -33,12 +33,12 @@ LED_IF_t ledIf = {
 void MX_LED_startTrigger(LED_CMD_t message)
 {
     LED_Message_t out;
-    
-#if LED_SUPPORT_FOLLOW_AUDIO==0
+
+#if LED_SUPPORT_FOLLOW_AUDIO == 0
     out = message;
     osMessagePut(LED_CMDHandle, out, osWaitForever);
     DEBUG(5, "LED send Message:0x%04x", out);
-#elif LED_SUPPORT_FOLLOW_AUDIO==1
+#elif LED_SUPPORT_FOLLOW_AUDIO == 1
     out.pair.cmd = message;
     out.pair.alt = MX_Audio_getTriggerLastTime();
     osMessagePut(LED_CMDHandle, out.hex, osWaitForever);
