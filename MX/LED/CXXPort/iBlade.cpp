@@ -26,6 +26,7 @@ iBlade::iBlade(size_t num)
     stepL2_ready = stepL2;
     stepL3_ready = stepL3;
     pFlame = new Flame_t(getPixelNum(), MC, SC);
+    pRandomWave = nullptr;
 }
 
 iBlade::~iBlade()
@@ -140,8 +141,8 @@ void iBlade::handleLoop(void *arg)
             flipNeedFresh = false;
             pos = rand() % getPixelNum();
         }
-        int startPos = pos - int(flipLength*getPixelNum()*0.5);
-        int endPos = pos + int(flipLength*getPixelNum()*0.5);
+        int startPos = pos - int(flipLength * getPixelNum() * 0.5);
+        int endPos = pos + int(flipLength * getPixelNum() * 0.5);
 
         // set protected mask
         startMask() = startPos;
@@ -149,7 +150,7 @@ void iBlade::handleLoop(void *arg)
 
         if (flipMode != 5)
         {
-            if (stepL2.now <= stepL2.total/2)
+            if (stepL2.now <= stepL2.total / 2)
             {
                 pushColors();
                 flip_switchColor(flipMode);
@@ -208,10 +209,22 @@ void iBlade::handleLoop(void *arg)
                    minLight);
         break;
     case modeL3_t::Fade:
+    {
+        int startPos = int(filterStartPos * getPixelNum() * (filterDirection == 1 ? float(stepL3) : 1.0f - float(stepL3)));
+        filterSet(maxLight, 0, startPos);
+        filterSet(0, startPos, getPixelNum());
+    }
+    break;
+    case modeL3_t::RandomWave:
+        if (stepL3.now == 0 && pRandomWave == nullptr)
         {
-            int startPos = int( filterStartPos*getPixelNum()*(filterDirection == 1 ? float(stepL3) : 1.0f - float(stepL3)));
-            filterSet(maxLight, 0, startPos);
-            filterSet(0, startPos, getPixelNum());
+            pRandomWave = new RandomWave_t(randomWaveMaxCnt, stepL3, waveLength, maxLight, minLight);
+        }
+        filterSet(minLight);
+        if (pRandomWave && pRandomWave->update(this, waveMaxSpeed) == false)
+        {
+            delete pRandomWave;
+            pRandomWave = nullptr;
         }
         break;
     default:
@@ -400,8 +413,6 @@ void iBlade::backGroundRender(void)
 
 __attribute__((weak)) bool iBlade::parameterUpdate(void* arg)
 {
-    // mutex.lock();
-    // mutex.unlock();
     return true;
 }
 __attribute__((weak)) void iBlade::setNormalParam(void)
@@ -561,6 +572,11 @@ void iBlade::clearL2(void)
 void iBlade::clearL3(void)
 {
     modeL3 = modeL3_t::NoFilter;
+    if (pRandomWave != nullptr)
+    {
+        delete pRandomWave;
+        pRandomWave = nullptr;
+    }
 }
 
 void iBlade::clearProcess(void)

@@ -52,6 +52,9 @@
 #define MX_LED_INTERVAL  (20)
 #endif
 
+
+#define MX_LED_MS2CNT(x) ((x) / MX_LED_INTERVAL)
+
 /**
  * @brief LED持续时长支持根据音频时长
  */

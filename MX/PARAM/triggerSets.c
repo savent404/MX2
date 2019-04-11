@@ -65,6 +65,7 @@ static const char FT[][MAX_STR_LEN] =
     "NP_FADEPOSITION",
     "NP_FADEDIRECTION",
     "NP_TFADE",
+    "NP_WAVECYCLE",
 };
 
 static const char HW[][MAX_STR_LEN] = 

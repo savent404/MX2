@@ -1,11 +1,11 @@
 #pragma once
 
+#include "MX_def.h"
 #include "iBlade_ll.hpp"
 #include "iBlade_ulti.hpp"
 #include "color.hpp"
 #include "flame.hpp"
-
-#define MX_LED_MS2CNT(x) ((x) / MX_LED_INTERVAL)
+#include "randomWave.hpp"
 
 
 /**
@@ -224,6 +224,7 @@ private:
      ** @{ */
     float waveLength;
     int waveDirection;
+    int waveMaxSpeed;
     /** @} */
 
     /**
@@ -295,6 +296,12 @@ private:
     int speardColorShift;
     /** @} */
 
+    /**
+     * @name Storage Param about Filter:RandomWave
+     ** @{ */
+    RandomWave_t* pRandomWave;
+    int randomWaveMaxCnt;
+    /** @} */
 
     /**
      * @name Storage Param about Trigger:Coment
@@ -338,6 +345,7 @@ private:
         Flicker = 2,
         Wave = 3,
         Fade = 4,
+        RandomWave = 5,
     };
     enum modeL1_t DEF_WITH_BACKUP(modeL1);
     enum modeL2_t DEF_WITH_BACKUP(modeL2);

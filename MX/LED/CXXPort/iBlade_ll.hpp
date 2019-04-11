@@ -370,6 +370,25 @@ protected:
             pos -= 2.0f;
         return pos > 0 ? pos : -pos;
     }
+    public:
+    void filterRandomWave(float shift, float length, int _max, int _min)
+    {
+        int len = int(getPixelNum() * length);
+        int startX = int(getPixelNum() * (1.0f + length) * shift) - len/2;
+        int range = int(getPixelNum() * length / 2.0f);
+        range = range <= 0 ? 1 : range;
+        RGB *pC = ptr() + startX - range;
+        int lightDiff = _max - _min;
+        for (int i = startX - range; i < startX + range; i++, pC++)
+        {
+            if (isOutofMask(i))
+                continue;
+            float absPos = float(i - startX) / range;
+            float lightRate = 1.0f - func_trangle(absPos);
+            pC->W = lightRate * lightDiff + _min;
+        }
+    }
+    protected:
     /**
      * @brief 设定灯的亮度，以三角波流动
      */
@@ -386,6 +405,7 @@ protected:
             pC->W = lightRate * lightDiff + _min;
         }
     }
+
 
     void filterShade(int startPos, int endPos, int startLight, int endLight)
     {
