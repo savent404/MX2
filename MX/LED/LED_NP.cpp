@@ -41,6 +41,8 @@ bool iBlade::parameterUpdate(void* arg)
 {
     auto parm = static_cast<PARA_DYNAMIC_t*>(arg);
 
+    while (status != idle)
+        osDelay(50);
     mutex.lock();
 
     setNormalParam();
@@ -383,10 +385,8 @@ void updateFT(iBlade& a, int16_t* p)
             break;
         }
         case 4: {
+            int16_t tmp;
             a.modeL3_ready = iBlade::modeL3_t::Fade;
-            int16_t tmp = triggerSets_getFT(t, "NP_FadePosition");
-            tmp = tmp == -1 ? 0 : tmp;
-            a.filterStartPos = float(tmp) / a.getPixelNum();
             tmp = triggerSets_getFT(t, "NP_FadeDirection");
             tmp = tmp == -1 ? 0 : tmp;
             a.filterDirection = tmp == 0 ? 1 : -1;

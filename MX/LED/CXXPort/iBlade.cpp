@@ -185,7 +185,14 @@ void iBlade::handleLoop(void *arg)
     switch (modeL3)
     {
     case modeL3_t::NoFilter:
-        filterSet(maxLight);
+        if (status == in || status == idle)
+        {
+            filterSet(0);
+        }
+        else
+        {
+            filterSet(maxLight);
+        }
         break;
     case modeL3_t::Breath:
     {
@@ -210,9 +217,21 @@ void iBlade::handleLoop(void *arg)
         break;
     case modeL3_t::Fade:
     {
-        int startPos = int(filterStartPos * getPixelNum() * (filterDirection == 1 ? float(stepL3) : 1.0f - float(stepL3)));
-        filterSet(maxLight, 0, startPos);
-        filterSet(0, startPos, getPixelNum());
+        int startPos = int(getPixelNum() * float(stepL3));
+        if (filterDirection == -1)
+            startPos = getPixelNum() - startPos;
+        if ((status == out && filterDirection == 1) ||
+            (status == in && filterDirection == -1))
+        {
+            filterSet(maxLight, 0, startPos);
+            filterSet(0, startPos, getPixelNum());
+        }
+        else
+        {
+
+            filterSet(0, 0, startPos);
+            filterSet(maxLight, startPos, getPixelNum());
+        }
     }
     break;
     case modeL3_t::RandomWave:
@@ -226,7 +245,7 @@ void iBlade::handleLoop(void *arg)
             delete pRandomWave;
             pRandomWave = nullptr;
         }
-        break;
+    break;
     default:
         filterLimit(maxLight, minLight);
         break;
@@ -288,18 +307,51 @@ void iBlade::handleTrigger(const void *evt)
     {
         RGB black(0, 0, 0);
         drawLine(black, 0, getPixelNum());
-        // set trigger'Out'
         status = out;
-        stepL3 = step_t(0, MX_LED_MS2CNT(alt), 0);
-        modeL3 = modeL3_t::Fade;
-        filterDirection = 1;
+
+        // if already prepare a 'fade' trigger, ignore default config
+        // else set L3 as default fade
+        if (modeL3 != modeL3_t::Fade)
+        {
+            modeL3 = modeL3_t::Fade;
+            filterDirection = 1;
+            if (stepL3.total != 0 && stepL3.repeatCnt == 0)
+            {
+
+            }
+            else
+            {
+                stepL3 = stepProcess;
+            }
+        }
+        else
+        {
+            // stepL3 = stepProcess;
+        }
+        break;
     }
-    break;
     case LED_Trigger_Stop:
         status = in;
-        stepL3 = step_t(0, MX_LED_MS2CNT(alt), 0);
-        modeL3 = modeL3_t::Fade;
-        filterDirection = -1;
+
+        // if already prepare a 'fade' trigger, ignore default config
+        // else set L3 as default fade
+        if (modeL3 != modeL3_t::Fade)
+        {
+            modeL3 = modeL3_t::Fade;
+            filterDirection = -1;
+            if (stepL3.total != 0 && stepL3.repeatCnt == 0)
+            {
+
+            }
+            else
+            {
+                stepL3 = stepProcess;
+            }
+        }
+        else
+        {
+            // stepL3 = stepProcess;
+        }
         break;
 
     // stop trigger
@@ -553,7 +605,6 @@ __attribute__((weak)) void iBlade::setFilterParam(iBlade::modeL3_t mode)
     case modeL3_t::Fade:
         stepL3 = step_t(0, MX_LED_MS2CNT(1000), step_t::infinity);
         filterDirection = 1;
-        filterStartPos = 0.0f;
         break;
     }
     DEBUG(5, "There is");

@@ -15,6 +15,7 @@
 #define __LED_POP(x)  ((x) = (x##_backup))
 #define __LED_APPLE(x) ((x) = (x##_ready))
 #define __LED_STASH(x) ((x##_ready) = (x))
+#define __LED_APPLE_CLEAR(x) ((x##_ready) = (x##_backup))
 
 /**
  * @brief def a var with backup
@@ -121,6 +122,17 @@ protected:
         __LED_STASH(maxLight);
         __LED_STASH(minLight);
     }
+    inline void clearApplySets(void)
+    {
+        __LED_APPLE_CLEAR(modeL1);
+        __LED_APPLE_CLEAR(modeL2);
+        __LED_APPLE_CLEAR(modeL3);
+        __LED_APPLE_CLEAR(stepL1);
+        __LED_APPLE_CLEAR(stepL2);
+        __LED_APPLE_CLEAR(stepL3);
+        __LED_APPLE_CLEAR(maxLight);
+        __LED_APPLE_CLEAR(minLight);
+    }
     inline void applySet(void)
     {
         if (modeL1 == modeL1_ready)
@@ -160,6 +172,8 @@ protected:
         }
         __LED_APPLE(maxLight);
         __LED_APPLE(minLight);
+
+        clearApplySets();
     }
 private:
     mutex_t mutex;
@@ -231,7 +245,6 @@ private:
      * @name Storage Param about Filter:Fade
      ** @{ */
     int filterDirection;
-    float filterStartPos;
     /** @} */
 
     /**

@@ -62,7 +62,6 @@ static const char FT[][MAX_STR_LEN] =
     "NP_WAVELENGTH",
     "NP_WAVESPEED",
     "NP_WAVECOUNT",
-    "NP_FADEPOSITION",
     "NP_FADEDIRECTION",
     "NP_TFADE",
     "NP_WAVECYCLE",
