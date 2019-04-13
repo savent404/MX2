@@ -67,6 +67,7 @@ osSemaphoreId NpOperate_Cplt_FlagHandle;
 
 /* USER CODE BEGIN Variables */
 osThreadId SimpleLEDHandle;
+__attribute__((used)) int uxTopUsedPriority = configMAX_PRIORITIES - 1;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -91,6 +92,7 @@ __weak void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTask
    called if a stack overflow is detected. */
    __ASM("BKPT 0");
    printf("[FreeRTOS]:a stack overflow is detected.\r\n");
+   printf("%d\r\n", uxTopUsedPriority);
 }
 /* USER CODE END 4 */
 
@@ -188,7 +190,6 @@ __weak void Test_Task(void const * argument)
   }
   /* USER CODE END Wav_Task */
 }
-
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -85,7 +85,6 @@ void MX_LOOP_Handle(void const* arg)
 
     MX_WTDG_FEED();
     /* Break point here */
-    DEBUG_BKPT();
     USR.sys_status = System_Restart;
     usr_switch_bank(0);
     USR.bank_color = 0;

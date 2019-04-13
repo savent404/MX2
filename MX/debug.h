@@ -19,6 +19,7 @@
     if (exp) {                               \
         DEBUG(level, format, ##__VA_ARGS__); \
     }
+
 #else
 #define DEBUG(level, format, ...) ;
 #define DEBUG_BKPT()
@@ -28,3 +29,8 @@
 #ifndef _Error_Handler
 #define _Error_Handler(fileName, Line) DEBUG(0, "Error occur File:%s\tLine:%d", fileName, Line)
 #endif
+
+#define DEBUG_ASSERT(exp) \
+    if (!exp) {           \
+        DEBUG_BKPT();     \
+    }
