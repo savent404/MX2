@@ -46,7 +46,7 @@ void MX_MUX_Init(void)
             tracks[i].maxium_slot = 1;
         else
             tracks[i].maxium_slot = 2;
-        tracks[i].slots = (MUX_Slot_t*)pvPortMalloc(sizeof(MUX_Track_t) * tracks[i].maxium_slot);
+        tracks[i].slots = (MUX_Slot_t*)pvPortMalloc(sizeof(MUX_Slot_t) * tracks[i].maxium_slot);
         tracks[i].buffer = (muxBuffer_t*)pvPortMalloc(sizeof(muxBuffer_t) * MX_MUX_BUFFSIZE * 2);
         tracks[i].bufferSize = MX_MUX_BUFFSIZE * 2;
         tracks[i].pos = pos1;
@@ -192,16 +192,21 @@ void MX_MUX_Handle(void const* arg)
                 continue;
             /** pSlot->mode != SlotMode_Idel ***/
 
-            int readedSize = mux_fileObj_read(pSlot->pObj, readBuffer, bufferByteSize);
-            mux_convert_addToInt(readBuffer, storageBuffer, readedSize / sizeof(muxBuffer_t), &f);
+            int leftSize = mux_fileObj_getSize(pSlot->pObj) - mux_fileObj_tell(pSlot->pObj);
+            int readedSize;
+            if (leftSize >= bufferByteSize)
+            {
+                readedSize = mux_fileObj_read(pSlot->pObj, readBuffer, bufferByteSize);
+                leftSize = bufferByteSize - readedSize;
+                mux_convert_addToInt(readBuffer, storageBuffer, bufferSize, &f);
+            }
 
-            if (readedSize == bufferByteSize)
+            if (!leftSize)
                 continue;
             /** readSize < bufferByteSize ******/
             switch (pSlot->mode) {
             case SlotMode_Once:
-                if (mux_fileObj_close(pSlot->pObj) == false)
-                    break;
+                mux_fileObj_close(pSlot->pObj);
                 pSlot->mode = SlotMode_Idle;
                 callCallbackFunc(pSlot->callback[SlotCallback_Destory]);
                 clearAllCallback(pSlot);

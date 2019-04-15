@@ -10,7 +10,8 @@
 MX_C_API static inline void
 mux_convert_addToInt(const void* source, int* dest, int size, float* f)
 {
-    static const float factor = 32.0;
+    static const float factor = 64;
+    static const float div = 2;
     float _f = *f;
     int buf;
     int16_t* _s = (int16_t*)source;
@@ -19,12 +20,12 @@ mux_convert_addToInt(const void* source, int* dest, int size, float* f)
         buf = *_d + (*_s++);
 
         if (buf > INT16_MAX) {
-            _f = INT16_MAX / 2.0f / buf;
+            _f = INT16_MAX / div / buf;
             buf = INT16_MAX;
         }
         buf *= _f;
         if (buf < INT16_MIN) {
-            _f = INT16_MAX / 2.0f / buf;
+            _f = INT16_MIN / div / buf;
             buf = INT16_MIN;
         }
         if (_f < 1.0f) {
