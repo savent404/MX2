@@ -1,11 +1,11 @@
-build-pwm:
-    script:
-        - mkdir build
-        - cd build
-        - export PATH=$PATH:/opt/gcc-arm-none-eabi/bin
-        - cmake .. -DCMAKE_TOOLCHAIN_FILE=../defaultBSP/ToolChain.cmake || if [$? -eq 64]; then echo "rebuild cmake"; fi
-        - cmake .. -DCMAKE_TOOLCHAIN_FILE=../defaultBSP/ToolChain.cmake
-        - make
+# build-pwm:
+#     script:
+#         - mkdir build
+#         - cd build
+#         - export PATH=$PATH:/opt/gcc-arm-none-eabi/bin
+#         - cmake .. -DCMAKE_TOOLCHAIN_FILE=../defaultBSP/ToolChain.cmake || if [$? -eq 64]; then echo "rebuild cmake"; fi
+#         - cmake .. -DCMAKE_TOOLCHAIN_FILE=../defaultBSP/ToolChain.cmake
+#         - make
 # build-np:
 #     script:
 #         - mkdir build
