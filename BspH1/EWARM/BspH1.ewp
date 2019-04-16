@@ -1292,55 +1292,64 @@
     <group>
         <name>UserApp</name>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\AUDIO\audio.c</name>
+            <name>$PROJ_DIR$\..\..\MX\AUDIO\audio.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\AUDIO\audio_defaultPort.c</name>
+            <name>$PROJ_DIR$\..\..\MX\AUDIO\audio_defaultPort.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\Console\console.c</name>
+            <name>$PROJ_DIR$\..\..\MX\Console\console.cpp</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\cPlusMalloc.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\Hand\hand.c</name>
+            <name>$PROJ_DIR$\..\..\MX\Hand\hand.cpp</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\LED\CXXPort\iBlade.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\KEY\key.c</name>
+            <name>$PROJ_DIR$\..\..\MX\KEY\key.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\LED\LED.c</name>
+            <name>$PROJ_DIR$\..\..\MX\LED\LED.cpp</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\LED\LED_NP.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\LOOP\LOOP.c</name>
+            <name>$PROJ_DIR$\..\..\MX\LOOP\LOOP.cpp</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\MUX\mux.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\PARAM\param.c</name>
+            <name>$PROJ_DIR$\..\..\MX\MUX\mux_convert_internal_dac.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\MUX\mux_fileobj_fatfs.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\PARAM\param.cpp</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\PM\pm.cpp</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\PARAM\re.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\SimpleLED\SimpleLED.c</name>
+            <name>$PROJ_DIR$\..\..\MX\SimpleLED\SimpleLED.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\PARAM\triggerPath.c</name>
+            <name>$PROJ_DIR$\..\..\MX\PARAM\triggerPath.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\PARAM\triggerSets.c</name>
+            <name>$PROJ_DIR$\..\..\MX\PARAM\triggerSets.cpp</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\MX\PARAM\USR_CONFIG.c</name>
+            <name>$PROJ_DIR$\..\..\MX\PARAM\USR_CONFIG.cpp</name>
         </file>
     </group>
 </project>

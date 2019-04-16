@@ -446,3 +446,7 @@ void saveContext(void)
 {
     USR.colorMatrix.colorIndex[USR.bank_now] = USR.np_colorIndex;
 }
+
+__weak void MX_WTDG_HW_Feed(void)
+{
+}
