@@ -1,13 +1,6 @@
-#pragma once
+#include "mux_convert_internal.h"
 
-#include "MX_def.h"
-#include <stdint.h>
-
-#ifndef DAC_FIX_OFFSET
-#define DAC_FIX_OFFSET (0x800)
-#endif
-
-MX_C_API static inline void
+MX_C_API void
 mux_convert_addToInt(const void* source, int* dest, int size, float* f)
 {
     static const float factor = 64;
@@ -36,7 +29,7 @@ mux_convert_addToInt(const void* source, int* dest, int size, float* f)
     *f = _f;
 }
 
-MX_C_API static inline void
+MX_C_API void
 mux_convert_mergeToBuffer(const int* source, void* dest, int size, int vol)
 {
     uint16_t* _d = (uint16_t*)dest;
@@ -54,7 +47,7 @@ mux_convert_mergeToBuffer(const int* source, void* dest, int size, int vol)
     }
 }
 
-MX_C_API static inline void
+MX_C_API void
 mux_resetDmaBuffer(void* in, int size)
 {
     uint16_t* ptr = (uint16_t*)in;

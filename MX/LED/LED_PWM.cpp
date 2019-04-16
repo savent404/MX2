@@ -62,10 +62,10 @@ void LED_PWM_Handle(PARA_DYNAMIC_t* ptr)
     osEvent evt = MX_LED_GetMessage(20);
 
 #if LED_SUPPORT_FOLLOW_AUDIO == 0
-    message = evt.value.v;
+    message = static_cast<LED_CMD_t>(evt.value.v);
     cmd = message;
 #elif LED_SUPPORT_FOLLOW_AUDIO == 1
-    message.hex = evt.value.v;
+    message.hex = static_cast<LED_CMD_t>(evt.value.v);
     cmd = message.pair.cmd;
 #endif
 // 当在LED执行函数中收到了额外的动作命令，将忽略上方代码并跳转到此处
@@ -259,7 +259,7 @@ static LED_CMD_t LED_RGB_Charging(uint32_t step, uint32_t step_ms, uint32_t peri
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
-        return evt.value.v;
+        return static_cast<LED_CMD_t>(evt.value.v);
 }
 static LED_CMD_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t period_ms)
 {
@@ -276,7 +276,7 @@ static LED_CMD_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t perio
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
-        return evt.value.v;
+        return static_cast<LED_CMD_t>(evt.value.v);
 }
 static LED_CMD_t LED_RGB_Breath(uint32_t step, uint32_t step_ms, uint32_t period_ms)
 {
@@ -291,7 +291,7 @@ static LED_CMD_t LED_RGB_Breath(uint32_t step, uint32_t step_ms, uint32_t period
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
-        return evt.value.v;
+        return static_cast<LED_CMD_t>(evt.value.v);
 }
 static LED_CMD_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
 {
@@ -305,10 +305,10 @@ static LED_CMD_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
         return LED_NoTrigger;
     else {
 #if LED_SUPPORT_FOLLOW_AUDIO == 0
-        return evt.value.v;
+        return static_cast<LED_CMD_t>(evt.value.v);
 #elif LED_SUPPORT_FOLLOW_AUDIO == 1
         LED_Message_t message;
-        message.hex = evt.value.v;
+        message.hex = static_cast<LED_CMD_t>(evt.value.v);
         return message.pair.cmd;
 #endif
     }
@@ -322,7 +322,7 @@ static LED_CMD_t LED_RGB_Pulse(uint32_t step_ms)
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
-        return evt.value.v;
+        return static_cast<LED_CMD_t>(evt.value.v);
 }
 static LED_CMD_t LED_RGB_SoftRise(uint32_t step, uint32_t step_ms, uint32_t total_ms)
 {
@@ -335,7 +335,7 @@ static LED_CMD_t LED_RGB_SoftRise(uint32_t step, uint32_t step_ms, uint32_t tota
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
-        return evt.value.v;
+        return static_cast<LED_CMD_t>(evt.value.v);
 }
 static LED_CMD_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms, uint32_t step, uint32_t step_ms, uint32_t total_ms)
 {
@@ -376,7 +376,7 @@ static LED_CMD_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms, uin
     //LED_RGB_Limited(BankColor[0]*d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4));
     // osEvent evt = MX_LED_GetMessage(step_ms);
     // if (evt.status != osEventMessage) return LED_NoTrigger;
-    // else return evt.value.v;
+    // else return static_cast<LED_CMD_t>(evt.value.v);
     return LED_NoTrigger;
 }
 static LED_CMD_t LED_RGB_SoftDown(uint32_t step, uint32_t step_ms, uint32_t total_ms)
@@ -394,5 +394,5 @@ static LED_CMD_t LED_RGB_SoftDown(uint32_t step, uint32_t step_ms, uint32_t tota
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
     else
-        return evt.value.v;
+        return static_cast<LED_CMD_t>(evt.value.v);
 }

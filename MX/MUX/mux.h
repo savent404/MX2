@@ -4,13 +4,9 @@
 
 #include "mux-def.h"
 
-#if 1
-#include "mux_fileobj_fatfs.h"
-#endif
+#include "mux_fileobj.h"
 
-#if 1
-#include "mux_convert_internal_dac.h"
-#endif
+#include "mux_convert_internal.h"
 
 MX_C_API void MX_MUX_Init(void);
 MX_C_API void MX_MUX_DeInit(void);

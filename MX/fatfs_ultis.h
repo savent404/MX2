@@ -6,7 +6,7 @@ static inline FILINFO* fatfs_allocFileInfo(void)
 {
     FILINFO* info = (FILINFO*)pvPortMalloc(sizeof(*info));
 #if _USE_LFN
-    info->lfname = pvPortMalloc(64);
+    info->lfname = static_cast<TCHAR*>(pvPortMalloc(64));
 #endif
     return info;
 }

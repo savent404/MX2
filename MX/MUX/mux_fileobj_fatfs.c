@@ -1,12 +1,6 @@
-#pragma once
+#include "mux_fileobj.h"
 
-#include "MX_def.h"
-#include "debug.h"
-#include "ff.h"
-#include "mux-def.h"
-#include <stdbool.h>
-
-MX_C_API static inline bool
+MX_C_API bool
 mux_fileObj_open(MUX_FileObj_t* pFile, const char* filePath)
 {
     FRESULT res = f_open(pFile, filePath, FA_READ);
@@ -17,7 +11,7 @@ mux_fileObj_open(MUX_FileObj_t* pFile, const char* filePath)
     return true;
 }
 
-MX_C_API static inline bool
+MX_C_API bool
 mux_fileObj_close(MUX_FileObj_t* pFile)
 {
     FRESULT res = f_close(pFile);
@@ -28,7 +22,7 @@ mux_fileObj_close(MUX_FileObj_t* pFile)
     return true;
 }
 
-MX_C_API static inline int
+MX_C_API int
 mux_fileObj_read(MUX_FileObj_t* pFile, void* out, int size)
 {
     UINT cnt;
@@ -36,19 +30,19 @@ mux_fileObj_read(MUX_FileObj_t* pFile, void* out, int size)
     return (int)cnt;
 }
 
-MX_C_API static inline int
+MX_C_API int
 mux_fileObj_getSize(MUX_FileObj_t* pFile)
 {
     return (int)(f_size((FIL*)pFile));
 }
 
-MX_C_API static inline int
+MX_C_API int
 mux_fileObj_tell(MUX_FileObj_t* pFile)
 {
     return (int)(f_tell((FIL*)pFile));
 }
 
-MX_C_API static inline bool
+MX_C_API bool
 mux_fileObj_seek(MUX_FileObj_t* pFile, int ofs)
 {
     FRESULT res = f_lseek(pFile, (DWORD)ofs);
@@ -59,7 +53,7 @@ mux_fileObj_seek(MUX_FileObj_t* pFile, int ofs)
     return true;
 }
 
-MX_C_API static inline unsigned
+MX_C_API unsigned
 mux_fileObj_lastTime(MUX_FileObj_t* pFile)
 {
     unsigned long leftSize = f_size((FIL*)pFile);
