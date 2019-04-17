@@ -1,0 +1,14 @@
+---
+Language:        Cpp
+BasedOnStyle:  WebKit
+AlignAfterOpenBracket : Align
+AlignConsecutiveAssignments : true
+AlignConsecutiveDeclarations: true
+AlignOperands : true
+FixNamespaceComments : true
+IncludeBlocks : Preserve
+IndentCaseLabels : false
+IndentPPDirectives : AfterHash
+SpacesInSquareBrackets : true
+...
+
