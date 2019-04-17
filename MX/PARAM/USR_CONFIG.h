@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-extern PARA_DYNAMIC_t USR;
+extern PARA_DYNAMIC_t      USR;
 extern const PARA_STATIC_t STATIC_USR;
 MX_C_API uint8_t usr_config_init(void);
 MX_C_API uint8_t usr_switch_bank(int dest);

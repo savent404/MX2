@@ -41,15 +41,15 @@ struct step_t {
      */
     step_t(int _now = 0, int _total = 0, int _repeat = 0)
     {
-        now = _now;
-        total = _total;
+        now       = _now;
+        total     = _total;
         repeatCnt = _repeat;
     }
 
     step_t& operator=(const step_t step)
     {
-        this->now = step.now;
-        this->total = step.total;
+        this->now       = step.now;
+        this->total     = step.total;
         this->repeatCnt = step.repeatCnt;
         return *this;
     }
@@ -61,7 +61,7 @@ struct step_t {
     explicit operator float()
     {
         float fTotal = total == 0 ? 1 : total;
-        float res = float(now) / fTotal;
+        float res    = float(now) / fTotal;
         return res > 1.0f ? 1.0f : res;
     }
     /**

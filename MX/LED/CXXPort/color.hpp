@@ -51,10 +51,10 @@ public:
      * @warning 因性能考虑已弃用
      */
     RGB(const RGB& r,
-        int offset_r,
-        int offset_g,
-        int offset_b,
-        int offset_w)
+        int        offset_r,
+        int        offset_g,
+        int        offset_b,
+        int        offset_w)
     {
         R = r.R + offset_r;
         G = r.G + offset_g;
@@ -216,18 +216,18 @@ public:
      */
     static RGB midColor(const RGB& source, const RGB& dest, float offset)
     {
-        int16_t sub[4];
-        sub[0] = dest.R - source.R;
-        sub[1] = dest.G - source.G;
-        sub[2] = dest.B - source.B;
-        sub[3] = dest.W - source.W;
+        int16_t sub[ 4 ];
+        sub[ 0 ] = dest.R - source.R;
+        sub[ 1 ] = dest.G - source.G;
+        sub[ 2 ] = dest.B - source.B;
+        sub[ 3 ] = dest.W - source.W;
 
         for (int i = 0; i < 4; i++)
-            sub[i] *= offset;
-        return RGB(source.R + sub[0],
-            source.G + sub[1],
-            source.B + sub[2],
-            source.W + sub[3]);
+            sub[ i ] *= offset;
+        return RGB(source.R + sub[ 0 ],
+                   source.G + sub[ 1 ],
+                   source.B + sub[ 2 ],
+                   source.W + sub[ 3 ]);
     }
 };
 /**
@@ -329,6 +329,7 @@ typedef struct HSV {
         max = max > b ? max : b;
 
         this->v = max;
+
         delta = max - min;
 
         if (delta < 0.0001f) {

@@ -2,21 +2,21 @@
 #include <math.h>
 
 /** Some private parameters */
-static const uint32_t T_SP = 300; //慢速脉冲模式，亮度变化周期，单位ms
-static const uint32_t T_MP = 150; //中速脉冲模式，亮度变化周期，单位ms
-static const uint32_t T_FP = 75; //快速脉冲模式，亮度变化周期，单位ms
-static const uint32_t T_Spark = 200; //Trigger Spark维持时长
-static const uint32_t T_nSpark = 150; //Trigger nSpark维持时长
+static const uint32_t T_SP        = 300; //慢速脉冲模式，亮度变化周期，单位ms
+static const uint32_t T_MP        = 150; //中速脉冲模式，亮度变化周期，单位ms
+static const uint32_t T_FP        = 75; //快速脉冲模式，亮度变化周期，单位ms
+static const uint32_t T_Spark     = 200; //Trigger Spark维持时长
+static const uint32_t T_nSpark    = 150; //Trigger nSpark维持时长
 static const uint32_t T_nSparkGap = 150; //Trigger nSpark间隔时长
 static const uint32_t nSparkCount = 2; //Trigger nSpark翻转次数
 static const uint32_t T_Electricl = 100; //Trigger Electricl 间隔时长
-static uint16_t T_BREATH; //LMode呼吸灯周期
-static uint16_t BankColor[4]; //R G B L
-static uint16_t FBankColor[4]; //R G B L
-static uint16_t LBright = 0;
-static uint16_t LDeep = 0;
-static uint16_t LMode = 0;
-static uint32_t breath_step = 0;
+static uint16_t       T_BREATH; //LMode呼吸灯周期
+static uint16_t       BankColor[ 4 ]; //R G B L
+static uint16_t       FBankColor[ 4 ]; //R G B L
+static uint16_t       LBright     = 0;
+static uint16_t       LDeep       = 0;
+static uint16_t       LMode       = 0;
+static uint32_t       breath_step = 0;
 
 __weak bool LED_PWM_Init(void* arg)
 {
@@ -32,24 +32,24 @@ __weak bool LED_PWM_Init(void* arg)
 }
 bool LED_PWM_Update(PARA_DYNAMIC_t* pt)
 {
-    uint8_t bank = (pt->bank_now + pt->bank_color) % pt->nBank;
+    uint8_t   bank  = (pt->bank_now + pt->bank_color) % pt->nBank;
     uint32_t* point = pt->BankColor + (bank * 4);
 
-    BankColor[0] = (uint16_t)*point & 0xFFFF;
-    BankColor[1] = (uint16_t)(*point >> 16);
+    BankColor[ 0 ] = (uint16_t)*point & 0xFFFF;
+    BankColor[ 1 ] = (uint16_t)(*point >> 16);
     point += 1;
-    BankColor[2] = (uint16_t)*point & 0xFFFF;
-    BankColor[3] = (uint16_t)(*point >> 16);
+    BankColor[ 2 ] = (uint16_t)*point & 0xFFFF;
+    BankColor[ 3 ] = (uint16_t)(*point >> 16);
     point += 1;
-    FBankColor[0] = (uint16_t)*point & 0xFFFF;
-    FBankColor[1] = (uint16_t)(*point >> 16);
+    FBankColor[ 0 ] = (uint16_t)*point & 0xFFFF;
+    FBankColor[ 1 ] = (uint16_t)(*point >> 16);
     point += 1;
-    FBankColor[2] = (uint16_t)*point & 0xFFFF;
-    FBankColor[3] = (uint16_t)(*point >> 16);
+    FBankColor[ 2 ] = (uint16_t)*point & 0xFFFF;
+    FBankColor[ 3 ] = (uint16_t)(*point >> 16);
 
-    LBright = pt->config->Lbright;
-    LDeep = pt->config->Ldeep;
-    LMode = pt->config->LMode;
+    LBright  = pt->config->Lbright;
+    LDeep    = pt->config->Ldeep;
+    LMode    = pt->config->LMode;
     T_BREATH = pt->config->T_Breath;
 
     return true;
@@ -58,32 +58,32 @@ bool LED_PWM_Update(PARA_DYNAMIC_t* pt)
 void LED_PWM_Handle(PARA_DYNAMIC_t* ptr)
 {
     LED_Message_t message;
-    LED_CMD_t cmd;
-    osEvent evt = MX_LED_GetMessage(20);
+    LED_CMD_t     cmd;
+    osEvent       evt = MX_LED_GetMessage(20);
 
 #if LED_SUPPORT_FOLLOW_AUDIO == 0
     message = static_cast<LED_CMD_t>(evt.value.v);
-    cmd = message;
+    cmd     = message;
 #elif LED_SUPPORT_FOLLOW_AUDIO == 1
     message.hex = static_cast<LED_CMD_t>(evt.value.v);
-    cmd = message.pair.cmd;
+    cmd         = message.pair.cmd;
 #endif
 // 当在LED执行函数中收到了额外的动作命令，将忽略上方代码并跳转到此处
 GETMESSAGE:
     switch (cmd) {
     case LED_Trigger_Start: {
-        uint32_t step = 0;
-        uint32_t step_ms = 10;
-        uint32_t max_step = USR.config->ChDelay[0] / step_ms;
-        uint8_t cnt = 0;
+        uint32_t step     = 0;
+        uint32_t step_ms  = 10;
+        uint32_t max_step = USR.config->ChDelay[ 0 ] / step_ms;
+        uint8_t  cnt      = 0;
         for (cnt = 0; cnt < 3; cnt++)
-            if (max_step < USR.config->ChDelay[cnt + 1] / step_ms)
-                max_step = USR.config->ChDelay[cnt + 1] / step_ms;
+            if (max_step < USR.config->ChDelay[ cnt + 1 ] / step_ms)
+                max_step = USR.config->ChDelay[ cnt + 1 ] / step_ms;
         while (step < max_step + USR.config->TLon / step_ms) {
-            LED_RGB_SoftRise_Single(0, USR.config->ChDelay[0], step, step_ms, USR.config->TLon);
-            LED_RGB_SoftRise_Single(1, USR.config->ChDelay[1], step, step_ms, USR.config->TLon);
-            LED_RGB_SoftRise_Single(2, USR.config->ChDelay[2], step, step_ms, USR.config->TLon);
-            LED_RGB_SoftRise_Single(3, USR.config->ChDelay[3], step, step_ms, USR.config->TLon);
+            LED_RGB_SoftRise_Single(0, USR.config->ChDelay[ 0 ], step, step_ms, USR.config->TLon);
+            LED_RGB_SoftRise_Single(1, USR.config->ChDelay[ 1 ], step, step_ms, USR.config->TLon);
+            LED_RGB_SoftRise_Single(2, USR.config->ChDelay[ 2 ], step, step_ms, USR.config->TLon);
+            LED_RGB_SoftRise_Single(3, USR.config->ChDelay[ 3 ], step, step_ms, USR.config->TLon);
             osDelay(step_ms);
             step += 1;
         }
@@ -114,7 +114,7 @@ GETMESSAGE:
     if (USR.sys_status == System_Running) {
         switch (USR.config->LMode) {
         case LED_LMode_Method_Static: {
-            LED_RGB_Limited(BankColor[0], BankColor[1], BankColor[2], BankColor[3]);
+            LED_RGB_Limited(BankColor[ 0 ], BankColor[ 1 ], BankColor[ 2 ], BankColor[ 3 ]);
         } break;
         case LED_LMode_Method_Breath: {
             while ((cmd = LED_RGB_Breath(breath_step++, 10, T_BREATH)) == LED_NoTrigger)
@@ -150,8 +150,8 @@ GETMESSAGE:
 
 static LED_CMD_t LED_Trigger_Method(LED_CMD_t trigger_bcd)
 {
-    uint8_t trigger_mode;
-    uint8_t using_mode;
+    uint8_t   trigger_mode;
+    uint8_t   using_mode;
     LED_CMD_t message;
     switch (trigger_bcd) {
     case LED_TriggerB:
@@ -186,7 +186,7 @@ static LED_CMD_t LED_Trigger_Method(LED_CMD_t trigger_bcd)
     } break;
     case LED_Trigger_Method_nSpark: {
         uint32_t totalTime = MX_Audio_getTriggerLastTime();
-        uint8_t cnt = totalTime / (T_nSpark + T_nSparkGap);
+        uint8_t  cnt       = totalTime / (T_nSpark + T_nSparkGap);
         while (cnt--) {
             message = LED_RGB_Toggle(0, T_nSpark);
             if (message > trigger_bcd)
@@ -221,7 +221,7 @@ static void LED_RGB_Output(uint16_t r, uint16_t g, uint16_t b, uint16_t l)
 static void LED_RGB_Limited(uint16_t r, uint16_t g, uint16_t b, uint16_t l)
 {
     float ave = (r + g + b + l) / 1024.0 / 4.0;
-    float a = LBright / 1024.0;
+    float a   = LBright / 1024.0;
     if (ave > a)
         ave = a / ave;
     else
@@ -233,23 +233,23 @@ static void LED_RGB_Limited(uint16_t r, uint16_t g, uint16_t b, uint16_t l)
 }
 static void LED_RGB_Output_Light(uint16_t* colors, float light)
 {
-    uint16_t* pt = colors;
-    float ave = (pt[0] + pt[1] + pt[2] + pt[3]) / 1024.0f / 4.0f;
-    float a = light / ave;
-    CHx_VAL(1) = a * pt[0];
-    CHx_VAL(2) = a * pt[1];
-    CHx_VAL(3) = a * pt[2];
-    CHx_VAL(4) = a * pt[3];
+    uint16_t* pt  = colors;
+    float     ave = (pt[ 0 ] + pt[ 1 ] + pt[ 2 ] + pt[ 3 ]) / 1024.0f / 4.0f;
+    float     a   = light / ave;
+    CHx_VAL(1)    = a * pt[ 0 ];
+    CHx_VAL(2)    = a * pt[ 1 ];
+    CHx_VAL(3)    = a * pt[ 2 ];
+    CHx_VAL(4)    = a * pt[ 3 ];
 }
 // Ever time run single step, if a trigger is coming, return triggerid
 
 // Color: Bank->FBank->Bank
 static LED_CMD_t LED_RGB_Charging(uint32_t step, uint32_t step_ms, uint32_t period_ms)
 {
-    const float pi_2 = 3.141592654 * 2;
-    uint32_t period_step = period_ms / step_ms;
+    const float pi_2        = 3.141592654 * 2;
+    uint32_t    period_step = period_ms / step_ms;
     step %= period_step;
-    float d = cos(pi_2 * (float)step / (float)period_step) / 2 + 0.5;
+    float    d = cos(pi_2 * (float)step / (float)period_step) / 2 + 0.5;
     uint16_t r = 1024 * 0.15 * d;
     uint16_t g = 0;
     uint16_t b = 0;
@@ -263,10 +263,10 @@ static LED_CMD_t LED_RGB_Charging(uint32_t step, uint32_t step_ms, uint32_t peri
 }
 static LED_CMD_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t period_ms)
 {
-    const float pi_2 = 3.141592654 * 2;
-    uint32_t period_step = period_ms / step_ms;
+    const float pi_2        = 3.141592654 * 2;
+    uint32_t    period_step = period_ms / step_ms;
     step %= period_step;
-    float d = cos(pi_2 * (float)step / (float)period_step) / 2 + 0.5;
+    float    d = cos(pi_2 * (float)step / (float)period_step) / 2 + 0.5;
     uint16_t r = 0;
     uint16_t g = 0;
     uint16_t b = 1024 * 0.15 * d;
@@ -280,9 +280,9 @@ static LED_CMD_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t perio
 }
 static LED_CMD_t LED_RGB_Breath(uint32_t step, uint32_t step_ms, uint32_t period_ms)
 {
-    const float pi_2 = 3.141592654 * 2;
-    uint32_t period_step = period_ms / step_ms;
-    float A = (LBright - LDeep) / 1024.0;
+    const float pi_2        = 3.141592654 * 2;
+    uint32_t    period_step = period_ms / step_ms;
+    float       A           = (LBright - LDeep) / 1024.0;
     step %= period_step;
     float d = cos(pi_2 * (float)step / (float)period_step) * A / 2 + 0.5 * A + LDeep / 1024.0;
 
@@ -297,9 +297,9 @@ static LED_CMD_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
 {
     step %= 2;
     if (!step)
-        LED_RGB_Limited(FBankColor[0], FBankColor[1], FBankColor[2], FBankColor[3]);
+        LED_RGB_Limited(FBankColor[ 0 ], FBankColor[ 1 ], FBankColor[ 2 ], FBankColor[ 3 ]);
     else
-        LED_RGB_Limited(BankColor[0], BankColor[1], BankColor[2], BankColor[3]);
+        LED_RGB_Limited(BankColor[ 0 ], BankColor[ 1 ], BankColor[ 2 ], BankColor[ 3 ]);
     osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
@@ -315,8 +315,8 @@ static LED_CMD_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms)
 }
 static LED_CMD_t LED_RGB_Pulse(uint32_t step_ms)
 {
-    uint16_t buf = rand() % (LBright - LDeep) + LDeep;
-    float light = (float)buf / 1024;
+    uint16_t buf   = rand() % (LBright - LDeep) + LDeep;
+    float    light = (float)buf / 1024;
     LED_RGB_Output_Light(BankColor, light);
     osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
@@ -326,11 +326,11 @@ static LED_CMD_t LED_RGB_Pulse(uint32_t step_ms)
 }
 static LED_CMD_t LED_RGB_SoftRise(uint32_t step, uint32_t step_ms, uint32_t total_ms)
 {
-    const float pi_div2 = 3.141592654 / 2;
-    uint32_t step_num = total_ms / step_ms;
+    const float pi_div2  = 3.141592654 / 2;
+    uint32_t    step_num = total_ms / step_ms;
     // Get a function like y = 1 - cos(x)
     float d = 1 - cos(pi_div2 * (float)step / (float)step_num);
-    LED_RGB_Limited(BankColor[0] * d, BankColor[1] * d, BankColor[2] * d, BankColor[3] * d);
+    LED_RGB_Limited(BankColor[ 0 ] * d, BankColor[ 1 ] * d, BankColor[ 2 ] * d, BankColor[ 3 ] * d);
     osEvent evt = MX_LED_GetMessage(step_ms);
     if (evt.status != osEventMessage)
         return LED_NoTrigger;
@@ -339,9 +339,9 @@ static LED_CMD_t LED_RGB_SoftRise(uint32_t step, uint32_t step_ms, uint32_t tota
 }
 static LED_CMD_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms, uint32_t step, uint32_t step_ms, uint32_t total_ms)
 {
-    const float pi_div2 = 3.141592654 / 2;
-    uint32_t step_num = total_ms / step_ms;
-    uint32_t delay = delay_ms / step_ms;
+    const float pi_div2  = 3.141592654 / 2;
+    uint32_t    step_num = total_ms / step_ms;
+    uint32_t    delay    = delay_ms / step_ms;
 
     if (step <= delay || step >= delay + step_num)
         return LED_NoTrigger;
@@ -349,7 +349,7 @@ static LED_CMD_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms, uin
     float d = sin(pi_div2 * (float)(step - delay) / (float)step_num);
     //float d = 1 - cos(pi_div2 * (float)(step - delay) / (float)step_num);
     //float d = 0.1;
-    float l = (BankColor[0] + BankColor[1] + BankColor[2] + BankColor[3]) / 4.0 / 1024.0;
+    float l = (BankColor[ 0 ] + BankColor[ 1 ] + BankColor[ 2 ] + BankColor[ 3 ]) / 4.0 / 1024.0;
     float a = LBright / 1024.0;
     if (l > a)
         l = a / l;
@@ -361,16 +361,16 @@ static LED_CMD_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms, uin
     switch (channel) {
 
     case 0:
-        LED_RGB_Output(BankColor[0] * d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4));
+        LED_RGB_Output(BankColor[ 0 ] * d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4));
         break;
     case 1:
-        LED_RGB_Output(CHx_VAL(1), BankColor[1] * d, CHx_VAL(3), CHx_VAL(4));
+        LED_RGB_Output(CHx_VAL(1), BankColor[ 1 ] * d, CHx_VAL(3), CHx_VAL(4));
         break;
     case 2:
-        LED_RGB_Output(CHx_VAL(1), CHx_VAL(2), BankColor[2] * d, CHx_VAL(4));
+        LED_RGB_Output(CHx_VAL(1), CHx_VAL(2), BankColor[ 2 ] * d, CHx_VAL(4));
         break;
     case 3:
-        LED_RGB_Output(CHx_VAL(1), CHx_VAL(2), CHx_VAL(3), BankColor[3] * d);
+        LED_RGB_Output(CHx_VAL(1), CHx_VAL(2), CHx_VAL(3), BankColor[ 3 ] * d);
         break;
     }
     //LED_RGB_Limited(BankColor[0]*d, CHx_VAL(2), CHx_VAL(3), CHx_VAL(4));
@@ -382,8 +382,8 @@ static LED_CMD_t LED_RGB_SoftRise_Single(uint8_t channel, uint32_t delay_ms, uin
 static LED_CMD_t LED_RGB_SoftDown(uint32_t step, uint32_t step_ms, uint32_t total_ms)
 {
     static uint16_t r, g, b, l;
-    const float pi_div2 = 3.141592654 / 2;
-    uint32_t step_num = total_ms / step_ms;
+    const float     pi_div2  = 3.141592654 / 2;
+    uint32_t        step_num = total_ms / step_ms;
     // Get a function like y = cos(x)
     float d = cos(pi_div2 * (float)step / (float)step_num);
 

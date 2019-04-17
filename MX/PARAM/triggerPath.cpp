@@ -27,8 +27,8 @@ static TRIGGER_PATH_t* allocPointer()
 {
     TRIGGER_PATH_t* dest = (TRIGGER_PATH_t*)pvPortMalloc(sizeof(*dest));
 
-    dest->number = 0;
-    dest->prefix = NULL;
+    dest->number    = 0;
+    dest->prefix    = NULL;
     dest->path_arry = NULL;
 
     return dest;
@@ -47,20 +47,20 @@ static void clearPointer(const TRIGGER_PATH_t* dest)
 
 TRIGGER_PATH_t* MX_TriggerPath_Init(const char* dirPath, int maxNum, TRIGGERPATH_Type_t type)
 {
-    DIR dir;
+    DIR      dir;
     FILINFO* info = fatfs_allocFileInfo();
-    int cnt = 0;
+    int      cnt  = 0;
     enum { stage_1,
-        stage_2 } stage
+           stage_2 } stage
         = stage_1;
-    re_t match_s = re_compile(getRegex(type));
-    bool matched = false;
-    TRIGGER_PATH_t* dest = allocPointer();
+    re_t            match_s = re_compile(getRegex(type));
+    bool            matched = false;
+    TRIGGER_PATH_t* dest    = allocPointer();
 again:
     if (f_opendir(&dir, dirPath) != FR_OK) {
         goto failed;
     }
-    while (f_readdir(&dir, info) == FR_OK && info->fname[0] != '\0') {
+    while (f_readdir(&dir, info) == FR_OK && info->fname[ 0 ] != '\0') {
         matched = re_matchp(match_s, info->fname) != -1;
 
         if (matched && stage == stage_1)
@@ -72,11 +72,11 @@ again:
 
     if (stage == stage_1) {
         dest->path_arry = cnt ? (char*)pvPortMalloc(cnt * strFixedLen) : NULL;
-        dest->prefix = (char*)pvPortMalloc(strlen(dirPath) + 1);
+        dest->prefix    = (char*)pvPortMalloc(strlen(dirPath) + 1);
         strcpy(dest->prefix, dirPath);
-        cnt = cnt > maxNum ? maxNum : cnt;
+        cnt          = cnt > maxNum ? maxNum : cnt;
         dest->number = cnt;
-        stage = stage_2;
+        stage        = stage_2;
         goto again;
     }
     fatfs_freeFileInfo(info);
@@ -123,8 +123,8 @@ static inline int c_find(const char* in, char c)
 
 int MX_TriggerPath_HasSame(const TRIGGER_PATH_t* ptr, const char* name)
 {
-    int num = MX_TriggerPath_getNum(ptr);
-    int strlen = c_find(name, '.');
+    int         num    = MX_TriggerPath_getNum(ptr);
+    int         strlen = c_find(name, '.');
     const char* cmp;
     for (int i = 0; i < num; i++) {
         cmp = MX_TriggerPath_GetName(ptr, i);
@@ -138,13 +138,13 @@ int MX_TriggerPath_HasSame(const TRIGGER_PATH_t* ptr, const char* name)
 #include <stdlib.h>
 const char* _MX_TriggerPath_getOtherPath(const TRIGGER_PATH_t* ptr, const char* name)
 {
-    static char path[128];
-    int res;
+    static char path[ 128 ];
+    int         res;
     if (MX_TriggerPath_getNum(ptr) == 0)
         return "";
     if ((res = MX_TriggerPath_HasSame(ptr, name)) < 0)
         res = rand() % MX_TriggerPath_getNum(ptr);
     sprintf(path, "%s/%s", MX_TriggerPath_GetPrefix(ptr),
-        MX_TriggerPath_GetName(ptr, res));
+            MX_TriggerPath_GetName(ptr, res));
     return path;
 }

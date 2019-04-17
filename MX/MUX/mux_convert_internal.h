@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #ifndef DAC_FIX_OFFSET
-#define DAC_FIX_OFFSET (0x800)
+#    define DAC_FIX_OFFSET (0x800)
 #endif
 
 MX_C_API void

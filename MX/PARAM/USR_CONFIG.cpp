@@ -13,22 +13,22 @@
 PARA_DYNAMIC_t USR;
 
 const PARA_STATIC_t STATIC_USR = {
-    .vol_warning = 3300,
-    .vol_poweroff = 3000,
+    .vol_warning        = 3300,
+    .vol_poweroff       = 3000,
     .vol_chargecomplete = 4150,
-    .filelimits = {
-        .bank_max = 99,
+    .filelimits         = {
+        .bank_max        = 99,
         .trigger_OUT_max = 16,
-        .trigger_IN_max = 16,
-        .trigger_B_max = 16,
-        .trigger_C_max = 16,
-        .trigger_D_max = 16,
-        .trigger_E_max = 16,
+        .trigger_IN_max  = 16,
+        .trigger_B_max   = 16,
+        .trigger_C_max   = 16,
+        .trigger_D_max   = 16,
+        .trigger_E_max   = 16,
         .trigger_HUM_max = 16,
     }
 };
 
-static const char name_string[][10] = {
+static const char name_string[][ 10 ] = {
     /**< Position:0~5  */
     "Vol",
     "Tpon",
@@ -84,7 +84,7 @@ static const char name_string[][10] = {
     "SPL3",
     "SPL4",
 };
-static const char name_colorswitch[][10] = {
+static const char name_colorswitch[][ 10 ] = {
     "MC",
     "SC",
     "TC",
@@ -135,11 +135,11 @@ static uint8_t get_accent_para(uint8_t Bank, PARA_DYNAMIC_t* pt);
 uint8_t usr_config_init(void)
 {
     FRESULT f_err;
-    FIL* file = (FIL*)pvPortMalloc(sizeof(FIL));
-    char path[32];
+    FIL*    file = (FIL*)pvPortMalloc(sizeof(FIL));
+    char    path[ 32 ];
     /**< 获取Bank数量 */
     {
-        DIR dir;
+        DIR      dir;
         FILINFO* info = fatfs_allocFileInfo();
         /**< Open Dir:[0:/] */
         if ((f_err = f_opendir(&dir, "0:/")) != FR_OK) {
@@ -149,8 +149,8 @@ uint8_t usr_config_init(void)
         }
         /**< Get Number of Banks */
         USR.nBank = 0;
-        while ((f_readdir(&dir, info) == FR_OK) && info->fname[0] != '\0') {
-            if ((info->fattrib & AM_DIR) && (info->fname[0] == 'B' || info->fname[0] == 'b'))
+        while ((f_readdir(&dir, info) == FR_OK) && info->fname[ 0 ] != '\0') {
+            if ((info->fattrib & AM_DIR) && (info->fname[ 0 ] == 'B' || info->fname[ 0 ] == 'b'))
                 USR.nBank += 1;
         }
         /**< Close Dir */
@@ -165,8 +165,8 @@ uint8_t usr_config_init(void)
             USR.nBank = STATIC_USR.filelimits.bank_max;
         }
     }
-    USR.humsize = (HumSize_t*)pvPortMalloc(sizeof(HumSize_t) * USR.nBank);
-    USR._config = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t) * 3);
+    USR.humsize   = (HumSize_t*)pvPortMalloc(sizeof(HumSize_t) * USR.nBank);
+    USR._config   = (USR_CONFIG_t*)pvPortMalloc(sizeof(USR_CONFIG_t) * 3);
     USR.BankColor = (uint32_t*)pvPortMalloc(sizeof(uint32_t) * 4 * USR.nBank);
     /**
    * We need storage CONFIG.txt data now,
@@ -199,10 +199,10 @@ uint8_t usr_config_init(void)
 
     if (1) {
         MX_ColorMatrix_Update("0:/" PATH_COLORMATRIX, &USR.colorMatrix);
-        USR.colorMatrix.bankNum = USR.nBank;
+        USR.colorMatrix.bankNum    = USR.nBank;
         USR.colorMatrix.colorIndex = (int*)pvPortMalloc(sizeof(int) * USR.nBank);
         for (int i = 0; i < USR.nBank; i++) {
-            USR.colorMatrix.colorIndex[i] = 0;
+            USR.colorMatrix.colorIndex[ i ] = 0;
         }
     }
 
@@ -231,10 +231,10 @@ int strcasecmp(const char* src1, const char* src2)
 
 static uint8_t __get_accent_para(char Bank, char* filepath, SimpleLED_Acction_t** pt)
 {
-    FIL file;
+    FIL     file;
     FRESULT f_err;
     uint8_t cnt = 0;
-    char path[30];
+    char    path[ 30 ];
 
     sprintf(path, "0:/Bank%d/Accent/%s", Bank, filepath);
     if ((f_err = f_open(&file, path, FA_READ)) != FR_OK) {
@@ -249,18 +249,18 @@ static uint8_t __get_accent_para(char Bank, char* filepath, SimpleLED_Acction_t*
         *pt = (SimpleLED_Acction_t*)pvPortMalloc(sizeof(SimpleLED_Acction_t));
         f_gets(path, 30, &file); // 第一行喂狗
         f_gets(path, 30, &file); // 读取间隔周期
-        if (path[0] == 'T' || path[0] == 't') {
+        if (path[ 0 ] == 'T' || path[ 0 ] == 't') {
             int d;
             sscanf(path, "%*[^=]=%ld", &d);
             (*pt)->Delay = d;
             // sscanf(path, "%*[^=]=%ld", &((*pt)->Delay));
             while (f_gets(path, 30, &file) != 0) {
-                if (path[0] >= '0' || path[1] <= '9')
+                if (path[ 0 ] >= '0' || path[ 1 ] <= '9')
                     cnt++;
             }
 
             (*pt)->Action = (uint8_t*)pvPortMalloc(cnt);
-            (*pt)->Num = cnt;
+            (*pt)->Num    = cnt;
 
             f_lseek(&file, 0);
             f_gets(path, 30, &file);
@@ -268,7 +268,7 @@ static uint8_t __get_accent_para(char Bank, char* filepath, SimpleLED_Acction_t*
 
             uint8_t* act = (*pt)->Action;
             while (f_gets(path, 30, &file) != 0) {
-                int buf;
+                int     buf;
                 uint8_t ans = 0;
                 sscanf(path, "%d", &buf);
                 if (buf % 2)
@@ -341,8 +341,8 @@ static int GetName(char* line, char* name)
 }
 static int GetMultiPara(char* line)
 {
-    int res = 0;
-    char* pt = line;
+    int   res = 0;
+    char* pt  = line;
     while (*pt != '=')
         pt += 1;
     pt += 1;
@@ -363,48 +363,48 @@ static int GetMultiPara(char* line)
 }
 static void set_config(PARA_DYNAMIC_t* pt)
 {
-    pt->config->T_Breath = 2000; //LMode呼吸周期默认为2s
-    pt->config->Out_Delay = 200; //Out 循环音延时200ms
+    pt->config->T_Breath       = 2000; //LMode呼吸周期默认为2s
+    pt->config->Out_Delay      = 200; //Out 循环音延时200ms
     pt->config->SimpleLED_MASK = 0xFF;
-    pt->config->GB = 0x80;
-    pt->config->MD = 0x60;
-    pt->config->MT = 0x3F;
-    pt->config->CD = 0x03;
-    pt->config->CT = 0x1F;
-    pt->config->CL = 0x00;
-    pt->config->CW = 0x00;
-    pt->config->ST = 200;
-    pt->config->SPL1 = 100;
-    pt->config->SPL2 = 200;
-    pt->config->SPL3 = 300;
-    pt->config->SPL4 = 400;
+    pt->config->GB             = 0x80;
+    pt->config->MD             = 0x60;
+    pt->config->MT             = 0x3F;
+    pt->config->CD             = 0x03;
+    pt->config->CT             = 0x1F;
+    pt->config->CL             = 0x00;
+    pt->config->CW             = 0x00;
+    pt->config->ST             = 200;
+    pt->config->SPL1           = 100;
+    pt->config->SPL2           = 200;
+    pt->config->SPL3           = 300;
+    pt->config->SPL4           = 400;
 }
 static uint8_t get_config(PARA_DYNAMIC_t* pt, FIL* file)
 {
-    char sbuffer[50];
-    char name[20];
+    char  sbuffer[ 50 ];
+    char  name[ 20 ];
     char* spt;
     while ((spt = f_gets(sbuffer, 50, file)) != 0) {
         int8_t res = GetName(spt, name);
         if (res > 0) {
-            uint16_t buf[4];
+            uint16_t buf[ 4 ];
             if (res > USR.nBank)
                 continue;
             sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
-            pt->BankColor[res * 4 + 0 - 4] = *(uint32_t*)(buf + 0);
-            pt->BankColor[res * 4 + 1 - 4] = *(uint32_t*)(buf + 2);
+            pt->BankColor[ res * 4 + 0 - 4 ] = *(uint32_t*)(buf + 0);
+            pt->BankColor[ res * 4 + 1 - 4 ] = *(uint32_t*)(buf + 2);
             continue;
         } else if (res < 0) {
-            uint16_t buf[4];
+            uint16_t buf[ 4 ];
             if (-res > USR.nBank)
                 continue;
             sscanf(spt, "%*[^=]=%hd,%hd,%hd,%hd", buf, buf + 1, buf + 2, buf + 3);
-            pt->BankColor[-1 * res * 4 + 2 - 4] = *(uint32_t*)(buf + 0);
-            pt->BankColor[-1 * res * 4 + 3 - 4] = *(uint32_t*)(buf + 2);
+            pt->BankColor[ -1 * res * 4 + 2 - 4 ] = *(uint32_t*)(buf + 0);
+            pt->BankColor[ -1 * res * 4 + 3 - 4 ] = *(uint32_t*)(buf + 2);
             continue;
         }
         for (res = 0; res < sizeof(name_string) / 10; res++) {
-            if (!strcasecmp(name, name_string[res]))
+            if (!strcasecmp(name, name_string[ res ]))
                 break;
         }
         switch (res) {
@@ -556,7 +556,7 @@ uint8_t usr_switch_bank(int dest)
     if (usr_init_bank(dest, 1))
         return 1;
 
-    USR.config = USR._config + 1;
+    USR.config   = USR._config + 1;
     USR.bank_now = dest;
 
     usr_update_triggerPah(dest);
@@ -574,11 +574,11 @@ uint8_t usr_switch_bank(int dest)
 uint8_t usr_init_bank(int bankPos, int storagePos)
 {
     // fatfs stuff
-    FIL file;
+    FIL     file;
     FRESULT f_err;
 
     // string buffer, used in file path almostly
-    char strBuffer[128];
+    char strBuffer[ 128 ];
 
     // storagePos < 0, storagePos would be set as 1
     if (storagePos < 0)
@@ -589,8 +589,8 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
         return 1;
 
     // set BANK config ptr
-    USR.config = USR._config + storagePos;
-    USR.np_colorIndex = USR.colorMatrix.colorIndex[bankPos];
+    USR.config        = USR._config + storagePos;
+    USR.np_colorIndex = USR.colorMatrix.colorIndex[ bankPos ];
 
     // Load Parameter default and setted in CONFIG.txt
     // Then read from EFFECT.txt in specific dir
@@ -629,26 +629,26 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
         USR.triggerFT##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), ft); \
     } while (0);
 
-#define UPDATE_TRIGGER(name, path, bankPos)                                         \
-    do {                                                                            \
-        TRIGGERPATH_Type_t wav = TRIGGERPATH_WAV;                                   \
-        TRIGGERPATH_Type_t bg = TRIGGERPATH_BG;                                     \
-        TRIGGERPATH_Type_t tg = TRIGGERPATH_TG;                                     \
-        TRIGGERPATH_Type_t ft = TRIGGERPATH_FT;                                     \
-        sprintf(path, "0:/Bank%d/%s", bankPos + 1, TRIGGER(name));                  \
-        DEINIT_PATH(USR.trigger##name);                                             \
-        DEINIT_PATH(USR.triggerBG##name);                                           \
-        DEINIT_PATH(USR.triggerTG##name);                                           \
-        DEINIT_PATH(USR.triggerFT##name);                                           \
-        USR.trigger##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), wav);  \
-        USR.triggerBG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), bg); \
-        USR.triggerTG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), tg); \
-        USR.triggerFT##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), ft); \
+#define UPDATE_TRIGGER(name, path, bankPos)                                          \
+    do {                                                                             \
+        TRIGGERPATH_Type_t wav = TRIGGERPATH_WAV;                                    \
+        TRIGGERPATH_Type_t bg  = TRIGGERPATH_BG;                                     \
+        TRIGGERPATH_Type_t tg  = TRIGGERPATH_TG;                                     \
+        TRIGGERPATH_Type_t ft  = TRIGGERPATH_FT;                                     \
+        sprintf(path, "0:/Bank%d/%s", bankPos + 1, TRIGGER(name));                   \
+        DEINIT_PATH(USR.trigger##name);                                              \
+        DEINIT_PATH(USR.triggerBG##name);                                            \
+        DEINIT_PATH(USR.triggerTG##name);                                            \
+        DEINIT_PATH(USR.triggerFT##name);                                            \
+        USR.trigger##name   = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), wav); \
+        USR.triggerBG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), bg);  \
+        USR.triggerTG##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), tg);  \
+        USR.triggerFT##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), ft);  \
     } while (0);
 
 uint8_t usr_update_triggerPah(int bankPos)
 {
-    char path[64];
+    char path[ 64 ];
     UPDATE_TRIGGER(HUM, path, bankPos);
     UPDATE_TRIGGER(B, path, bankPos);
     UPDATE_TRIGGER(C, path, bankPos);

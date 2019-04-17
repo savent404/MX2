@@ -4,21 +4,21 @@ MX_C_API void
 mux_convert_addToInt(const void* source, int* dest, int size, float* f)
 {
     static const float factor = 64;
-    static const float div = 2;
-    float _f = *f;
-    int buf;
-    int16_t* _s = (int16_t*)source;
-    int* _d = dest;
+    static const float div    = 2;
+    float              _f     = *f;
+    int                buf;
+    int16_t*           _s = (int16_t*)source;
+    int*               _d = dest;
     for (int i = 0; i < size; i++) {
         buf = *_d + (*_s++);
 
         if (buf > INT16_MAX) {
-            _f = INT16_MAX / div / buf;
+            _f  = INT16_MAX / div / buf;
             buf = INT16_MAX;
         }
         buf *= _f;
         if (buf < INT16_MIN) {
-            _f = INT16_MIN / div / buf;
+            _f  = INT16_MIN / div / buf;
             buf = INT16_MIN;
         }
         if (_f < 1.0f) {
@@ -32,17 +32,17 @@ mux_convert_addToInt(const void* source, int* dest, int size, float* f)
 MX_C_API void
 mux_convert_mergeToBuffer(const int* source, void* dest, int size, int vol)
 {
-    uint16_t* _d = (uint16_t*)dest;
+    uint16_t*  _d = (uint16_t*)dest;
     const int* _s = source;
 
     // 16bit->12bit
     // 2^2 = 4 level vol
-    static const int offset = (4 + 2);
+    static const int offset     = (4 + 2);
     static const int zeroOffset = DAC_FIX_OFFSET;
-    uint16_t buf;
+    uint16_t         buf;
 
     for (int i = 0; i < size; i++) {
-        buf = (uint16_t)(((*_s++ * vol) >> offset) + zeroOffset);
+        buf   = (uint16_t)(((*_s++ * vol) >> offset) + zeroOffset);
         *_d++ = buf;
     }
 }

@@ -37,15 +37,15 @@ extern "C" {
 struct _AF_PCM {
     /* Chunk block
        should be "RIFF" */
-    char ChunkID[4];
+    char ChunkID[ 4 ];
 
     /* Chunk Size
        Size without ChunkID and ChunkSize */
     uint32_t ChunkSize;
 
-    char Format[4];
+    char Format[ 4 ];
 
-    char Subchunk1ID[4];
+    char Subchunk1ID[ 4 ];
 
     uint32_t Subchunk1Size;
 
@@ -66,7 +66,7 @@ struct _AF_PCM {
 
 struct _AF_DATA {
     /* suoport to be 'data' */
-    char ChunkID[4];
+    char ChunkID[ 4 ];
 
     uint32_t size;
 };

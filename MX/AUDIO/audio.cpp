@@ -11,15 +11,18 @@ static MUX_Slot_Id_t sid_trigger = 0;
 
 static int static_hum_pos = -1;
 static int static_trg_pos = -1;
+
 static void getTriggerFullPath(char* out, TRIGGER_PATH_t* ptr, int* log)
 {
     *log = rand() % MX_TriggerPath_getNum(ptr);
-    sprintf(out, "%s/%s", MX_TriggerPath_GetPrefix(ptr),
-        MX_TriggerPath_GetName(ptr, *log));
+    sprintf(out, "%s/%s",
+            MX_TriggerPath_GetPrefix(ptr),
+            MX_TriggerPath_GetName(ptr, *log));
 }
 bool MX_Audio_Play_Start(Audio_ID_t id)
 {
-    static char path[64];
+    static char path[ 64 ];
+
     MUX_Slot_Mode_t mode = SlotMode_Once;
 
     const char* prefix = MX_PARAM_GetPrefix();
@@ -30,8 +33,8 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
         getTriggerFullPath(path, USR.triggerHUM, &static_hum_pos);
         // sprintf(path, "%s/Bank%d/hum.wav", MX_PARAM_GetPrefix(), USR.bank_now + 1);
         sid_hum = MX_MUX_Start(TrackId_MainLoop,
-            SlotMode_Loop,
-            path);
+                               SlotMode_Loop,
+                               path);
     } else if (id == Audio_intoReady) {
         MX_MUX_Stop(TrackId_MainLoop, sid_hum);
     }
@@ -48,8 +51,8 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
         break;
     case Audio_BankSwitch:
         sprintf(path, "%s/Bank%d/BankSwitch.wav",
-            prefix,
-            USR.bank_now + 1);
+                prefix,
+                USR.bank_now + 1);
         break;
     case Audio_Charging:
         sprintf(path, "%s/" WAV_CHARGING, prefix);

@@ -18,7 +18,7 @@ MX_ColorMatrix_Free(colorMatrix_t* ptr)
     if (ptr->bankNum != 0 && ptr->colorIndex) {
         vPortFree(ptr->colorIndex);
         ptr->colorIndex = NULL;
-        ptr->num = 0;
+        ptr->num        = 0;
     }
 }
 
@@ -33,14 +33,14 @@ MX_ColorMatrix_Alloc(colorMatrix_t* ptr, int num)
 static inline bool
 MX_ColorMatrix_Update(const char* path, colorMatrix_t* ptr)
 {
-    FIL file;
-    FRESULT res;
-    char buffer[64];
+    FIL         file;
+    FRESULT     res;
+    char        buffer[ 64 ];
     static re_t match_p = NULL;
     if (match_p == NULL)
         match_p = re_compile("\\s*\\d+\\s*,\\s*\\d+\\s*,\\s*\\d+\\s*");
     enum { stage_1,
-        stage_2 } stage
+           stage_2 } stage
         = stage_1;
     int cnt = 0;
     if ((res = f_open(&file, path, FA_READ)) != FR_OK) {
@@ -53,14 +53,14 @@ again:
         if (stage == stage_1 && matched) {
             cnt++;
         } else if (stage == stage_2 && matched) {
-            int ans[3];
-            sscanf(buffer, "%d,%d,%d", &ans[0], &ans[1], &ans[2]);
+            int ans[ 3 ];
+            sscanf(buffer, "%d,%d,%d", &ans[ 0 ], &ans[ 1 ], &ans[ 2 ]);
             for (int i = 0; i < 3; i++) {
-                if (ans[i] > 255)
-                    ans[i] = 255;
-                else if (ans[i] < 0)
-                    ans[i] = 0;
-                ptr->arr[cnt].arr[i] = ans[i];
+                if (ans[ i ] > 255)
+                    ans[ i ] = 255;
+                else if (ans[ i ] < 0)
+                    ans[ i ] = 0;
+                ptr->arr[ cnt ].arr[ i ] = ans[ i ];
             }
             cnt++;
         }

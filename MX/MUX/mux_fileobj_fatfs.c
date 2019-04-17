@@ -25,7 +25,7 @@ mux_fileObj_close(MUX_FileObj_t* pFile)
 MX_C_API int
 mux_fileObj_read(MUX_FileObj_t* pFile, void* out, int size)
 {
-    UINT cnt;
+    UINT    cnt;
     FRESULT res = f_read(pFile, out, (UINT)size, &cnt);
     return (int)cnt;
 }

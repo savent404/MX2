@@ -13,9 +13,9 @@ iBlade::iBlade(size_t num)
     setBackGroudParam(modeL1_t::Static);
     setTriggerParam(modeL2_t::NoTrigger);
     setFilterParam(modeL3_t::NoFilter);
-    MC = RGB(255, 0, 0);
-    SC = RGB(0, 255, 0);
-    TC = RGB(0, 0, 255);
+    MC       = RGB(255, 0, 0);
+    SC       = RGB(0, 255, 0);
+    TC       = RGB(0, 0, 255);
     maxLight = 255;
     minLight = 0;
     pushSet();
@@ -26,8 +26,8 @@ iBlade::iBlade(size_t num)
     stepL1_ready = stepL1;
     stepL2_ready = stepL2;
     stepL3_ready = stepL3;
-    pFlame = new Flame_t(getPixelNum(), MC, SC);
-    pRandomWave = nullptr;
+    pFlame       = new Flame_t(getPixelNum(), MC, SC);
+    pRandomWave  = nullptr;
 }
 
 iBlade::~iBlade()
@@ -91,10 +91,10 @@ void iBlade::handleLoop(void* arg)
             float r = 1 / accelerateRate;
 
             stepL1.total = int(r * stepL1.total);
-            stepL1.now = int(r * stepL1.now);
+            stepL1.now   = int(r * stepL1.now);
 
             stepL3.total = int(r * stepL3.total);
-            stepL3.now = int(r * stepL3.now);
+            stepL3.now   = int(r * stepL3.now);
         }
         break;
     }
@@ -123,14 +123,14 @@ void iBlade::handleLoop(void* arg)
         // when trigger at the begining
         if (stepL2.now == 0 && flipNeedFresh) {
             flipNeedFresh = false;
-            pos = rand() % getPixelNum();
+            pos           = rand() % getPixelNum();
         }
         int startPos = pos - int(flipLength * getPixelNum() * 0.5);
-        int endPos = pos + int(flipLength * getPixelNum() * 0.5);
+        int endPos   = pos + int(flipLength * getPixelNum() * 0.5);
 
         // set protected mask
         startMask() = startPos;
-        endMask() = endPos;
+        endMask()   = endPos;
 
         if (flipMode != 5) {
             if (stepL2.now <= stepL2.total / 2) {
@@ -147,7 +147,7 @@ void iBlade::handleLoop(void* arg)
 
         // set protected mask
         startMask() = 0;
-        endMask() = getPixelNum();
+        endMask()   = getPixelNum();
     } break;
     case modeL2_t::Speard: {
         if (stepL2.now == 0 && speardMode != 0)
@@ -182,9 +182,9 @@ void iBlade::handleLoop(void* arg)
         break;
     case modeL3_t::Wave:
         filterWave((float)stepL3 * waveDirection,
-            waveLength,
-            maxLight,
-            minLight);
+                   waveLength,
+                   maxLight,
+                   minLight);
         break;
     case modeL3_t::Fade: {
         int startPos = int(getPixelNum() * float(stepL3));
@@ -239,13 +239,13 @@ void iBlade::handleTrigger(const void* evt)
         return;
 #if LED_SUPPORT_FOLLOW_AUDIO == 0
     auto cmd = static_cast<LED_CMD_t>(p->value.v);
-    int alt = -1; // iBlade need LED_SUPPORT_FOLLOW_AUDIO
+    int  alt = -1; // iBlade need LED_SUPPORT_FOLLOW_AUDIO
         // It's just for fun.
 #elif LED_SUPPORT_FOLLOW_AUDIO == 1
     LED_Message_t message;
     message.hex = p->value.v;
-    auto cmd = message.pair.cmd;
-    auto alt = message.pair.alt;
+    auto cmd    = message.pair.cmd;
+    auto alt    = message.pair.alt;
 #endif
 
     if (status == InTrigger || status == out || status == in)
@@ -268,7 +268,7 @@ void iBlade::handleTrigger(const void* evt)
         // if already prepare a 'fade' trigger, ignore default config
         // else set L3 as default fade
         if (modeL3 != modeL3_t::Fade) {
-            modeL3 = modeL3_t::Fade;
+            modeL3          = modeL3_t::Fade;
             filterDirection = 1;
             if (stepL3.total != 0 && stepL3.repeatCnt == 0) {
 
@@ -286,7 +286,7 @@ void iBlade::handleTrigger(const void* evt)
         // if already prepare a 'fade' trigger, ignore default config
         // else set L3 as default fade
         if (modeL3 != modeL3_t::Fade) {
-            modeL3 = modeL3_t::Fade;
+            modeL3          = modeL3_t::Fade;
             filterDirection = -1;
             if (stepL3.total != 0 && stepL3.repeatCnt == 0) {
 
@@ -316,10 +316,10 @@ void iBlade::handleTrigger(const void* evt)
         status = InTrigger;
         break;
     case LED_TriggerE:
-        status = InTrigger;
-        stepL1.repeatCnt = step_t::infinity;
-        stepL2.repeatCnt = step_t::infinity;
-        stepL3.repeatCnt = step_t::infinity;
+        status                = InTrigger;
+        stepL1.repeatCnt      = step_t::infinity;
+        stepL2.repeatCnt      = step_t::infinity;
+        stepL3.repeatCnt      = step_t::infinity;
         stepProcess.repeatCnt = step_t::infinity;
         break;
     default:
@@ -360,13 +360,13 @@ void iBlade::backGroundRender(void)
             drawLine(MC, 0, getPixelNum());
         } else if (stepL1.now < mcm + mcs) {
             float rate = (float)(stepL1.now - mcm) / mcs;
-            RGB mid = RGB::midColor(MC, SC, rate);
+            RGB   mid  = RGB::midColor(MC, SC, rate);
             drawLine(mid, 0, getPixelNum());
         } else if (stepL1.now < mcm + mcs + scm) {
             drawLine(SC, 0, getPixelNum());
         } else {
             float rate = (float)(stepL1.now - (mcm + mcs + scm)) / scs;
-            RGB mid = RGB::midColor(SC, MC, rate);
+            RGB   mid  = RGB::midColor(SC, MC, rate);
             drawLine(mid, 0, getPixelNum());
         }
     } break;
@@ -408,33 +408,33 @@ __attribute__((weak)) void iBlade::setNormalParam(void)
     int index = USR.np_colorIndex * 3;
     if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, index)) {
         DEBUG(5, "MC index out of range %d/%d", index,
-            USR.colorMatrix.num);
+              USR.colorMatrix.num);
         MC = RGB(125, 125, 0); // default Yellow
     } else {
-        uint8_t* rgb = USR.colorMatrix.arr[index].arr;
-        MC = RGB(rgb[0], rgb[1], rgb[2]);
+        uint8_t* rgb = USR.colorMatrix.arr[ index ].arr;
+        MC           = RGB(rgb[ 0 ], rgb[ 1 ], rgb[ 2 ]);
     }
 
     // get SC color
     index = USR.np_colorIndex * 3 + 1;
     if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, index)) {
         DEBUG(5, "SC index out of range %d/%d", index,
-            USR.colorMatrix.num);
+              USR.colorMatrix.num);
         SC = RGB(255, 0, 0); // default green
     } else {
-        uint8_t* rgb = USR.colorMatrix.arr[index].arr;
-        SC = RGB(rgb[0], rgb[1], rgb[2]);
+        uint8_t* rgb = USR.colorMatrix.arr[ index ].arr;
+        SC           = RGB(rgb[ 0 ], rgb[ 1 ], rgb[ 2 ]);
     }
 
     // get TC color
     index = USR.np_colorIndex * 3 + 2;
     if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, index)) {
         DEBUG(5, "TC index out of range %d/%d", index,
-            USR.colorMatrix.num);
+              USR.colorMatrix.num);
         TC = RGB(255, 0, 255); // default
     } else {
-        uint8_t* rgb = USR.colorMatrix.arr[index].arr;
-        TC = RGB(rgb[0], rgb[1], rgb[2]);
+        uint8_t* rgb = USR.colorMatrix.arr[ index ].arr;
+        TC           = RGB(rgb[ 0 ], rgb[ 1 ], rgb[ 2 ]);
     }
     pFlame->initColor(MC, SC);
 }
@@ -451,19 +451,19 @@ __attribute__((weak)) void iBlade::setBackGroudParam(iBlade::modeL1_t mode)
         break;
     case modeL1_t::Pulse:
         msMCMaintain = 500;
-        msMCSwitch = 200;
+        msMCSwitch   = 200;
         msSCMaintain = 1000;
-        msMCSwitch = 200;
-        stepL1 = step_t(0, MX_LED_MS2CNT(msMCMaintain + msMCSwitch + msSCMaintain + msSCSwitch),
-            step_t::infinity);
+        msMCSwitch   = 200;
+        stepL1       = step_t(0, MX_LED_MS2CNT(msMCMaintain + msMCSwitch + msSCMaintain + msSCSwitch),
+                        step_t::infinity);
         break;
     case modeL1_t::ColorBreath:
         break;
     case modeL1_t::Spark:
         break;
     case modeL1_t::Rainbow:
-        rainbowLength = 1.0f;
-        stepL1 = step_t(0, MX_LED_MS2CNT(2000), step_t::infinity);
+        rainbowLength    = 1.0f;
+        stepL1           = step_t(0, MX_LED_MS2CNT(2000), step_t::infinity);
         rainbowDirection = 1;
         break;
     case modeL1_t::Flame:
@@ -479,11 +479,11 @@ __attribute__((weak)) void iBlade::setTriggerParam(iBlade::modeL2_t mode)
         break;
     case modeL2_t::Flip:
     case modeL2_t::Flip_Partial:
-        flipMode = 1;
-        flipTime = 1000;
+        flipMode   = 1;
+        flipTime   = 1000;
         flipMaxCnt = 5;
         flipLength = 0.4;
-        stepL2 = step_t(0, MX_LED_MS2CNT(flipTime), flipMaxCnt - 1);
+        stepL2     = step_t(0, MX_LED_MS2CNT(flipTime), flipMaxCnt - 1);
         break;
     /*
     case modeL2_t::Drift:
@@ -493,15 +493,15 @@ __attribute__((weak)) void iBlade::setTriggerParam(iBlade::modeL2_t mode)
     */
     case modeL2_t::Speard:
         speardLength = 0.2f;
-        stepL2 = step_t(0, MX_LED_MS2CNT(800), 0);
+        stepL2       = step_t(0, MX_LED_MS2CNT(800), 0);
         break;
     case modeL2_t::Comet:
         comentLength = 0.1f;
-        stepL2 = step_t(0, MX_LED_MS2CNT(700), 0);
+        stepL2       = step_t(0, MX_LED_MS2CNT(700), 0);
         break;
     case modeL2_t::Accelerate:
         accelerateRate = 2.0f;
-        stepL2 = step_t(0, MX_LED_MS2CNT(2000), 0);
+        stepL2         = step_t(0, MX_LED_MS2CNT(2000), 0);
         break;
     }
 }
@@ -516,12 +516,12 @@ __attribute__((weak)) void iBlade::setFilterParam(iBlade::modeL3_t mode)
         stepL3 = step_t(0, MX_LED_MS2CNT(500), step_t::infinity);
         break;
     case modeL3_t::Wave:
-        stepL3 = step_t(0, MX_LED_MS2CNT(2000), step_t::infinity);
-        waveLength = 1.0;
+        stepL3        = step_t(0, MX_LED_MS2CNT(2000), step_t::infinity);
+        waveLength    = 1.0;
         waveDirection = 1;
         break;
     case modeL3_t::Fade:
-        stepL3 = step_t(0, MX_LED_MS2CNT(1000), step_t::infinity);
+        stepL3          = step_t(0, MX_LED_MS2CNT(1000), step_t::infinity);
         filterDirection = 1;
         break;
     }
@@ -551,11 +551,11 @@ void iBlade::clearProcess(void)
     stepProcess.repeatCnt = -1;
     if (status == InTrigger && modeL2 == modeL2_t::Accelerate) {
         // means keep stepL3&stepL1's now and repeatCnt
-        float s[2] = { (float)stepL1, (float)stepL3 };
+        float s[ 2 ] = { (float)stepL1, (float)stepL3 };
         popSet();
-        status = Run;
-        stepL1.now = s[0] * stepL1.total;
-        stepL3.now = s[1] * stepL3.total;
+        status     = Run;
+        stepL1.now = s[ 0 ] * stepL1.total;
+        stepL3.now = s[ 1 ] * stepL3.total;
     }
     if (status == InTrigger || status == out) {
         status = Run;

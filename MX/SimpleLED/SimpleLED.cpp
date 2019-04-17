@@ -1,11 +1,11 @@
 #include "SimpleLED.h"
 #include "cmsis_os.h"
 
-static osThreadId selfThreadId;
+static osThreadId           selfThreadId;
 static SimpleLED_Acction_t* pacction;
-static int32_t timer = 0;
-static int32_t cnt = 0;
-static bool loopFlag = 0;
+static int32_t              timer    = 0;
+static int32_t              cnt      = 0;
+static bool                 loopFlag = 0;
 
 static int interval = 10;
 
@@ -64,22 +64,22 @@ SimpleLED_Acction_t* SimpleLED_GetAction(SimpleLED_Status_t status)
         ans = NULL;
         break;
     case SIMPLELED_STATUS_STANDBY:
-        ans = (USR.accent + USR.bank_now)->Standby;
+        ans      = (USR.accent + USR.bank_now)->Standby;
         loopFlag = true;
         break;
     case SIMPLELED_STATUS_ON:
-        ans = (USR.accent + USR.bank_now)->Clash;
+        ans      = (USR.accent + USR.bank_now)->Clash;
         loopFlag = false;
         break;
     case SIMPLELED_STATUS_LOCKUP:
-        ans = (USR.accent + USR.bank_now)->Lockup;
+        ans      = (USR.accent + USR.bank_now)->Lockup;
         loopFlag = true;
         break;
     default:
-        ans = NULL;
+        ans      = NULL;
         loopFlag = false;
     }
-    cnt = 0;
+    cnt   = 0;
     timer = 0;
     return ans;
 }

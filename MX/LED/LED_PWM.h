@@ -11,9 +11,9 @@ extern "C" {
 
 /** Some private functions used in PWM LED */
 static LED_CMD_t LED_Trigger_Method(LED_CMD_t trigger_bcd);
-static void LED_RGB_Output(uint16_t r, uint16_t g, uint16_t b, uint16_t l);
-static void LED_RGB_Limited(uint16_t r, uint16_t g, uint16_t b, uint16_t l);
-static void LED_RGB_Output_Light(uint16_t* colors, float light);
+static void      LED_RGB_Output(uint16_t r, uint16_t g, uint16_t b, uint16_t l);
+static void      LED_RGB_Limited(uint16_t r, uint16_t g, uint16_t b, uint16_t l);
+static void      LED_RGB_Output_Light(uint16_t* colors, float light);
 static LED_CMD_t LED_RGB_Breath(uint32_t step, uint32_t step_ms, uint32_t period_ms);
 static LED_CMD_t LED_RGB_Toggle(uint32_t step, uint32_t step_ms);
 static LED_CMD_t LED_RGB_Pulse(uint32_t step_ms);
@@ -24,7 +24,7 @@ static LED_CMD_t LED_RGB_Charging(uint32_t step, uint32_t step_ms, uint32_t peri
 static LED_CMD_t LED_RGB_Charged(uint32_t step, uint32_t step_ms, uint32_t period_ms);
 
 #ifndef CHx_VAL
-#define CHx_VAL(x) (TIM1->CCR##x)
+#    define CHx_VAL(x) (TIM1->CCR##x)
 #endif
 
 bool LED_PWM_Init(void* arg);

@@ -196,15 +196,15 @@ private:
      * @flameRate
      * @pFlame
      * @{ */
-    int flameRate;
-    int flameMulti;
+    int      flameRate;
+    int      flameMulti;
     Flame_t* pFlame;
     /** @} */
     /**
      * @name Storaged Param about BackGround:Rainbow
      ** @{ */
     float rainbowLength;
-    int rainbowDirection;
+    int   rainbowDirection;
     /** @} */
 
     /**
@@ -219,8 +219,8 @@ private:
      * @param waveDirection :+1 wave out, -1 wave in
      ** @{ */
     float waveLength;
-    int waveDirection;
-    int waveMaxSpeed;
+    int   waveDirection;
+    int   waveMaxSpeed;
     /** @} */
 
     /**
@@ -248,12 +248,12 @@ private:
      *                  - 4: MC->SC & SC->MC
      *                  - 5: MC=~MC
      ** @{*/
-    int flipMode;
-    int flipTime;
-    int flipMaxCnt;
-    float flipLength;
-    bool flipNeedFresh;
-    float driftShift;
+    int         flipMode;
+    int         flipTime;
+    int         flipMaxCnt;
+    float       flipLength;
+    bool        flipNeedFresh;
+    float       driftShift;
     inline void flip_switchColor(int mode)
     {
         switch (mode) {
@@ -291,7 +291,7 @@ private:
      * @name Storage Param about Filter:RandomWave
      ** @{ */
     RandomWave_t* pRandomWave;
-    int randomWaveMaxCnt;
+    int           randomWaveMaxCnt;
     /** @} */
 
     /**
@@ -308,36 +308,36 @@ private:
      * @name 运行时参数
      * @{ */
     enum { idle,
-        out,
-        in,
-        Run,
-        InTrigger } status;
+           out,
+           in,
+           Run,
+           InTrigger } status;
 
 private:
     enum modeL1_t {
-        Static = 1,
-        Gradient = 2,
-        Blink = 3,
-        Pulse = 4,
+        Static      = 1,
+        Gradient    = 2,
+        Blink       = 3,
+        Pulse       = 4,
         ColorBreath = 5,
-        Spark = 6,
-        Rainbow = 7,
-        Flame = 8
+        Spark       = 6,
+        Rainbow     = 7,
+        Flame       = 8
     };
     enum modeL2_t {
-        NoTrigger = 0,
-        Flip = 1,
+        NoTrigger    = 0,
+        Flip         = 1,
         Flip_Partial = 2,
-        Comet = 3,
-        Speard = 4,
-        Accelerate = 5,
+        Comet        = 3,
+        Speard       = 4,
+        Accelerate   = 5,
     };
     enum modeL3_t {
-        NoFilter = 0,
-        Breath = 1,
-        Flicker = 2,
-        Wave = 3,
-        Fade = 4,
+        NoFilter   = 0,
+        Breath     = 1,
+        Flicker    = 2,
+        Wave       = 3,
+        Fade       = 4,
         RandomWave = 5,
     };
     enum modeL1_t DEF_WITH_BACKUP(modeL1);

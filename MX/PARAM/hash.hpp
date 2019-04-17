@@ -40,20 +40,20 @@ class Hash {
         } flag;
     } it_t;
 
-    it_t* arr;
-    int num;
+    it_t*  arr;
+    int    num;
     size_t size;
 
 public:
     Hash(int maximum, size_t itSize)
     {
-        num = maximum;
+        num  = maximum;
         size = itSize;
-        arr = static_cast<it_t*>(malloc(num * sizeof(*arr)));
+        arr  = static_cast<it_t*>(malloc(num * sizeof(*arr)));
         for (auto i = 0; i < num; i++) {
-            arr[i].flag = it_t::empty;
-            arr[i].key = nullptr;
-            arr[i].data = nullptr;
+            arr[ i ].flag = it_t::empty;
+            arr[ i ].key  = nullptr;
+            arr[ i ].data = nullptr;
         }
     }
 
@@ -70,7 +70,7 @@ public:
         int addr = findPosition(key);
         if (addr < 0)
             return false;
-        if (arr[addr].flag != it_t::full)
+        if (arr[ addr ].flag != it_t::full)
             allocElement(arr + addr, key, data, size);
         else
             return false;
@@ -81,7 +81,7 @@ public:
         int addr = findPosition(key);
         if (addr < 0)
             return false;
-        if (arr[addr].flag == it_t::full)
+        if (arr[ addr ].flag == it_t::full)
             freeElement(arr + addr);
         return true;
     }
@@ -90,27 +90,27 @@ public:
         int addr = findPosition(key);
         if (addr < 0)
             return false;
-        return arr[addr].flag == it_t::full;
+        return arr[ addr ].flag == it_t::full;
     }
     bool getData(const char* key, void* data) const
     {
         int addr = findPosition(key);
-        if (addr < 0 || arr[addr].flag != it_t::full)
+        if (addr < 0 || arr[ addr ].flag != it_t::full)
             return false;
-        if (!arr[addr].data)
+        if (!arr[ addr ].data)
             return false;
-        memcpy(data, arr[addr].data, size);
+        memcpy(data, arr[ addr ].data, size);
         return true;
     }
     bool setData(const char* key, const void* data)
     {
         int addr = findPosition(key);
-        if (addr < 0 || arr[addr].flag != it_t::full)
+        if (addr < 0 || arr[ addr ].flag != it_t::full)
             ;
         return false;
-        if (!arr[addr].data)
+        if (!arr[ addr ].data)
             return false;
-        memcpy(arr[addr].data, data, size);
+        memcpy(arr[ addr ].data, data, size);
         return true;
     }
 
@@ -123,9 +123,9 @@ public:
         it_t* newArr = static_cast<it_t*>(malloc(num * sizeof(*arr)));
         it_t* oldArr = arr;
         for (int i = 0; i < num; i++) {
-            newArr[i].flag = it_t::empty;
-            newArr[i].key = nullptr;
-            newArr[i].data = nullptr;
+            newArr[ i ].flag = it_t::empty;
+            newArr[ i ].key  = nullptr;
+            newArr[ i ].data = nullptr;
         }
         listCopy(newArr, num);
         // clear old arr
@@ -143,13 +143,13 @@ public:
     {
         if (newNum < num)
             return;
-        it_t* newArr = static_cast<it_t*>(malloc(num * sizeof(*arr)));
-        it_t* oldArr = arr;
+        it_t*  newArr  = static_cast<it_t*>(malloc(num * sizeof(*arr)));
+        it_t*  oldArr  = arr;
         size_t oldSize = num;
         for (int i = 0; i < newNum; i++) {
-            newArr[i].flag = it_t::empty;
-            newArr[i].key = nullptr;
-            newArr[i].data = nullptr;
+            newArr[ i ].flag = it_t::empty;
+            newArr[ i ].key  = nullptr;
+            newArr[ i ].data = nullptr;
         }
         listCopy(newArr, newNum);
         for (int i = 0; i < oldSize; i++) {
@@ -161,14 +161,14 @@ public:
 protected:
     void listCopy(it_t* pNew, size_t sNew)
     {
-        it_t* pOld = arr;
+        it_t*  pOld = arr;
         size_t sOld = num;
         /** Critical area begin */
         arr = pNew;
         num = sNew;
         for (int i = 0; i < sOld; i++) {
-            if (pOld[i].flag == it_t::full) {
-                insert(pOld[i].key, pOld[i].data);
+            if (pOld[ i ].flag == it_t::full) {
+                insert(pOld[ i ].key, pOld[ i ].data);
             }
         }
         /** Critial area end */
@@ -176,10 +176,10 @@ protected:
     int findPosition(const char* key) const
     {
         unsigned addr = H1(key);
-        unsigned cnt = 0;
+        unsigned cnt  = 0;
 
-        while (arr[addr].flag == it_t::full || arr[addr].flag == it_t::deleted) {
-            if (arr[addr].flag == it_t::full || arr[addr].flag == it_t::deleted)
+        while (arr[ addr ].flag == it_t::full || arr[ addr ].flag == it_t::deleted) {
+            if (arr[ addr ].flag == it_t::full || arr[ addr ].flag == it_t::deleted)
                 break;
             if (++cnt > num)
                 return -1;
@@ -187,15 +187,15 @@ protected:
         }
         return static_cast<int>(addr);
     }
-    static void allocElement(it_t* element,
-        const char* name,
-        const void* data,
-        size_t size)
+    static void allocElement(it_t*       element,
+                             const char* name,
+                             const void* data,
+                             size_t      size)
     {
         if (element->flag == it_t::full)
             return;
         freeElement(element);
-        element->key = static_cast<char*>(malloc(strlen(name) + 1));
+        element->key  = static_cast<char*>(malloc(strlen(name) + 1));
         element->data = malloc(size);
 
         strcpy(element->key, name);
@@ -219,8 +219,8 @@ protected:
     inline static unsigned H1(const char* key)
     {
         unsigned hash = 0;
-        unsigned x = 0;
-        char c;
+        unsigned x    = 0;
+        char     c;
         do {
             c = *key++;
             if ((x = hash & 0xF0000000) != 0) {

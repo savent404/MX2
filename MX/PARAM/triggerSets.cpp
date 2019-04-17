@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 #define MAX_STR_LEN (24)
-static const char BG[][MAX_STR_LEN] = {
+static const char BG[][ MAX_STR_LEN ] = {
     "MODE",
     "T_MC",
     "T_SC",
@@ -26,7 +26,7 @@ static const char BG[][MAX_STR_LEN] = {
     "NP_Gdirection",
 };
 
-static const char TG[][MAX_STR_LEN] = {
+static const char TG[][ MAX_STR_LEN ] = {
     "MODE",
     "NP_FLIPCOLOR",
     "NP_TFLIP",
@@ -48,7 +48,7 @@ static const char TG[][MAX_STR_LEN] = {
     "NP_CometLocation",
 };
 
-static const char FT[][MAX_STR_LEN] = {
+static const char FT[][ MAX_STR_LEN ] = {
     "MODE",
     "NP_TBREATH",
     "NP_BRIGHTMAX",
@@ -64,7 +64,7 @@ static const char FT[][MAX_STR_LEN] = {
     "NP_WAVECYCLE",
 };
 
-static const char HW[][MAX_STR_LEN] = {
+static const char HW[][ MAX_STR_LEN ] = {
     "NP_ORDER",
     "NP_NUM",
     "NP_PERIOD",
@@ -79,7 +79,7 @@ static inline bool getKeyVal(const char* in, char* name, char* val)
     static re_t match;
     if (inited == false) {
         inited = true;
-        match = re_compile("\\w+\\s*=\\s*\\d+");
+        match  = re_compile("\\w+\\s*=\\s*\\d+");
     }
 
     if (re_matchp(match, in) == -1)
@@ -118,14 +118,14 @@ static inline int findPosition(const char* name, const char* strArr, int strNum)
 }
 static inline void matchWrite(int16_t* arr, const char* inputLine, const char* strArr, int strNum)
 {
-    static char name[32], value[32];
+    static char name[ 32 ], value[ 32 ];
     if (!getKeyVal(inputLine, name, value))
         return;
     // find this name in string arr
     int pos = findPosition(name, strArr, strNum);
     if (pos < 0)
         return;
-    arr[pos] = (int16_t)atoi(value);
+    arr[ pos ] = (int16_t)atoi(value);
     return;
 }
 
@@ -133,7 +133,7 @@ static int16_t* allocStructure(int size)
 {
     int16_t* ptr = (int16_t*)pvPortMalloc(size * sizeof(int16_t));
     for (int i = 0; i < size; i++) {
-        ptr[i] = -1;
+        ptr[ i ] = -1;
     }
     return ptr;
 }
@@ -162,68 +162,68 @@ void triggerSets_freeHW(triggerSets_HW_t hw)
 
 triggerSets_BG_t triggerSets_readBG(const char* filePath)
 {
-    FIL file;
+    FIL     file;
     FRESULT res;
 
-    int16_t* a = allocStructure(sizeof(BG) / sizeof(BG[0]));
-    char lineBuffer[128];
+    int16_t* a = allocStructure(sizeof(BG) / sizeof(BG[ 0 ]));
+    char     lineBuffer[ 128 ];
     res = f_open(&file, filePath, FA_READ);
     DEBUG_IF(res != FR_OK, 5, "Cant open file:%s", filePath);
     if (res != FR_OK)
         return a;
     while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0) {
-        matchWrite(a, lineBuffer, BG[0], sizeof(BG) / sizeof(BG[0]));
+        matchWrite(a, lineBuffer, BG[ 0 ], sizeof(BG) / sizeof(BG[ 0 ]));
     }
     f_close(&file);
     return a;
 }
 triggerSets_TG_t triggerSets_readTG(const char* filePath)
 {
-    FIL file;
+    FIL     file;
     FRESULT res;
 
-    int16_t* a = allocStructure(sizeof(TG) / sizeof(TG[0]));
-    char lineBuffer[128];
+    int16_t* a = allocStructure(sizeof(TG) / sizeof(TG[ 0 ]));
+    char     lineBuffer[ 128 ];
     res = f_open(&file, filePath, FA_READ);
     DEBUG_IF(res != FR_OK, 5, "Cant open file:%s", filePath);
     if (res != FR_OK)
         return a;
     while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0) {
-        matchWrite(a, lineBuffer, TG[0], sizeof(TG) / sizeof(TG[0]));
+        matchWrite(a, lineBuffer, TG[ 0 ], sizeof(TG) / sizeof(TG[ 0 ]));
     }
     f_close(&file);
     return a;
 }
 triggerSets_FT_t triggerSets_readFT(const char* filePath)
 {
-    FIL file;
+    FIL     file;
     FRESULT res;
 
-    int16_t* a = allocStructure(sizeof(FT) / sizeof(FT[0]));
-    char lineBuffer[128];
+    int16_t* a = allocStructure(sizeof(FT) / sizeof(FT[ 0 ]));
+    char     lineBuffer[ 128 ];
     res = f_open(&file, filePath, FA_READ);
     DEBUG_IF(res != FR_OK, 5, "Cant open file:%s", filePath);
     if (res != FR_OK)
         return a;
     while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0) {
-        matchWrite(a, lineBuffer, FT[0], sizeof(FT) / sizeof(FT[0]));
+        matchWrite(a, lineBuffer, FT[ 0 ], sizeof(FT) / sizeof(FT[ 0 ]));
     }
     f_close(&file);
     return a;
 }
 triggerSets_HW_t triggerSets_readHW(const char* filePath)
 {
-    FIL file;
+    FIL     file;
     FRESULT res;
 
-    int16_t* a = allocStructure(sizeof(HW) / sizeof(HW[0]));
-    char lineBuffer[128];
+    int16_t* a = allocStructure(sizeof(HW) / sizeof(HW[ 0 ]));
+    char     lineBuffer[ 128 ];
     res = f_open(&file, filePath, FA_READ);
     DEBUG_IF(res != FR_OK, 5, "Cant open file:%s", filePath);
     if (res != FR_OK)
         return a;
     while (f_gets(lineBuffer, sizeof(lineBuffer), &file) != 0) {
-        matchWrite(a, lineBuffer, HW[0], sizeof(HW) / sizeof(HW[0]));
+        matchWrite(a, lineBuffer, HW[ 0 ], sizeof(HW) / sizeof(HW[ 0 ]));
     }
     f_close(&file);
     return a;
@@ -231,31 +231,31 @@ triggerSets_HW_t triggerSets_readHW(const char* filePath)
 
 int16_t triggerSets_getBG(triggerSets_BG_t p, const char* name)
 {
-    int pos = findPosition(name, BG[0], sizeof(BG) / sizeof(BG[0]));
+    int pos = findPosition(name, BG[ 0 ], sizeof(BG) / sizeof(BG[ 0 ]));
     if (pos < 0)
         return -1;
-    return ((int16_t*)p)[pos];
+    return ((int16_t*)p)[ pos ];
 }
 
 int16_t triggerSets_getTG(triggerSets_TG_t p, const char* name)
 {
-    int pos = findPosition(name, TG[0], sizeof(TG) / sizeof(TG[0]));
+    int pos = findPosition(name, TG[ 0 ], sizeof(TG) / sizeof(TG[ 0 ]));
     if (pos < 0)
         return -1;
-    return ((int16_t*)p)[pos];
+    return ((int16_t*)p)[ pos ];
 }
 
 int16_t triggerSets_getFT(triggerSets_FT_t p, const char* name)
 {
-    int pos = findPosition(name, FT[0], sizeof(FT) / sizeof(FT[0]));
+    int pos = findPosition(name, FT[ 0 ], sizeof(FT) / sizeof(FT[ 0 ]));
     if (pos < 0)
         return -1;
-    return ((int16_t*)p)[pos];
+    return ((int16_t*)p)[ pos ];
 }
 int16_t triggerSets_getHW(triggerSets_HW_t p, const char* name)
 {
-    int pos = findPosition(name, HW[0], sizeof(HW) / sizeof(HW[0]));
+    int pos = findPosition(name, HW[ 0 ], sizeof(HW) / sizeof(HW[ 0 ]));
     if (pos < 0)
         return -1;
-    return ((int16_t*)p)[pos];
+    return ((int16_t*)p)[ pos ];
 }

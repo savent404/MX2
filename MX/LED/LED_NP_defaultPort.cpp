@@ -15,7 +15,7 @@ __MX_WEAK bool LED_NP_HW_Update(const void* arg, int num)
     // etc. osSemaphoreWait(....)
 
     for (int i = 0; i < num; i++) {
-        uint8_t rgb[3] = {
+        uint8_t rgb[ 3 ] = {
             ptrColor->wR(),
             ptrColor->wG(),
             ptrColor->wB(),

@@ -3,36 +3,37 @@
 #include "cmsis_os.h"
 #include "debug.h"
 #if USE_NP == 1
-#include "LED_NP.h"
+#    include "LED_NP.h"
 #else
-#include "LED_PWM.h"
+#    include "LED_PWM.h"
 #endif
 /* Var *************************************************/
 static osMessageQId LED_CMDHandle;
-static osThreadId selfThreadId = NULL;
+static osThreadId   selfThreadId = NULL;
+
 LED_IF_t ledIf = {
 #if USE_NP == 1
-#if __GNUC__ >= 4
-    init: LED_NP_Init,
+#    if __GNUC__ >= 4
+    init : LED_NP_Init,
     handle : LED_NP_Handle,
     updateParam : LED_NP_Update,
     updateBG : LED_NP_updateBG,
     updateFT : LED_NP_updateFT,
     updateTG : LED_NP_updateTG,
     applySets : LED_NP_applySets,
-#elif __ICCARM__
-    .init = LED_NP_Init,
+#    elif __ICCARM__
+    .init        = LED_NP_Init,
     .updateParam = LED_NP_Update,
-    .handle = LED_NP_Handle,
-    .updateBG = LED_NP_updateBG,
-    .updateTG = LED_NP_updateTG,
-    .updateFT = LED_NP_updateFT,
-    .applySets = LED_NP_applySets,
-#endif
+    .handle      = LED_NP_Handle,
+    .updateBG    = LED_NP_updateBG,
+    .updateTG    = LED_NP_updateTG,
+    .updateFT    = LED_NP_updateFT,
+    .applySets   = LED_NP_applySets,
+#    endif
 #else
-    // .init = LED_PWM_Init,
-    // .updateParam = LED_PWM_Update,
-    // .handle = LED_PWM_Handle,
+// .init = LED_PWM_Init,
+// .updateParam = LED_PWM_Update,
+// .handle = LED_PWM_Handle,
 #endif
 };
 
