@@ -22,10 +22,19 @@
 #         - cmake .. -DCMAKE_TOOLCHAIN_FILE=../BspH1/ToolChain.cmake -DBSPH1=on || if [$? -eq 64]; then echo "rebuild cmake"; fi
 #         - cmake .. -DCMAKE_TOOLCHAIN_FILE=../BspH1/ToolChain.cmake -DBSPH1=on
 #         - make
-H1-build-np:
+H1-build-np-debug:
     script:
         - mkdir build
         - cd build
         - export PATH=$PATH:/opt/gcc-arm-none-eabi/bin
         - cmake .. -DCMAKE_TOOLCHAIN_FILE=../BspH1/ToolChain.cmake -DBSPH1=on -DUSE_NP=1 -DMX_MUX_DUAL_TRACK=1 -DCMAKE_BUILD_TYPE=Debug
-        - make
+        - make -j2
+H1-build-np-release:
+    script:
+        - mkdir build
+        - cd build
+        - export PATH=$PATH:/opt/gcc-arm-none-eabi/bin
+        - cmake .. -DCMAKE_TOOLCHAIN_FILE=../BspH1/ToolChain.cmake -DBSPH1=on -DUSE_NP=1 -DMX_MUX_DUAL_TRACK=1 -DCMAKE_BUILD_TYPE=Release
+        - make -j2
+        - arm-none-eabi-size MX2.elf
+        - arm-none-eabi-size MX2.elf -A -x

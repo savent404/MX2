@@ -89,7 +89,7 @@ void MX_LOOP_Handle(void const* arg)
     usr_switch_bank(0);
     USR.bank_color = 0;
 
-    MX_LED_bankUpdate(&USR);
+    MX_LED_bankUpdate(&USR, true);
 
 #if 0
     if (MX_PM_needWarning())
@@ -203,10 +203,11 @@ void handleReady(void)
             DEBUG(5, "System going to running");
             usr_switch_bank(USR.bank_now);
             USR.sys_status = System_Running;
-            MX_LED_bankUpdate(&USR);
+            MX_LED_bankUpdate(&USR, true);
             MX_Audio_Play_Start(Audio_intoRunning);
             update_param(MX_Audio_getLastHumPos(), HUM);
             MX_LED_applySets();
+            MX_LED_stashSets();
             update_param(MX_Audio_getLastTriggerPos(), OUT);
             MX_LED_startTrigger(LED_Trigger_Start);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
@@ -221,7 +222,7 @@ void handleReady(void)
         if (timeout >= maxTimeout) {
             DEBUG(5, "System Bank switch");
             usr_switch_bank((USR.bank_now + 1) % USR.nBank);
-            MX_LED_bankUpdate(&USR);
+            MX_LED_bankUpdate(&USR, true);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             MX_Audio_Play_Start(Audio_BankSwitch);
         }
@@ -269,11 +270,11 @@ void handleRunning(void)
             // 当无法正常退出时保证colorSwitch切换的上下文可以断电保存
             saveContext();
 
-            MX_LED_bankUpdate(&USR);
+            MX_LED_bankUpdate(&USR, false);
             MX_Audio_Play_Start(Audio_ColorSwitch);
-            update_param(MX_Audio_getLastHumPos(), HUM);
-            MX_LED_applySets();
-            MX_LED_startTrigger(LED_Trigger_ColorSwitch);
+            // update_param(MX_Audio_getLastHumPos(), HUM);
+            // MX_LED_applySets();
+            // MX_LED_startTrigger(LED_Trigger_ColorSwitch);
         } else if (timeout >= maxTimeout) {
             DEBUG(5, "System going to ready")
             USR.sys_status = System_Ready;
@@ -283,7 +284,7 @@ void handleRunning(void)
             MX_LED_startTrigger(LED_Trigger_Stop);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             USR.bank_color = 0;
-            MX_LED_bankUpdate(&USR);
+            MX_LED_bankUpdate(&USR, true);
         }
     } else if (keyRes & KEY_SUB_PRESS) {
         uint16_t maxTimeout = USR.config->TEtrigger;
@@ -335,7 +336,7 @@ void handleRunning(void)
         MX_LED_startTrigger(LED_Trigger_Stop);
         SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
         USR.bank_color = 0;
-        MX_LED_bankUpdate(&USR);
+        MX_LED_bankUpdate(&USR, true);
 
         USR.sys_status = System_Charging;
     }
@@ -355,7 +356,7 @@ void handleRunning(void)
         update_param(MX_Audio_getLastTriggerPos(), IN);
         MX_LED_startTrigger(LED_Trigger_Stop);
         USR.bank_color = 0;
-        MX_LED_bankUpdate(&USR);
+        MX_LED_bankUpdate(&USR, true);
         SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
     }
 

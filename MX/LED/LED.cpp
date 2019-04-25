@@ -21,6 +21,7 @@ LED_IF_t ledIf = {
     updateFT : LED_NP_updateFT,
     updateTG : LED_NP_updateTG,
     applySets : LED_NP_applySets,
+    stashSets : LED_NP_stashSets,
 #    elif __ICCARM__
     .init        = LED_NP_Init,
     .updateParam = LED_NP_Update,
@@ -29,6 +30,7 @@ LED_IF_t ledIf = {
     .updateTG    = LED_NP_updateTG,
     .updateFT    = LED_NP_updateFT,
     .applySets   = LED_NP_applySets,
+    .stashSets   = LED_NP_stashSets,
 #    endif
 #else
 // .init = LED_PWM_Init,
@@ -63,9 +65,9 @@ osEvent MX_LED_GetMessage(uint32_t timeout)
 /**
  * @Breif  改变当前颜色Bank后(BankSwitch or ColorSwitch)， 更新任务中的局部变量
  */
-void MX_LED_bankUpdate(PARA_DYNAMIC_t* pt)
+void MX_LED_bankUpdate(PARA_DYNAMIC_t* pt, bool needBlock)
 {
-    if (ledIf.updateParam != NULL && !ledIf.updateParam(pt)) {
+    if (ledIf.updateParam != NULL && !ledIf.updateParam(pt, needBlock)) {
         DEBUG(3, "LED update parameter error");
     }
 }
@@ -115,4 +117,9 @@ void MX_LED_updateFT(triggerSets_FT_t t)
 void MX_LED_applySets(void)
 {
     ledIf.applySets();
+}
+
+void MX_LED_stashSets(void)
+{
+    ledIf.stashSets();
 }

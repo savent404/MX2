@@ -4,6 +4,7 @@
 #include "MX_def.h"
 #include "cmsis_os.h"
 #include "param.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,11 +22,12 @@ MX_C_API osEvent MX_LED_GetMessage(uint32_t timeout);
  *        after started trigger's audio
  */
 MX_C_API void MX_LED_startTrigger(LED_CMD_t message);
-MX_C_API void MX_LED_bankUpdate(PARA_DYNAMIC_t*);
+MX_C_API void MX_LED_bankUpdate(PARA_DYNAMIC_t*, bool needBlock);
 MX_C_API void MX_LED_updateBG(triggerSets_BG_t);
 MX_C_API void MX_LED_updateTG(triggerSets_TG_t);
 MX_C_API void MX_LED_updateFT(triggerSets_FT_t);
 MX_C_API void MX_LED_applySets(void);
+MX_C_API void MX_LED_stashSets(void);
 MX_C_API void MX_LED_Init(void);
 
 #endif

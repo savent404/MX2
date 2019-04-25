@@ -8,7 +8,6 @@ iBlade::iBlade(size_t num)
     : iBladeDriver(num)
     , status(idle)
 {
-    pFlame = nullptr;
     setNormalParam();
     setBackGroudParam(modeL1_t::Static);
     setTriggerParam(modeL2_t::NoTrigger);
@@ -18,8 +17,8 @@ iBlade::iBlade(size_t num)
     TC       = RGB(0, 0, 255);
     maxLight = 255;
     minLight = 0;
-    pushSet();
-    stashSet();
+    pushSets();
+    stashSets();
     modeL1_ready = modeL1;
     modeL2_ready = modeL2;
     modeL3_ready = modeL3;
@@ -227,7 +226,7 @@ void iBlade::handleLoop(void* arg)
     }
     if (stepProcess.walk()) {
         clearProcess();
-        stashSet();
+        stashSets();
     }
 }
 
@@ -251,8 +250,10 @@ void iBlade::handleTrigger(const void* evt)
     if (status == InTrigger || status == out || status == in)
         clearProcess();
     if (status == Run || cmd == LED_Trigger_Start || cmd == LED_Trigger_Stop) {
-        pushSet();
-        applySet();
+        pushSets();
+        applyStashSets();
+        // when pop or apply, update flame color
+        pFlame->initColor(MC, SC);
     }
 
     // default: step up stepProcess to handle trigger
@@ -305,8 +306,6 @@ void iBlade::handleTrigger(const void* evt)
             status = Run;
         if (status == InTrigger)
             status = Run;
-        popSet();
-        stashSet();
         break;
 
     case LED_TriggerB:
@@ -394,10 +393,6 @@ void iBlade::backGroundRender(void)
     }
 }
 
-__attribute__((weak)) bool iBlade::parameterUpdate(void* arg)
-{
-    return true;
-}
 __attribute__((weak)) void iBlade::setNormalParam(void)
 {
     pushColors();
@@ -438,7 +433,7 @@ __attribute__((weak)) void iBlade::setNormalParam(void)
     }
     pFlame->initColor(MC, SC);
 }
-__attribute__((weak)) void iBlade::setBackGroudParam(iBlade::modeL1_t mode)
+__attribute__((weak)) void iBlade::setBackGroudParam(modeL1_t mode)
 {
     modeL1 = mode;
     switch (modeL1) {
@@ -471,7 +466,7 @@ __attribute__((weak)) void iBlade::setBackGroudParam(iBlade::modeL1_t mode)
         break;
     }
 }
-__attribute__((weak)) void iBlade::setTriggerParam(iBlade::modeL2_t mode)
+__attribute__((weak)) void iBlade::setTriggerParam(modeL2_t mode)
 {
     modeL2 = mode;
     switch (mode) {
@@ -505,7 +500,7 @@ __attribute__((weak)) void iBlade::setTriggerParam(iBlade::modeL2_t mode)
         break;
     }
 }
-__attribute__((weak)) void iBlade::setFilterParam(iBlade::modeL3_t mode)
+__attribute__((weak)) void iBlade::setFilterParam(modeL3_t mode)
 {
     modeL3 = mode;
     switch (mode) {
@@ -549,18 +544,11 @@ void iBlade::clearL3(void)
 void iBlade::clearProcess(void)
 {
     stepProcess.repeatCnt = -1;
-    if (status == InTrigger && modeL2 == modeL2_t::Accelerate) {
-        // means keep stepL3&stepL1's now and repeatCnt
-        float s[ 2 ] = { (float)stepL1, (float)stepL3 };
-        popSet();
-        status     = Run;
-        stepL1.now = s[ 0 ] * stepL1.total;
-        stepL3.now = s[ 1 ] * stepL3.total;
-    }
     if (status == InTrigger || status == out) {
         status = Run;
-        popSet();
-        // stashSet();
+        popSets();
+        // when pop or apply, update flame color
+        pFlame->initColor(MC, SC);
     } else if (status == in) {
         status = idle;
         RGB black(0, 0, 0);

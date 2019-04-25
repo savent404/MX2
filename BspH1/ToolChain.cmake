@@ -43,3 +43,6 @@ set(CMAKE_OBJDUMP     	   ${ARM_OBJDUMP})
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++11 -T${MCU_LINKER_SCRIPT}")
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99 -T${MCU_LINKER_SCRIPT}")
 set(CMAKE_ASM_FLAGS "-mthumb -mcpu=${MCU_ARCH}")
+
+# avoid when generate makefile, cmake will add "-O3 -DNDEBUG" flags into ASM flags
+set(CMAKE_ASM_FLAGS_RELEASE "${CMAKE_ASM_FLAGS}")

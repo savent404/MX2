@@ -64,6 +64,12 @@ struct step_t {
         float res    = float(now) / fTotal;
         return res > 1.0f ? 1.0f : res;
     }
+
+    step_t& operator=(float t)
+    {
+        this->now = int(this->total * t);
+        return *this;
+    }
     /**
      * @brief update
      * @retvl is EOF

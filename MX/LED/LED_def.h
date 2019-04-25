@@ -62,11 +62,12 @@ typedef enum _led_trigger_method {
 typedef struct _interface_led {
     bool (*init)(void* arg);
     void (*handle)(PARA_DYNAMIC_t* ptr);
-    bool (*updateParam)(PARA_DYNAMIC_t* param);
+    bool (*updateParam)(PARA_DYNAMIC_t* param, bool);
     void (*updateBG)(triggerSets_BG_t);
     void (*updateFT)(triggerSets_FT_t);
     void (*updateTG)(triggerSets_TG_t);
     void (*applySets)(void);
+    void (*stashSets)(void);
 } LED_IF_t;
 
 #ifdef __cplusplus
