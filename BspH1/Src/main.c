@@ -86,6 +86,7 @@ const char Coyright[]={0x51, 0x7C, 0x3E, 0x90, 0xB5, 0x27, 0x65, 0x31, 0x01, 0x0
 extern bool Mmcsd_Present(void);
 extern void MX_Console_HW_Init(void);
 extern void MX_Console_Print(uint8_t *string, uint16_t size);
+extern void Sensor_SPI_Polling_StartCallback(void);
 
 /* USER CODE END PV */
 
@@ -105,6 +106,7 @@ extern osSemaphoreId VBAT_LOW_FLAGHandle;
 extern osSemaphoreId NpOperate_Cplt_FlagHandle;
 #endif
 
+extern bool MX_Hand_HW_FIFOpollingStart(void);
 /* USER CODE END 0 */
 
 /**
@@ -256,8 +258,7 @@ int fputc(int ch, FILE* f)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  if(GPIO_Pin == SD_DETn_Pin)
-  {
+  if(GPIO_Pin == SD_DETn_Pin) {
     uint32_t tickstart = HAL_GetTick();
     uint32_t wait = FORCE_PWROFF_TIMEOUT;
       
@@ -268,7 +269,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 
     //MX_GPIO_Enable(false);
-  } 
+  }
+
+  if(GPIO_Pin == LS3DH_INT1_Pin) {
+    Sensor_SPI_Polling_StartCallback();
+  }
 }
 
 

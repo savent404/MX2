@@ -21,28 +21,29 @@ static int frozenTimer[ 3 ] = { 0, 0, 0 };
 #define KEY_SUB_RELEASE (0x08)
 
 static uint8_t scanKey(void);
-static bool    askTrigger(uint8_t);
-static void    handleReady(void);
-static void    handleRunning(void);
-static void    handleCharged(void);
-static void    handleCharging(void);
-
+static bool askTrigger(uint8_t);
+static void handleReady(void);
+static void handleRunning(void);
+static void handleCharged(void);
+static void handleCharging(void);
 // 保存现场
 static void saveContext(void);
 static bool canBoot(void);
 
-#define update_param(pos, tgName)                                                                                    \
-    do {                                                                                                             \
-        const char*      wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);                                 \
-        triggerSets_BG_t bg      = triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
-        MX_LED_updateBG(bg);                                                                                         \
-        triggerSets_freeBG(bg);                                                                                      \
-        triggerSets_TG_t tg = triggerSets_readTG(_MX_TriggerPath_getOtherPath(USR.triggerTG##tgName, wavName));      \
-        MX_LED_updateTG(tg);                                                                                         \
-        triggerSets_freeTG(tg);                                                                                      \
-        triggerSets_FT_t ft = triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName));      \
-        MX_LED_updateFT(ft);                                                                                         \
-        triggerSets_freeFT(ft);                                                                                      \
+static HAND_TriggerId_t GET_HAND_TRIGGER();
+
+#define update_param(pos, tgName)                                                                               \
+    do {                                                                                                        \
+        const char* wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);                                 \
+        triggerSets_BG_t bg = triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
+        MX_LED_updateBG(bg);                                                                                    \
+        triggerSets_freeBG(bg);                                                                                 \
+        triggerSets_TG_t tg = triggerSets_readTG(_MX_TriggerPath_getOtherPath(USR.triggerTG##tgName, wavName)); \
+        MX_LED_updateTG(tg);                                                                                    \
+        triggerSets_freeTG(tg);                                                                                 \
+        triggerSets_FT_t ft = triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName)); \
+        MX_LED_updateFT(ft);                                                                                    \
+        triggerSets_freeFT(ft);                                                                                 \
     } while (0)
 
 bool MX_LOOP_Init(void)
@@ -142,8 +143,6 @@ void MX_LOOP_Handle(void const* arg)
             break;
         }
         }
-
-        osDelay(MX_LOOP_INTERVAL);
     }
 }
 
@@ -251,7 +250,7 @@ void handleReady(void)
     }
 
     // handle data but never trigger actions
-    MX_HAND_GetTrigger();
+    GET_HAND_TRIGGER();
 }
 
 void handleRunning(void)
@@ -374,7 +373,7 @@ void handleRunning(void)
     }
 
     // move detection
-    handTrigger = MX_HAND_GetTrigger();
+    handTrigger = GET_HAND_TRIGGER();
     if (handTrigger.hex != 0) {
         if (handTrigger.unio.isClash && askTrigger(1)) {
         gotoClash:
@@ -509,6 +508,12 @@ void saveContext(void)
     USR.colorMatrix.colorIndex[ USR.bank_now ] = USR.np_colorIndex;
 }
 
-__weak void MX_WTDG_HW_Feed(void)
-{
+
+HAND_TriggerId_t GET_HAND_TRIGGER() {
+    HAND_TriggerId_t t;
+    
+    do {
+        t = MX_HAND_GetTrigger(MX_getMsTime());
+    } while (t.hex == 0);
+    return t;
 }

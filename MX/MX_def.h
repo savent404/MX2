@@ -68,11 +68,15 @@
 #    ifdef USE_DEBUG
 #        define MX_WTDG_FEED() NULL
 #    else
-void MX_WTDG_HW_Feed(void);
+MX_C_API void MX_WTDG_HW_Feed(void);
 #        define MX_WTDG_FEED() MX_WTDG_HW_Feed()
 #    endif
 #endif
 
 #ifndef MX_MUX_WAV_FIX_OFFSET
 #    define MX_MUX_WAV_FIX_OFFSET (44)
+#endif
+
+#ifndef MX_getMsTime
+#define MX_getMsTime() (osKernelSysTick() * 1000 / osKernelSysTickFrequency)
 #endif

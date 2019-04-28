@@ -3248,11 +3248,93 @@ __weak uint8_t SPI_ISCRCErrorValid(SPI_HandleTypeDef *hspi)
   
   return (SPI_VALID_CRC_ERROR);
 }
+
+static void SPI_Sensor_Polling_ISR(struct __SPI_HandleTypeDef *hspi)
+{
+  /* Receive data in 16 Bit mode */  
+  *((uint16_t*)hspi->pRxBuffPtr) = hspi->Instance->DR;
+  hspi->Instance->DR = *((uint16_t*)hspi->pTxBuffPtr);
+  hspi->pRxBuffPtr += sizeof(uint16_t);
+  hspi->RxXferCount--;
+
+  if(hspi->RxXferCount == 0U)
+  {
+    /* Disable RXNE interrupt */
+    __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXNE);
+
+    SPI_CloseRxTx_ISR(hspi);
+  }
+}
+
+HAL_StatusTypeDef HAL_Sensor_Polling_IT(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size)
+{
+  uint32_t tmp = 0U, tmp1 = 0U;
+  HAL_StatusTypeDef errorcode = HAL_OK;
+
+  /* Check Direction parameter */
+  assert_param(IS_SPI_DIRECTION_2LINES(hspi->Init.Direction));
+
+  /* Process locked */
+  __HAL_LOCK(hspi);
+
+  tmp  = hspi->State;
+  tmp1 = hspi->Init.Mode;
+  
+  if(!((tmp == HAL_SPI_STATE_READY) || \
+    ((tmp1 == SPI_MODE_MASTER) && (hspi->Init.Direction == SPI_DIRECTION_2LINES) && (tmp == HAL_SPI_STATE_BUSY_RX))))
+  {
+    errorcode = HAL_BUSY;
+    goto error;
+  }
+
+  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0U))
+  {
+    errorcode = HAL_ERROR;
+    goto error;
+  }
+
+  /* Don't overwrite in case of HAL_SPI_STATE_BUSY_RX */
+  if(hspi->State == HAL_SPI_STATE_READY)
+  {
+    hspi->State = HAL_SPI_STATE_BUSY_TX_RX;
+  }
+
+  /* Set the transaction information */
+  hspi->ErrorCode   = HAL_SPI_ERROR_NONE;
+  hspi->pTxBuffPtr  = (uint8_t *)pTxData;
+  hspi->TxXferSize  = Size;
+  hspi->TxXferCount = Size;
+  hspi->pRxBuffPtr  = (uint8_t *)pRxData;
+  hspi->RxXferSize  = Size;
+  hspi->RxXferCount = Size;
+
+
+  hspi->RxISR     = SPI_Sensor_Polling_ISR;
+  hspi->TxISR     = NULL;
+
+
+  /* Enable TXE, RXNE and ERR interrupt */
+  __HAL_SPI_ENABLE_IT(hspi, (SPI_IT_RXNE | SPI_IT_ERR));
+
+  /* Check if the SPI is already enabled */
+  if((hspi->Instance->CR1 &SPI_CR1_SPE) != SPI_CR1_SPE)
+  {
+    /* Enable SPI peripheral */
+    __HAL_SPI_ENABLE(hspi);
+  }
+
+  hspi->Instance->DR = *((uint16_t*)hspi->pTxBuffPtr);
+
+error :
+  /* Process Unlocked */
+  __HAL_UNLOCK(hspi);
+  return errorcode;
+}
+
 /**
   * @}
   */
 #endif /* HAL_SPI_MODULE_ENABLED */
-
 /**
   * @}
   */

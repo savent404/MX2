@@ -51,7 +51,9 @@
 #include "spi.h"
 
 /* USER CODE BEGIN 0 */
-
+extern void SD_SPI_RxCpltCallback(void);
+extern void SD_SPI_TxCpltCallback(void);
+extern void Sensor_SPI_RxCpltCallback(void);
 /* USER CODE END 0 */
 
 SPI_HandleTypeDef hspi1;
@@ -195,6 +197,11 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+
+    /* SPI2 interrupt Init */
+    HAL_NVIC_SetPriority(SPI2_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(SPI2_IRQn);
+
   /* USER CODE BEGIN SPI2_MspInit 1 */
 
   /* USER CODE END SPI2_MspInit 1 */
@@ -241,6 +248,9 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
     */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15);
 
+    /* SPI2 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(SPI2_IRQn);
+
   /* USER CODE BEGIN SPI2_MspDeInit 1 */
 
   /* USER CODE END SPI2_MspDeInit 1 */
@@ -248,6 +258,27 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    if(hspi->Instance == SPI1) {
+        SD_SPI_RxCpltCallback();
+    }
+}
+
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    if(hspi->Instance == SPI1) {
+        SD_SPI_TxCpltCallback();
+    }
+}
+
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    if(hspi->Instance == SPI2) {
+        Sensor_SPI_RxCpltCallback();
+    }
+}
+
 
 /* USER CODE END 1 */
 

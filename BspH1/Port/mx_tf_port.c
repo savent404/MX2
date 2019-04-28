@@ -93,12 +93,12 @@ HAL_StatusTypeDef Mmcsd_Spi_Receive(uint8_t *rxbuf, uint16_t datanum)
     return status;
 }
 
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+void SD_SPI_RxCpltCallback(void)
 {
     osSemaphoreRelease(SdRxOperate_Cplt_FlagHandle);
 }
 
-void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+void SD_SPI_TxCpltCallback(void)
 {
     osSemaphoreRelease(SdTxOperate_Cplt_FlagHandle);
 }

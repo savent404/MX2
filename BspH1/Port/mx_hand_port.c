@@ -6,10 +6,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "cmsis_os.h"
+#include "debug.h"
 
 #define STAB_FREEZE (1000)
 #define STAB_GYRO (200)
+#define FIFO_SAMPLE (64)
+#define POOLSIZE (FIFO_SAMPLE * 6)
 
+#define u16(reg)  ((uint16_t)(reg))
+
+#define sw_u16(reg) \
+    (((u16(reg) >> 8) & 0xFF) | ((u16(reg) << 8) & 0xFF00))
+
+#define ACC_MAXIUM_RANGE (8.0f)
+#define GYRO_MAXIUM_RANGE (2000.0f)
+
+#define convert_acc(intergrate) (intergrate / (float)INT16_MAX * ACC_MAXIUM_RANGE)
+#define convert_gyro(intergrate) (intergrate / (float)INT16_MAX * GYRO_MAXIUM_RANGE)
 
 typedef enum {
   Select=0x00,
@@ -24,6 +38,27 @@ typedef enum {
   SP_L4
 }eSpStatus;
 
+typedef struct __FifoFrameTypeDef{
+//     int16_t gyrox;
+//     int16_t gyroy;
+//     int16_t gyroz;
+//     int16_t accx;
+//     int16_t accy;
+//     int16_t accz;
+    int16_t gyroz;
+    int16_t gyrox;
+    int16_t gyroy;
+    int16_t accz;
+    int16_t accx;
+    int16_t accy;
+}FifoFrameTypeDef, *pFifoFrameTypeDef;
+
+typedef struct __DataPoolTypeDef{
+    uint16_t dataNumber;
+    uint16_t dataIndex;
+    FifoFrameTypeDef dataFrame[FIFO_SAMPLE];
+}DataPoolTypeDef, *pDataPoolTypeDef;
+
 extern __IO uint32_t uwTick;
 
 static void Sensor_Init(void);
@@ -32,6 +67,7 @@ static uint8_t Sensor_isClick(void);
 static uint8_t Sensor_isMove(void);
 static bool Sensor_isStab(int16_t *data_buf);
 static uint8_t Sensor_isSpin(int16_t * data_buf);
+static bool MX_Hand_HW_FIFOpollingStart(void);
 
 
 uint8_t Sensor_RD(uint8_t addr);
@@ -42,12 +78,28 @@ static void Sensor_SPI_WR(uint16_t Data);
 
 
 extern SPI_HandleTypeDef hspi2;
+extern TIM_HandleTypeDef htim5;
+
+static osSemaphoreId SensorTx_Start_FlagHandle;
+static osSemaphoreId SensorRx_Cplt_FlagHandle;
+static pDataPoolTypeDef pDataPool;
 
 void Sensor_MultiDataRD(uint8_t addr, uint16_t *pRxData, uint8_t Size);
 
+extern HAL_StatusTypeDef HAL_Sensor_Polling_IT(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size);
 
-bool MX_HAND_Init(void)
+void MX_HAND_HW_Init(void)
 {
+    osSemaphoreDef(SensorRx_Cplt_Flag);
+    SensorRx_Cplt_FlagHandle = osSemaphoreCreate(osSemaphore(SensorRx_Cplt_Flag), 1);
+    SensorTx_Start_FlagHandle = osSemaphoreCreate(osSemaphore(SensorRx_Cplt_Flag), 1);
+    osSemaphoreWait(SensorRx_Cplt_FlagHandle, 0);
+    osSemaphoreWait(SensorTx_Start_FlagHandle, 0);
+
+    pDataPool = pvPortMalloc(sizeof(DataPoolTypeDef));
+
+    __HAL_SPI_DISABLE_IT(&hspi2, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+
     Sensor_Init();
     SensorConfig config;
     config.CD = USR.config->CD;
@@ -63,57 +115,58 @@ bool MX_HAND_Init(void)
     config.SPL3 = USR.config->SPL3;
     config.SPL4 = USR.config->SPL4;
     Sensor_Set(&config);
-    return true;
+
+    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 }
 
-bool MX_HAND_DeInit(void)
+void MX_HAND_HW_DeInit(void)
 {
-    return true;
 }
 
-HAND_TriggerId_t MX_HAND_GetTrigger(void)
-{
-    int16_t SensorRawData[6];
-    HAND_TriggerId_t res;
-    res.hex = 0;
-    uint8_t isClik = Sensor_isClick();
-    uint8_t isMove = Sensor_isMove();
-    Sensor_MultiDataRD(OUTX_L_G, (uint16_t *)SensorRawData, 6);
-    bool isStab = Sensor_isStab(SensorRawData);
-    uint8_t isSpin = Sensor_isSpin(SensorRawData);
+// HAND_TriggerId_t MX_HAND_GetTrigger(void)
+// {
+//     int16_t SensorRawData[6];
+//     HAND_TriggerId_t res;
+//     res.hex = 0;
+//     uint8_t isClik = Sensor_isClick();
+//     uint8_t isMove = Sensor_isMove();
+//     Sensor_MultiDataRD(OUTX_L_G, (uint16_t *)SensorRawData, 6);
+//     bool isStab = Sensor_isStab(SensorRawData);
+//     uint8_t isSpin = Sensor_isSpin(SensorRawData);
 
-    if (isClik)
-        res.unio.isClash = true;
-    if (isMove)
-        res.unio.isSwing = true;
-    if (isStab)
-        res.unio.isStab = true;
-    return res;
-}
+//     if (isClik)
+//         res.unio.isClash = true;
+//     if (isMove)
+//         res.unio.isSwing = true;
+//     if (isStab)
+//         res.unio.isStab = true;
+//     return res;
+// }
 
 static void Sensor_Init(void)
 {
   __HAL_SPI_ENABLE(&hspi2);
   
-  //check who I am
-  while(0x69!=Sensor_RD(WHO_AM_I));     
-
   /* Configuration Description
    * Trigger software reset
    */
   Sensor_WR(CTRL3_C, 0x01);
 
-  osDelay(50);
+  osDelay(1);
+  
+  //check who I am
+  while(0x69!=Sensor_RD(WHO_AM_I)); 
 
   /* Configuration Description
-   * Disable I2C
+   * 
    */
-  Sensor_WR(CTRL4_C, 0x04);
+  //Sensor_WR(CTRL4_C, 0x02);
+  //Sensor_WR(CTRL4_C, 0x03);
+  Sensor_WR(CTRL4_C, 0x01);
 
-  /* Configuration Description
-   * Swap LSB & MSB
-   */
-  Sensor_WR(CTRL3_C, 0x06);
+  //osDelay(1);
+  
+  while(0x69!=Sensor_RD(WHO_AM_I));
 
   /* Configuration Description
    * Enable XYZ accelerometer output
@@ -121,11 +174,11 @@ static void Sensor_Init(void)
   Sensor_WR(CTRL9_XL, 0x38);
   
   /* Configuration Description
-   * DOR : 833Hz
+   * DOR : 1.66KHz
    * Full-scale selecion 8G
    * Anti-aliasing filter bandwidth selection 400Hz
    */
-  Sensor_WR(CTRL1_XL, 0x7C);
+  Sensor_WR(CTRL1_XL, 0x8C);
 
 
   /* Configuration Description
@@ -134,10 +187,10 @@ static void Sensor_Init(void)
   Sensor_WR(CTRL10_C, 0x38);
 
   /* Configuration Description
-   * Gyroscope ODR: 104Hz
-   * Full-scale selecion 1000dps
+   * Gyroscope ODR: 1.66KHz
+   * Full-scale selecion 2000dps
    */
-  Sensor_WR(CTRL2_G, 0x78);
+  Sensor_WR(CTRL2_G, 0x8C);
 
 
   /* Configuration Description
@@ -161,24 +214,52 @@ static void Sensor_Init(void)
 
   Sensor_WR(WAKE_UP_THS, 0x3F);
   Sensor_WR(WAKE_UP_DUR, 0x60);
+
+  /* Configuration Description
+   * enable block data update, interrupt active low, INT push pull, Swap LSB & MSB
+   */
+  Sensor_WR(CTRL3_C, 0x46);
+
+  /* Configuration Description
+   * Enable FIFO full interrupt on INT1
+   */
+  Sensor_WR(INT1_CTRL, 0x20);
+  /* Configuration Description
+   * Set watermark to FIFO_SAMPLE samples
+   */
+  uint16_t sampleNumber = POOLSIZE + 6;
   
+  Sensor_WR(FIFO_CONTROL1, (uint8_t)(sampleNumber & 0x00FF));
+  Sensor_WR(FIFO_CONTROL2, (uint8_t)((sampleNumber & 0x0F00) >> 8));
+  Sensor_WR(FIFO_CONTROL3, 0x09);
+  Sensor_WR(FIFO_CONTROL4, 0x00);
+  Sensor_WR(FIFO_CONTROL5, 0x00);
+
+  while(0x69!=Sensor_RD(WHO_AM_I));
 }
 
 static void Sensor_Set(SensorConfig *para)
 {
-  uint8_t temp;
+  uint8_t sensorCfg;
+  uint8_t sensorReadback;
 
+  /* Configuration Description
+   * Clear FIFO content
+   */
+  Sensor_WR(FIFO_CONTROL5, 0x00);
 
   //globale sample rate setting
   if(para->GB>0 && para->GB<11) {
-    temp=(10-para->GB)<<4;
+    sensorCfg=(10-para->GB)<<4;
   }
   else {
-    temp=0x80;
+    sensorCfg=0x80;
   }
-  
-  Sensor_WR(CTRL1_XL, temp);
-  Sensor_WR(CTRL2_G, temp);
+
+  sensorReadback = Sensor_RD(CTRL1_XL);
+  Sensor_WR(CTRL1_XL, (sensorCfg & 0xF0) | (sensorReadback & 0x0F));
+  sensorReadback = Sensor_RD(CTRL2_G);
+  Sensor_WR(CTRL2_G, (sensorCfg & 0xF0) | (sensorReadback & 0x0F));
 
   //click setting
   if(para->CT>0 && para->CT<33) {
@@ -210,6 +291,10 @@ static void Sensor_Set(SensorConfig *para)
     Sensor_WR(WAKE_UP_DUR, 0x60);
   }
 
+  /* Configuration Description
+   * Set the sample rate as GB, enable FIFO
+   */
+  Sensor_WR(FIFO_CONTROL5, sensorCfg >> 1 | 0x01);
 }
 
 static uint8_t Sensor_isClick(void)
@@ -382,3 +467,110 @@ static void Sensor_SPI_WR(uint16_t Data)
 
     __HAL_SPI_CLEAR_OVRFLAG(&hspi2);
 }
+
+bool MX_HAND_HW_getData(float acc[3], float gyro[3])
+{
+    uint16_t num, index;
+    num = pDataPool->dataNumber;
+    index = pDataPool->dataIndex;
+
+    if (!num || index >= num)
+    {
+        do {
+            num = pDataPool->dataNumber;
+            index = pDataPool->dataIndex;
+            // need read hw to get data
+            if (!MX_Hand_HW_FIFOpollingStart()) {
+                return false;
+            }
+        } while (!num || index >= num);
+    }
+
+    // get from buffer
+    pFifoFrameTypeDef pF = pDataPool->dataFrame + index/6;
+
+    acc[0] = convert_acc(pF->accx);
+    acc[1] = convert_acc(pF->accy);
+    acc[2] = convert_acc(pF->accz);
+    gyro[0] = convert_acc(pF->gyrox);
+    gyro[1] = convert_acc(pF->gyroy);
+    gyro[2] = convert_acc(pF->gyroz);
+
+    if (index == 0) {
+        DEBUG(4, "acc:%.2f\t%.2f\t%.2f\tgyro:%.2f\t%.2f\t%.2f", acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2]);
+    }
+
+    index += 6;
+    if (index >= num) {
+        pDataPool->dataNumber = 0;
+        pDataPool->dataIndex = 0;
+    } else {
+        pDataPool->dataIndex = index;
+    }
+
+    return true;
+}
+
+
+bool MX_Hand_HW_FIFOpollingStart(void)
+{
+    uint8_t temp;
+    uint16_t tp[1];
+    
+    if(osOK == osSemaphoreWait(SensorTx_Start_FlagHandle, 0)) {
+        // DEBUG(4, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>, %d", (int)(osKernelSysTick() * 1000 / osKernelSysTickFrequency));
+        uint16_t spiTxBuffer = 0xFFFF;
+
+        pDataPool->dataIndex = 0x0000;
+
+        Sensor_MultiDataRD(FIFO_STATUS1, tp, 1);
+
+        pDataPool->dataNumber = sw_u16(*tp) & 0x0FFF;
+
+        __HAL_SPI_DISABLE(&hspi2);
+        hspi2.Instance->CR1 &= ~SPI_DATASIZE_16BIT;
+        __HAL_SPI_ENABLE(&hspi2);
+
+        Sensor_CS(Select);
+        *((__IO uint8_t*)&hspi2.Instance->DR) = 0x80 | FIFO_DATA_OUT_L;
+        while(!(hspi2.Instance->SR & SPI_FLAG_TXE));
+        while(hspi2.Instance->SR & SPI_FLAG_BSY);
+        __HAL_SPI_CLEAR_OVRFLAG(&hspi2);
+
+        __HAL_SPI_DISABLE(&hspi2);
+        hspi2.Instance->CR1 |= SPI_DATASIZE_16BIT;
+        __HAL_SPI_ENABLE(&hspi2);
+
+        if (pDataPool->dataNumber > POOLSIZE) {
+            pDataPool->dataNumber = POOLSIZE;
+        }
+        HAL_Sensor_Polling_IT(&hspi2, (uint8_t *)spiTxBuffer, (uint8_t *)pDataPool->dataFrame, pDataPool->dataNumber);
+            
+        osSemaphoreWait(SensorRx_Cplt_FlagHandle, osWaitForever);
+        Sensor_CS(Deselect);
+
+        temp = Sensor_RD(FIFO_CONTROL5);
+        
+        Sensor_WR(FIFO_CONTROL5, temp & 0xFE);
+
+        osDelay(1);
+        
+        Sensor_WR(FIFO_CONTROL5, temp | 0x01);
+    
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+void Sensor_SPI_RxCpltCallback(void)
+{
+    osSemaphoreRelease(SensorRx_Cplt_FlagHandle);
+}
+
+void Sensor_SPI_Polling_StartCallback(void)
+{
+    osSemaphoreRelease(SensorTx_Start_FlagHandle);
+}
+
