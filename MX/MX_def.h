@@ -78,5 +78,7 @@ MX_C_API void MX_WTDG_HW_Feed(void);
 #endif
 
 #ifndef MX_getMsTime
-#define MX_getMsTime() (osKernelSysTick() * 1000 / osKernelSysTickFrequency)
+#    define MX_getMsTime() (osKernelSysTick() * 1000 / osKernelSysTickFrequency)
 #endif
+
+#define returnLastStack(id) (uint16_t(uxTaskGetStackHighWaterMark(static_cast<TaskHandle_t>(id))))
