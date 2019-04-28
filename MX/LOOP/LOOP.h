@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+#    include "event.h"
+#endif
+
 MX_C_API bool MX_LOOP_Init(void);
 MX_C_API bool MX_LOOP_DeInit(void);
 

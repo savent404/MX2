@@ -94,7 +94,11 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(SENSOR_CSN_GPIO_Port, SENSOR_CSN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
+  #if ENABLECONSOLE == 0
   HAL_GPIO_WritePin(GPIOB, SIMPLELED7_Pin|SIMPLELED6_Pin|POWER_EN_Pin, GPIO_PIN_RESET);
+  #else
+  HAL_GPIO_WritePin(GPIOB, POWER_EN_Pin, GPIO_PIN_RESET);
+  #endif
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = SIMPLELED3_Pin;

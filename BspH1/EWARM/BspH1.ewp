@@ -1304,6 +1304,9 @@
             <name>$PROJ_DIR$\..\..\MX\cPlusMalloc.cpp</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\MX\PARAM\event.cpp</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\MX\Hand\hand.cpp</name>
         </file>
         <file>

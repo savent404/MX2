@@ -2,7 +2,9 @@
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
 
+#include "console.h"
 #include "triggerSets.h"
+
 static osThreadId loopThreadId;
 
 // [0]: auto 'in'
@@ -62,6 +64,8 @@ void MX_LOOP_Handle(void const* arg)
     // enable PM first
     MX_PM_Init();
     MX_PM_Boot();
+    MX_Event_Init();
+    MX_Console_Init();
     /** Init all the other function modules
      */
     // if init parameter error, just beep and shutdown.
@@ -113,6 +117,7 @@ void MX_LOOP_Handle(void const* arg)
     USR.sys_status = System_Ready;
 
     for (;;) {
+
         if (MX_PM_needPowerOff()) {
             USR.mute_flag = 0;
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_SLEEP);
@@ -251,10 +256,52 @@ void handleReady(void)
 
 void handleRunning(void)
 {
-    uint8_t  keyRes  = scanKey();
-    uint16_t timeout = 0;
+    uint8_t          keyRes   = scanKey();
+    uint16_t         timeout  = 0;
+    bool             autoFlag = false;
+    uint16_t         maxTimeout;
+    HAND_TriggerId_t handTrigger;
+
+    if (MX_Event_Peek()) {
+        EventId_t id = +EventId_t::null;
+        // constexpr EventId_t id = EventId_t::null;
+        EventMsg_t msg;
+
+        MX_Event_Get(id, msg, 0);
+
+        autoFlag = true;
+        switch (id) {
+        case EventId_t::In: {
+            goto gotoReady;
+            break;
+        }
+        case EventId_t::ColorSwitch: {
+            goto gotoColorSwitch;
+            break;
+        }
+        case EventId_t::Lockup_Start: {
+            goto gotoLockupStart;
+            break;
+        }
+        case EventId_t::Blaster: {
+            goto gotoBlaster;
+            break;
+        }
+        case EventId_t::Swing: {
+            goto gotoSwing;
+            break;
+        }
+        case EventId_t::Clash: {
+            goto gotoClash;
+            break;
+        }
+        default: {
+            autoFlag = false;
+        }
+        }
+    }
     if (keyRes & KEY_PWR_PRESS) {
-        uint16_t maxTimeout = USR.config->Tin;
+        maxTimeout = USR.config->Tin;
         while ((!((keyRes = scanKey()) & KEY_PWR_RELEASE)) && // Waiting for PowerKey release
                (!(keyRes & KEY_SUB_PRESS)) && // Waiting for UserKey press
                timeout < maxTimeout) // Waiting for timeout
@@ -263,6 +310,7 @@ void handleRunning(void)
         }
 
         if (timeout < maxTimeout && (keyRes & KEY_SUB_PRESS)) {
+        gotoColorSwitch:
             DEBUG(5, "System ColorSwitch");
             USR.np_colorIndex += 1;
             USR.np_colorIndex %= USR.colorMatrix.num / 3;
@@ -276,6 +324,7 @@ void handleRunning(void)
             // MX_LED_applySets();
             // MX_LED_startTrigger(LED_Trigger_ColorSwitch);
         } else if (timeout >= maxTimeout) {
+        gotoReady:
             DEBUG(5, "System going to ready")
             USR.sys_status = System_Ready;
             saveContext();
@@ -287,17 +336,26 @@ void handleRunning(void)
             MX_LED_bankUpdate(&USR, true);
         }
     } else if (keyRes & KEY_SUB_PRESS) {
-        uint16_t maxTimeout = USR.config->TEtrigger;
+        maxTimeout = USR.config->TEtrigger;
         while (!(scanKey() & KEY_SUB_RELEASE)) {
             timeout += MX_LOOP_INTERVAL;
 
             if (timeout >= maxTimeout) {
+            gotoLockupStart:
                 DEBUG(5, "Trigger E");
                 SimpleLED_ChangeStatus(SIMPLELED_STATUS_LOCKUP);
                 MX_Audio_Play_Start(Audio_TriggerE);
                 update_param(MX_Audio_getLastTriggerPos(), E);
                 MX_LED_startTrigger(LED_TriggerE);
-                while (!(scanKey() & KEY_SUB_RELEASE)) {
+                if (!autoFlag)
+                    while (!(scanKey() & KEY_SUB_RELEASE))
+                        ;
+                else {
+                    EventId_t  id = +EventId_t::null;
+                    EventMsg_t msg;
+                    do {
+                        MX_Event_Get(id, msg);
+                    } while (id != +EventId_t::Lockup_End);
                 }
                 DEBUG(5, "Trigger E End");
                 SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
@@ -307,6 +365,7 @@ void handleRunning(void)
             }
         }
         if (timeout < USR.config->TEtrigger && askTrigger(2)) {
+        gotoBlaster:
             DEBUG(5, "Trigger D");
             MX_Audio_Play_Start(Audio_TriggerD);
             update_param(MX_Audio_getLastTriggerPos(), D);
@@ -315,13 +374,15 @@ void handleRunning(void)
     }
 
     // move detection
-    HAND_TriggerId_t handTrigger = MX_HAND_GetTrigger();
+    handTrigger = MX_HAND_GetTrigger();
     if (handTrigger.hex != 0) {
         if (handTrigger.unio.isClash && askTrigger(1)) {
+        gotoClash:
             MX_Audio_Play_Start(Audio_TriggerC);
             update_param(MX_Audio_getLastTriggerPos(), C);
             MX_LED_startTrigger(LED_TriggerC);
         } else if (handTrigger.unio.isSwing && askTrigger(0)) {
+        gotoSwing:
             MX_Audio_Play_Start(Audio_TriggerB);
             update_param(MX_Audio_getLastTriggerPos(), B);
             MX_LED_startTrigger(LED_TriggerB);

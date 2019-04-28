@@ -9,7 +9,11 @@
 #define USE_NP              (0)
 #endif
 
+#if __GNUC__
 #define APPMODE             (0)
+#else
+#define APPMODE             (1)
+#endif
 
 #if USE_NP == 1
 #define ENABLE_WS2811
@@ -76,5 +80,7 @@
 #define COLOR_TABLE_ADDR        (0x0807F800)
 
 #define FORCE_PWROFF_TIMEOUT    (10000)
+
+#define ENABLECONSOLE (0)
 
 #endif

@@ -40,7 +40,7 @@ set(CMAKE_ASM_COMPILER     ${ARM_ASM})
 set(CMAKE_OBJCOPY     	   ${ARM_OBJCOPY})
 set(CMAKE_OBJDUMP     	   ${ARM_OBJDUMP})
 
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++11 -T${MCU_LINKER_SCRIPT}")
+set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++14 -fno-exceptions -T${MCU_LINKER_SCRIPT}")
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99 -T${MCU_LINKER_SCRIPT}")
 set(CMAKE_ASM_FLAGS "-mthumb -mcpu=${MCU_ARCH}")
 

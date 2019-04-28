@@ -84,7 +84,7 @@ const char Coyright[]={0x51, 0x7C, 0x3E, 0x90, 0xB5, 0x27, 0x65, 0x31, 0x01, 0x0
 //16bit md5 of "@@@ Copyright UltimateWorks @@@" + Version in 16 bit (1.00)
 
 extern bool Mmcsd_Present(void);
-extern void MX_Console_Init(void);
+extern void MX_Console_HW_Init(void);
 extern void MX_Console_Print(uint8_t *string, uint16_t size);
 
 /* USER CODE END PV */
@@ -150,12 +150,14 @@ __weak int main(void)
   HAL_Delay(100);
 #endif
   MX_LOOP_Init();
-  MX_Console_Init();
-  
+  MX_Console_HW_Init();
+
+#if 0
   do{
     const char initialChars[] = "\fStart now!\r\n";
     MX_Console_Print((uint8_t*)initialChars, sizeof(initialChars));
   } while(0);
+#endif
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -241,13 +243,13 @@ void SystemClock_Config(void)
 #ifdef __GUNU__
 int _write(int fd, char *pBuffer, int size)
 {
-  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)pBuffer, size);
+  HAL_UART_Transmit_DMA(&huart3, (uint8_t*)pBuffer, size);
   return size;
 }
 #eldef __CC_ARM
 int fputc(int ch, FILE* f)
 {
-  HAL_UART_Transmit(&huart1, (uint8_t*)&ch, 1, 10);
+  HAL_UART_Transmit(&huart3, (uint8_t*)&ch, 1, 10);
   return ch;
 }
 #endif
