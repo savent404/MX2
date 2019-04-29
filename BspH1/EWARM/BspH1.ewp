@@ -1298,10 +1298,16 @@
             <name>$PROJ_DIR$\..\..\MX\AUDIO\audio_defaultPort.cpp</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\MX\Console\CLI.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\MX\Console\console.cpp</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\cPlusMalloc.cpp</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\MX\Console\cpu_utils.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\MX\PARAM\event.cpp</name>
