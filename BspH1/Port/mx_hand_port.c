@@ -123,26 +123,6 @@ void MX_HAND_HW_DeInit(void)
 {
 }
 
-// HAND_TriggerId_t MX_HAND_GetTrigger(void)
-// {
-//     int16_t SensorRawData[6];
-//     HAND_TriggerId_t res;
-//     res.hex = 0;
-//     uint8_t isClik = Sensor_isClick();
-//     uint8_t isMove = Sensor_isMove();
-//     Sensor_MultiDataRD(OUTX_L_G, (uint16_t *)SensorRawData, 6);
-//     bool isStab = Sensor_isStab(SensorRawData);
-//     uint8_t isSpin = Sensor_isSpin(SensorRawData);
-
-//     if (isClik)
-//         res.unio.isClash = true;
-//     if (isMove)
-//         res.unio.isSwing = true;
-//     if (isStab)
-//         res.unio.isStab = true;
-//     return res;
-// }
-
 static void Sensor_Init(void)
 {
   __HAL_SPI_ENABLE(&hspi2);
@@ -492,9 +472,9 @@ bool MX_HAND_HW_getData(float acc[3], float gyro[3])
     acc[0] = convert_acc(pF->accx);
     acc[1] = convert_acc(pF->accy);
     acc[2] = convert_acc(pF->accz);
-    gyro[0] = convert_acc(pF->gyrox);
-    gyro[1] = convert_acc(pF->gyroy);
-    gyro[2] = convert_acc(pF->gyroz);
+    gyro[0] = convert_gyro(pF->gyrox);
+    gyro[1] = convert_gyro(pF->gyroy);
+    gyro[2] = convert_gyro(pF->gyroz);
 
     if (index == 0) {
         DEBUG(4, "acc:%.2f\t%.2f\t%.2f\tgyro:%.2f\t%.2f\t%.2f", acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2]);

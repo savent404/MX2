@@ -8,10 +8,10 @@
 #endif
 
 MX_C_API void
-mux_convert_addToInt(const void* source, int* dest, int size, float* f);
+mux_convert_addToInt(const void* source, int* dest, int size, float* f, int multiFactor);
 
 MX_C_API void
-mux_convert_mergeToBuffer(const int* source, void* dest, int size, int vol);
+mux_convert_mergeToBuffer(const int* source, void* dest, int size, int shiftBits);
 
 MX_C_API void
 mux_resetDmaBuffer(void* in, int size);

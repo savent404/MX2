@@ -8,11 +8,11 @@ __MX_WEAK void MX_HAND_HW_DeInit(void)
 {
 }
 
-__MX_WEAK bool MX_HAND_HW_getData(float acc[3], float gyro[3])
+__MX_WEAK bool MX_HAND_HW_getData(float acc[ 3 ], float gyro[ 3 ])
 {
     for (int i = 0; i < 3; i++) {
-        acc[i] = i;
-        gyro[i] = i + 1;
+        acc[ i ]  = i;
+        gyro[ i ] = i + 1;
     }
     return true;
 }

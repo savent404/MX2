@@ -27,6 +27,7 @@ typedef struct {
     MUX_Slot_Mode_t     mode;
     MUX_Slot_Id_t       id;
     MUX_Slot_Callback_t callback[ SlotCallback_Max ];
+    int                 vol;
 } MUX_Slot_t;
 
 /** typedef for track ************************************/

@@ -21,34 +21,34 @@ static int frozenTimer[ 3 ] = { 0, 0, 0 };
 #define KEY_SUB_RELEASE (0x08)
 
 static uint8_t scanKey(void);
-static bool askTrigger(uint8_t);
-static void handleReady(void);
-static void handleRunning(void);
-static void handleCharged(void);
-static void handleCharging(void);
+static bool    askTrigger(uint8_t);
+static void    handleReady(void);
+static void    handleRunning(void);
+static void    handleCharged(void);
+static void    handleCharging(void);
 // 保存现场
 static void saveContext(void);
 static bool canBoot(void);
 
 static HAND_TriggerId_t GET_HAND_TRIGGER();
 
-#define update_param(pos, tgName)                                                                               \
-    do {                                                                                                        \
-        const char* wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);                                 \
-        triggerSets_BG_t bg = triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
-        MX_LED_updateBG(bg);                                                                                    \
-        triggerSets_freeBG(bg);                                                                                 \
-        triggerSets_TG_t tg = triggerSets_readTG(_MX_TriggerPath_getOtherPath(USR.triggerTG##tgName, wavName)); \
-        MX_LED_updateTG(tg);                                                                                    \
-        triggerSets_freeTG(tg);                                                                                 \
-        triggerSets_FT_t ft = triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName)); \
-        MX_LED_updateFT(ft);                                                                                    \
-        triggerSets_freeFT(ft);                                                                                 \
+#define update_param(pos, tgName)                                                                                    \
+    do {                                                                                                             \
+        const char*      wavName = MX_TriggerPath_GetName(USR.trigger##tgName, pos);                                 \
+        triggerSets_BG_t bg      = triggerSets_readBG(_MX_TriggerPath_getOtherPath(USR.triggerBG##tgName, wavName)); \
+        MX_LED_updateBG(bg);                                                                                         \
+        triggerSets_freeBG(bg);                                                                                      \
+        triggerSets_TG_t tg = triggerSets_readTG(_MX_TriggerPath_getOtherPath(USR.triggerTG##tgName, wavName));      \
+        MX_LED_updateTG(tg);                                                                                         \
+        triggerSets_freeTG(tg);                                                                                      \
+        triggerSets_FT_t ft = triggerSets_readFT(_MX_TriggerPath_getOtherPath(USR.triggerFT##tgName, wavName));      \
+        MX_LED_updateFT(ft);                                                                                         \
+        triggerSets_freeFT(ft);                                                                                      \
     } while (0)
 
 bool MX_LOOP_Init(void)
 {
-    osThreadDef(loop, MX_LOOP_Handle, osPriorityNormal, 0, 1024);
+    osThreadDef(loop, MX_LOOP_Handle, osPriorityNormal, 0, 2048);
     loopThreadId = osThreadCreate(osThread(loop), NULL);
     return true;
 }
@@ -174,10 +174,6 @@ uint8_t scanKey(void)
 
     if (res == 0)
         osDelay(MX_LOOP_INTERVAL);
-#if 0 // this is to test key value changed event
-    else
-        DEBUG_BKPT();
-#endif
 
     return res;
 }
@@ -382,10 +378,39 @@ void handleRunning(void)
             MX_LED_startTrigger(LED_TriggerC);
         } else if (handTrigger.unio.isSwing && askTrigger(0)) {
         gotoSwing:
-            MX_Audio_Play_Start(Audio_TriggerB);
-            update_param(MX_Audio_getLastTriggerPos(), B);
-            MX_LED_startTrigger(LED_TriggerB);
+            (void)0;
         }
+    }
+
+    static float sGyro = 0;
+    float        t     = MX_HAND_GetScalarGyro();
+
+
+    float maxiumRange = USR.config->SwingThreshold_H - USR.config->SwingThreshold_L;
+
+    if (maxiumRange == 0)
+        maxiumRange = 1;
+    if (USR.config->SwingThreshold_L == 0)
+        USR.config->SwingThreshold_L = 1;
+
+    t          = t < 0 ? -t : t;
+    sGyro      = 0.75f * sGyro + 0.25f * t;
+    if (isinf(sGyro))
+        sGyro = 0;
+    if (isnan(sGyro))
+        sGyro = 0;
+    float gyro = sGyro - USR.config->SwingThreshold_L;
+
+    if (gyro > maxiumRange) {
+        gyro = maxiumRange;
+    }
+    if (gyro >= 0) {
+        int h_vol = int(gyro * 100.0f / maxiumRange);
+        int l_vol = 100 - h_vol;
+        MX_Audio_adjMoveVol(l_vol, h_vol);
+    } else {
+        int l_vol = int(sGyro * 100.0f / USR.config->SwingThreshold_L);
+        MX_Audio_adjMoveVol(l_vol, 0);
     }
 
     if (MX_PM_isCharging()) {
@@ -508,10 +533,10 @@ void saveContext(void)
     USR.colorMatrix.colorIndex[ USR.bank_now ] = USR.np_colorIndex;
 }
 
-
-HAND_TriggerId_t GET_HAND_TRIGGER() {
+HAND_TriggerId_t GET_HAND_TRIGGER()
+{
     HAND_TriggerId_t t;
-    
+
     do {
         t = MX_HAND_GetTrigger(MX_getMsTime());
     } while (t.hex == 0);

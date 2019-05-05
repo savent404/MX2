@@ -28,7 +28,7 @@ const PARA_STATIC_t STATIC_USR = {
     }
 };
 
-static const char name_string[][ 10 ] = {
+static const char name_string[][ 20 ] = {
     /**< Position:0~5  */
     "Vol",
     "Tpon",
@@ -83,6 +83,11 @@ static const char name_string[][ 10 ] = {
     "SPL2",
     "SPL3",
     "SPL4",
+
+    /**< Position:46~48*/
+    "SwingThreshold_H",
+    "SwingThreshold_L",
+    "SwingAdjN",
 };
 static const char name_colorswitch[][ 10 ] = {
     "MC",
@@ -363,21 +368,24 @@ static int GetMultiPara(char* line)
 }
 static void set_config(PARA_DYNAMIC_t* pt)
 {
-    pt->config->T_Breath       = 2000; //LMode呼吸周期默认为2s
-    pt->config->Out_Delay      = 200; //Out 循环音延时200ms
-    pt->config->SimpleLED_MASK = 0xFF;
-    pt->config->GB             = 0x80;
-    pt->config->MD             = 0x60;
-    pt->config->MT             = 0x3F;
-    pt->config->CD             = 0x03;
-    pt->config->CT             = 0x1F;
-    pt->config->CL             = 0x00;
-    pt->config->CW             = 0x00;
-    pt->config->ST             = 200;
-    pt->config->SPL1           = 100;
-    pt->config->SPL2           = 200;
-    pt->config->SPL3           = 300;
-    pt->config->SPL4           = 400;
+    pt->config->SwingThreshold_L = 50;
+    pt->config->SwingThreshold_H = 360;
+    pt->config->SwingAdjN        = 2;
+    pt->config->T_Breath         = 2000; //LMode呼吸周期默认为2s
+    pt->config->Out_Delay        = 200; //Out 循环音延时200ms
+    pt->config->SimpleLED_MASK   = 0xFF;
+    pt->config->GB               = 0x80;
+    pt->config->MD               = 0x60;
+    pt->config->MT               = 0x3F;
+    pt->config->CD               = 0x03;
+    pt->config->CT               = 0x1F;
+    pt->config->CL               = 0x00;
+    pt->config->CW               = 0x00;
+    pt->config->ST               = 200;
+    pt->config->SPL1             = 100;
+    pt->config->SPL2             = 200;
+    pt->config->SPL3             = 300;
+    pt->config->SPL4             = 400;
 }
 static uint8_t get_config(PARA_DYNAMIC_t* pt, FIL* file)
 {
@@ -629,9 +637,9 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
         USR.triggerFT##name = MX_TriggerPath_Init(path, TRIGGER_MAX_NUM(name), ft); \
     } while (0);
 
-#define UPDATE_TRIGGER(name, path, bankPos)                                          \
+#define UPDATE_TRIGGER(name, path, bankPos, waveType)                                \
     do {                                                                             \
-        TRIGGERPATH_Type_t wav = TRIGGERPATH_WAV;                                    \
+        TRIGGERPATH_Type_t wav = waveType;                                           \
         TRIGGERPATH_Type_t bg  = TRIGGERPATH_BG;                                     \
         TRIGGERPATH_Type_t tg  = TRIGGERPATH_TG;                                     \
         TRIGGERPATH_Type_t ft  = TRIGGERPATH_FT;                                     \
@@ -649,12 +657,12 @@ uint8_t usr_init_bank(int bankPos, int storagePos)
 uint8_t usr_update_triggerPah(int bankPos)
 {
     char path[ 64 ];
-    UPDATE_TRIGGER(HUM, path, bankPos);
-    UPDATE_TRIGGER(B, path, bankPos);
-    UPDATE_TRIGGER(C, path, bankPos);
-    UPDATE_TRIGGER(D, path, bankPos);
-    UPDATE_TRIGGER(E, path, bankPos);
-    UPDATE_TRIGGER(IN, path, bankPos);
-    UPDATE_TRIGGER(OUT, path, bankPos);
+    UPDATE_TRIGGER(HUM, path, bankPos, TRIGGERPATH_WAV);
+    UPDATE_TRIGGER(B, path, bankPos, TRIGGERPATH_PAIRWAV);
+    UPDATE_TRIGGER(C, path, bankPos, TRIGGERPATH_WAV);
+    UPDATE_TRIGGER(D, path, bankPos, TRIGGERPATH_WAV);
+    UPDATE_TRIGGER(E, path, bankPos, TRIGGERPATH_WAV);
+    UPDATE_TRIGGER(IN, path, bankPos, TRIGGERPATH_WAV);
+    UPDATE_TRIGGER(OUT, path, bankPos, TRIGGERPATH_WAV);
     return 0;
 }

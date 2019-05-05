@@ -84,6 +84,10 @@ typedef struct _usr_config_structure {
     uint16_t T_Breath; //LMode 呼吸延时
 
     uint16_t Out_Delay; // 触发Out时， 延时Hum播放时间
+    
+    uint16_t SwingThreshold_L;
+    uint16_t SwingThreshold_H;
+    uint16_t SwingAdjN;
 } USR_CONFIG_t;
 
 // 小型LED动作

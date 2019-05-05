@@ -28,4 +28,5 @@ MX_C_API bool    MX_Audio_isReady(void);
 MX_C_API int     MX_Audio_getTriggerLastTime(void);
 MX_C_API int     MX_Audio_getLastTriggerPos(void);
 MX_C_API int     MX_Audio_getLastHumPos(void);
+MX_C_API void    MX_Audio_adjMoveVol(int vol_l, int vol_h);
 MX_PORT_API void MX_Audio_PlayBeep(void);

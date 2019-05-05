@@ -32,7 +32,6 @@
 #    define MX_MUX_DUAL_TRACK (1)
 #endif
 
-#undef MX_MUX_MAXIUM_TRACKID
 #if MX_MUX_DUAL_TRACK == 0
 #    define MX_MUX_MAXIUM_TRACKID (1)
 #else
@@ -77,6 +76,9 @@ MX_C_API void MX_WTDG_HW_Feed(void);
 #    define MX_MUX_WAV_FIX_OFFSET (44)
 #endif
 
+#ifndef MX_MUX_WAV_VOL_LEVEL
+#    define MX_MUX_WAV_VOL_LEVEL (7)
+#endif
 #ifndef MX_getMsTime
 #    define MX_getMsTime() (osKernelSysTick() * 1000 / osKernelSysTickFrequency)
 #endif
