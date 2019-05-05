@@ -476,10 +476,6 @@ bool MX_HAND_HW_getData(float acc[3], float gyro[3])
     gyro[1] = convert_gyro(pF->gyroy);
     gyro[2] = convert_gyro(pF->gyroz);
 
-    if (index == 0) {
-        DEBUG(4, "acc:%.2f\t%.2f\t%.2f\tgyro:%.2f\t%.2f\t%.2f", acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2]);
-    }
-
     index += 6;
     if (index >= num) {
         pDataPool->dataNumber = 0;
@@ -498,7 +494,6 @@ bool MX_Hand_HW_FIFOpollingStart(void)
     uint16_t tp[1];
     
     if(osOK == osSemaphoreWait(SensorTx_Start_FlagHandle, 0)) {
-        // DEBUG(4, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>, %d", (int)(osKernelSysTick() * 1000 / osKernelSysTickFrequency));
         uint16_t spiTxBuffer = 0xFFFF;
 
         pDataPool->dataIndex = 0x0000;
