@@ -13,10 +13,14 @@ MX_C_API BaseType_t CLI_trigger(char*       pcWriteBuffer,
 MX_C_API BaseType_t CLI_CpuUsage(char*       pcWriteBuffer,
                                  size_t      xWriteBufferLen,
                                  const char* pcCommandString);
+MX_C_API BaseType_t CLI_CpuUsage_c(char*       pcWriteBuffer,
+                                   size_t      xWriteBufferLen,
+                                   const char* pcCommandString);
 
 static const CLI_Command_Definition_t cmds[] = {
-    { "trigger", "a cmd to exec trigger\r\n\tlike: trigger out\r\n", CLI_trigger, 1 },
-    { "cpu", "a cmd to show cpu usage\r\n", CLI_CpuUsage, 0 },
+    { "trigger", "trigger\r\n\ta cmd to exec trigger\r\n\tlike: trigger out\r\n\r\n", CLI_trigger, 1 },
+    { "cpu", "cpu\r\n\ta cmd to show cpu usage\r\n\r\n", CLI_CpuUsage, 0 },
+    { "ccpu", "ccpu {count} {interval:ms}\r\n\ta cmd to continus measure cpu usage\r\n\r\n", CLI_CpuUsage_c, 2 },
 };
 
 __MX_WEAK void MX_Console_Print(uint8_t* string, uint16_t size)
@@ -124,8 +128,50 @@ MX_C_API BaseType_t CLI_CpuUsage(char*       pcWriteBuffer,
     extern uint16_t osGetCPUUsage(void);
     auto            min = [](int a, int b) { return a > b ? b : a; };
     char            buffer[ 64 ];
-    sprintf(buffer, "CPU usage:\t%d%%", osGetCPUUsage());
-    strncpy(pcWriteBuffer, buffer, min(strlen(buffer), xWriteBufferLen));
+    sprintf(buffer, "CPU usage:\t%d%%\r\n", osGetCPUUsage());
+    strncpy(pcWriteBuffer, buffer, min(strlen(buffer) + 1, xWriteBufferLen));
+    return pdFALSE;
+}
+
+MX_C_API BaseType_t CLI_CpuUsage_c(char*       pcWriteBuffer,
+                                   size_t      xWriteBufferLen,
+                                   const char* pcCommandString)
+{
+    static bool     isrunning = false;
+    static int      cnt;
+    static int      interval;
+    extern uint16_t osGetCPUUsage(void);
+    auto            min = [](int a, int b) { return a > b ? b : a; };
+    char            buffer[ 64 ];
+
+    if (!isrunning) {
+        BaseType_t len;
+        cnt       = atoi(FreeRTOS_CLIGetParameter(pcCommandString, 1, &len));
+        interval  = atoi(FreeRTOS_CLIGetParameter(pcCommandString, 2, &len));
+        isrunning = true;
+    }
+
+    if (cnt-- <= 0) {
+        cnt       = 0;
+        isrunning = false;
+        return pdFALSE;
+    }
+
+    CLI_CpuUsage(pcWriteBuffer, xWriteBufferLen, nullptr);
+
+    int length = strlen(pcWriteBuffer) - 2;
+    pcWriteBuffer[length] = '\0';
+
+    sprintf(buffer, "\tleftCnt:%d\r\n", cnt);
+
+    strncat(pcWriteBuffer, buffer, xWriteBufferLen - length - 1);
+
+    if (isrunning) {
+        osDelay(interval);
+        return pdTRUE;
+    } else {
+        return pdFALSE;
+    }
 }
 
 void MX_ConsoleTX_WaitMutex(void)
