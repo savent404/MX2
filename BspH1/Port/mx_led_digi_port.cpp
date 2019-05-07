@@ -62,7 +62,7 @@ const NpHwConfig_s DefaultNpHwConfig = {
 
 extern osSemaphoreId NpOperate_Cplt_FlagHandle;
 
-static uint8_t LEDDigitBuffer[MX_LEDDIGI_MAXNUM*MX_LEDDIGI_COLORNUM*MX_LEDDIGI_COLORWIDTH];
+static uint8_t * pLEDDigitBuffer;
 static NpParaConfig_s NpParaConfig;
 
 static void LED_NP_TIM_Init(void);
@@ -110,7 +110,7 @@ bool LED_NP_HW_Init(int npnum, triggerSets_HW_t hw)
     /* Configure DMA Channel source address */
     hdma_tim4_ch2.Instance->CPAR = (uint32_t)&(htim4.Instance->CCR2);
     /* Configure DMA Channel destination address */
-    hdma_tim4_ch2.Instance->CMAR = (uint32_t)LEDDigitBuffer;
+    hdma_tim4_ch2.Instance->CMAR = (uint32_t)pLEDDigitBuffer;
     /* Set the DMA Period elapsed callback */
     hdma_tim4_ch2.XferCpltCallback = TIM_DMADelayPulseCplt;
     /* Set the DMA error callback */
@@ -165,8 +165,10 @@ static void LED_NP_Buffer_Init(pNpParaConfig_s pNpParaConfig)
                           (unsigned int)pNpParaConfig->NpV0_Value<<8  | (unsigned int)pNpParaConfig->NpV0_Value;
     
     unsigned char *ptr;
+
+    pLEDDigitBuffer = (uint8_t *)pvPortMalloc(pNpParaConfig->DmaDataBufferSize);
     
-    ptr = LEDDigitBuffer;
+    ptr = pLEDDigitBuffer;
     
     //fill all buffer with NP date R 0x00, G 0x00, B 0x00;
     loopnum = pNpParaConfig->NpNumber * MX_LEDDIGI_COLORNUM * MX_LEDDIGI_COLORWIDTH / 4;
@@ -179,11 +181,6 @@ static void LED_NP_Buffer_Init(pNpParaConfig_s pNpParaConfig)
     for(;i<loopnum;i++) {
         *ptr++=0x00;
     }
-    *ptr++=0xFE;
-    loopnum += pNpParaConfig->NpRstPeriod_Num+1;
-    for(;i<loopnum;i++) {
-        *ptr++=0x00;
-    }
 }
 
 static HAL_StatusTypeDef NP_PWM_Start_DMA(void)
@@ -193,7 +190,7 @@ static HAL_StatusTypeDef NP_PWM_Start_DMA(void)
   htim4.Instance->CCR2=0x0000;
   htim4.Instance->EGR=TIM_EGR_UG;
   htim4.Instance->CNT=0x0001;
-  htim4.Instance->CCR2=LEDDigitBuffer[0];
+  htim4.Instance->CCR2=*pLEDDigitBuffer;
 
   hdma=htim4.hdma[TIM_DMA_ID_CC2];
 
@@ -265,8 +262,7 @@ static void LED_NP_Para_Decode(pNpHwConfig_s pNpHwConfig, pNpParaConfig_s pNpPar
     pNpParaConfig->NpNumber = pNpHwConfig->NpNumber;
     pNpParaConfig->NpRstPeriod_Num = pNpHwConfig->NpRstnWidth_Ns/pNpHwConfig->NpPeriod_Ns + MX_LEDDIGI_RSTMAGIN;
     
-    RequiredBufferSize = (pNpParaConfig->NpNumber * MX_LEDDIGI_COLORNUM * MX_LEDDIGI_COLORWIDTH + pNpParaConfig->NpRstPeriod_Num +\
-                          1 + pNpParaConfig->NpRstPeriod_Num);
+    RequiredBufferSize = (pNpParaConfig->NpNumber * MX_LEDDIGI_COLORNUM * MX_LEDDIGI_COLORWIDTH + pNpParaConfig->NpRstPeriod_Num);
 
     pNpParaConfig->DmaDataBufferSize = RequiredBufferSize;
     pNpParaConfig->NpRGBOrder = pNpHwConfig->NpRGBOrder;   
@@ -298,7 +294,7 @@ __INLINE static void Pixel2TimData(uint8_t * rgb, uint8_t * buffer)
 
 static void NpData_Refresh(const RGB* ptrColor, int num)
 {
-    uint8_t* databufpoint = LEDDigitBuffer;
+    uint8_t* databufpoint = pLEDDigitBuffer;
     uint8_t Color[3];
     uint8_t RGBOrder;
 
