@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "cmsis_os.h"
-#include "debug.h"
 
 #define STAB_FREEZE (1000)
 #define STAB_GYRO (200)
