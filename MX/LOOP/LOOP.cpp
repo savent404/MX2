@@ -419,7 +419,7 @@ void handleRunning(void)
         USR.config->SwingThreshold_L = 1;
 
     t     = t < 0 ? -t : t;
-    sGyro = 0.75f * sGyro + 0.25f * t;
+    sGyro = 0.5f * sGyro + 0.49f * t;
     if (isinf(sGyro))
         sGyro = 0;
     if (isnan(sGyro))

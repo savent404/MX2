@@ -56,14 +56,14 @@ HAND_TriggerId_t MX_HAND_GetTrigger(uint32_t timestamp)
     float acc[ 3 ];
     float Scalar_acc = 0, Scalar_gyro = 0, Scalar_gyro_yandz = 0;
 
-    // storage gyro
-    memcpy(stashed_gyro, gyro, sizeof(stashed_gyro));
-
     /** get acc&gyro data */
     if (!MX_HAND_HW_getData(acc, gyro)) {
         a.unio.isNoData = true;
         return a;
     }
+
+    // storage gyro
+    memcpy(stashed_gyro, gyro, sizeof(stashed_gyro));
 
     /** measure scalar */
     for (int i = 0; i < 3; i++) {
