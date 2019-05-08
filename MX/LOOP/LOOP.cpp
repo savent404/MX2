@@ -183,8 +183,31 @@ void handleReady(void)
     uint8_t  keyRes  = scanKey();
     uint16_t timeout = 0;
 
+    uint16_t maxTimeout = 0;
+
+    if (MX_Event_Peek()) {
+        EventId_t  id = +EventId_t::null;
+        EventMsg_t msg;
+
+        MX_Event_Get(id, msg, 0);
+
+        switch (id) {
+        case EventId_t::Out: {
+            goto gotoOut;
+        }
+        case EventId_t::BankSwitch: {
+            goto gotoBankSwitch;
+        }
+        case EventId_t::Off: {
+            goto gotoOff;
+        }
+        default: {
+            break;
+        }
+        }
+    }
     if (keyRes & KEY_PWR_PRESS) {
-        uint16_t maxTimeout = USR.config->Tpoff > USR.config->Tout ? USR.config->Tpoff : USR.config->Tout;
+        maxTimeout = USR.config->Tpoff > USR.config->Tout ? USR.config->Tpoff : USR.config->Tout;
         // wait for key release
         while (!(scanKey() & KEY_PWR_RELEASE) && timeout < maxTimeout) {
             timeout += MX_LOOP_INTERVAL;
@@ -192,6 +215,7 @@ void handleReady(void)
 
         // power off
         if (timeout >= maxTimeout || USR.config->Tpoff <= USR.config->Tout) {
+        gotoOff:
             DEBUG(5, "System going to close");
             USR.sys_status = System_Close;
             MX_Audio_Play_Start(Audio_PowerOff);
@@ -200,6 +224,7 @@ void handleReady(void)
         }
         // trigger 'out'
         else {
+        gotoOut:
             DEBUG(5, "System going to running");
             usr_switch_bank(USR.bank_now);
             USR.sys_status = System_Running;
@@ -214,12 +239,13 @@ void handleReady(void)
             autoTimeout[ 0 ] = 0;
         }
     } else if (keyRes & KEY_SUB_PRESS) {
-        uint16_t maxTimeout = USR.config->Ts_switch;
+        maxTimeout = USR.config->Ts_switch;
         while ((!(scanKey() & KEY_SUB_RELEASE)) && timeout < maxTimeout) {
             timeout += MX_LOOP_INTERVAL;
         }
 
         if (timeout >= maxTimeout) {
+        gotoBankSwitch:
             DEBUG(5, "System Bank switch");
             usr_switch_bank((USR.bank_now + 1) % USR.nBank);
             MX_LED_bankUpdate(&USR, true);
@@ -385,7 +411,6 @@ void handleRunning(void)
     static float sGyro = 0;
     float        t     = MX_HAND_GetScalarGyro();
 
-
     float maxiumRange = USR.config->SwingThreshold_H - USR.config->SwingThreshold_L;
 
     if (maxiumRange == 0)
@@ -393,8 +418,8 @@ void handleRunning(void)
     if (USR.config->SwingThreshold_L == 0)
         USR.config->SwingThreshold_L = 1;
 
-    t          = t < 0 ? -t : t;
-    sGyro      = 0.75f * sGyro + 0.25f * t;
+    t     = t < 0 ? -t : t;
+    sGyro = 0.75f * sGyro + 0.25f * t;
     if (isinf(sGyro))
         sGyro = 0;
     if (isnan(sGyro))
