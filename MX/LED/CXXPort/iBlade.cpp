@@ -395,6 +395,7 @@ void iBlade::backGroundRender(void)
 
 __attribute__((weak)) void iBlade::setNormalParam(void)
 {
+    /*
     pushColors();
 
     maxLight = 255;
@@ -432,9 +433,11 @@ __attribute__((weak)) void iBlade::setNormalParam(void)
         TC           = RGB(rgb[ 0 ], rgb[ 1 ], rgb[ 2 ]);
     }
     pFlame->initColor(MC, SC);
+    */
 }
 __attribute__((weak)) void iBlade::setBackGroudParam(modeL1_t mode)
 {
+    /*
     modeL1 = mode;
     switch (modeL1) {
     case modeL1_t::Static:
@@ -465,9 +468,11 @@ __attribute__((weak)) void iBlade::setBackGroudParam(modeL1_t mode)
         flameRate = 128;
         break;
     }
+    */
 }
 __attribute__((weak)) void iBlade::setTriggerParam(modeL2_t mode)
 {
+    /*
     modeL2 = mode;
     switch (mode) {
     case modeL2_t::NoTrigger:
@@ -480,12 +485,10 @@ __attribute__((weak)) void iBlade::setTriggerParam(modeL2_t mode)
         flipLength = 0.4;
         stepL2     = step_t(0, MX_LED_MS2CNT(flipTime), flipMaxCnt - 1);
         break;
-    /*
     case modeL2_t::Drift:
         driftShift = 30.0f;
         stepL2 = step_t(0, MX_LED_MS2CNT(800), 0);
         break;
-    */
     case modeL2_t::Speard:
         speardLength = 0.2f;
         stepL2       = step_t(0, MX_LED_MS2CNT(800), 0);
@@ -499,9 +502,11 @@ __attribute__((weak)) void iBlade::setTriggerParam(modeL2_t mode)
         stepL2         = step_t(0, MX_LED_MS2CNT(2000), 0);
         break;
     }
+    */
 }
 __attribute__((weak)) void iBlade::setFilterParam(modeL3_t mode)
 {
+    /*
     modeL3 = mode;
     switch (mode) {
     case modeL3_t::Breath:
@@ -521,6 +526,7 @@ __attribute__((weak)) void iBlade::setFilterParam(modeL3_t mode)
         break;
     }
     DEBUG(5, "There is");
+    */
 }
 
 void iBlade::clearL1(void)
