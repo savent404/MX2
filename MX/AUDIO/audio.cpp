@@ -110,6 +110,9 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
     case Audio_intoRunning:
         getTriggerFullPath(path, USR.triggerOUT, &static_trg_pos);
         break;
+    case Audio_TriggerStab:
+        getTriggerFullPath(path, USR.triggerSTAB, &static_trg_pos);
+        break;
     }
     sid_trigger = MX_MUX_Start(TrackId_Trigger, mode, path, USR.config->Vol);
     return true;

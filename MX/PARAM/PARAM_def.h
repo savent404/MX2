@@ -61,6 +61,8 @@ typedef struct _usr_config_structure {
     uint16_t TEtrigger; //开机状态下，触发E的AUX按钮触发时长，单位ms
     uint8_t  TEMode; // TriggerLMode,可复选
 
+    uint16_t TFfreeze; // stab freeze
+
     uint16_t TLon; // LED从起辉到达到设定全局亮度的时间，单位ms
     uint16_t TLoff; // LED从全局亮度到熄灭的时间，单位ms
     uint16_t Lbright; // LED全局亮度，范围0~1023
@@ -84,10 +86,13 @@ typedef struct _usr_config_structure {
     uint16_t T_Breath; //LMode 呼吸延时
 
     uint16_t Out_Delay; // 触发Out时， 延时Hum播放时间
-    
+
     uint16_t SwingThreshold_L;
     uint16_t SwingThreshold_H;
     uint16_t SwingAdjN;
+
+    uint16_t StabThreshold; // trigger stab's min acc-x 1000=1g
+    uint16_t StabWindow;
 } USR_CONFIG_t;
 
 // 小型LED动作
@@ -112,6 +117,7 @@ typedef struct _file_number_limits {
     uint16_t trigger_C_max;
     uint16_t trigger_D_max;
     uint16_t trigger_E_max;
+    uint16_t trigger_STAB_max;
     uint16_t trigger_HUM_max;
 } File_NumberLimits_t;
 
@@ -153,6 +159,7 @@ typedef struct _usr_dynamic_parameter {
     DEF_TRIGGERPATH(E)
     DEF_TRIGGERPATH(IN)
     DEF_TRIGGERPATH(OUT)
+    DEF_TRIGGERPATH(STAB)
 
     Accent_t*     accent; /**< 简单LEDAccent配置信息 */
     USR_CONFIG_t  backUpConfig;

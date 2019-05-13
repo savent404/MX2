@@ -20,6 +20,7 @@ typedef enum _play_audio_id {
     Audio_Humi        = 0x0c,
     Audio_TriggerE    = 0x0d,
     Audio_BankSwitch  = 0x0e,
+    Audio_TriggerStab = 0x0f,
 } Audio_ID_t;
 
 MX_C_API bool    MX_Audio_Play_Start(Audio_ID_t id);

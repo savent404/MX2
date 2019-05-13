@@ -32,6 +32,7 @@ typedef union {
 typedef struct {
     float    stab_threshold[ 2 ];
     uint32_t stab_window;
+    uint32_t stab_gyroThreshold;
 
     // 超过n个四分之1周期的旋转触发spin
     int spin_min_counter;
@@ -69,6 +70,7 @@ MX_PORT_API void MX_HAND_HW_DeInit(void);
 MX_PORT_API bool MX_HAND_HW_getData(float acc[ 3 ], float gyro[ 3 ]);
 MX_PORT_API bool MX_HAND_HW_isSwing(void);
 MX_PORT_API bool MX_HAND_HW_isClash(void);
+MX_PORT_API float MX_HAND_HW_getInterval(void);
 
 MX_INTERNAL_API bool MX_HAND_isSwing(MX_HAND_Instance_t*, uint32_t time);
 MX_INTERNAL_API bool MX_HAND_isClash(MX_HAND_Instance_t*, uint32_t time);

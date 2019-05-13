@@ -1,33 +1,38 @@
 #include "hand.h"
+#include "PARAM_def.h"
+#include "debug.h"
 
 static float              stashed_gyro[ 3 ];
 static MX_HAND_Instance_t instance;
 
 /**
- * @brief hasMainPower 检测某个浮点数是否是该数组中的绝对值最大值
- * @param pdata 浮点数数组
- * @param index 指定检测的最大值的标号
- * @param maxNum 数组大小
- * @return 是否绝对值最大值
+ * @brief hasMainPower 检测某个轴（如x）是否具有绝大部分的分量
+ * @param x 单轴分量
+ * @param scalar 整体值
+ * @return 是否占有绝大部分值
+ * @note 按照方向半径45°判断是否为绝大部分分量
  */
-inline static bool hasMainPower(float* pdata, int index, int maxNum)
+inline static bool hasMainPower(const float x, const float scalar)
 {
-    for (int i = 0; i < maxNum; i++) {
-        if (index == i)
-            continue;
-        if (fabsf(pdata[ i ] >= fabsf(pdata[ index ])))
-            return false;
-    }
-    return true;
+    return fabs(x) * 2.0f > fabs(scalar);
 }
 
 bool MX_HAND_Init(void)
 {
+    extern PARA_DYNAMIC_t USR;
+
     MX_HAND_HW_Init();
 
+    // default for stab paramter
     instance.stab_threshold[ 0 ] = 2.0f;
     instance.stab_threshold[ 1 ] = 2.0f;
-    instance.stab_window         = 50;
+    instance.stab_window         = 3;
+    instance.stab_gyroThreshold  = 360;
+
+    // set from user's parameter
+    instance.stab_threshold[ 0 ] = float(USR.config->StabThreshold / 1000.0f);
+    instance.stab_threshold[ 1 ] = float(USR.config->StabThreshold / 1000.0f);
+    instance.stab_window         = USR.config->StabWindow;
 
     instance.spin_threshold[ 0 ]  = 50;
     instance.spin_threshold[ 1 ]  = 50;
@@ -93,6 +98,10 @@ HAND_TriggerId_t MX_HAND_GetTrigger(uint32_t timestamp)
     }
 
     if (MX_HAND_isStab(&instance, timestamp, acc, Scalar_acc, Scalar_gyro)) {
+        DEBUG(5, "triggered a stab, acc:%.2f\t%.2f\t%.2f",
+              acc[ 0 ],
+              acc[ 1 ],
+              acc[ 2 ]);
         a.unio.isStab = true;
     }
 
@@ -137,15 +146,15 @@ bool MX_HAND_isSpin(MX_HAND_Instance_t* p, uint32_t time, float scalar)
 
 bool MX_HAND_isStab(MX_HAND_Instance_t* p, uint32_t time, float acc[ 3 ], float scalar_acc, float scalar_gyro)
 {
-    if (!p->bActive[ HAND_ID_Stab ] && scalar_acc > p->stab_threshold[ 0 ] && hasMainPower(acc, 0, 3)) {
+    if (!p->bActive[ HAND_ID_Stab ] && scalar_acc > p->stab_threshold[ 0 ] && hasMainPower(acc[ 0 ], scalar_acc)) {
         p->bActive[ HAND_ID_Stab ]      = true;
         p->u32TimeStamp[ HAND_ID_Stab ] = time;
     } else if (p->bActive[ HAND_ID_Stab ]) {
-        if (scalar_gyro > 300.0f) {
+        if (scalar_gyro > p->stab_gyroThreshold) {
             p->bActive[ HAND_ID_Stab ] = false;
             return false;
         }
-        if (scalar_acc < p->stab_threshold[ 1 ]) {
+        if (scalar_acc < p->stab_threshold[ 1 ] || time - p->u32TimeStamp[ HAND_ID_Stab ]) {
             p->bActive[ HAND_ID_Stab ] = false;
             if (time - p->u32TimeStamp[ HAND_ID_Stab ] > p->stab_window) {
                 return true;

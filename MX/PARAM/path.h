@@ -69,6 +69,10 @@
 #    define Trigger_OUT_name "Out"
 #endif
 
+#ifndef Trigger_Stab_name
+#    define Trigger_STAB_name "Stab"
+#endif
+
 #ifndef REPLACE_NAME
 #    define REPLACE_NAME "effect.txt"
 #endif

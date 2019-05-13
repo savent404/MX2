@@ -1,8 +1,8 @@
 #include "LOOP.h"
 #include "FreeRTOS.h"
 #include "cmsis_os.h"
-
 #include "console.h"
+#include "hand.h"
 #include "triggerSets.h"
 
 static osThreadId loopThreadId;
@@ -13,7 +13,7 @@ static int autoTimeout[ 2 ] = { 0, 0 };
 // [0]: trigger B timer
 // [1]: trigger C timer
 // [2]: trigger D timer
-static int frozenTimer[ 3 ] = { 0, 0, 0 };
+static int frozenTimer[ 4 ] = { 0, 0, 0, 0 };
 
 #define KEY_PWR_PRESS (0x01)
 #define KEY_SUB_PRESS (0x02)
@@ -316,6 +316,10 @@ void handleRunning(void)
             goto gotoClash;
             break;
         }
+        case EventId_t::Stab: {
+            goto gotoStab;
+            break;
+        }
         default: {
             autoFlag = false;
         }
@@ -405,6 +409,11 @@ void handleRunning(void)
         } else if (handTrigger.unio.isSwing && askTrigger(0)) {
         gotoSwing:
             (void)0;
+        } else if (handTrigger.unio.isStab && askTrigger(3)) {
+        gotoStab:
+            MX_Audio_Play_Start(Audio_TriggerStab);
+            update_param(MX_Audio_getLastTriggerPos(), STAB);
+            MX_LED_startTrigger(LED_TriggerStab);
         }
     }
 
@@ -471,11 +480,11 @@ void handleRunning(void)
     }
 
     // update frozen trigger
-    for (int i = 0; i < 3; i++) {
-        if (frozenTimer[ i ] > 0)
-            frozenTimer[ i ] -= MX_LOOP_INTERVAL;
-        if (frozenTimer[ i ] < 0)
-            frozenTimer[ i ] = 0;
+    for (auto& i : frozenTimer) {
+        if (i > 0)
+            i -= MX_LED_INTERVAL;
+        if (i < 0)
+            i = 0;
     }
 }
 
@@ -535,6 +544,10 @@ bool askTrigger(uint8_t id)
             frozenTimer[ 2 ] = USR.config->TDfreeze > INT16_MAX ? INT16_MAX : USR.config->TDfreeze;
             break;
         }
+        case 3: {
+            frozenTimer[ 3 ] = USR.config->TFfreeze > INT16_MAX ? INT16_MAX : USR.config->TFfreeze;
+            break;
+        }
         }
         return true;
     }
@@ -561,9 +574,10 @@ void saveContext(void)
 HAND_TriggerId_t GET_HAND_TRIGGER()
 {
     HAND_TriggerId_t t;
-
+    float            timeNow = MX_getMsTime();
     do {
-        t = MX_HAND_GetTrigger(MX_getMsTime());
+        t = MX_HAND_GetTrigger(uint32_t(timeNow));
+        timeNow += MX_HAND_HW_getInterval();
     } while (t.hex == 0);
     return t;
 }

@@ -312,6 +312,7 @@ void iBlade::handleTrigger(const void* evt)
     case LED_TriggerC:
     case LED_TriggerD:
     case LED_Trigger_ColorSwitch:
+    case LED_TriggerStab:
         status = InTrigger;
         break;
     case LED_TriggerE:

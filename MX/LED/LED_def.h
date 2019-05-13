@@ -19,6 +19,7 @@ typedef enum _led_cmd_ {
     LED_Trigger_ColorSwitch = 0x07,
     LED_Trigger_Start       = 0x08,
     LED_Trigger_Stop        = 0x09,
+    LED_TriggerStab         = 0x0A,
 } LED_CMD_t;
 
 #if LED_SUPPORT_FOLLOW_AUDIO == 0

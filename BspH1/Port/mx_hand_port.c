@@ -87,6 +87,10 @@ void Sensor_MultiDataRD(uint8_t addr, uint16_t *pRxData, uint8_t Size);
 
 extern HAL_StatusTypeDef HAL_Sensor_Polling_IT(SPI_HandleTypeDef *hspi, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size);
 
+float MX_HAND_HW_getInterval(void)
+{
+    return (1000.0f) / (1660.f);
+}
 void MX_HAND_HW_Init(void)
 {
     osSemaphoreDef(SensorRx_Cplt_Flag);

@@ -17,14 +17,15 @@ const PARA_STATIC_t STATIC_USR = {
     .vol_poweroff       = 3000,
     .vol_chargecomplete = 4150,
     .filelimits         = {
-        .bank_max        = 99,
-        .trigger_OUT_max = 16,
-        .trigger_IN_max  = 16,
-        .trigger_B_max   = 16,
-        .trigger_C_max   = 16,
-        .trigger_D_max   = 16,
-        .trigger_E_max   = 16,
-        .trigger_HUM_max = 16,
+        .bank_max         = 99,
+        .trigger_OUT_max  = 16,
+        .trigger_IN_max   = 16,
+        .trigger_B_max    = 16,
+        .trigger_C_max    = 16,
+        .trigger_D_max    = 16,
+        .trigger_E_max    = 16,
+        .trigger_STAB_max = 16,
+        .trigger_HUM_max  = 16,
     }
 };
 
@@ -84,10 +85,14 @@ static const char name_string[][ 20 ] = {
     "SPL3",
     "SPL4",
 
-    /**< Position:46~48*/
+    /**< Position:46~50*/
     "SwingThreshold_H",
     "SwingThreshold_L",
     "SwingAdjN",
+    "TFfreeze",
+    "StabThreshold",
+    /**< Position:51*/
+    "StabWindow",
 };
 static const char name_colorswitch[][ 10 ] = {
     "MC",
@@ -386,6 +391,9 @@ static void set_config(PARA_DYNAMIC_t* pt)
     pt->config->SPL2             = 200;
     pt->config->SPL3             = 300;
     pt->config->SPL4             = 400;
+    pt->config->TFfreeze         = 200;
+    pt->config->StabThreshold    = 2000,
+    pt->config->StabWindow       = 3;
 }
 static uint8_t get_config(PARA_DYNAMIC_t* pt, FIL* file)
 {
@@ -557,6 +565,15 @@ static uint8_t get_config(PARA_DYNAMIC_t* pt, FIL* file)
         case 48:
             sscanf(spt, "%*[^=]=%hd", &(pt->config->SwingAdjN));
             break;
+        case 49:
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->TFfreeze));
+            break;
+        case 50:
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->StabThreshold));
+            break;
+        case 51:
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->StabWindow));
+            break;
         }
     }
     return 0;
@@ -673,5 +690,6 @@ uint8_t usr_update_triggerPah(int bankPos)
     UPDATE_TRIGGER(E, path, bankPos, TRIGGERPATH_WAV);
     UPDATE_TRIGGER(IN, path, bankPos, TRIGGERPATH_WAV);
     UPDATE_TRIGGER(OUT, path, bankPos, TRIGGERPATH_WAV);
+    UPDATE_TRIGGER(STAB, path, bankPos, TRIGGERPATH_WAV);
     return 0;
 }
