@@ -61,9 +61,21 @@ HAND_TriggerId_t MX_HAND_GetTrigger(uint32_t timestamp)
     float acc[ 3 ];
     float Scalar_acc = 0, Scalar_gyro = 0, Scalar_gyro_yandz = 0;
 
-    /** get acc&gyro data */
+    /* get first:
+     * swing
+     * clash
+     */
+    if (MX_HAND_isSwing(&instance, timestamp)) {
+        a.unio.isSwing = true;
+    }
+    if (MX_HAND_isClash(&instance, timestamp)) {
+        a.unio.isClash = true;
+    }
+   
+    /** try to get acc&gyro data */
     if (!MX_HAND_HW_getData(acc, gyro)) {
-        a.unio.isNoData = true;
+        if (a.hex == 0)
+            a.unio.isNoData = true;
         return a;
     }
 
@@ -80,14 +92,6 @@ HAND_TriggerId_t MX_HAND_GetTrigger(uint32_t timestamp)
     Scalar_acc        = sqrtf(Scalar_acc) - 1.0f;
     Scalar_gyro       = sqrtf(Scalar_gyro);
     Scalar_gyro_yandz = sqrtf(Scalar_gyro_yandz);
-
-    if (MX_HAND_isSwing(&instance, timestamp)) {
-        a.unio.isSwing = true;
-    }
-    if (MX_HAND_isClash(&instance, timestamp)) {
-        a.unio.isClash = true;
-    }
-
     bool statusIsSpin = instance.bActive[ HAND_ID_Spin ];
     bool isSpin       = MX_HAND_isSpin(&instance, timestamp, Scalar_gyro_yandz);
     int  circleCount  = instance.spin_now_circle;
@@ -166,6 +170,10 @@ bool MX_HAND_isStab(MX_HAND_Instance_t* p, uint32_t time, float acc[ 3 ], float 
 
 bool MX_HAND_isSwing(MX_HAND_Instance_t* p, uint32_t time)
 {
+    (void)p;
+    (void)time;
+    return MX_HAND_HW_isSwing();
+    /*
     bool isSwing = false;
 
     if (isSwing && !p->bActive[ HAND_ID_Swing ]) {
@@ -177,10 +185,15 @@ bool MX_HAND_isSwing(MX_HAND_Instance_t* p, uint32_t time)
         p->bActive[ HAND_ID_Swing ] = false;
     }
     return p->bActive[ HAND_ID_Swing ];
+    */
 }
 
 bool MX_HAND_isClash(MX_HAND_Instance_t* p, uint32_t time)
 {
+    (void)p;
+    (void)time;
+    return MX_HAND_HW_isClash();
+    /*
     bool isSwing = false;
 
     if (isSwing && !p->bActive[ HAND_ID_Clash ]) {
@@ -192,6 +205,7 @@ bool MX_HAND_isClash(MX_HAND_Instance_t* p, uint32_t time)
         p->bActive[ HAND_ID_Clash ] = false;
     }
     return p->bActive[ HAND_ID_Clash ];
+    */
 }
 
 float MX_HAND_GetScalarGyro(void)

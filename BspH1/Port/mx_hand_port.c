@@ -126,6 +126,16 @@ void MX_HAND_HW_DeInit(void)
 {
 }
 
+bool MX_HAND_HW_isSwing(void)
+{
+    return Sensor_isMove();
+}
+
+bool MX_HAND_HW_isClash(void)
+{
+    return Sensor_isClick();
+}
+
 static void Sensor_Init(void)
 {
   __HAL_SPI_ENABLE(&hspi2);
@@ -259,13 +269,13 @@ static void Sensor_Set(SensorConfig *para)
     Sensor_WR(INT_DUR2, 0x03);
   }
 
-  //swing setting
-  if(para->MT>0 && para->MT<65) {
-    Sensor_WR(WAKE_UP_THS, para->MT-1);
-  }
-  else {
-    Sensor_WR(WAKE_UP_THS, 0x3F);
-  }
+  //swing setting[disposed]
+  // if(para->MT>0 && para->MT<65) {
+  //   Sensor_WR(WAKE_UP_THS, para->MT-1);
+  // }
+  // else {
+  //   Sensor_WR(WAKE_UP_THS, 0x3F);
+  // }
 
   if(para->MD>0 && para->MD<5) {
     Sensor_WR(WAKE_UP_DUR, (para->MD-1)<<6);
