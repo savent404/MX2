@@ -190,6 +190,23 @@ void MX_MUX_Handle(void const* arg)
         memset(storageBuffer, 0, sizeof(int) * bufferSize);
 
         waitMutex(pTrack->id);
+
+        // calculate public vol
+        int vol_ans = 0;
+        for (int i = 0; i < pTrack->maxium_slot; i++) {
+            pSlot = &pTrack->slots[ i ];
+            if (pSlot->mode == SlotMode_Idle)
+                continue;
+            vol_ans += pSlot->vol;
+            if ((int)(pTrack->id) == 2) {
+                DEBUG(5, "%02d:%02d", i, pSlot->vol);
+            }
+        }
+        if (vol_ans <= 0) {
+            vol_ans = 1; // just keep div right
+        }
+        float volMulti = (float)(USR.config->Vol) / (float)(vol_ans);
+
         for (int i = 0; i < pTrack->maxium_slot; i++) {
             pSlot = &pTrack->slots[ i ];
 
@@ -200,9 +217,15 @@ void MX_MUX_Handle(void const* arg)
             int leftSize = mux_fileObj_getSize(pSlot->pObj) - mux_fileObj_tell(pSlot->pObj);
             int readedSize;
             if (leftSize >= bufferByteSize) {
-                readedSize = mux_fileObj_read(pSlot->pObj, readBuffer, bufferByteSize);
-                leftSize   = bufferByteSize - readedSize;
-                mux_convert_addToInt(readBuffer, storageBuffer, bufferSize, &f, pSlot->vol);
+                if (pSlot->vol) {
+                    readedSize = mux_fileObj_read(pSlot->pObj, readBuffer, bufferByteSize);
+                    leftSize   = bufferByteSize - readedSize;
+                    mux_convert_addToInt(readBuffer, storageBuffer, bufferSize, volMulti, &f, pSlot->vol);
+                } else {
+                    int offset = mux_fileObj_tell(pSlot->pObj) + bufferByteSize;
+                    mux_fileObj_seek(pSlot->pObj, offset);
+                    continue;
+                }
             }
 
             if (!leftSize)

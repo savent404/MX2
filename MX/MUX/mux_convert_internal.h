@@ -8,7 +8,7 @@
 #endif
 
 MX_C_API void
-mux_convert_addToInt(const void* source, int* dest, int size, float* f, int multiFactor);
+mux_convert_addToInt(const void* source, int* dest, int size, const float absolutMulti, float* f, int multiFactor);
 
 MX_C_API void
 mux_convert_mergeToBuffer(const int* source, void* dest, int size, int shiftBits);

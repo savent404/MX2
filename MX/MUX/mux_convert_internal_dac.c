@@ -1,13 +1,13 @@
 #include "mux_convert_internal.h"
 
 MX_C_API void
-mux_convert_addToInt(const void* source, int* dest, int size, float* f, int multiFactor)
+mux_convert_addToInt(const void* source, int* dest, int size, const float absolutMulti, float* f, int multiFactor)
 {
     static const float factor = 64;
     static const float div    = 2;
     static const int   top    = INT16_MAX * (1 << MX_MUX_WAV_VOL_LEVEL);
     static const int   button = INT16_MIN * (1 << MX_MUX_WAV_VOL_LEVEL);
-    float              _f     = *f;
+    float              _f     = *f * absolutMulti;
     int                buf;
     int16_t*           _s = (int16_t*)source;
     int*               _d = dest;
@@ -24,7 +24,7 @@ mux_convert_addToInt(const void* source, int* dest, int size, float* f, int mult
         }
         *_d++ = *_d + (*_s) * multiFactor * _f;
     }
-    *f = _f;
+    *f = _f / absolutMulti;
 }
 
 MX_C_API void
