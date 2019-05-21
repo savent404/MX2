@@ -219,7 +219,7 @@ void MX_MUX_Handle(void const* arg)
             if (leftSize >= bufferByteSize) {
                 readedSize = mux_fileObj_read(pSlot->pObj, readBuffer, bufferByteSize);
                 leftSize   = bufferByteSize - readedSize;
-                mux_convert_addToInt(readBuffer, storageBuffer, bufferSize, &f, pSlot->vol);
+                mux_convert_addToInt(readBuffer, storageBuffer, bufferSize, volMulti, &f, pSlot->vol);
             }
 
             if (!leftSize)
