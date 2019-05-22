@@ -50,7 +50,8 @@ protected:
     friend void stashSets(iBlade&);
 
 private:
-    inline void flip_switchColor(int mode)
+    FlameBase_t* pFlame;
+    inline void  flip_switchColor(int mode)
     {
         switch (mode) {
         case 1:
@@ -70,6 +71,30 @@ private:
         case 5: {
             // use flipColors API
         } break;
+        }
+        if (helper_getFlameMode() && pFlame) {
+            pFlame->initColor(MC, SC);
+        }
+    }
+    inline void flip_switchColor_callback(int mode)
+    {
+        switch (mode) {
+        default:
+            popColors();
+            if (helper_getFlameMode() && pFlame) {
+                pFlame->initColor(MC, SC);
+            }
+        }
+    }
+    inline int helper_getFlameMode()
+    {
+        switch (modeL1) {
+        case modeL1_t::Chaos:
+            return 1;
+        case modeL1_t::Flame:
+            return 2;
+        default:
+            return 0;
         }
     }
 

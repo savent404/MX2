@@ -85,7 +85,7 @@ const char Coyright[]={0x51, 0x7C, 0x3E, 0x90, 0xB5, 0x27, 0x65, 0x31, 0x01, 0x0
 
 extern bool Mmcsd_Present(void);
 extern void MX_Console_HW_Init(void);
-extern void MX_Console_Print(uint8_t *string, uint16_t size);
+extern void MX_Console_Print(uint8_t *string, uint16_t size, bool);
 extern void Sensor_SPI_Polling_StartCallback(void);
 
 /* USER CODE END PV */

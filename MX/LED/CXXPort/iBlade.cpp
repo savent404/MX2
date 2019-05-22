@@ -25,7 +25,7 @@ iBlade::iBlade(size_t num)
     stepL1_ready = stepL1;
     stepL2_ready = stepL2;
     stepL3_ready = stepL3;
-    pFlame       = new Flame_t(getPixelNum(), MC, SC);
+    pFlame       = FlameGen_t::generateFlame(getPixelNum(), 0, this);
     pRandomWave  = nullptr;
 }
 
@@ -81,7 +81,7 @@ void iBlade::handleLoop(void* arg)
                 flip_switchColor(flipMode);
             }
             if (stepL2.now == stepL2.total / 2) {
-                popColors();
+                flip_switchColor_callback(flipMode);
             }
         }
         break;
@@ -136,7 +136,7 @@ void iBlade::handleLoop(void* arg)
                 pushColors();
                 flip_switchColor(flipMode);
                 backGroundRender();
-                popColors();
+                flip_switchColor_callback(flipMode);
             }
         }
         // flipMode=5
@@ -253,7 +253,25 @@ void iBlade::handleTrigger(const void* evt)
         pushSets();
         applyStashSets();
         // when pop or apply, update flame color
-        pFlame->initColor(MC, SC);
+        if (pFlame && // flame is inited
+            (pFlame->getMode() == helper_getFlameMode()) // no need to change flame mode
+        ) {
+            pFlame->initColor(MC, SC, this);
+        } else if (helper_getFlameMode() == 0) {
+
+        } else {
+            // alloc a new flame ptr
+            if (pFlame) {
+                delete pFlame;
+                pFlame = nullptr;
+            }
+            // if no need flame, pFlame will get nullptr
+            pFlame = FlameGen_t::generateFlame(getPixelNum(), helper_getFlameMode(), this);
+            // then update color
+            if (pFlame) {
+                pFlame->initColor(MC, SC, this);
+            }
+        }
     }
 
     // default: step up stepProcess to handle trigger
@@ -382,11 +400,16 @@ void iBlade::backGroundRender(void)
     case modeL1_t::Rainbow:
         drawRainbow(float(stepL1) * rainbowDirection, rainbowLength);
         break;
-    case modeL1_t::Flame:
+    case modeL1_t::Chaos:
         // use this pointer to call `setColor` func
         if (stepL1.now == 0)
-            for (int i = 0; i < flameMulti; i++)
-                pFlame->update(this, flameRate);
+            for (int i = 0; i < chaosMulti; i++)
+                if (pFlame)
+                    pFlame->update(this);
+        break;
+    case modeL1_t::Flame:
+        if (pFlame)
+            pFlame->update(this);
         break;
     default:
         DEBUG(5, "Unknow modeL1:%d", modeL1);
@@ -396,7 +419,6 @@ void iBlade::backGroundRender(void)
 
 __attribute__((weak)) void iBlade::setNormalParam(void)
 {
-    /*
     pushColors();
 
     maxLight = 255;
@@ -433,8 +455,6 @@ __attribute__((weak)) void iBlade::setNormalParam(void)
         uint8_t* rgb = USR.colorMatrix.arr[ index ].arr;
         TC           = RGB(rgb[ 0 ], rgb[ 1 ], rgb[ 2 ]);
     }
-    pFlame->initColor(MC, SC);
-    */
 }
 __attribute__((weak)) void iBlade::setBackGroudParam(modeL1_t mode)
 {
@@ -465,8 +485,8 @@ __attribute__((weak)) void iBlade::setBackGroudParam(modeL1_t mode)
         stepL1           = step_t(0, MX_LED_MS2CNT(2000), step_t::infinity);
         rainbowDirection = 1;
         break;
-    case modeL1_t::Flame:
-        flameRate = 128;
+    case modeL1_t::Chaos:
+        chaosRate = 128;
         break;
     }
     */
@@ -555,7 +575,8 @@ void iBlade::clearProcess(void)
         status = Run;
         popSets();
         // when pop or apply, update flame color
-        pFlame->initColor(MC, SC);
+        if (pFlame)
+            pFlame->initColor(MC, SC, this);
     } else if (status == in) {
         status = idle;
         RGB black(0, 0, 0);

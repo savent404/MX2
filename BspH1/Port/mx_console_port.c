@@ -8,7 +8,7 @@ UART_HandleTypeDef huart3;
 
 void MX_Console_HW_Init(void);
 void MX_Console_DeInit(void);
-void MX_Console_Print(uint8_t *string, uint16_t size);
+void MX_Console_Print(uint8_t *string, uint16_t size, bool);
 
 
 void MX_Console_HW_Init(void)
@@ -91,16 +91,20 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   }
 }
 
-void MX_Console_Print(uint8_t* string, uint16_t size)
+void MX_Console_Print(uint8_t* string, uint16_t size, bool is_stderr)
 {
     int isRunning = osKernelRunning();
-    if (isRunning) {
+    if (!is_stderr && isRunning) {
         MX_ConsoleTX_WaitMutex();
     }
 
-    // TODO: Better to be DMA
-    HAL_UART_Transmit(&huart3, string, size, 1000);
-    if (isRunning) {
+    if (is_stderr)
+        HAL_UART_Transmit(&huart3, string, size, 1000);
+    else
+        // TODO: better to be DMA
+        HAL_UART_Transmit(&huart3, string, size, 1000);
+
+    if (!is_stderr && isRunning) {
         //MX_ConsoleTX_WaitSem(); // wait uitll tx cplt
         MX_ConsoleTX_FreeMutex();
     }

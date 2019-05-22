@@ -30,7 +30,8 @@ enum modeL1_t {
     ColorBreath = 5,
     Spark       = 6,
     Rainbow     = 7,
-    Flame       = 8
+    Chaos       = 8,
+    Flame       = 9,
 };
 enum modeL2_t {
     NoTrigger    = 0,
@@ -78,8 +79,14 @@ public:
         msMCSwitch        = 0;
         msSCSwitch        = 0;
         fSparkRate        = 0;
-        flameRate         = 0;
-        flameMulti        = 0;
+        chaosRate         = 0;
+        chaosMulti        = 0;
+        flameSpeed        = 0;
+        flameColdDown     = 0;
+        flameRangeL       = 0;
+        flameRangeH       = 0;
+        flameLightL       = 0;
+        flameLightH       = 0;
         rainbowLength     = 0;
         rainbowDirection  = 0;
         gradientDirection = 0;
@@ -149,13 +156,22 @@ protected:
     float DEF_BLADE_VAR(fSparkRate);
     /** @} */
     /**
-     * @name Storaged Param about BackGround:Flame
-     * @flameRate
-     * @pFlame
+     * @name Storaged Param about BackGround:Chaos
+     * @chaosRate
+     * @chaosMulti
      * @{ */
-    int      DEF_BLADE_VAR(flameRate);
-    int      DEF_BLADE_VAR(flameMulti);
-    Flame_t* pFlame;
+    int DEF_BLADE_VAR(chaosRate);
+    int DEF_BLADE_VAR(chaosMulti);
+    /** @} */
+    /** 
+     * @name Storaged Param about BackGround:Flame
+     * @{ */
+    float DEF_BLADE_VAR(flameSpeed);
+    float DEF_BLADE_VAR(flameColdDown);
+    int   DEF_BLADE_VAR(flameRangeL);
+    int   DEF_BLADE_VAR(flameRangeH);
+    int   DEF_BLADE_VAR(flameLightL);
+    int   DEF_BLADE_VAR(flameLightH);
     /** @} */
     /**
      * @name Storaged Param about BackGround:Rainbow
@@ -249,6 +265,10 @@ protected:
     step_t        DEF_BLADE_VAR(stepProcess);
 
 public:
+    friend class FlameGen_t;
+    friend class FlameBase_t;
+    friend class FlameMode1_t;
+    friend class FlameMode2_t;
     /**
      * @brief normal->backup
      */
@@ -265,8 +285,14 @@ public:
         BLADE_VAR_PUSH(msMCSwitch);
         BLADE_VAR_PUSH(msSCSwitch);
         BLADE_VAR_PUSH(fSparkRate);
-        BLADE_VAR_PUSH(flameRate);
-        BLADE_VAR_PUSH(flameMulti);
+        BLADE_VAR_PUSH(chaosRate);
+        BLADE_VAR_PUSH(chaosMulti);
+        BLADE_VAR_PUSH(flameSpeed);
+        BLADE_VAR_PUSH(flameColdDown);
+        BLADE_VAR_PUSH(flameRangeL);
+        BLADE_VAR_PUSH(flameRangeH);
+        BLADE_VAR_PUSH(flameLightL);
+        BLADE_VAR_PUSH(flameLightH);
         BLADE_VAR_PUSH(rainbowLength);
         BLADE_VAR_PUSH(rainbowDirection);
         BLADE_VAR_PUSH(gradientDirection);
@@ -318,8 +344,14 @@ public:
         BLADE_VAR_POP(msMCSwitch);
         BLADE_VAR_POP(msSCSwitch);
         BLADE_VAR_POP(fSparkRate);
-        BLADE_VAR_POP(flameRate);
-        BLADE_VAR_POP(flameMulti);
+        BLADE_VAR_POP(chaosRate);
+        BLADE_VAR_POP(chaosMulti);
+        BLADE_VAR_POP(flameSpeed);
+        BLADE_VAR_POP(flameColdDown);
+        BLADE_VAR_POP(flameRangeL);
+        BLADE_VAR_POP(flameRangeH);
+        BLADE_VAR_POP(flameLightL);
+        BLADE_VAR_POP(flameLightH);
         BLADE_VAR_POP(rainbowLength);
         BLADE_VAR_POP(rainbowDirection);
         BLADE_VAR_POP(gradientDirection);
@@ -389,8 +421,14 @@ public:
         BLADE_VAR_STASH(msMCSwitch);
         BLADE_VAR_STASH(msSCSwitch);
         BLADE_VAR_STASH(fSparkRate);
-        BLADE_VAR_STASH(flameRate);
-        BLADE_VAR_STASH(flameMulti);
+        BLADE_VAR_STASH(chaosRate);
+        BLADE_VAR_STASH(chaosMulti);
+        BLADE_VAR_STASH(flameSpeed);
+        BLADE_VAR_STASH(flameColdDown);
+        BLADE_VAR_STASH(flameRangeL);
+        BLADE_VAR_STASH(flameRangeH);
+        BLADE_VAR_STASH(flameLightL);
+        BLADE_VAR_STASH(flameLightH);
         BLADE_VAR_STASH(rainbowLength);
         BLADE_VAR_STASH(rainbowDirection);
         BLADE_VAR_STASH(gradientDirection);
@@ -442,8 +480,14 @@ public:
         BLADE_VAR_APPLY(msMCSwitch);
         BLADE_VAR_APPLY(msSCSwitch);
         BLADE_VAR_APPLY(fSparkRate);
-        BLADE_VAR_APPLY(flameRate);
-        BLADE_VAR_APPLY(flameMulti);
+        BLADE_VAR_APPLY(chaosRate);
+        BLADE_VAR_APPLY(chaosMulti);
+        BLADE_VAR_APPLY(flameSpeed);
+        BLADE_VAR_APPLY(flameColdDown);
+        BLADE_VAR_APPLY(flameRangeL);
+        BLADE_VAR_APPLY(flameRangeH);
+        BLADE_VAR_APPLY(flameLightL);
+        BLADE_VAR_APPLY(flameLightH);
         BLADE_VAR_APPLY(rainbowLength);
         BLADE_VAR_APPLY(rainbowDirection);
         BLADE_VAR_APPLY(gradientDirection);
@@ -499,8 +543,14 @@ public:
         BLADE_VAR_CLEARSTASH(msMCSwitch);
         BLADE_VAR_CLEARSTASH(msSCSwitch);
         BLADE_VAR_CLEARSTASH(fSparkRate);
-        BLADE_VAR_CLEARSTASH(flameRate);
-        BLADE_VAR_CLEARSTASH(flameMulti);
+        BLADE_VAR_CLEARSTASH(chaosRate);
+        BLADE_VAR_CLEARSTASH(chaosMulti);
+        BLADE_VAR_CLEARSTASH(flameSpeed);
+        BLADE_VAR_CLEARSTASH(flameColdDown);
+        BLADE_VAR_CLEARSTASH(flameRangeL);
+        BLADE_VAR_CLEARSTASH(flameRangeH);
+        BLADE_VAR_CLEARSTASH(flameLightL);
+        BLADE_VAR_CLEARSTASH(flameLightH);
         BLADE_VAR_CLEARSTASH(rainbowLength);
         BLADE_VAR_CLEARSTASH(rainbowDirection);
         BLADE_VAR_CLEARSTASH(gradientDirection);

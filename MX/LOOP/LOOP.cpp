@@ -347,7 +347,7 @@ void handleRunning(void)
             MX_Audio_Play_Start(Audio_ColorSwitch);
             // update_param(MX_Audio_getLastHumPos(), HUM);
             // MX_LED_applySets();
-            // MX_LED_startTrigger(LED_Trigger_ColorSwitch);
+            MX_LED_startTrigger(LED_Trigger_ColorSwitch);
         } else if (timeout >= maxTimeout) {
         gotoReady:
             DEBUG(5, "System going to ready")

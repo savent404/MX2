@@ -3,6 +3,7 @@
 #include "MX_def.h"
 #include "cmsis_os.h"
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,10 +14,11 @@
 #    include "event.h"
 #endif
 
-MX_PORT_API void  MX_Console_Print(uint8_t* string, uint16_t size);
+MX_PORT_API void  MX_Console_Print(uint8_t* string, uint16_t size, bool is_stderr);
 MX_PORT_API char* MX_Console_Gets(char* buffer, int maxiumSize);
 
 MX_C_API int  MX_Console_Printf(const char*, ...);
+MX_C_API int  MX_Console_Printf_stderr(const char*, ...);
 MX_C_API void MX_Console_Scanf(char*, ...);
 
 MX_C_API void MX_Console_Init(void);

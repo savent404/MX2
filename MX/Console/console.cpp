@@ -54,7 +54,22 @@ int MX_Console_Printf(const char* format, ...)
     res = (uint16_t)vsprintf(buffer, format, args);
     va_end(args);
 
-    MX_Console_Print((uint8_t*)buffer, res);
+    MX_Console_Print((uint8_t*)buffer, res, false);
+
+    return res;
+}
+
+int MX_Console_Printf_stderr(const char* format, ...)
+{
+    static char buffer[ 128 ] = { 0 };
+    uint16_t    res;
+    va_list     args;
+
+    va_start(args, format);
+    res = (uint16_t)vsprintf(buffer, format, args);
+    va_end(args);
+
+    MX_Console_Print((uint8_t*)buffer, res, true);
 
     return res;
 }
@@ -159,8 +174,8 @@ MX_C_API BaseType_t CLI_CpuUsage_c(char*       pcWriteBuffer,
 
     CLI_CpuUsage(pcWriteBuffer, xWriteBufferLen, nullptr);
 
-    int length = strlen(pcWriteBuffer) - 2;
-    pcWriteBuffer[length] = '\0';
+    int length              = strlen(pcWriteBuffer) - 2;
+    pcWriteBuffer[ length ] = '\0';
 
     sprintf(buffer, "\tleftCnt:%d\r\n", cnt);
 

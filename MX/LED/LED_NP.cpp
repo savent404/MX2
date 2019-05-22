@@ -4,6 +4,7 @@
 #include "iBlade_ulti.hpp"
 #include "triggerSets.h"
 
+#define DEFAULT(var, defaultVal) ((var) == -1 ? (defaultVal) : (var))
 static iBlade* blade = nullptr;
 
 bool LED_NP_Init(void* arg)
@@ -169,17 +170,55 @@ void updateBG(iBlade& a, int16_t* p)
         break;
     }
     case 8: {
-        a.BLADE_VAR_READY(modeL1)    = modeL1_t::Flame;
-        int16_t tmp                  = triggerSets_getBG(t, "FLAMERATE");
-        a.BLADE_VAR_READY(flameRate) = tmp == -1 ? 0 : tmp;
+        a.BLADE_VAR_READY(modeL1)    = modeL1_t::Chaos;
+        int16_t tmp                  = triggerSets_getBG(t, "CHAOSRATE");
+        a.BLADE_VAR_READY(chaosRate) = tmp == -1 ? 0 : tmp;
 
-        tmp                       = triggerSets_getBG(t, "FLAMEFREQ");
+        tmp                       = triggerSets_getBG(t, "CHAOSFREQ");
         tmp                       = tmp == -1 ? 1 : tmp;
         a.BLADE_VAR_READY(stepL1) = step_t(0, tmp, step_t::infinity);
 
-        tmp                           = triggerSets_getBG(t, "FLAMEMULTI");
+        tmp                           = triggerSets_getBG(t, "CHAOSMULTI");
         tmp                           = tmp == -1 ? 1 : tmp;
-        a.BLADE_VAR_READY(flameMulti) = tmp;
+        a.BLADE_VAR_READY(chaosMulti) = tmp;
+        break;
+    }
+    case 9: {
+        int tmp;
+        a.BLADE_VAR_READY(modeL1) = modeL1_t::Flame;
+        a.BLADE_VAR_READY(stepL1) = step_t(0, 1, step_t::infinity);
+
+        tmp                           = triggerSets_getBG(t, "FLAME_SPEED");
+        a.BLADE_VAR_READY(flameSpeed) = float(DEFAULT(tmp, 50)) * MX_LED_INTERVAL / 1000.0f;
+
+        tmp                              = triggerSets_getBG(t, "FLAME_COLDDOWN");
+        a.BLADE_VAR_READY(flameColdDown) = float(DEFAULT(tmp, 50)) * 0.01f * a.BLADE_VAR_READY(flameSpeed);
+
+        tmp                            = triggerSets_getBG(t, "FLAME_AVG_LENGTH");
+        tmp                            = DEFAULT(tmp, a.getPixelNum() / 3);
+        a.BLADE_VAR_READY(flameRangeH) = tmp;
+
+        tmp = triggerSets_getBG(t, "FLAME_RANGE_LENGTH");
+        tmp = DEFAULT(tmp, a.BLADE_VAR_READY(flameRangeH) / 2) / 2;
+        a.BLADE_VAR_READY(flameRangeH) += tmp;
+        a.BLADE_VAR_READY(flameRangeL) -= tmp;
+
+        tmp                            = triggerSets_getBG(t, "FLAME_AVG_LIGHT");
+        tmp                            = DEFAULT(tmp, 128);
+        a.BLADE_VAR_READY(flameLightH) = tmp;
+
+        tmp = triggerSets_getBG(t, "FLAME_RANGE_LIGHT");
+        tmp = DEFAULT(tmp, a.BLADE_VAR_READY(flameLightH) * 2) / 2;
+        a.BLADE_VAR_READY(flameLightH) += tmp;
+        a.BLADE_VAR_READY(flameLightL) -= tmp;
+
+        // range check
+        if (a.BLADE_VAR_READY(flameRangeL) < 0)
+            a.BLADE_VAR_READY(flameRangeL) = 0;
+        if (a.BLADE_VAR_READY(flameLightH) > 255)
+            a.BLADE_VAR_READY(flameLightH) = 255;
+        if (a.BLADE_VAR_READY(flameLightL) < 0)
+            a.BLADE_VAR_READY(flameLightL) = 0;
         break;
     }
     }

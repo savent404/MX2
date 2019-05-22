@@ -11,7 +11,7 @@
             if (level <= 3) {                                             \
                 DEBUG_BKPT();                                             \
             }                                                             \
-            MX_Console_Printf("[%02d]: " format "\tFile:%s\tLine:%d\r\n", \
+            MX_Console_Printf_stderr("[%02d]: " format "\tFile:%s\tLine:%d\r\n", \
                               level, ##__VA_ARGS__, __FILE__, __LINE__);  \
         } while (0);
 

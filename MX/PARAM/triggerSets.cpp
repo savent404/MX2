@@ -18,12 +18,18 @@ static const char BG[][ MAX_STR_LEN ] = {
     "RAINBOWLENGTH",
     "RAINBOWDIRECTION",
     "RAINBOWSPEED",
-    "FLAMERATE",
-    "FLAMEFREQ",
-    "FLAMEMULTI",
+    "CHAOSRATE",
+    "CHAOSFREQ",
+    "CHAOSMULTI",
     "NP_GLength",
     "NP_Gspeed",
     "NP_Gdirection",
+    "FLAME_COLDDOWN",
+    "FLAME_SPEED",
+    "FLAME_AVG_LENGTH",
+    "FLAME_RANGE_LENGTH",
+    "FLAME_AVG_LIGHT",
+    "FLAME_RANGE_LIGHT",
 };
 
 static const char TG[][ MAX_STR_LEN ] = {
