@@ -226,9 +226,7 @@ void handleReady(void)
         else {
         gotoOut:
             DEBUG(5, "System going to running");
-            usr_switch_bank(USR.bank_now);
             USR.sys_status = System_Running;
-            MX_LED_bankUpdate(&USR, true);
             MX_Audio_Play_Start(Audio_intoRunning);
             update_param(MX_Audio_getLastHumPos(), HUM);
             MX_LED_applySets();
@@ -345,8 +343,6 @@ void handleRunning(void)
 
             MX_LED_bankUpdate(&USR, false);
             MX_Audio_Play_Start(Audio_ColorSwitch);
-            // update_param(MX_Audio_getLastHumPos(), HUM);
-            // MX_LED_applySets();
             MX_LED_startTrigger(LED_Trigger_ColorSwitch);
         } else if (timeout >= maxTimeout) {
         gotoReady:
