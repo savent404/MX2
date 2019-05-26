@@ -38,8 +38,8 @@ if (MCU_FLOAT_ABI STREQUAL hard)
     set(COMMON_FLAGS "${COMMON_FLAGS} -mfpu=${MCU_FPU}")
 endif ()
 
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=gnu++14 -fno-exceptions -T${MCU_LINKER_SCRIPT}")
-set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=gnu99 -T${MCU_LINKER_SCRIPT}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -std=gnu++14 -fno-exceptions -T${MCU_LINKER_SCRIPT}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -std=gnu99 -T${MCU_LINKER_SCRIPT}")
 set(CMAKE_ASM_FLAGS "-mthumb -mcpu=${MCU_ARCH}")
 
 include_directories(${BSP_DIR}/Drivers/CMSIS/Device/ST/STM32F1xx/Include)
