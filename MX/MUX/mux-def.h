@@ -2,9 +2,9 @@
 
 /** typedef for slot *************************************/
 typedef enum {
-    SlotMode_Idle = 0,
-    SlotMode_Once = 1,
-    SlotMode_Loop = 2,
+    SlotMode_Idle        = 0,
+    SlotMode_Once        = 1,
+    SlotMode_Loop        = 2
 } MUX_Slot_Mode_t;
 
 typedef int MUX_Slot_Id_t;
@@ -17,9 +17,22 @@ typedef enum {
 
 typedef void (*MUX_Slot_Callback_t)(void);
 
+typedef struct mux_wavInfo {
+    unsigned channels;
+    unsigned samplesPreSec;
+    unsigned bitsPreSample;
+    unsigned blockAlign; // = channels * bitPreSample/8
+    unsigned dataOffset;
+    unsigned dataSize;
+} mux_wavInfo_t;
+
 #if 1
 #    include "ff.h"
-typedef FIL MUX_FileObj_t;
+typedef struct MUX_FileObj_t {
+    FIL           fileObj;
+    mux_wavInfo_t info;
+} MUX_FileObj_t;
+
 #endif
 
 typedef struct {
@@ -28,6 +41,9 @@ typedef struct {
     MUX_Slot_Id_t       id;
     MUX_Slot_Callback_t callback[ SlotCallback_Max ];
     int                 vol;
+#ifdef USE_DEBUG
+    char filePath[ 64 ];
+#endif
 } MUX_Slot_t;
 
 /** typedef for track ************************************/

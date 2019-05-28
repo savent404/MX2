@@ -114,15 +114,21 @@ MX_MUX_Start(MUX_Track_Id_t tid, MUX_Slot_Mode_t mode, const char* path, int vol
         MUX_FileObj_t* pObj = pTrack->slots[ i ].pObj;
 
         waitMutex(tid);
-        if (mux_fileObj_open(pObj, path) == false)
+        if (mux_wavOps_open(pObj, path) == false)
             goto failed;
 
-        if (mux_fileObj_seek(pObj, MX_MUX_WAV_FIX_OFFSET) == false) {
-            mux_fileObj_close(pObj);
+        if (mux_wavOps_seek(pObj, 0) == false) {
+            mux_wavOps_close(pObj);
             goto failed;
         }
         pTrack->slots[ i ].mode = mode;
         pTrack->slots[ i ].vol  = vol;
+#ifdef USE_DEBUG
+        strncpy(pTrack->slots[ i ].filePath, path, sizeof(pTrack->slots[ i ].filePath));
+        DEBUG(5, "[MUX] Start audio:%s\tT:%d|S:%d", pTrack->slots[ i ].filePath,
+              pTrack->id,
+              pTrack->slots[ i ].id);
+#endif
         clearAllCallback(&pTrack->slots[ i ]);
         releaseMutex(tid);
         return i;
@@ -138,9 +144,12 @@ void MX_MUX_Stop(MUX_Track_Id_t tid, MUX_Slot_Id_t sid)
     if (tracks[ tid ].slots[ sid ].mode != SlotMode_Idle) {
         waitMutex(tid);
         tracks[ tid ].slots[ sid ].mode = SlotMode_Idle;
-        mux_fileObj_close(tracks[ tid ].slots[ sid ].pObj);
+        mux_wavOps_close(tracks[ tid ].slots[ sid ].pObj);
         tracks[ tid ].slots[ sid ].callback[ SlotCallback_Destory ] = NULL;
         tracks[ tid ].slots[ sid ].callback[ SlotCallback_Done ]    = NULL;
+#ifdef USE_DEBUG
+        tracks[ tid ].slots[ sid ].filePath[ 0 ] = '\0';
+#endif
         clearAllCallback(&tracks[ tid ].slots[ sid ]);
         releaseMutex(tid);
     }
@@ -152,7 +161,7 @@ unsigned int MX_MUX_getLastTime(MUX_Track_Id_t tid, MUX_Slot_Id_t sid)
         return 0;
     if (tracks[ tid ].slots[ sid ].mode == SlotMode_Idle)
         return 0;
-    return mux_fileObj_lastTime(tracks[ tid ].slots[ sid ].pObj);
+    return mux_wavOps_lastTime(tracks[ tid ].slots[ sid ].pObj);
 }
 void MX_MUX_RegisterCallback(MUX_Track_Id_t tid, MUX_Slot_Id_t sid, MUX_Slot_CallbackWay_t way, MUX_Slot_Callback_t func)
 {
@@ -198,14 +207,9 @@ void MX_MUX_Handle(void const* arg)
             if (pSlot->mode == SlotMode_Idle)
                 continue;
             vol_ans += pSlot->vol;
-            if ((int)(pTrack->id) == 2) {
-                DEBUG(5, "%02d:%02d", i, pSlot->vol);
-            }
         }
-        if (vol_ans <= 0) {
-            vol_ans = 1; // just keep div right
-        }
-        float volMulti = (float)(USR.config->Vol) / (float)(vol_ans);
+
+        float volMulti = vol_ans ? (float)(USR.config->Vol) / (float)(vol_ans) : 0;
 
         for (int i = 0; i < pTrack->maxium_slot; i++) {
             pSlot = &pTrack->slots[ i ];
@@ -214,27 +218,50 @@ void MX_MUX_Handle(void const* arg)
                 continue;
             /** pSlot->mode != SlotMode_Idel ***/
 
-            int leftSize = mux_fileObj_getSize(pSlot->pObj) - mux_fileObj_tell(pSlot->pObj);
-            int readedSize;
-            if (leftSize >= bufferByteSize) {
-                readedSize = mux_fileObj_read(pSlot->pObj, readBuffer, bufferByteSize);
-                leftSize   = bufferByteSize - readedSize;
-                mux_convert_addToInt(readBuffer, storageBuffer, bufferSize, volMulti, &f, pSlot->vol);
+            int readedSize = 0;
+            int* pStoraged = storageBuffer;
+            int leftSize;
+            int bytesNeeded;
+readAgain:
+            leftSize   = mux_wavOps_getSize(pSlot->pObj) - mux_wavOps_tell(pSlot->pObj);
+            bytesNeeded = bufferByteSize - readedSize;
+            if (leftSize >= bytesNeeded) {
+                readedSize += mux_wavOps_read(pSlot->pObj, readBuffer, bytesNeeded);
+            } else if (leftSize) {
+                readedSize += mux_wavOps_read(pSlot->pObj, readBuffer, leftSize);
+            } else {
+                // FILE EOF
             }
+            mux_convert_addToInt(readBuffer, pStoraged, readedSize / sizeof(muxBuffer_t), volMulti, &f, pSlot->vol);
 
-            if (!leftSize)
+            // if no read error then skip next ops
+            // if no read ops or read error, goto clear stage
+            if (readedSize >= bufferByteSize)
                 continue;
-            /** readSize < bufferByteSize ******/
+
+            // clear stage
             switch (pSlot->mode) {
             case SlotMode_Once:
-                mux_fileObj_close(pSlot->pObj);
+                mux_wavOps_close(pSlot->pObj);
                 pSlot->mode = SlotMode_Idle;
+                callCallbackFunc(pSlot->callback[ SlotCallback_Done ]);
                 callCallbackFunc(pSlot->callback[ SlotCallback_Destory ]);
                 clearAllCallback(pSlot);
+                DEBUG(5, "[MUX]: Oneshot slot done: %s\t T:%d|S:%d",
+                      pSlot->filePath,
+                      pTrack->id,
+                      pSlot->id);
                 break;
             case SlotMode_Loop:
-                mux_fileObj_seek(pSlot->pObj, MX_MUX_WAV_FIX_OFFSET);
+                mux_wavOps_seek(pSlot->pObj, 0);
                 callCallbackFunc(pSlot->callback[ SlotCallback_Done ]);
+                DEBUG(5, "[MUX]: Loop slot EOF: %s\t T:%d|S:%d",
+                      pSlot->filePath,
+                      pTrack->id,
+                      pSlot->id);
+                
+                pStoraged = storageBuffer + readedSize / sizeof(muxBuffer_t);
+                goto readAgain;
                 break;
             }
         }
