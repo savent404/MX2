@@ -14,6 +14,18 @@ static inline uint16_t readU16FromBuffer(char* arry, int offset)
 {
     return *(uint16_t*)(arry + offset);
 }
+// check if file got a useless chunk
+static inline bool matchedUnknowChunk(char* ptrChunk) {
+    const char list[][5] = {
+        "LIST",
+    };
+
+    for (int i = 0; i < sizeof(list) / sizeof(list[0]); i++) {
+        if (!strncmp(ptrChunk, list[i], 4))
+            return true;
+    }
+    return false;
+}
 
 MX_C_API bool
 mux_wavOps_open(MUX_FileObj_t* ptr, const char* filePath)
@@ -34,14 +46,35 @@ mux_wavOps_open(MUX_FileObj_t* ptr, const char* filePath)
         goto openFaild;
     if (readU16FromBuffer(chunkBuffer, 20) != 1)
         goto openFaild;
-    if (strncmp(chunkBuffer + 36, "data", 4))
-        goto openFaild;
+
     ptr->info.channels      = readU16FromBuffer(chunkBuffer, 22);
     ptr->info.samplesPreSec = readU32FromBuffer(chunkBuffer, 24);
     ptr->info.blockAlign    = readU16FromBuffer(chunkBuffer, 32);
     ptr->info.bitsPreSample = readU16FromBuffer(chunkBuffer, 34);
-    ptr->info.dataOffset    = MX_MUX_WAV_FIX_OFFSET;
-    ptr->info.dataSize      = readU32FromBuffer(chunkBuffer, 40);
+
+    int tmp = 36;
+    int offset = 36;
+    while (strncmp(chunkBuffer + tmp, "data", 4)) {
+
+        // if is a unacceptable chunk, just go faild
+        if (!matchedUnknowChunk(chunkBuffer + tmp)) {
+            goto openFaild;
+        }
+
+        // read this chunk's size, skip to the next chunk for 'data'
+        offset += readU32FromBuffer(chunkBuffer, tmp + 4) + 8;
+
+        // if error at once, tmp will be reset at all the time
+        tmp = 0;
+
+
+        if (!mux_fileObj_seek(&ptr->fileObj, offset))
+            goto openFaild;
+        if (!mux_fileObj_read(&ptr->fileObj, chunkBuffer, 8))
+            goto openFaild;
+    }
+    ptr->info.dataOffset = offset + 8;
+    ptr->info.dataSize = readU32FromBuffer(chunkBuffer, tmp + 4);
 
     MUX_OPS_DEBUG(5, "Info:");
     MUX_OPS_DEBUG(5, "\tchannels:%u", ptr->info.channels);

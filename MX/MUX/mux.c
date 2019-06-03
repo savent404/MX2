@@ -218,21 +218,18 @@ void MX_MUX_Handle(void const* arg)
                 continue;
             /** pSlot->mode != SlotMode_Idel ***/
 
-            int readedSize = 0;
+            int  readedSize = 0;
+            int  tmpReadSize;
             int* pStoraged = storageBuffer;
-            int leftSize;
-            int bytesNeeded;
-readAgain:
-            leftSize   = mux_wavOps_getSize(pSlot->pObj) - mux_wavOps_tell(pSlot->pObj);
+            int  leftSize;
+            int  bytesNeeded;
+        readAgain:
+            tmpReadSize = 0;
+            leftSize    = mux_wavOps_getSize(pSlot->pObj) - mux_wavOps_tell(pSlot->pObj);
             bytesNeeded = bufferByteSize - readedSize;
-            if (leftSize >= bytesNeeded) {
-                readedSize += mux_wavOps_read(pSlot->pObj, readBuffer, bytesNeeded);
-            } else if (leftSize) {
-                readedSize += mux_wavOps_read(pSlot->pObj, readBuffer, leftSize);
-            } else {
-                // FILE EOF
-            }
-            mux_convert_addToInt(readBuffer, pStoraged, readedSize / sizeof(muxBuffer_t), volMulti, &f, pSlot->vol);
+            tmpReadSize = mux_wavOps_read(pSlot->pObj, readBuffer, leftSize >= bytesNeeded ? bytesNeeded : leftSize);
+            readedSize += tmpReadSize;
+            mux_convert_addToInt(readBuffer, pStoraged, tmpReadSize / sizeof(muxBuffer_t), volMulti, &f, pSlot->vol);
 
             // if no read error then skip next ops
             // if no read ops or read error, goto clear stage
