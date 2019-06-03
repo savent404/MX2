@@ -425,7 +425,7 @@ static uint8_t get_config(PARA_DYNAMIC_t* pt, FIL* file)
         }
         switch (res) {
         case 0:
-            sscanf(spt, "%*[^=]=%d", &(pt->config->Vol));
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->Vol));
             break;
         case 1:
             sscanf(spt, "%*[^=]=%hd", &(pt->config->Tpon));
@@ -443,10 +443,10 @@ static uint8_t get_config(PARA_DYNAMIC_t* pt, FIL* file)
             sscanf(spt, "%*[^=]=%hd", &(pt->config->Ts_switch));
             break;
         case 6:
-            sscanf(spt, "%*[^=]=%ld", &(pt->config->Tautoin));
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->Tautoin));
             break;
         case 7:
-            sscanf(spt, "%*[^=]=%ld", &(pt->config->Tautooff));
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->Tautooff));
             break;
         case 8:
             sscanf(spt, "%*[^=]=%hd", &(pt->config->Tmute));

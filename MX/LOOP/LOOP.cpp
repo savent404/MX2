@@ -559,6 +559,13 @@ bool canBoot(void)
     else
         overtime = USR.config->Tpon;
 
+    
+    while (MX_KEY_GetStatus(KEY_PWR) == KEY_PRESS) {
+        if (osKernelSysTick() >= osKernelSysTickMicroSec(overtime)) {
+            return true;
+        }
+    }
+
     return osKernelSysTick() >= osKernelSysTickMicroSec(overtime);
 }
 
