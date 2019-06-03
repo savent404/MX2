@@ -539,22 +539,22 @@ static uint8_t get_config(PARA_DYNAMIC_t* pt, FIL* file)
       case 39: sscanf(spt,"%*[^=]=%d", &(pt->config->TCIndex));break;
       */
         case 40:
-            sscanf(spt, "%*[^=]=%d", &(pt->config->GB));
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->GB));
             break;
         case 41:
-            sscanf(spt, "%*[^=]=%d", &(pt->config->ST));
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->ST));
             break;
         case 42:
-            sscanf(spt, "%*[^=]=%d", &(pt->config->SPL1));
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->SPL1));
             break;
         case 43:
-            sscanf(spt, "%*[^=]=%d", &(pt->config->SPL2));
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->SPL2));
             break;
         case 44:
-            sscanf(spt, "%*[^=]=%d", &(pt->config->SPL3));
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->SPL3));
             break;
         case 45:
-            sscanf(spt, "%*[^=]=%d", &(pt->config->SPL4));
+            sscanf(spt, "%*[^=]=%hd", &(pt->config->SPL4));
             break;
         case 46:
             sscanf(spt, "%*[^=]=%hd", &(pt->config->SwingThreshold_H));
