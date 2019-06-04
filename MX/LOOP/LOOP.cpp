@@ -26,6 +26,7 @@ static void    handleReady(void);
 static void    handleRunning(void);
 static void    handleCharged(void);
 static void    handleCharging(void);
+static void    handleMove(void);
 // 保存现场
 static void saveContext(void);
 static bool canBoot(void);
@@ -171,6 +172,7 @@ uint8_t scanKey(void)
     }
 
     MX_WTDG_FEED();
+    handleMove();
 
     if (res == 0)
         osDelay(MX_LOOP_INTERVAL);
@@ -279,7 +281,6 @@ void handleRunning(void)
     uint16_t         timeout  = 0;
     bool             autoFlag = false;
     uint16_t         maxTimeout;
-    HAND_TriggerId_t handTrigger;
 
     if (MX_Event_Peek()) {
         EventId_t id = +EventId_t::null;
@@ -369,8 +370,9 @@ void handleRunning(void)
                 update_param(MX_Audio_getLastTriggerPos(), E);
                 MX_LED_startTrigger(LED_TriggerE);
                 if (!autoFlag)
-                    while (!(scanKey() & KEY_SUB_RELEASE))
-                        ;
+                    while (!(scanKey() & KEY_SUB_RELEASE)) {
+                        GET_HAND_TRIGGER();
+                    }
                 else {
                     EventId_t  id = +EventId_t::null;
                     EventMsg_t msg;
@@ -395,53 +397,26 @@ void handleRunning(void)
     }
 
     // move detection
+    HAND_TriggerId_t handTrigger;
     handTrigger = GET_HAND_TRIGGER();
     if (handTrigger.hex != 0) {
         if (handTrigger.unio.isClash && askTrigger(1)) {
-        gotoClash:
+gotoClash:
             MX_Audio_Play_Start(Audio_TriggerC);
             update_param(MX_Audio_getLastTriggerPos(), C);
             MX_LED_startTrigger(LED_TriggerC);
         } else if (handTrigger.unio.isSwing && askTrigger(0)) {
-        gotoSwing:
+gotoSwing:
             (void)0;
         } else if (handTrigger.unio.isStab && askTrigger(3)) {
-        gotoStab:
+gotoStab:
             MX_Audio_Play_Start(Audio_TriggerStab);
             update_param(MX_Audio_getLastTriggerPos(), STAB);
             MX_LED_startTrigger(LED_TriggerStab);
         }
     }
 
-    static float sGyro = 0;
-    float        t     = MX_HAND_GetScalarGyro();
-
-    float maxiumRange = USR.config->SwingThreshold_H - USR.config->SwingThreshold_L;
-
-    if (maxiumRange == 0)
-        maxiumRange = 1;
-    if (USR.config->SwingThreshold_L == 0)
-        USR.config->SwingThreshold_L = 1;
-
-    t     = t < 0 ? -t : t;
-    sGyro = 0.7f * sGyro + 0.29f * t;
-    if (isinf(sGyro))
-        sGyro = 0;
-    if (isnan(sGyro))
-        sGyro = 0;
-    float gyro = sGyro - USR.config->SwingThreshold_L;
-
-    if (gyro > maxiumRange) {
-        gyro = maxiumRange;
-    }
-    if (gyro >= 0) {
-        int h_vol = int(gyro * 100.0f / maxiumRange);
-        int l_vol = 100 - h_vol;
-        MX_Audio_adjMoveVol(l_vol, h_vol);
-    } else {
-        int l_vol = int(sGyro * 100.0f / USR.config->SwingThreshold_L);
-        MX_Audio_adjMoveVol(l_vol, 0);
-    }
+    handleMove();
 
     if (MX_PM_isCharging()) {
         DEBUG(5, "System going to charging")
@@ -457,10 +432,12 @@ void handleRunning(void)
     }
 
     // clear auto 'in' trigger timer if there is any trigger.
-    if (handTrigger.hex != 0 || keyRes != 0) {
+    if (handTrigger.hex != 0) {
         autoTimeout[ 0 ] = 0;
     }
-
+    if (keyRes != 0) {
+        autoTimeout[ 0 ] = 0;
+    }
     autoTimeout[ 0 ] += MX_LOOP_INTERVAL;
 
     if (autoTimeout[ 0 ] >= USR.config->Tautoin && USR.config->Tautoin) {
@@ -585,4 +562,41 @@ HAND_TriggerId_t GET_HAND_TRIGGER()
         timeNow += MX_HAND_HW_getInterval();
     } while (t.hex == 0);
     return t;
+}
+
+void handleMove(void) {
+
+    if (USR.sys_status != System_Running)
+        return;
+
+    static float sGyro = 0;
+    float        t     = MX_HAND_GetScalarGyro();
+
+    float maxiumRange = USR.config->SwingThreshold_H - USR.config->SwingThreshold_L;
+
+    if (maxiumRange == 0)
+        maxiumRange = 1;
+    if (USR.config->SwingThreshold_L == 0)
+        USR.config->SwingThreshold_L = 1;
+
+    t     = t < 0 ? -t : t;
+    sGyro = 0.7f * sGyro + 0.29f * t;
+    if (isinf(sGyro))
+        sGyro = 0;
+    if (isnan(sGyro))
+        sGyro = 0;
+    float gyro = sGyro - USR.config->SwingThreshold_L;
+
+    if (gyro > maxiumRange) {
+        gyro = maxiumRange;
+    }
+    if (gyro >= 0) {
+        int h_vol = int(gyro * 100.0f / maxiumRange);
+        int l_vol = 100 - h_vol;
+        MX_Audio_adjMoveVol(l_vol, h_vol);
+    } else {
+        int l_vol = int(sGyro * 100.0f / USR.config->SwingThreshold_L);
+        MX_Audio_adjMoveVol(l_vol, 0);
+    }
+
 }
