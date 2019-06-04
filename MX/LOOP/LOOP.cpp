@@ -237,6 +237,27 @@ void handleReady(void)
             MX_LED_startTrigger(LED_Trigger_Start);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
             autoTimeout[ 0 ] = 0;
+
+            // wait until trigger 'out' done or recived trigger 'in'
+            while (!MX_Audio_isReady()) {
+                uint8_t keyRes = scanKey();
+
+                if (keyRes & KEY_PWR_PRESS) {
+                    int timeout = USR.config->Tin;
+                    int timer   = 0;
+
+                    while ((!((keyRes = scanKey()) & KEY_PWR_RELEASE)) && // Waiting for PowerKey release
+                           (timer < timeout) && !MX_Audio_isReady()) {
+                        timer += MX_LOOP_INTERVAL;
+                    }
+
+                    if (timer >= timeout) {
+                        // trigger 'in'
+                        MX_Event_Put(EventId_t::In, 0);
+                        break;
+                    }
+                }
+            }
         }
     } else if (keyRes & KEY_SUB_PRESS) {
         maxTimeout = USR.config->Ts_switch;
