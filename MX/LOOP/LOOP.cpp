@@ -97,16 +97,22 @@ void MX_LOOP_Handle(void const* arg)
 
     MX_LED_bankUpdate(&USR, true);
 
-#if 0
     if (MX_PM_needWarning())
     {
         uint8_t buf = USR.mute_flag;
         USR.mute_flag = 0;
         MX_Audio_Play_Start(Audio_LowPower);
+        while (MX_Audio_getTriggerLastTime()) {          
+            osDelay(100);
+        }
+        osDelay(100);
         MX_Audio_Play_Start(Audio_LowPower);
+        while (MX_Audio_getTriggerLastTime()) {
+            osDelay(100);
+        }
+        osDelay(100);
         USR.mute_flag = buf;
     }
-#endif
 
     MX_Audio_Play_Start(Audio_Boot);
 
