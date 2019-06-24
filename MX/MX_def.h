@@ -43,7 +43,7 @@
 #endif
 
 #ifndef USE_NP
-#    define USE_NP 0
+#    define USE_NP 1
 #endif
 
 #ifndef MX_LED_INTERVAL

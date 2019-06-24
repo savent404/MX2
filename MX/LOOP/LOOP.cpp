@@ -4,6 +4,7 @@
 #include "console.h"
 #include "hand.h"
 #include "triggerSets.h"
+#include "flashParam.h"
 
 static osThreadId loopThreadId;
 
@@ -26,6 +27,8 @@ static void    handleReady(void);
 static void    handleRunning(void);
 static void    handleCharged(void);
 static void    handleCharging(void);
+
+static void triggerOff(bool isMute = false);
 // 保存现场
 static void saveContext(void);
 static bool canBoot(void);
@@ -79,6 +82,23 @@ void MX_LOOP_Handle(void const* arg)
     MX_MUX_Init();
     MX_LED_Init();
     // SimpleLED_Init();
+
+    auto *staticParamLoader = MX_FlashParam::GetInstance();
+    if (!staticParamLoader->load(&USR.colorMatrix)) {
+        DEBUG(5, "load flash parameter faild, reset color index");
+        for (int i = 0; i < USR.colorMatrix.bankNum; i++) {
+            USR.colorMatrix.colorIndex[ i ] = 0;
+        }
+    }
+
+    // change bank index according to the storaged param
+    if (USR.bank_now != USR.colorMatrix.bankIndex) {
+        DEBUG(5, "System Bank switch");
+        usr_switch_bank(USR.colorMatrix.bankIndex);
+        MX_LED_bankUpdate(&USR, true);
+        SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+        // MX_Audio_Play_Start(Audio_BankSwitch);
+    }
 
     if (!canBoot()) {
         MX_PM_Shutdown();
@@ -216,11 +236,7 @@ void handleReady(void)
         // power off
         if (timeout >= maxTimeout || USR.config->Tpoff <= USR.config->Tout) {
         gotoOff:
-            DEBUG(5, "System going to close");
-            USR.sys_status = System_Close;
-            MX_Audio_Play_Start(Audio_PowerOff);
-            osDelay(3000); //3s
-            MX_PM_Shutdown();
+            triggerOff();
         }
         // trigger 'out'
         else {
@@ -264,11 +280,7 @@ void handleReady(void)
     }
     autoTimeout[ 1 ] += MX_LOOP_INTERVAL;
     if (autoTimeout[ 1 ] >= USR.config->Tautooff && USR.config->Tautooff) {
-        DEBUG(5, "System going to close");
-        USR.sys_status = System_Close;
-        MX_Audio_Play_Start(Audio_PowerOff);
-        osDelay(3000); //3s
-        MX_PM_Shutdown();
+        triggerOff();
     }
 
     // handle data but never trigger actions
@@ -492,11 +504,7 @@ void handleCharged(void)
 {
     // plug-out, just shutdown
     if (MX_PM_isCharging() == false) {
-        DEBUG(5, "System shutdown");
-        USR.sys_status = System_Close;
-        MX_Audio_Play_Start(Audio_PowerOff);
-        osDelay(3000); // 3s
-        MX_PM_Shutdown();
+        triggerOff();
     }
 }
 
@@ -514,11 +522,7 @@ void handleCharging(void)
     }
     // plug-out, just shutdown
     if (MX_PM_isCharging() == false) {
-        DEBUG(5, "System shutdown");
-        USR.sys_status = System_Close;
-        MX_Audio_Play_Start(Audio_PowerOff);
-        osDelay(3000); // 3s
-        MX_PM_Shutdown();
+        triggerOff();
     }
 }
 
@@ -569,6 +573,7 @@ bool canBoot(void)
 void saveContext(void)
 {
     USR.colorMatrix.colorIndex[ USR.bank_now ] = USR.np_colorIndex;
+    USR.colorMatrix.bankIndex = USR.bank_now;
 }
 
 HAND_TriggerId_t GET_HAND_TRIGGER()
@@ -580,4 +585,18 @@ HAND_TriggerId_t GET_HAND_TRIGGER()
         timeNow += MX_HAND_HW_getInterval();
     } while (t.hex == 0);
     return t;
+}
+
+static void triggerOff(bool isMute) {
+    DEBUG(5, "System going to close");
+    auto* staticParamSaver = MX_FlashParam::GetInstance();
+    if (!staticParamSaver->save(&USR.colorMatrix)) {
+        DEBUG(5, "Faild to save static parameter");
+    }
+    USR.sys_status = System_Close;
+    if (!isMute) {
+        MX_Audio_Play_Start(Audio_PowerOff);
+        osDelay(3000);
+        MX_PM_Shutdown();
+    }
 }

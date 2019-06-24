@@ -20,12 +20,12 @@ void Mmcsd_CS(bool status)
 
 bool Mmcsd_Present(void)
 {
-  if(GPIO_PIN_RESET==HAL_GPIO_ReadPin(SD_DETn_GPIO_Port, SD_DETn_Pin)) {
+  //if(GPIO_PIN_RESET==HAL_GPIO_ReadPin(SD_DETn_GPIO_Port, SD_DETn_Pin)) {
     return true;
-  }
-  else {
-    return false;
-  }
+  //}
+  //else {
+  //  return false;
+  //}
 }
 
 void Mmcsd_SlowClock_Switch(bool status)

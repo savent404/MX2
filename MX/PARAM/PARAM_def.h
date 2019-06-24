@@ -28,6 +28,7 @@ typedef union {
 
 typedef struct {
     int         num; // color索引数量
+    int         bankIndex; // Bank Index
     RGBColor_t* arr; // color数组
 
     int  bankNum; // 记录的Bank数量

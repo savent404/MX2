@@ -57,29 +57,17 @@
 #define ADC_CONVET_STEP     (25)
 
 //date format:
-//BYTE[0] Valid Code, when power on, erase to 0xFF; when power off, write to 0x5A
-//when power up with 0x5A, mean the configuration is valid
-//BYTE[1] Bank Number
-//BYTE[2] Current Bank
-//BYTE[3] NULL
-//BYTE[4-7] Bank1 Color
-//BYTE[8-11] Bank2 Color
-//......
-#define CFG_STORAGE_BASEADDR    (0x0807F000)
-#define CFG_STORAGE_VALIDADDR   CFG_STORAGE_BASEADDR
-#define CFG_STORAGE_TOTALBANK   (0x0807F001)
-#define CFG_STORAGE_CURRENTBANK (0x0807F002)
-#define CFG_STORAGE_BCBASE      (0x0807F004)
+//BYTE[0-1] Valid Code. 0x5AA5 means configuration ready. 0x0000 means erase is required.
+//when power up with 0x5AA5, mean the configuration is valid
+//BTYE[2-3] CRC16
 
-#define CFG_STORAGE_VALIDCODE   (0x5A)
+#define CFG_STORAGE_BASEADDR (0x0807F000)
+#define CFG_STORAGE_VALIDOFFSET (0x00000000)
+#define CFG_STORAGE_VALIDCODE (0x5AA5)
+#define CFG_STORAGE_SECTORSIZE (0x800)
+#define CFG_STORAGE_SECTORNUM (2)
 
-//use to storage the color table
-//date format
-//uint16 uint16 uint16 uint16 uint16 uint16 uint16 uint16
-//R      G      B      L      L1     L2     L3     L4
-#define COLOR_TABLE_ADDR        (0x0807F800)
-
-#define FORCE_PWROFF_TIMEOUT    (10000)
+#define FORCE_PWROFF_TIMEOUT (10000)
 
 #define ENABLECONSOLE (0)
 
