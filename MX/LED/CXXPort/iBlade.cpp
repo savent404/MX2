@@ -421,8 +421,8 @@ __attribute__((weak)) void iBlade::setNormalParam(void)
 {
     pushColors();
 
-    maxLight = 255;
-    minLight = 0;
+    //maxLight = 255;
+    //minLight = 0;
     // get MC color
     int index = USR.np_colorIndex * 3;
     if (MX_ColorMatrix_isOutOfRange(&USR.colorMatrix, index)) {
