@@ -1,38 +1,26 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(MX2 C ASM)
+project(MX2 C CXX ASM)
 
 enable_language(ASM)
 
-include_directories(${DIR}/Drivers/CMSIS/Device/ST/STM32F1xx/Include)
-include_directories(${DIR}/Drivers/CMSIS/Include)
-include_directories(${DIR}/Drivers/STM32F1xx_HAL_Driver/Inc)
-include_directories(${DIR}/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy)
-include_directories(${DIR}/Inc)
-include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/include/)
-include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/)
-include_directories(${DIR}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS)
-include_directories(${DIR}/Middlewares/Third_Party/FatFs/src/drivers/)
-include_directories(${DIR}/Middlewares/Third_Party/FatFs/src/)
+option (BSPH1 "use H1 bsp instead of default BSP" off)
 
-file(GLOB_RECURSE OS_SOURCE     ${DIR}/Middlewares/Third_Party/FreeRTOS/Source/*.c)
-file(GLOB_RECURSE FAT_SOURCE    ${DIR}/Middlewares/Third_Party/FatFs/*.c)
-file(GLOB_RECURSE DR_SOURCE     ${DIR}/Drivers/CMSIS/*.c ${DIR}/Drivers/STM32F1xx_HAL_Driver/*.c)
-file(GLOB_RECURSE USR_SOURCE    ${DIR}/Src/*.c)
-file(GLOB_RECURSE ASM_SOURCE    ${DIR}/*.s)
+# build MXCore static library
+include(MX/CMakeLists.txt)
 
-#message(STATUS ${OS_SOURCE})
-#message(STATUS ${FAT_SOURCE})
-#message(STATUS ${DR_SOURCE})
-#message(STATUS ${USR_SOURCE})
+if (BSPH1)
+include(BspH1/CMakeLists.txt)
+else(BSPH1)
+# build BSP static library
+include(defaultBSP/CMakeLists.txt)
+endif(BSPH1)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -ggdb -DUSE_DEBUG")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -g3 -ggdb -DUSE_DEBUG")
 
 set(ELF MX2.elf)
-add_library(FreeRTOS ${OS_SOURCE})
-add_library(FatFs    ${FAT_SOURCE})
-add_library(HAL_Driv ${DR_SOURCE})
-add_executable(${ELF} ${USR_SOURCE} ${ASM_SOURCE})
-set_target_properties(${ELF} PROPERTIES LINKER_LANGUAGE C)
-target_link_libraries(${ELF} FreeRTOS)
-target_link_libraries(${ELF} FatFs)
-target_link_libraries(${ELF} HAL_Driv)
-
+add_executable(${ELF} ${USR_SOURCE} ${ASM_SOURCE} ${FAT_SOURCE})
+target_link_libraries(${ELF} BSP)
+set_target_properties(${ELF} PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(${ELF} MXCore)

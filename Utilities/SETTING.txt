@@ -35,6 +35,10 @@ CT=30
 CL=30
 CW=0
 
+MC=1 //index=1
+SC=2 //index=2
+TC=3 //index=3
+
 BANK1=1023,1023,0,0  /主灯色彩配置
 FBank1=1023,0,1023,0 /Foc色彩配置
 
