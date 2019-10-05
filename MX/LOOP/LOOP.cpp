@@ -626,6 +626,7 @@ static void triggerOff(bool isMute) {
 }
 
 
+void handleMove(void) {
     if (USR.sys_status != System_Running)
         return;
 
@@ -660,5 +661,3 @@ static void triggerOff(bool isMute) {
     }
 
 }
-
-void handleMove(void) {
