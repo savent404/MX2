@@ -220,6 +220,8 @@ protected:
      *                  - 3: MC->FC & SC->FC
      *                  - 4: MC->SC & SC->MC
      *                  - 5: MC=~MC
+     * @param flipLimitH used in Partial Flip, limit the start location
+     * @param flipLimitL used in Partial Flip, limit the stop location
      ** @{*/
     int   DEF_BLADE_VAR(flipMode);
     int   DEF_BLADE_VAR(flipTime);
@@ -227,6 +229,8 @@ protected:
     float DEF_BLADE_VAR(flipLength);
     bool  DEF_BLADE_VAR(flipNeedFresh);
     float DEF_BLADE_VAR(driftShift);
+    int   DEF_BLADE_VAR(flipLimitH);
+    int   DEF_BLADE_VAR(flipLimitL);
     /** @} */
 
     /**
@@ -326,6 +330,8 @@ public:
         BLADE_VAR_PUSH(stepL2);
         BLADE_VAR_PUSH(stepL3);
         BLADE_VAR_PUSH(stepProcess);
+        BLADE_VAR_PUSH(flipLimitH);
+        BLADE_VAR_PUSH(flipLimitL);
     }
     /**
      * @brief backup->normal
@@ -403,6 +409,8 @@ public:
         BLADE_VAR_POP(modeL2);
         BLADE_VAR_POP(modeL3);
         BLADE_VAR_POP(stepProcess);
+        BLADE_VAR_POP(flipLimitH);
+        BLADE_VAR_POP(flipLimitL);
     }
     /**
      * @brief normal->ready
@@ -462,6 +470,8 @@ public:
         BLADE_VAR_STASH(stepL2);
         BLADE_VAR_STASH(stepL3);
         BLADE_VAR_STASH(stepProcess);
+        BLADE_VAR_STASH(flipLimitH);
+        BLADE_VAR_STASH(flipLimitL);
     }
     /**
      * @brief ready->normal, then backup->ready
@@ -523,6 +533,8 @@ public:
         BLADE_VAR_APPLY(modeL2);
         BLADE_VAR_APPLY(modeL3);
         BLADE_VAR_APPLY(stepProcess);
+        BLADE_VAR_APPLY(flipLimitH);
+        BLADE_VAR_APPLY(flipLimitL);
 
         clearStashSets();
     }
@@ -584,6 +596,8 @@ public:
         BLADE_VAR_CLEARSTASH(stepL2);
         BLADE_VAR_CLEARSTASH(stepL3);
         BLADE_VAR_CLEARSTASH(stepProcess);
+        BLADE_VAR_CLEARSTASH(flipLimitH);
+        BLADE_VAR_CLEARSTASH(flipLimitL);
     }
 
     void pushColors(void)

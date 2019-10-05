@@ -267,7 +267,20 @@ void updateTG(iBlade& a, int16_t* p)
             tmp                           = triggerSets_getTG(t, "NP_FlipLenth");
             tmp                           = tmp == -1 ? 0 : tmp;
             a.BLADE_VAR_READY(flipLength) = float(tmp) / a.getPixelNum();
+
+            tmp = triggerSets_getTG(t, "NP_FlipRangeL");
+            tmp = tmp == -1 ? 0 : tmp;
+            a.BLADE_VAR_READY(flipLimitL) = tmp < a.getPixelNum() ?
+                tmp : a.getPixelNum();
+            tmp = triggerSets_getTG(t, "NP_FlipRangeH");
+            tmp = tmp == -1 ? 0 : a.getPixelNum();
+            a.BLADE_VAR_READY(flipLimitH) = tmp < a.getPixelNum() ?
+                tmp : a.getPixelNum();
+        } else if (mode == 1) {
+            a.BLADE_VAR_READY(flipLimitL) = 0;
+            a.BLADE_VAR_READY(flipLimitH) = a.getPixelNum();
         }
+
         if (a.BLADE_VAR_READY(flipMode) == 5) {
             tmp                           = triggerSets_getTG(t, "NP_Cdrift");
             a.BLADE_VAR_READY(driftShift) = float(tmp);

@@ -117,16 +117,32 @@ void iBlade::handleLoop(void* arg)
         break;
     }
     case modeL2_t::Flip_Partial: {
-        static int pos = 0;
-
+        static int   pos = 0;
+        static float length_range;
+        int          startPos;
+        int          endPos;
+        int          limit_range;
         // when trigger at the begining
         if (stepL2.now == 0 && flipNeedFresh) {
-            flipNeedFresh = false;
-            pos           = rand() % getPixelNum();
-        }
-        int startPos = pos - int(flipLength * getPixelNum() * 0.5);
-        int endPos   = pos + int(flipLength * getPixelNum() * 0.5);
+            limit_range  = flipLimitH - flipLimitL + 1;
+            length_range = flipLength * getPixelNum();
 
+            if (length_range >= limit_range) {
+                pos = limit_range / 2 + flipLimitL;
+                length_range = limit_range;
+            } else {
+                pos = rand() % int(limit_range - length_range);
+                pos += length_range / 2 + flipLimitL;
+            }
+            flipNeedFresh = false;
+        }
+        startPos = pos - int(length_range * 0.5);
+        endPos   = pos + int(length_range * 0.5);
+
+        if (startPos < 0)
+            startPos = 0;
+        if (endPos >= getPixelNum())
+            endPos = getPixelNum();
         // set protected mask
         startMask() = startPos;
         endMask()   = endPos;

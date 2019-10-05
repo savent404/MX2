@@ -52,6 +52,8 @@ static const char TG[][ MAX_STR_LEN ] = {
     "NP_CometRange",
     "NP_CometSpeed",
     "NP_CometLocation",
+    "NP_FlipRangeL",
+    "NP_FlipRangeH",
 };
 
 static const char FT[][ MAX_STR_LEN ] = {
