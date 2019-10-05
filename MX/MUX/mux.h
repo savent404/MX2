@@ -5,6 +5,7 @@
 #include "mux-def.h"
 
 #include "mux_fileobj.h"
+#include "mux_wavops.h"
 
 #include "mux_convert_internal.h"
 

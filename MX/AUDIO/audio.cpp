@@ -13,6 +13,10 @@ static MUX_Slot_Id_t sid_move[ 2 ] = { -1, -1 };
 static int static_hum_pos = -1;
 static int static_trg_pos = -1;
 
+static int currentTrigPos() {
+    return 0;
+}
+
 static void getTriggerFullPath(char* out, TRIGGER_PATH_t* ptr, int* log)
 {
     *log = rand() % MX_TriggerPath_getNum(ptr);
@@ -48,6 +52,11 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
                     MX_TriggerPath_GetPairLName(USR.triggerB, static_trg_pos));
             sid_move[ 1 ] = MX_MUX_Start(TrackId_MainLoop, SlotMode_Loop, path, 0);
         }
+
+        // make sure to play 'out'
+        if (!MX_Audio_isReady()) {
+            MX_MUX_Stop(TrackId_Trigger, static_trg_pos);
+        }
     } else if (id == Audio_intoReady) {
         MX_MUX_Stop(TrackId_MainLoop, sid_hum);
         if (sid_move[ 0 ] != -1)
@@ -56,6 +65,11 @@ bool MX_Audio_Play_Start(Audio_ID_t id)
             MX_MUX_Stop(TrackId_MainLoop, sid_move[ 1 ]);
         sid_move[ 0 ] = -1;
         sid_move[ 1 ] = -1;
+
+        // make sure to play 'in'
+        if (!MX_Audio_isReady()) {
+            MX_MUX_Stop(TrackId_Trigger, currentTrigPos());
+        }
     }
 
     switch (id) {

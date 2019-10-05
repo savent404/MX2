@@ -36,7 +36,7 @@ typedef struct {
 } colorMatrix_t;
 
 typedef struct _usr_config_structure {
-    uint8_t Vol; //音量设置(0无声，1小声，2中等，3大声)
+    uint16_t Vol; //音量设置(0无声，1小声，2中等，3大声)
 
     uint16_t Tpon; //关机转待机，Main按钮延时触发值，单位ms,
     uint16_t Tpoff; //待机转关机，Main按钮延时触发值，单位ms,
@@ -51,16 +51,16 @@ typedef struct _usr_config_structure {
         //若TLcolor>TEtrigger,或TLcolor>Tin,则此参数无效
 
     uint16_t TBfreeze; //触发B重复触发间隔，单位ms
-    uint8_t  TBMode; //TriggerLMode,可复选
+    uint16_t  TBMode; //TriggerLMode,可复选
 
     uint16_t TCfreeze; //触发C重复触发间隔，单位ms
-    uint8_t  TCMode; // TriggerLMode,可复选，单次触发只随机执行一种
+    uint16_t  TCMode; // TriggerLMode,可复选，单次触发只随机执行一种
 
     uint16_t TDfreeze; //触发D重复触发间隔，单位ms
-    uint8_t  TDMode; // TriggerLMode,可复选，单次触发只随机执行一种
+    uint16_t  TDMode; // TriggerLMode,可复选，单次触发只随机执行一种
 
     uint16_t TEtrigger; //开机状态下，触发E的AUX按钮触发时长，单位ms
-    uint8_t  TEMode; // TriggerLMode,可复选
+    uint16_t  TEMode; // TriggerLMode,可复选
 
     uint16_t TFfreeze; // stab freeze
 

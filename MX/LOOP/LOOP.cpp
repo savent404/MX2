@@ -27,6 +27,7 @@ static void    handleReady(void);
 static void    handleRunning(void);
 static void    handleCharged(void);
 static void    handleCharging(void);
+static void    handleMove(void);
 
 static void triggerOff(bool isMute = false);
 // 保存现场
@@ -116,16 +117,22 @@ void MX_LOOP_Handle(void const* arg)
 
     MX_LED_bankUpdate(&USR, true);
 
-#if 0
     if (MX_PM_needWarning())
     {
         uint8_t buf = USR.mute_flag;
         USR.mute_flag = 0;
         MX_Audio_Play_Start(Audio_LowPower);
+        while (MX_Audio_getTriggerLastTime()) {          
+            osDelay(100);
+        }
+        osDelay(100);
         MX_Audio_Play_Start(Audio_LowPower);
+        while (MX_Audio_getTriggerLastTime()) {
+            osDelay(100);
+        }
+        osDelay(100);
         USR.mute_flag = buf;
     }
-#endif
 
     MX_Audio_Play_Start(Audio_Boot);
 
@@ -191,6 +198,7 @@ uint8_t scanKey(void)
     }
 
     MX_WTDG_FEED();
+    handleMove();
 
     if (res == 0)
         osDelay(MX_LOOP_INTERVAL);
@@ -242,9 +250,7 @@ void handleReady(void)
         else {
         gotoOut:
             DEBUG(5, "System going to running");
-            usr_switch_bank(USR.bank_now);
             USR.sys_status = System_Running;
-            MX_LED_bankUpdate(&USR, true);
             MX_Audio_Play_Start(Audio_intoRunning);
             update_param(MX_Audio_getLastHumPos(), HUM);
             MX_LED_applySets();
@@ -253,6 +259,27 @@ void handleReady(void)
             MX_LED_startTrigger(LED_Trigger_Start);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_ON);
             autoTimeout[ 0 ] = 0;
+
+            // wait until trigger 'out' done or recived trigger 'in'
+            while (!MX_Audio_isReady()) {
+                uint8_t keyRes = scanKey();
+
+                if (keyRes & KEY_PWR_PRESS) {
+                    int timeout = USR.config->Tin;
+                    int timer   = 0;
+
+                    while ((!((keyRes = scanKey()) & KEY_PWR_RELEASE)) && // Waiting for PowerKey release
+                           (timer < timeout) && !MX_Audio_isReady()) {
+                        timer += MX_LOOP_INTERVAL;
+                    }
+
+                    if (timer >= timeout) {
+                        // trigger 'in'
+                        MX_Event_Put(EventId_t::In, 0);
+                        break;
+                    }
+                }
+            }
         }
     } else if (keyRes & KEY_SUB_PRESS) {
         maxTimeout = USR.config->Ts_switch;
@@ -308,7 +335,6 @@ void handleRunning(void)
     uint16_t         timeout  = 0;
     bool             autoFlag = false;
     uint16_t         maxTimeout;
-    HAND_TriggerId_t handTrigger;
 
     if (MX_Event_Peek()) {
         EventId_t id = +EventId_t::null;
@@ -372,8 +398,6 @@ void handleRunning(void)
 
             MX_LED_bankUpdate(&USR, false);
             MX_Audio_Play_Start(Audio_ColorSwitch);
-            // update_param(MX_Audio_getLastHumPos(), HUM);
-            // MX_LED_applySets();
             MX_LED_startTrigger(LED_Trigger_ColorSwitch);
         } else if (timeout >= maxTimeout) {
         gotoReady:
@@ -400,8 +424,9 @@ void handleRunning(void)
                 update_param(MX_Audio_getLastTriggerPos(), E);
                 MX_LED_startTrigger(LED_TriggerE);
                 if (!autoFlag)
-                    while (!(scanKey() & KEY_SUB_RELEASE))
-                        ;
+                    while (!(scanKey() & KEY_SUB_RELEASE)) {
+                        GET_HAND_TRIGGER();
+                    }
                 else {
                     EventId_t  id = +EventId_t::null;
                     EventMsg_t msg;
@@ -426,53 +451,26 @@ void handleRunning(void)
     }
 
     // move detection
+    HAND_TriggerId_t handTrigger;
     handTrigger = GET_HAND_TRIGGER();
     if (handTrigger.hex != 0) {
         if (handTrigger.unio.isClash && askTrigger(1)) {
-        gotoClash:
+gotoClash:
             MX_Audio_Play_Start(Audio_TriggerC);
             update_param(MX_Audio_getLastTriggerPos(), C);
             MX_LED_startTrigger(LED_TriggerC);
         } else if (handTrigger.unio.isSwing && askTrigger(0)) {
-        gotoSwing:
+gotoSwing:
             (void)0;
         } else if (handTrigger.unio.isStab && askTrigger(3)) {
-        gotoStab:
+gotoStab:
             MX_Audio_Play_Start(Audio_TriggerStab);
             update_param(MX_Audio_getLastTriggerPos(), STAB);
             MX_LED_startTrigger(LED_TriggerStab);
         }
     }
 
-    static float sGyro = 0;
-    float        t     = MX_HAND_GetScalarGyro();
-
-    float maxiumRange = USR.config->SwingThreshold_H - USR.config->SwingThreshold_L;
-
-    if (maxiumRange == 0)
-        maxiumRange = 1;
-    if (USR.config->SwingThreshold_L == 0)
-        USR.config->SwingThreshold_L = 1;
-
-    t     = t < 0 ? -t : t;
-    sGyro = 0.7f * sGyro + 0.29f * t;
-    if (isinf(sGyro))
-        sGyro = 0;
-    if (isnan(sGyro))
-        sGyro = 0;
-    float gyro = sGyro - USR.config->SwingThreshold_L;
-
-    if (gyro > maxiumRange) {
-        gyro = maxiumRange;
-    }
-    if (gyro >= 0) {
-        int h_vol = int(gyro * 100.0f / maxiumRange);
-        int l_vol = 100 - h_vol;
-        MX_Audio_adjMoveVol(l_vol, h_vol);
-    } else {
-        int l_vol = int(sGyro * 100.0f / USR.config->SwingThreshold_L);
-        MX_Audio_adjMoveVol(l_vol, 0);
-    }
+    handleMove();
 
     if (MX_PM_isCharging()) {
         DEBUG(5, "System going to charging")
@@ -488,10 +486,12 @@ void handleRunning(void)
     }
 
     // clear auto 'in' trigger timer if there is any trigger.
-    if (handTrigger.hex != 0 || keyRes != 0) {
+    if (handTrigger.hex != 0) {
         autoTimeout[ 0 ] = 0;
     }
-
+    if (keyRes != 0) {
+        autoTimeout[ 0 ] = 0;
+    }
     autoTimeout[ 0 ] += MX_LOOP_INTERVAL;
 
     if (autoTimeout[ 0 ] >= USR.config->Tautoin && USR.config->Tautoin) {
@@ -582,7 +582,16 @@ bool canBoot(void)
     else
         overtime = USR.config->Tpon;
 
+#if USE_DEBUG
+#else
+    while (MX_KEY_GetStatus(KEY_PWR) == KEY_PRESS) {
+        if (osKernelSysTick() >= osKernelSysTickMicroSec(overtime)) {
+            return true;
+        }
+    }
     return osKernelSysTick() >= osKernelSysTickMicroSec(overtime);
+#endif
+    return true;
 }
 
 void saveContext(void)
@@ -615,3 +624,41 @@ static void triggerOff(bool isMute) {
         MX_PM_Shutdown();
     }
 }
+
+
+    if (USR.sys_status != System_Running)
+        return;
+
+    static float sGyro = 0;
+    float        t     = MX_HAND_GetScalarGyro();
+
+    float maxiumRange = USR.config->SwingThreshold_H - USR.config->SwingThreshold_L;
+
+    if (maxiumRange == 0)
+        maxiumRange = 1;
+    if (USR.config->SwingThreshold_L == 0)
+        USR.config->SwingThreshold_L = 1;
+
+    t     = t < 0 ? -t : t;
+    sGyro = 0.7f * sGyro + 0.29f * t;
+    if (isinf(sGyro))
+        sGyro = 0;
+    if (isnan(sGyro))
+        sGyro = 0;
+    float gyro = sGyro - USR.config->SwingThreshold_L;
+
+    if (gyro > maxiumRange) {
+        gyro = maxiumRange;
+    }
+    if (gyro >= 0) {
+        int h_vol = int(gyro * 100.0f / maxiumRange);
+        int l_vol = 100 - h_vol;
+        MX_Audio_adjMoveVol(l_vol, h_vol);
+    } else {
+        int l_vol = int(sGyro * 100.0f / USR.config->SwingThreshold_L);
+        MX_Audio_adjMoveVol(l_vol, 0);
+    }
+
+}
+
+void handleMove(void) {

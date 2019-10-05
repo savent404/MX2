@@ -25,7 +25,7 @@
 
 // MUX thread stack
 #ifndef MX_MUX_THREAD_STACK_SIZE
-#    define MX_MUX_THREAD_STACK_SIZE (1024)
+#    define MX_MUX_THREAD_STACK_SIZE (1024+512)
 #endif
 
 #ifndef MX_MUX_DUAL_TRACK
