@@ -267,6 +267,21 @@ void handleReady(void)
             MX_LED_bankUpdate(&USR, true);
             SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
             MX_Audio_Play_Start(Audio_BankSwitch);
+        } else {
+            static uint32_t time_stamp = 0;
+            static const uint32_t threshold =
+                osKernelSysTickMicroSec(MX_THRESHOLD_DOUBLE_CLICK_BANK_SWITCH);
+            uint32_t duration = osKernelSysTick() - time_stamp;
+            // If the interval of double click is smaller than 200ms
+            if (threshold > duration) {
+                DEBUG(5, "System Bank switch (-1)");
+                usr_switch_bank((USR.bank_now - 1) % USR.nBank);
+                MX_LED_bankUpdate(&USR, true);
+                SimpleLED_ChangeStatus(SIMPLELED_STATUS_STANDBY);
+                MX_Audio_Play_Start(Audio_BankSwitch);
+            }
+            // storage time_stamp
+            time_stamp = osKernelSysTick();
         }
     }
 

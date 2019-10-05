@@ -84,3 +84,6 @@ MX_C_API void MX_WTDG_HW_Feed(void);
 #endif
 
 #define returnLastStack(id) (uint16_t(uxTaskGetStackHighWaterMark(static_cast<TaskHandle_t>(id))))
+
+// a threshold for bank switch (double click's interval) [x ms]
+#define MX_THRESHOLD_DOUBLE_CLICK_BANK_SWITCH  (200)
